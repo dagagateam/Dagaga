@@ -1,0 +1,51 @@
+/* 한국어: 스포카 한 산스 네오 */
+@import url('//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css');
+/* 중국어/베트남어: Noto Sans */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC&family=Noto+Sans+TC&family=Noto+Sans+Vietnamese&display=swap');
+
+:root {
+    /* 다국어 통합 폰트 변수 설정 */
+    /* 한국어 글자는 스포카가 먼저 처리하고, 없는 글자(중국어/베트남어)는 Noto Sans가 처리합니다. */
+    --main-font: 'Spoqa Han Sans Neo', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans Vietnamese', sans-serif;
+    --main-orange: #F3AE5C;
+}
+
+/* 2. 전체 공통 적용 */
+* {
+    box-sizing: border-box;
+    font-family: var(--main-font);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--main-font);
+    -webkit-font-smoothing: antialiased;
+
+    /* 1. 배경 설정: 이미지 위에 투명도 레이어를 합칩니다 */
+    background: linear-gradient(0deg,
+            rgba(255, 255, 255, 0.5) 0%,
+            rgba(255, 255, 255, 0.5) 100%),
+        url('../assets/images/background.png') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+}
+
+/* 3. 언어별 세부 조정 (2번 내용) */
+/* 한국어 페이지인 경우 자간을 살짝 좁게 설정하여 가독성 향상 */
+:lang(ko) {
+    letter-spacing: 0;
+}
+
+/* 중국어나 베트남어는 기본 자간 사용 */
+:lang(zh),
+:lang(vi) {
+    letter-spacing: 0;
+}
+
+.app-container {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
