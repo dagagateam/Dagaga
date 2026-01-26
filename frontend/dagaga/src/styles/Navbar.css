@@ -1,0 +1,25 @@
+.navbar {
+  display: flex;
+  /* 기본 플렉스 유지 */
+  align-items: center;
+  background-color: white;
+  /* 흰색 배경 유지 */
+}
+
+/* 드롭다운 메뉴 스타일 */
+.custom-dropdown-menu {
+  min-width: auto !important;
+  /* 부트스트랩 최소 넓이 오버라이딩 */
+  width: auto;
+  padding: 0.5rem 0;
+}
+
+.custom-dropdown-menu .dropdown-item {
+  padding: 0.25rem 1rem;
+  font-size: 0.9rem;
+}
+
+.notification a {
+  display: flex;
+  align-items: center;
+}
