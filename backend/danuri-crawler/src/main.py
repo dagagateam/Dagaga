@@ -7,14 +7,14 @@ from src.storage import save_images, save_json_data, load_json_data
 
 # Cloud 모드일 때만 database import
 if STORAGE_MODE == 'cloud':
-    from src.database import init_db, get_existing_article_seqs, save_to_db
+    from src.database import get_existing_article_seqs, save_to_db
 
 
 def run():
     if STORAGE_MODE == 'cloud':
         # Cloud 모드: RDS에서 기존 데이터 로드
         print("Cloud 모드로 실행 중...")
-        init_db()
+        print("ℹ️  테이블은 create_tables_script.sql로 미리 생성되어야 합니다.")
         existing_seqs = get_existing_article_seqs()
         all_data = []
     else:
