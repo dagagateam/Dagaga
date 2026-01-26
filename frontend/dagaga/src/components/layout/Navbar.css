@@ -1,0 +1,45 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 20px 61px 20px 58px;
+  background-color: transparent !important;
+  font-family: var(--main-font);
+}
+
+.navbar .nav-link {
+  font-family: var(--main-font);
+  font-weight: 300;
+  /* 기본 상태 */
+  color: #333 !important;
+  letter-spacing: 0.15em;
+  transition: all 0.2s ease-in-out;
+  /* 부드러운 전환 효과 */
+}
+
+/* 마우스를 올렸을 때 (Hover) */
+.navbar .nav-link:hover {
+  color: #000 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.15em;
+}
+
+/* 드롭다운 메뉴 스타일 */
+.custom-dropdown-menu {
+  font-family: var(--main-font);
+  min-width: auto !important;
+  /* 부트스트랩 최소 넓이 오버라이딩 */
+  width: auto;
+  padding: 0.5rem 0;
+}
+
+
+.custom-dropdown-menu .dropdown-item {
+  font-family: var(--main-font);
+  padding: 0.25rem 1rem;
+  font-size: 0.9rem;
+}
+
+.notification a {
+  display: flex;
+  align-items: center;
+}

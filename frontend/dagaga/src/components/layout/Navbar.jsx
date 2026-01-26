@@ -1,8 +1,8 @@
 import { Navbar as BootstrapNavbar, Nav, Container, Dropdown } from "react-bootstrap";
-import logo from "../assets/logo.png";
-import alarm_bell from "../assets/alarm_bell.png";
-import bell from "../assets/bell.png";
-import "../styles/Navbar.css";
+import logo from "../../assets/icons/logo.png";
+import alarm_bell from "../../assets/icons/alarm_bell.png";
+import bell from "../../assets/icons/bell.png";
+import "./Navbar.css";
 
 
 const Navbar = () => {
@@ -15,7 +15,7 @@ const Navbar = () => {
         </BootstrapNavbar.Brand>
 
         {/* 중앙 메뉴 */}
-        <Nav className="position-absolute start-50 translate-middle-x d-none d-md-flex gap-4">
+        <Nav className="position-absolute start-50 translate-middle-x d-none d-md-flex" style={{ gap: "100px" }}>
           <Nav.Link href="#" className="fw-medium text-dark p-0">
             학습
           </Nav.Link>
@@ -40,7 +40,7 @@ const Navbar = () => {
         {/* 알림 */}
         <div className="ms-auto notification">
           <Nav.Link href="#" className="p-0 d-flex align-items-center">
-            <img src={bell} alt="Notification" />
+            <img src={bell} alt="Notification" style={{ height: "32px", width: "auto" }} />
           </Nav.Link>
         </div>
       </Container>
