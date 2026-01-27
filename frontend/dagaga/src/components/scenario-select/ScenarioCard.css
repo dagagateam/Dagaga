@@ -1,0 +1,136 @@
+.scenario-card {
+  border: none;
+  cursor: pointer;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    padding 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Collapsed button state */
+.scenario-card.collapsed {
+  width: 100px;
+  height: 300px;
+  border-radius: 20px;
+  background-color: #d1d5db;
+  padding: 30px 10px;
+  justify-content: flex-start;
+}
+
+.scenario-card.collapsed:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.scenario-card.collapsed .scenario-card-icon {
+  margin-bottom: 20px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.scenario-card-text {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+  letter-spacing: 8px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Expanded card state */
+.scenario-card.expanded {
+  background: linear-gradient(135deg, #e8a549 0%, #d4924a 100%);
+  border-radius: 30px;
+  padding: 40px;
+  width: 400px;
+  height: 500px;
+  color: white;
+  align-items: flex-start;
+}
+
+.scenario-card-icon {
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.scenario-card-icon img {
+  transition: all 0.3s ease;
+  filter: brightness(0) invert(1);
+}
+
+.scenario-card-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: fadeIn 0.4s ease 0.3s forwards;
+}
+
+.scenario-card-tag {
+  display: inline-block;
+  border: 2px solid white;
+  border-radius: 20px;
+  padding: 6px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  width: fit-content;
+  opacity: 0;
+  animation: fadeIn 0.4s ease 0.4s forwards;
+}
+
+.scenario-card-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  width: 100%;
+}
+
+.scenario-card-list li {
+  font-size: 15px;
+  line-height: 1.8;
+  margin-bottom: 8px;
+  opacity: 0;
+  animation: fadeIn 0.4s ease 0.5s forwards;
+}
+
+.scenario-card-arrow {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  opacity: 0;
+  animation: fadeIn 0.4s ease 0.6s forwards;
+}
+
+.scenario-card-arrow:hover {
+  transform: translateX(5px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

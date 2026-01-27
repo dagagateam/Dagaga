@@ -1,4 +1,5 @@
 import { Navbar as BootstrapNavbar, Nav, Container, Dropdown } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import logo from "../../assets/icons/logo.png";
 import alarm_bell from "../../assets/icons/alarm_bell.png";
 import bell from "../../assets/icons/bell.png";
@@ -16,7 +17,7 @@ const Navbar = () => {
 
         {/* 중앙 메뉴 */}
         <Nav className="position-absolute start-50 translate-middle-x d-none d-md-flex" style={{ gap: "100px" }}>
-          <Nav.Link href="#" className="fw-medium text-dark p-0">
+          <Nav.Link as={Link} to="/scenario-select" className="fw-medium text-dark p-0">
             학습
           </Nav.Link>
           <Dropdown as={Nav.Item}>
