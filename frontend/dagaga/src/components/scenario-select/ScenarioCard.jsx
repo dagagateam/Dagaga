@@ -1,6 +1,14 @@
+import { useNavigate } from "react-router-dom";
 import "./ScenarioCard.css";
 
 const ScenarioCard = ({ scenario, isSelected, onClick }) => {
+  const navigate = useNavigate();
+
+  const handleArrowClick = (e) => {
+    e.stopPropagation();
+    navigate(`/problem-select/${scenario.id}`);
+  };
+
   return (
     <div className={`scenario-card ${isSelected ? "expanded" : "collapsed"}`} onClick={onClick}>
       <div className="scenario-card-icon">
@@ -22,7 +30,7 @@ const ScenarioCard = ({ scenario, isSelected, onClick }) => {
             ))}
           </ul>
 
-          <button className="scenario-card-arrow">
+          <button className="scenario-card-arrow" onClick={handleArrowClick}>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
               <path d="M5 12h14M12 5l7 7-7 7"></path>
             </svg>

@@ -1,0 +1,58 @@
+.problem-card {
+  position: absolute;
+  width: 420px;
+  height: 80px;
+  background-color: #d1d5db;
+  border-radius: 15px;
+  padding: 15px 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  transform-origin: -500px center;
+  /* Rotate around left edge of container */
+  left: 100px;
+  /* Position at right edge of category panel */
+  top: 50%;
+  margin-top: -40px;
+  cursor: pointer;
+}
+
+.problem-card.active {
+  background-color: #e8a549;
+  width: 550px;
+  height: 120px;
+  padding: 20px 25px;
+  margin-top: -60px;
+}
+
+.problem-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  color: white;
+}
+
+.problem-number {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.problem-text {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+  flex: 1;
+}
+
+.problem-arrows {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  justify-content: flex-end;
+}
+
+.problem-arrows span {
+  display: flex;
+  align-items: center;
+}
