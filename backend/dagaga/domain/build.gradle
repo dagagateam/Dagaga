@@ -3,10 +3,12 @@ plugins {
 }
 
 dependencies {
-    // JPA
-    api 'org.springframework.boot:spring-boot-starter-data-jpa'
-
     api project(':common')
+
+    // JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    runtimeOnly 'org.postgresql:postgresql'
 
     // lombok
     compileOnly 'org.projectlombok:lombok'
