@@ -118,6 +118,29 @@ CREATE TABLE IF NOT EXISTS program_images (
     CONSTRAINT fk_program_images_article_seq FOREIGN KEY (article_seq) REFERENCES programs(article_seq) ON DELETE CASCADE
 );
 
+-- 10. 언어 테이블
+CREATE TABLE IF NOT EXISTS languages (
+    lang_code VARCHAR(10) PRIMARY KEY, -- 'ko', 'vi', 'zh' 등
+    lang_name VARCHAR(50) NOT NULL,    -- '한국어', '베트남어' 등
+    english_name VARCHAR(50),          -- 'Korean', 'Vietnamese' 등
+    is_active BOOLEAN DEFAULT TRUE     -- 서비스 지원 여부
+);
+
+INSERT INTO languages (lang_code, lang_name, english_name) VALUES 
+('ko', '한국어', 'Korean'),
+('vi', '베트남어', 'Vietnamese'),
+('zh', '중국어(간체)', 'Chinese (Simplified)');
+
+-- view_lang_code가 languages 테이블에 존재하는 코드만 가질 수 있도록 제한
+ALTER TABLE users 
+ADD CONSTRAINT fk_view_lang 
+FOREIGN KEY (view_lang_code) REFERENCES languages(lang_code);
+
+-- native_lang_code도 동일하게 제한
+ALTER TABLE users 
+ADD CONSTRAINT fk_native_lang 
+FOREIGN KEY (native_lang_code) REFERENCES languages(lang_code);
+
 ---
 -- 외래키 및 제약 조건 (DO 블록)
 ---
