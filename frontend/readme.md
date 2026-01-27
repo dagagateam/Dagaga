@@ -6,3 +6,32 @@
 
 ### TODO
 > Frontend 기능에 대해 자세히 설명하세요.
+
+### 구조
+> router 폴더 따로
+> layout 폴더 따로
+> hooks 폴더 따로
+> components 안에는 각 페이지에 쓸 컴포넌트들을 폴더별로 정리
+> components 폴더들 안에 css도 같이
+
+src/
+|__ router/
+|__ layout/
+  |__ Navbar/
+    |__Navbar.jsx
+    |__Navbar.css
+  |__ Footer/
+    |__Footer.jsx
+    |__Footer.css
+|__ hooks/
+|__ components/
+  |__ Home/
+    |__ Home.jsx
+    |__ Home.css
+  |__ Login/
+    |__ Login.jsx
+    |__ Login.css
+  |__ Signup/
+    |__ Signup.jsx
+    |__ Signup.css
+|__ App.jsx
