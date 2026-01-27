@@ -1,12 +1,11 @@
 package com.dagaga.domain.chat.room.repository;
 
-import com.dagaga.domain.chat.room.entity.RoomType;
 import com.dagaga.domain.chat.room.entity.ChatRoom;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.dagaga.domain.chat.room.entity.RoomType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Integer> {
-    Page<ChatRoom> findByLocationId(Integer locationId, Pageable pageable);
-    Page<ChatRoom> findByRoomType(RoomType roomType, Pageable pageable);
+    Optional<ChatRoom> findByLocationIdAndRoomType(Integer locationId, RoomType roomType);
 }
