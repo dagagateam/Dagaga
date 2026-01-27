@@ -1,7 +1,10 @@
 plugins {
     id 'java'
     id 'java-library'
-    id 'org.springframework.boot' version '4.0.2' apply false
+//    id 'org.springframework.boot' version '4.0.2' apply false
+//    id 'io.spring.dependency-management' version '1.1.7' apply false
+    // 버전을 3.4.2 (혹은 현재 SSAFY에서 사용 중인 3.x 버전)로 변경
+    id 'org.springframework.boot' version '3.4.2' apply false
     id 'io.spring.dependency-management' version '1.1.7' apply false
 }
 
@@ -17,7 +20,18 @@ subprojects {
     description = 'dagaga'
 
     apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
+
+    // 실행 가능한 JAR를 만들지 않음 (메인 클래스 체크 안 함)
+    bootJar {
+        enabled = false
+    }
+
+    // 일반 JAR 파일(라이브러리 형태)로 빌드함
+    jar {
+        enabled = true
+    }
 
     dependencyManagement {
         imports {
@@ -27,7 +41,7 @@ subprojects {
 
     java {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(17)
+            languageVersion = JavaLanguageVersion.of(21)
         }
     }
 
@@ -35,6 +49,7 @@ subprojects {
         testImplementation 'org.junit.jupiter:junit-jupiter'
         testImplementation 'org.assertj:assertj-core'
         testImplementation 'org.mockito:mockito-core'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
     }
 
     tasks.withType(Test).configureEach {
