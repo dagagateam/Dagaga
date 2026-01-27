@@ -1,0 +1,33 @@
+# 환경 변수 (중요: AWS 키, DB 비밀번호 등)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 가상 환경
+venv/
+env/
+ENV/
+.venv
+
+# 크롤링 데이터 (선택적)
+data/
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 기타
+*.log
