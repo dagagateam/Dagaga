@@ -1,0 +1,39 @@
+# --- 기본 공통 항목 ---
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+.env*
+!.env.example  # 환경 변수 예시 파일은 커밋에 포함
+
+# --- Frontend (React/Next.js/Vue 등) ---
+frontend/*/dist/
+frontend/*/build/
+frontend/*/.next/
+frontend/*/.vercel/
+
+# --- Backend (Python/Django/FastAPI 등) ---
+backend/__pycache__/
+backend/*.py[cod]
+backend/*/$py.class
+backend/*/.venv/
+backend/*/venv/
+backend/*/env/
+
+# --- AI (Python/ML 관련) ---
+ai/__pycache__/
+ai/.ipynb_checkpoints/
+ai/.venv/
+ai/*/data/           # 대용량 데이터셋 폴더 (필요시)
+ai/*/*.weights       # 모델 가중치 파일
+ai/*/*.h5
+ai/*/*.pth
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.swp
+
+# --- Infrastructure ---
+.terraform/
+*.tfstate*
