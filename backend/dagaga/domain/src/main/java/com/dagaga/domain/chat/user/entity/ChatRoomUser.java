@@ -35,4 +35,34 @@ public class ChatRoomUser {
 
     @Column(name = "last_read_at")
     private OffsetDateTime lastReadAt;
+
+    // 새로운 채팅방 참여
+    public static ChatRoomUser join(Integer roomId, Integer userId, Role role) {
+        OffsetDateTime now = OffsetDateTime.now();
+        return ChatRoomUser.builder()
+                .id(new ChatRoomUserId(roomId, userId))
+                .role(role)
+                .status(UserStatus.ACTIVE)
+                .joinedAt(now)
+                .leftAt(null)
+                .build();
+    }
+
+    // 이전에 참여했던 채팅방 재참여 (LEFT → ACTIVE)
+    public void rejoin() {
+        this.status = UserStatus.ACTIVE;
+        this.leftAt = null;
+    }
+
+    // 채팅방 나가기 (ACTIVE → LEFT)
+    public void leave() {
+        this.status = UserStatus.LEFT;
+        this.leftAt = OffsetDateTime.now();
+    }
+
+    // 메시지 읽음 업데이트
+    public void updateRead(Long lastReadMessageId) {
+        this.lastReadMessageId = lastReadMessageId;
+        this.lastReadAt = OffsetDateTime.now();
+    }
 }
