@@ -16,7 +16,7 @@ public class MessageDto {
             String translatedLang,
             String translatedText,
             @NotNull
-            Integer senderLocationId // 지역 검증용 -> JWT로 수정 필요
+            Integer senderLocationId // TODO: 지역 검증용 -> JWT로 수정 필요
     ) {}
 
     public record SendMessageResponse(
