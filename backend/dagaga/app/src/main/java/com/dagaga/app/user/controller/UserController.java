@@ -1,5 +1,6 @@
 package com.dagaga.app.user.controller;
 
+import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.service.UserService;
 import jakarta.validation.Valid;
@@ -24,8 +25,14 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Long> register(@RequestBody @Valid UserRegisterDto dto) {
-        Long userId = userService.register(dto);
+    public ResponseEntity<Integer> register(@RequestBody @Valid UserRegisterDto dto) {
+        Integer userId = userService.register(dto);
+        return ResponseEntity.ok(userId);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Integer> login(@RequestBody @Valid UserLoginDto dto) {
+        Integer userId = userService.login(dto);
         return ResponseEntity.ok(userId);
     }
 }

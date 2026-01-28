@@ -1,5 +1,6 @@
 package com.dagaga.app.user.service;
 
+import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
@@ -36,7 +37,7 @@ class UserServiceIntegrationTest {
                 .build();
 
         // when
-        Long userId = userService.register(dto);
+        Integer userId = userService.register(dto);
 
         // then
         User savedUser = userRepository.findById(userId).orElseThrow();
@@ -57,7 +58,7 @@ class UserServiceIntegrationTest {
                 .build();
 
         // when
-        Long userId = userService.register(dto);
+        Integer userId = userService.register(dto);
 
         // then
         User savedUser = userRepository.findById(userId).orElseThrow();
@@ -71,7 +72,7 @@ class UserServiceIntegrationTest {
         String email = "duplicate-app@gmail.com";
         userRepository.save(User.builder()
                 .email(email)
-                .password("any-pass")
+                .password("Password123*")
                 .nickname("nick1")
                 .viewLangCode("ko")
                 .nativeLangCode("en")
@@ -89,5 +90,53 @@ class UserServiceIntegrationTest {
         assertThatThrownBy(() -> userService.register(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("이미 이메일이 존재합니다");
+    }
+
+    @Test
+    @DisplayName("로그인 성공")
+    void login_flow_success() {
+        // given
+        String email = "login@test.com";
+        String password = "Password123*";
+        userRepository.save(User.builder()
+                .email(email)
+                .password(password)
+                .viewLangCode("ko")
+                .nativeLangCode("en")
+                .build());
+
+        UserLoginDto dto = UserLoginDto.builder()
+                .email(email)
+                .password(password)
+                .build();
+
+        // when
+        Integer userId = userService.login(dto);
+
+        // then
+        assertThat(userId).isNotNull();
+    }
+
+    @Test
+    @DisplayName("로그인 실패 - 잘못된 비밀번호")
+    void login_flow_fail_wrong_password() {
+        // given
+        String email = "login-fail@test.com";
+        userRepository.save(User.builder()
+                .email(email)
+                .password("correct-pass123")
+                .viewLangCode("ko")
+                .nativeLangCode("en")
+                .build());
+
+        UserLoginDto dto = UserLoginDto.builder()
+                .email(email)
+                .password("wrong-pass123")
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> userService.login(dto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("이메일 또는 비밀번호가 올바르지 않습니다");
     }
 }
