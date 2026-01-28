@@ -27,15 +27,21 @@ public class ChatMessage {
     @Column(name = "original_text", nullable = false, columnDefinition = "text")
     private String originalText;
 
-    @Column(name = "translated_text", nullable = false, columnDefinition = "text")
-    private String translatedText;
-
     @Column(name = "original_lang", nullable = false, length = 10)
     private String originalLang;
 
-    @Column(name = "translated_lang", nullable = false, length = 10)
-    private String translatedLang;
-
     @Column(name = "sent_at")
     private OffsetDateTime sentAt;
+
+    public static ChatMessage create(Integer roomId, Integer senderId,
+                                     String originalText,
+                                     String originalLang) {
+        return ChatMessage.builder()
+                .roomId(roomId)
+                .senderId(senderId)
+                .originalText(originalText)
+                .originalLang(originalLang)
+                .sentAt(OffsetDateTime.now())
+                .build();
+    }
 }
