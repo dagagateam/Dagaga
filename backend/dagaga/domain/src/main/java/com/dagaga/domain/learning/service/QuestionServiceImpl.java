@@ -39,4 +39,15 @@ public class QuestionServiceImpl implements QuestionService {
                 .orderIndex(entity.getOrderIndex())
                 .build();
     }
+
+    @Override
+    public String getQuestionText(String category, Integer orderIndex) {
+        log.info("Fetching question text for category: {}, orderIndex: {}", category, orderIndex);
+        
+        return questionBankRepository.findByCategoryAndOrderIndex(category, orderIndex)
+                .map(QuestionBank::getQuestionText)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("질문을 찾을 수 없습니다. (카테고리: %s, 순서: %d)", category, orderIndex)
+                ));
+    }
 }

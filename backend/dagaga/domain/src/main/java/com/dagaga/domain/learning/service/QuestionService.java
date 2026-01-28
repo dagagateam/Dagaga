@@ -12,4 +12,12 @@ public interface QuestionService {
      * @return 질문 목록
      */
     List<QuestionResponse> getQuestionsByCategory(String category);
+
+    /**
+     * 카테고리와 순서로 질문 텍스트 조회 (모국어 모드용)
+     * @param category 카테고리명
+     * @param orderIndex 질문 순서
+     * @return 질문 텍스트
+     */
+    String getQuestionText(String category, Integer orderIndex);
 }
