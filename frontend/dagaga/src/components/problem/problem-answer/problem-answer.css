@@ -48,3 +48,20 @@
 .pronunciation.completed {
   color: #888;
 }
+
+.word-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* Highlight animation during full sentence mode */
+.word.sentence-highlight {
+  color: var(--main-orange, #F3AE5C) !important;
+  transform: scale(1.05);
+  transition: all 0.3s ease;
+}
+
+.pronunciation.sentence-highlight {
+  color: #333 !important;
+}

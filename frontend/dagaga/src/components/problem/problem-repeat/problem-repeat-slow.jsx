@@ -1,7 +1,12 @@
+import turtleIcon from "../../../assets/icons/turtle.png";
 import "./problem-repeat-slow.css";
 
-const ProblemRepeatSlow = () => {
-  return <h1>느리게 반복 (Problem Repeat Slow)</h1>;
+const ProblemRepeatSlow = ({ onClick }) => {
+  return (
+    <button className="repeat-slow-button" onClick={onClick} title="천천히 듣기">
+      <img src={turtleIcon} alt="느리게" className="repeat-slow-icon" />
+    </button>
+  );
 };
 
 export default ProblemRepeatSlow;
