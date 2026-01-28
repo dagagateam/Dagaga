@@ -1,5 +1,6 @@
 package com.dagaga.domain.user.service;
 
+import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
@@ -23,7 +24,7 @@ public class UserService {
     }
 
     @Transactional
-    public Long register(UserRegisterDto dto) {
+    public Integer register(UserRegisterDto dto) {
         checkEmailDuplicate(dto.getEmail());
 
         String nickname = dto.getNickname();
@@ -46,5 +47,16 @@ public class UserService {
                 .build();
 
         return userRepository.save(user).getUserId();
+    }
+
+    public Integer login(UserLoginDto dto) {
+        User user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다"));
+
+        if (!user.getPassword().equals(dto.getPassword())) {
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다");
+        }
+
+        return user.getUserId();
     }
 }

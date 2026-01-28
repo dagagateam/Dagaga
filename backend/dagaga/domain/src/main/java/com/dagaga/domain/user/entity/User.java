@@ -18,7 +18,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long userId;
+    private Integer userId;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -36,7 +36,7 @@ public class User {
     private String nativeLangCode;
 
     @Column(name = "location_id")
-    private Long locationId;
+    private Integer locationId;
 
     @Column(name = "arrival_date")
     private LocalDate arrivalDate;
@@ -65,7 +65,7 @@ public class User {
     }
 
     @Builder
-    public User(String email, String password, String nickname, String viewLangCode, String nativeLangCode, Long locationId, LocalDate arrivalDate, String profileImage, String socialProvider) {
+    public User(String email, String password, String nickname, String viewLangCode, String nativeLangCode, Integer locationId, LocalDate arrivalDate, String profileImage, String socialProvider) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;

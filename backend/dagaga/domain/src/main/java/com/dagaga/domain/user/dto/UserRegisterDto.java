@@ -27,6 +27,6 @@ public class UserRegisterDto {
     private String nickname;
     private String viewLangCode;
     private String nativeLangCode;
-    private Long locationId;
+    private Integer locationId;
     private LocalDate arrivalDate;
 }
