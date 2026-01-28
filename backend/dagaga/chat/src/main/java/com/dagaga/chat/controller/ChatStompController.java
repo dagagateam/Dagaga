@@ -1,11 +1,10 @@
 package com.dagaga.chat.controller;
 
-import com.dagaga.chat.dto.MessageDto.SendMessageRequest;
-import com.dagaga.chat.dto.MessageDto.SendMessageResponse;
+import com.dagaga.chat.dto.MessageControllerDto.SendMessageRequest;
+import com.dagaga.chat.dto.MessageControllerDto.SendMessageResponse;
+import com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
 import com.dagaga.chat.service.ChatMessageService;
 import com.dagaga.chat.service.ChatRoomService;
-import com.dagaga.domain.chat.message.entity.ChatMessage;
-import com.dagaga.domain.chat.message.entity.MessageTranslation;
 import jakarta.validation.Valid;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -33,30 +32,10 @@ public class ChatStompController {
         // 지역 검증
         chatRoomService.getRoomAndValidateLocation(req.roomId(), req.senderLocationId());
 
-        ChatMessageService.SavedMessage result = chatMessageService.save(
-                req.roomId(),
-                req.senderId(),
-                req.originalText(),
-                req.originalLang(),
-                req.translatedLang(),
-                req.translatedText()
-        );
-
-        ChatMessage saved = result.message();
-        MessageTranslation translation = result.translation(); // 없으면 null
+        SaveMessageResult savedResult = chatMessageService.save(req.toServiceDto());
 
         // 브로드캐스트 payload
-        SendMessageResponse payload = new SendMessageResponse(
-                saved.getMessageId(),
-                saved.getRoomId(),
-                saved.getSenderId(),
-                saved.getOriginalText(),
-                saved.getOriginalLang(),
-                translation != null ? translation.getTargetLang() : null,
-                translation != null ? translation.getTranslatedText() : null,
-                saved.getSentAt().toString()
-        );
-
+        SendMessageResponse payload = SendMessageResponse.from(savedResult);
 
         messagingTemplate.convertAndSend("/sub/chat/rooms/" + req.roomId(), payload);
     }

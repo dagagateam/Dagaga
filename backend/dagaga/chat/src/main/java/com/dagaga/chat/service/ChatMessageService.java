@@ -1,5 +1,7 @@
 package com.dagaga.chat.service;
 
+import com.dagaga.chat.dto.MessageServiceDto.SaveMessageCommand;
+import com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
 import com.dagaga.domain.chat.message.entity.ChatMessage;
 import com.dagaga.domain.chat.message.entity.MessageTranslation;
 import com.dagaga.domain.chat.message.repository.ChatMessageRepository;
@@ -20,29 +22,29 @@ public class ChatMessageService {
     }
 
     @Transactional
-    public SavedMessage save(Integer roomId, Integer senderId,
-                            String originalText,
-                            String originalLang,
-                            String translatedLang,
-                            String translatedText) {
+    public SaveMessageResult save(SaveMessageCommand cmd) {
 
         // 원문 메시지 저장
-        ChatMessage msg = ChatMessage.create(roomId, senderId, originalText, originalLang);
+        ChatMessage msg = ChatMessage.create(
+                cmd.roomId(),
+                cmd.senderId(),
+                cmd.originalText(),
+                cmd.originalLang()
+        );
         ChatMessage savedMsg = chatMessageRepository.save(msg);
 
         // 번역 메시지 저장
         MessageTranslation savedTranslation = null;
 
-        String lang = translatedLang == null ? null : translatedLang.trim();
-        String text = translatedText == null ? null : translatedText.trim();
+        String lang = cmd.translatedLang() == null ? null : cmd.translatedLang().trim();
+        String text = cmd.translatedText() == null ? null : cmd.translatedText().trim();
 
         if (lang != null && !lang.isEmpty() && text != null && !text.isEmpty()) {
-            MessageTranslation t = MessageTranslation.create(savedMsg.getMessageId(), lang, text);
-            savedTranslation = messageTranslationRepository.save(t);
+            MessageTranslation mt = MessageTranslation.create(savedMsg.getMessageId(), lang, text);
+            savedTranslation = messageTranslationRepository.save(mt);
         }
 
-        return new SavedMessage(savedMsg, savedTranslation);
+        return new SaveMessageResult(savedMsg, savedTranslation);
     }
 
-    public record SavedMessage(ChatMessage message, MessageTranslation translation) {}
 }
