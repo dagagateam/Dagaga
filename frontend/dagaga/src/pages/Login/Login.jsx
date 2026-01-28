@@ -24,6 +24,7 @@ const Login = () => {
             // Mocking 응답 구조에 맞게 처리 (response.data.accessToken)
             if (response.data && response.data.accessToken) {
                 // 2. 성공 시 토큰과 사용자 정보 저장
+                // TODO: 보안 강화를 위해 HttpOnly 쿠키 방식으로 accessToken 저장 로직 변경 필요
                 localStorage.setItem('accessToken', response.data.accessToken);
                 localStorage.setItem('nickname', response.data.user.nickname);
 
