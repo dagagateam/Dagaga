@@ -7,31 +7,32 @@
 ### TODO
 > Frontend 기능에 대해 자세히 설명하세요.
 
-### 구조
-> router 폴더 따로
-> layout 폴더 따로
-> hooks 폴더 따로
-> components 안에는 각 페이지에 쓸 컴포넌트들을 폴더별로 정리
-> components 폴더들 안에 css도 같이
-
+### 프론트엔드 구조
+```
 src/
-|__ router/
-|__ layout/
-  |__ Navbar/
-    |__Navbar.jsx
-    |__Navbar.css
-  |__ Footer/
-    |__Footer.jsx
-    |__Footer.css
-|__ hooks/
-|__ components/
-  |__ Home/
-    |__ Home.jsx
-    |__ Home.css
-  |__ Login/
-    |__ Login.jsx
-    |__ Login.css
-  |__ Signup/
-    |__ Signup.jsx
-    |__ Signup.css
-|__ App.jsx
+├── api/                # API 호출을 위한 axios 인스턴스 설정
+├── router/             # 페이지 경로 및 라우팅 설정
+├── layout/             # 모든 페이지에 공통으로 적용되는 껍데기
+│   ├── Navbar/         
+│   │   ├── Navbar.jsx
+│   │   └── Navbar.css
+│   └── Footer/         
+│       ├── Footer.jsx
+│       └── Footer.css
+├── hooks/              # 커스텀 훅 (재사용 가능한 로직 모음)
+├── components/         # 각 페이지에서 사용하는 UI 컴포넌트들
+│   ├── common/         # 공통 컴포넌트
+│   │   ├── InputBar.jsx
+│   │   └── InputBar.css
+│   └── scenario/
+│       ├── Signup.jsx
+│       └── Signup.css
+├── assets/
+│   ├── characters/     # 캐릭터 이미지
+│   ├── icons/          # 아이콘 이미지 
+│   └── images/         # 기타 이미지
+├── styles/             # 전역 스타일 설정
+│   └── index.css
+├── App.jsx             # 최상위 컴포넌트 (Router 연결)
+└── main.jsx            # 프로젝트 진입점
+```
