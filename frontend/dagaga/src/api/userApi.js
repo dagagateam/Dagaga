@@ -21,7 +21,8 @@ export const loginAPI = async (email, password) => {
                         nickname: "테스트계정",
                         viewLanguage: "ko",
                         nativeLanguage: "zh",
-                        region: 1111000000
+                        region: 1111000000,
+                        regionName: "서울 종로구"
                     }
                 }
             });

@@ -27,6 +27,7 @@ const Login = () => {
                 // TODO: 보안 강화를 위해 HttpOnly 쿠키 방식으로 accessToken 저장 로직 변경 필요
                 localStorage.setItem('accessToken', response.data.accessToken);
                 localStorage.setItem('nickname', response.data.user.nickname);
+                localStorage.setItem('regionName', response.data.user.regionName);
 
                 alert(response.message || "로그인에 성공했습니다.");
 
