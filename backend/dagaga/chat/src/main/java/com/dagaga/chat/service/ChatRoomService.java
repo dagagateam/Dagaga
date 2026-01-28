@@ -33,13 +33,12 @@ public class ChatRoomService {
     }
 
     @Transactional
-    public int createCustomRoom(int creatorId, int creatorLocationId, String title, String topic, Integer maxParticipants) {
+    public int createCustomRoom(int creatorId, int creatorLocationId, String title, String topic) {
         ChatRoom room = ChatRoom.createCustomRoom(
                 creatorId,
                 creatorLocationId,
                 title,
-                topic,
-                maxParticipants
+                topic
         );
 
         ChatRoom saved = chatRoomRepository.save(room);

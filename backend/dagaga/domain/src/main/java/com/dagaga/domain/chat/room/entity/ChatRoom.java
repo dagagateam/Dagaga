@@ -52,7 +52,6 @@ public class ChatRoom {
                 .creatorId(creatorId)
                 .locationId(locationId)
                 .title(title == null || title.isBlank() ? "지역 단체 채팅방" : title)
-                .maxParticipants(9999)
                 .topic("LOCATION")
                 .roomType(RoomType.DEFAULT)
                 .createdAt(now)
@@ -60,14 +59,13 @@ public class ChatRoom {
                 .build();
     }
 
-    public static ChatRoom createCustomRoom(Integer creatorId, Integer locationId, String title, String topic, Integer maxParticipants) {
+    public static ChatRoom createCustomRoom(Integer creatorId, Integer locationId, String title, String topic) {
         OffsetDateTime now = OffsetDateTime.now();
 
         return ChatRoom.builder()
                 .creatorId(creatorId)
                 .locationId(locationId)
                 .title(title)
-                .maxParticipants(maxParticipants == null ? 10 : maxParticipants)
                 .topic(topic)
                 .roomType(RoomType.CUSTOM)
                 .createdAt(now)
