@@ -32,26 +32,30 @@ const Problem = () => {
   const [audioAnalyser, setAudioAnalyser] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   
-  // For full sentence mode: track which word is currently highlighted
+  // For full sentence mode: track which word is currently highlighted (-1 = all words)
   const [sentenceHighlightIndex, setSentenceHighlightIndex] = useState(0);
   
   // Check if we're on the full sentence step
   const isFullSentenceStep = currentStep >= words.length;
 
-  // Animate through words during full sentence step
+  // Animate through words during full sentence step, then select all
   useEffect(() => {
     if (isFullSentenceStep) {
       // Reset to first word
       setSentenceHighlightIndex(0);
       
+      let currentIndex = 0;
+      
       // Animate through words every 800ms
       const interval = setInterval(() => {
-        setSentenceHighlightIndex(prev => {
-          if (prev < words.length - 1) {
-            return prev + 1;
-          }
-          return prev; // Stay on last word
-        });
+        currentIndex++;
+        if (currentIndex < words.length) {
+          setSentenceHighlightIndex(currentIndex);
+        } else {
+          // After all words, highlight entire sentence (-1 = all)
+          setSentenceHighlightIndex(-1);
+          clearInterval(interval);
+        }
       }, 800);
       
       return () => clearInterval(interval);

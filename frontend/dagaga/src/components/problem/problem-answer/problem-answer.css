@@ -65,3 +65,16 @@
 .pronunciation.sentence-highlight {
   color: #333 !important;
 }
+
+.sentence-buttons {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+  margin-top: 15px;
+  visibility: hidden;
+}
+
+.sentence-buttons.visible {
+  visibility: visible;
+}

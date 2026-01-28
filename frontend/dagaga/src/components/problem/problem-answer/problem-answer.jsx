@@ -6,6 +6,9 @@ const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIn
   // Check if we're on the full sentence step (last step)
   const isFullSentenceStep = currentStep >= words.length;
   
+  // Check if all words should be highlighted (-1 = select all)
+  const isAllSelected = isFullSentenceStep && sentenceHighlightIndex === -1;
+  
   return (
     <div className="problem-answer-words">
       {words.map((word, index) => {
@@ -13,7 +16,8 @@ const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIn
         const isCompleted = index < currentStep;
         
         // During full sentence mode, highlight based on sentenceHighlightIndex
-        const isSentenceHighlight = isFullSentenceStep && sentenceHighlightIndex === index;
+        // If sentenceHighlightIndex is -1, highlight all words
+        const isSentenceHighlight = isFullSentenceStep && (sentenceHighlightIndex === index || isAllSelected);
         
         return (
           <div key={index} className="word-group">
@@ -36,6 +40,13 @@ const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIn
           </div>
         );
       })}
+      {/* Show repeat buttons for entire sentence during full sentence mode - visible only when all selected */}
+      {isFullSentenceStep && (
+        <div className={`sentence-buttons ${isAllSelected ? 'visible' : ''}`}>
+          <ProblemRepeat />
+          <ProblemRepeatSlow />
+        </div>
+      )}
     </div>
   );
 };
