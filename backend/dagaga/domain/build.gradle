@@ -14,9 +14,10 @@ dependencies {
     
     // SLF4J for logging
     implementation 'org.slf4j:slf4j-api'
-
+    
     // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
 
     runtimeOnly 'org.postgresql:postgresql'
 
