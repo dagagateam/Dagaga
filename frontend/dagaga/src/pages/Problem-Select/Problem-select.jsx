@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { Container } from "react-bootstrap";
 import CategoryPanel from "../../components/problem-select/CategoryPanel";
@@ -10,6 +10,7 @@ const ProblemSelect = () => {
   const { categoryId } = useParams();
   const [scrollOffset, setScrollOffset] = useState(0);
   const [selectedCardId, setSelectedCardId] = useState(null);
+  const wheelRef = useRef(null);
 
   // Find the scenario based on categoryId
   const scenario = scenarios.find(s => s.id === categoryId);
@@ -18,7 +19,7 @@ const ProblemSelect = () => {
   const problems = scenario?.problems || [];
 
   // Handle wheel scroll with limits
-  const handleWheel = (e) => {
+  const handleWheel = useCallback((e) => {
     e.preventDefault();
     const cardSpacing = 15; // degrees between cards
     const maxOffset = 0; // First card can't go past its starting position
@@ -28,7 +29,18 @@ const ProblemSelect = () => {
       const newOffset = prev + e.deltaY * 0.2;
       return Math.max(minOffset, Math.min(maxOffset, newOffset));
     });
-  };
+  }, [problems.length]);
+
+  // Attach non-passive wheel event listener to prevent default scroll
+  useEffect(() => {
+    const wheelElement = wheelRef.current;
+    if (wheelElement) {
+      wheelElement.addEventListener('wheel', handleWheel, { passive: false });
+      return () => {
+        wheelElement.removeEventListener('wheel', handleWheel);
+      };
+    }
+  }, [handleWheel]);
 
   // Handle card click
   const handleCardClick = (problemId) => {
@@ -42,7 +54,7 @@ const ProblemSelect = () => {
       <div className="problem-select-layout">
         <CategoryPanel scenario={scenario} />
 
-        <div className="problem-wheel" onWheel={handleWheel}>
+        <div className="problem-wheel" ref={wheelRef}>
           {problems.map((problem, index) => {
             // Cards spaced 15 degrees apart
             const rotation = index * 15 + scrollOffset;
