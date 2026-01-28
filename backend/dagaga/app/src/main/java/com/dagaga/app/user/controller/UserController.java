@@ -2,26 +2,29 @@ package com.dagaga.app.user.controller;
 
 import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.service.UserService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
+@Validated
 public class UserController {
 
     private final UserService userService;
 
     @PostMapping("/check-email")
-    public ResponseEntity<Void> checkEmail(@RequestParam("email") String email) {
-        userService.validateEmailFormat(email);
+    public ResponseEntity<Void> checkEmail(@RequestParam("email") @Email String email) {
         userService.checkEmailDuplicate(email);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Long> register(@RequestBody UserRegisterDto dto) {
+    public ResponseEntity<Long> register(@RequestBody @Valid UserRegisterDto dto) {
         Long userId = userService.register(dto);
         return ResponseEntity.ok(userId);
     }
