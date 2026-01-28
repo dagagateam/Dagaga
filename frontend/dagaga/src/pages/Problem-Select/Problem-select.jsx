@@ -26,7 +26,7 @@ const ProblemSelect = () => {
     const minOffset = -((problems.length - 1) * cardSpacing); // Last card limit
 
     setScrollOffset(prev => {
-      const newOffset = prev + e.deltaY * 0.2;
+      const newOffset = prev - e.deltaY * 0.2;
       return Math.max(minOffset, Math.min(maxOffset, newOffset));
     });
   }, [problems.length]);
