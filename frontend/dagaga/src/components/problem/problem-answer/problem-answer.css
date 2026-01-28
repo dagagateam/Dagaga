@@ -1,0 +1,80 @@
+.problem-answer-words {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.word-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.word {
+  font-size: 2rem;
+  font-weight: 600;
+  font-family: var(--main-font);
+  color: #999;
+  transition: color 0.3s ease;
+}
+
+.word.current {
+  color: var(--main-orange, #F3AE5C);
+}
+
+.word.completed {
+  color: #333;
+}
+
+.word.full-sentence {
+  color: #333;
+}
+
+.pronunciation {
+  font-family: var(--main-font);
+  font-size: 0.95rem;
+  color: #aaa;
+  letter-spacing: 0.2em;
+  transition: color 0.3s ease;
+}
+
+.pronunciation.current {
+  color: #333;
+}
+
+.pronunciation.completed {
+  color: #888;
+}
+
+.word-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* Highlight animation during full sentence mode */
+.word.sentence-highlight {
+  color: var(--main-orange, #F3AE5C) !important;
+  transform: scale(1.05);
+  transition: all 0.3s ease;
+}
+
+.pronunciation.sentence-highlight {
+  color: #333 !important;
+}
+
+.sentence-buttons {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+  margin-top: 15px;
+  visibility: hidden;
+}
+
+.sentence-buttons.visible {
+  visibility: visible;
+}

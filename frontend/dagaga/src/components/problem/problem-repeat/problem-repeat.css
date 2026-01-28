@@ -1,0 +1,28 @@
+.repeat-button {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 12px;
+  background: #F3AE5C;
+  box-shadow: 0 4px 0 #A8864D;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.repeat-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #A8864D;
+}
+
+.repeat-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #A8864D;
+}
+
+.repeat-icon {
+  width: 28px;
+  height: 28px;
+}
