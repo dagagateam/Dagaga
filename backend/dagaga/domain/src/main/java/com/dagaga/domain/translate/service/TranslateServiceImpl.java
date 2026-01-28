@@ -35,6 +35,11 @@ public class TranslateServiceImpl implements TranslateService {
     }
 
     @Override
+    public String getFastApiBaseUrl() {
+        return this.fastapiUrl;
+    }
+
+    @Override
     public AudioTranslateResponse translateAudioFile(TranslateFileData fileData) {
         // 파일 유효성 검증
         validateFile(fileData);
