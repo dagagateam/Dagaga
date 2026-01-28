@@ -24,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class LearningController {
 
     private final TranslateService translateService;
+    private final com.dagaga.domain.learning.service.QuestionService questionService;
+    
     // swagger check
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -74,6 +76,35 @@ public class LearningController {
     }
 
     /**
+     * 특정 카테고리의 질문 목록 조회
+     */
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.SUCCESS_CODE,
+                    description = "질문 목록 조회 성공"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.BAD_REQUEST_CODE,
+                    description = "잘못된 카테고리"
+            )
+    })
+    @GetMapping("/categories/{categoryId}/stages")
+    public ResponseEntity<ApiResponse<java.util.List<com.dagaga.domain.learning.dto.QuestionResponse>>> getQuestionsByCategory(
+            @Parameter(description = "카테고리명 (예: 자기소개, 학업, 주제)", required = true)
+            @PathVariable String categoryId
+    ) {
+        log.info("Fetching questions for category: {}", categoryId);
+        
+        java.util.List<com.dagaga.domain.learning.dto.QuestionResponse> questions = 
+                questionService.getQuestionsByCategory(categoryId);
+        
+        return ResponseEntity.ok(ApiResponse.success(
+                String.format("'%s' 카테고리 질문 조회 성공", categoryId), 
+                questions
+        ));
+    }
+    
+    /**
      * 학습 카테고리 목록 조회
      * 일단 조회 단이라서 고려 해보기
      */
@@ -92,5 +123,5 @@ public class LearningController {
         return ResponseEntity.ok(ApiResponse.success("카테고리 목록 조회 성공", categories));
     }
 
-
+    
 }
