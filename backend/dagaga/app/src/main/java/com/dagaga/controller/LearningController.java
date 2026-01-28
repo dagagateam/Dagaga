@@ -46,6 +46,10 @@ public class LearningController {
                     description = "서버 오류 또는 FastAPI 통신 오류"
             )
     })
+
+    /**
+     * 음성 번역 로직
+     */
     @PostMapping(value = "/translate/audio", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<TranslateResultDto>> translateAudio(
             @Parameter(description = "업로드할 음성 파일 mp3로 요구됩니다.", required = true)
@@ -182,6 +186,105 @@ public class LearningController {
         var categories = java.util.Arrays.asList("자기소개", "학업", "주제");
         
         return ResponseEntity.ok(ApiResponse.success("카테고리 목록 조회 성공", categories));
+    }
+
+    /**
+     * 발음 평가 API (섀도잉용)
+     */
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.SUCCESS_CODE,
+                    description = "발음 평가 성공"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.BAD_REQUEST_CODE,
+                    description = "잘못된 요청"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.INTERNAL_SERVER_ERROR_CODE,
+                    description = "서버 오류 또는 FastAPI 통신 오류"
+            )
+    })
+    @PostMapping(value = "/shadowing/evaluate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<com.dagaga.domain.learning.dto.PronunciationEvaluationResponse>> evaluatePronunciation(
+            @Parameter(description = "업로드할 음성 파일", required = true)
+            @RequestParam("file") MultipartFile file,
+            @Parameter(description = "기대하는 텍스트 (예: '제 장점은')", required = true)
+            @RequestParam("expectedText") String expectedText
+    ) {
+        log.info("Pronunciation evaluation request - expectedText: {}", expectedText);
+
+        try {
+            // FastAPI로 전달할 URL
+            String fastApiUrl = translateService.getFastApiBaseUrl() + "/api/v1/asr/evaluate/pronunciation";
+
+            // MultipartFile을 FastAPI로 전송
+            org.springframework.util.LinkedMultiValueMap<String, Object> body = 
+                new org.springframework.util.LinkedMultiValueMap<>();
+            
+            body.add("file", new org.springframework.core.io.ByteArrayResource(file.getBytes()) {
+                @Override
+                public String getFilename() {
+                    return file.getOriginalFilename();
+                }
+            });
+            body.add("expected_text", expectedText);
+            body.add("language", "ko");
+
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            org.springframework.http.HttpEntity<org.springframework.util.LinkedMultiValueMap<String, Object>> requestEntity = 
+                new org.springframework.http.HttpEntity<>(body, headers);
+
+            // RestTemplate으로 FastAPI 호출
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            org.springframework.http.ResponseEntity<java.util.Map> response = 
+                restTemplate.postForEntity(fastApiUrl, requestEntity, java.util.Map.class);
+
+            // FastAPI 응답 파싱
+            java.util.Map<String, Object> responseBody = response.getBody();
+            
+            if (responseBody == null) {
+                throw new RuntimeException("FastAPI returned empty response");
+            }
+
+            // 점수 파싱
+            @SuppressWarnings("unchecked")
+            java.util.Map<String, Double> scoresMap = 
+                (java.util.Map<String, Double>) responseBody.get("scores");
+            
+            com.dagaga.domain.learning.dto.PronunciationScores scores = 
+                com.dagaga.domain.learning.dto.PronunciationScores.builder()
+                    .accuracy(scoresMap.get("accuracy"))
+                    .pronunciation(scoresMap.get("pronunciation"))
+                    .fluency(scoresMap.get("fluency"))
+                    .overall(scoresMap.get("overall"))
+                    .build();
+
+            // 응답 DTO 생성
+            com.dagaga.domain.learning.dto.PronunciationEvaluationResponse evaluationResponse = 
+                com.dagaga.domain.learning.dto.PronunciationEvaluationResponse.builder()
+                    .transcribedText((String) responseBody.get("transcribed_text"))
+                    .expectedText((String) responseBody.get("expected_text"))
+                    .scores(scores)
+                    .feedback((String) responseBody.get("feedback"))
+                    .isPass((Boolean) responseBody.get("is_pass"))
+                    .language((String) responseBody.get("language"))
+                    .build();
+
+            log.info("Evaluation completed - Score: {}, Pass: {}", 
+                scores.getOverall(), evaluationResponse.getIsPass());
+
+            return ResponseEntity.ok(
+                ApiResponse.success("발음 평가 완료", evaluationResponse)
+            );
+
+        } catch (Exception e) {
+            log.error("Pronunciation evaluation failed", e);
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("발음 평가 중 오류가 발생했습니다: " + e.getMessage()));
+        }
     }
 
     
