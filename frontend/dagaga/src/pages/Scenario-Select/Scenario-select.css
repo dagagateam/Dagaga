@@ -1,6 +1,6 @@
 .scenario-select-container {
   min-height: calc(100vh - 60px);
-  background-color: #f5f5f5;
+  /* background-color: #f5f5f5; */
   padding: 30px 20px;
   position: relative;
 }

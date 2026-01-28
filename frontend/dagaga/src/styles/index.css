@@ -48,7 +48,7 @@ body::before {
             rgba(255, 255, 255, 0.6) 100%),
         url('../assets/images/background.png') no-repeat center center;
     background-size: cover;
-    opacity: 0.3;
+    opacity: 0.4;
 }
 
 /* 3. 언어별 세부 조정 (2번 내용) */
