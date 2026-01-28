@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS comments (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 5. 주제별 채팅방
+-- 5. 주제별/지역별 채팅방 (최신 정의 병합)
 CREATE TABLE IF NOT EXISTS chat_rooms (
     room_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     creator_id INT NOT NULL,
@@ -56,18 +56,40 @@ CREATE TABLE IF NOT EXISTS chat_rooms (
     title VARCHAR(255) NOT NULL,
     max_participants INT DEFAULT 10,
     topic VARCHAR(100),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    room_type room_type NOT NULL, -- 사용자 정의 타입 사용
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_room_creator FOREIGN KEY (creator_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    CONSTRAINT fk_room_location FOREIGN KEY (location_id) REFERENCES locations(location_id) ON DELETE CASCADE
 );
 
--- 6. 채팅 메시지
+-- 6. 채팅 메시지 (최신 정의 병합: 다국어 지원 구조)
 CREATE TABLE IF NOT EXISTS chat_messages (
     message_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     room_id INT NOT NULL,
     sender_id INT NOT NULL,
-    message_text TEXT NOT NULL,
-    sender_native_lang VARCHAR(10),
-    sent_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    original_text TEXT NOT NULL,         -- 원본 텍스트
+    original_lang VARCHAR(10) NOT NULL,   -- 원본 언어
+--    translated_text TEXT NOT NULL,       -- 번역된 텍스트
+--    translated_lang VARCHAR(10) NOT NULL, -- 번역된 언어
+    sent_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_msg_room FOREIGN KEY (room_id) REFERENCES chat_rooms(room_id) ON DELETE CASCADE,
+    CONSTRAINT fk_msg_sender FOREIGN KEY (sender_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
+
+-- 번역 테이블
+CREATE TABLE IF NOT EXISTS message_translations (
+    translation_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    message_id BIGINT NOT NULL,          -- 원본 메시지 ID (FK)
+    target_lang VARCHAR(10) NOT NULL,    -- 번역된 언어 코드 (예: 'vi', 'zh')
+    translated_text TEXT NOT NULL,       -- 번역된 내용
+    translated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    
+    -- 한 메시지에 대해 동일한 언어로의 번역은 하나만 존재하도록 유니크 제약
+    CONSTRAINT uq_msg_lang UNIQUE (message_id, target_lang),
+    -- 원본 메시지 삭제 시 번역본도 함께 삭제
+    CONSTRAINT fk_trans_msg FOREIGN KEY (message_id) REFERENCES chat_messages(message_id) ON DELETE CASCADE
+);
+
 
 -- 7. 게시글 좋아요 (사용자와 게시글의 다대다 관계)
 CREATE TABLE IF NOT EXISTS post_likes (
@@ -117,6 +139,29 @@ CREATE TABLE IF NOT EXISTS program_images (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_program_images_article_seq FOREIGN KEY (article_seq) REFERENCES programs(article_seq) ON DELETE CASCADE
 );
+
+-- 10. 언어 테이블
+CREATE TABLE IF NOT EXISTS languages (
+    lang_code VARCHAR(10) PRIMARY KEY, -- 'ko', 'vi', 'zh' 등
+    lang_name VARCHAR(50) NOT NULL,    -- '한국어', '베트남어' 등
+    english_name VARCHAR(50),          -- 'Korean', 'Vietnamese' 등
+    is_active BOOLEAN DEFAULT TRUE     -- 서비스 지원 여부
+);
+
+INSERT INTO languages (lang_code, lang_name, english_name) VALUES 
+('ko', '한국어', 'Korean'),
+('vi', '베트남어', 'Vietnamese'),
+('zh', '중국어(간체)', 'Chinese (Simplified)');
+
+-- view_lang_code가 languages 테이블에 존재하는 코드만 가질 수 있도록 제한
+ALTER TABLE users 
+ADD CONSTRAINT fk_view_lang 
+FOREIGN KEY (view_lang_code) REFERENCES languages(lang_code);
+
+-- native_lang_code도 동일하게 제한
+ALTER TABLE users 
+ADD CONSTRAINT fk_native_lang 
+FOREIGN KEY (native_lang_code) REFERENCES languages(lang_code);
 
 ---
 -- 외래키 및 제약 조건 (DO 블록)
@@ -220,3 +265,6 @@ CREATE INDEX IF NOT EXISTS idx_program_images_article_seq ON program_images(arti
 
 -- 이미지 순서대로 정렬 조회 최적화
 CREATE INDEX IF NOT EXISTS idx_program_images_order ON program_images(article_seq, image_order);
+
+-- 특정 메시지의 번역본을 찾거나, 특정 언어로 된 번역들을 필터링할 때 사용
+CREATE INDEX IF NOT EXISTS idx_translations_msg_lang ON message_translations(message_id, target_lang);
