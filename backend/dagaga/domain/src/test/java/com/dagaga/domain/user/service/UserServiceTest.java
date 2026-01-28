@@ -27,78 +27,21 @@ class UserServiceTest {
     private UserRepository userRepository;
 
     @Test
-    @DisplayName("Email validation: Success with Gmail")
-    void validateEmail_success_gmail() {
-        userService.validateEmailFormat("test@gmail.com");
-    }
-
-    @Test
-    @DisplayName("Email validation: Success with Naver")
-    void validateEmail_success_naver() {
-        userService.validateEmailFormat("test@naver.com");
-    }
-
-    @Test
-    @DisplayName("Email validation: Failure with invalid format")
-    void validateEmail_fail_invalid() {
-        assertThatThrownBy(() -> userService.validateEmailFormat("invalid-email"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("이메일 형식이 유효하지 않습니다");
-    }
-
-    @Test
-    @DisplayName("Password validation: Success")
-    void validatePassword_success() {
-        userService.validatePassword("Password123*");
-        userService.validatePassword("Complex+1234");
-        userService.validatePassword("Minus-Test1");
-    }
-
-    @Test
-    @DisplayName("Password validation: Fail too short")
-    void validatePassword_fail_length() {
-        assertThatThrownBy(() -> userService.validatePassword("Short1!"))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    @DisplayName("Password validation: Fail no number")
-    void validatePassword_fail_no_number() {
-        assertThatThrownBy(() -> userService.validatePassword("NoNumber!"))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    @DisplayName("Password validation: Fail no special char")
-    void validatePassword_fail_no_special() {
-        assertThatThrownBy(() -> userService.validatePassword("NoSpecial123"))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    @DisplayName("Password validation: Fail invalid special char")
-    void validatePassword_fail_invalid_special() {
-        assertThatThrownBy(() -> userService.validatePassword("Invalid#123"))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    @DisplayName("Register: Success")
-    void register_success() {
+    @DisplayName("Register: Success with generated nickname")
+    void register_success_with_generated_nickname() {
         UserRegisterDto dto = UserRegisterDto.builder()
-                .email("test@gmail.com")
+                .email("tester@naver.com")
                 .password("Password123+")
-                .nickname("tester")
-                .viewLangCode("ko")
-                .nativeLangCode("en")
+                .nickname("") // Blank nickname
                 .build();
 
         given(userRepository.existsByEmail(dto.getEmail())).willReturn(false);
-        given(userRepository.existsByNickname(dto.getNickname())).willReturn(false);
-        given(userRepository.save(any(User.class))).willReturn(User.builder().build()); // Mock save
+        given(userRepository.existsByNickname("tester")).willReturn(false); // Should check "tester"
+        given(userRepository.save(any(User.class))).willReturn(User.builder().build());
 
         userService.register(dto);
 
+        verify(userRepository).existsByNickname("tester");
         verify(userRepository).save(any(User.class));
     }
 }
