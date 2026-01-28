@@ -43,7 +43,7 @@ class UserServiceTest {
     void validateEmail_fail_invalid() {
         assertThatThrownBy(() -> userService.validateEmailFormat("invalid-email"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Invalid email format");
+                .hasMessageContaining("이메일 형식이 유효하지 않습니다");
     }
 
     @Test
