@@ -2,6 +2,7 @@ package com.dagaga.domain.translate.service;
 
 import com.dagaga.common.exception.VoiceProcessException;
 import com.dagaga.domain.translate.dto.AudioTranslateResponse;
+import com.dagaga.domain.translate.dto.TranslateFileData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -11,9 +12,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,62 +35,50 @@ public class TranslateServiceImpl implements TranslateService {
     }
 
     @Override
-    public AudioTranslateResponse translateAudioFile(MultipartFile file) {
+    public AudioTranslateResponse translateAudioFile(TranslateFileData fileData) {
         // 파일 유효성 검증
-        validateFile(file);
+        validateFile(fileData);
 
         try {
             // FastAPI 서버로 파일 전송
-            return sendToFastAPI(file);
-        } catch (IOException e) {
-            log.error("Failed to read file: {}", file.getOriginalFilename(), e);
-            throw new VoiceProcessException("파일을 읽는 중 오류가 발생했습니다.", e);
+            return sendToFastAPI(fileData);
         } catch (RestClientException e) {
             log.error("Failed to send file to FastAPI server", e);
             throw new VoiceProcessException("FastAPI 서버와의 통신 중 오류가 발생했습니다.", e);
         }
     }
 
-    private void validateFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
+    private void validateFile(TranslateFileData fileData) {
+        if (fileData == null || fileData.getContent() == null || fileData.getContent().length == 0) {
             throw new IllegalArgumentException("파일이 비어있습니다.");
         }
 
         // 파일 크기 검증
-        if (file.getSize() > MAX_FILE_SIZE) {
+        if (fileData.getSize() > MAX_FILE_SIZE) {
             throw new IllegalArgumentException(
                     String.format("파일 크기가 제한을 초과했습니다. (최대: %dMB)", MAX_FILE_SIZE / 1024 / 1024)
             );
         }
 
         // 파일 확장자 검증
-        String originalFilename = file.getOriginalFilename();
-        if (originalFilename == null || !hasValidExtension(originalFilename)) {
+        String extension = fileData.getExtension();
+        if (extension.isEmpty() || !ALLOWED_EXTENSIONS.contains(extension)) {
             throw new IllegalArgumentException(
                     "지원하지 않는 파일 형식입니다. 지원 형식: " + String.join(", ", ALLOWED_EXTENSIONS)
             );
         }
 
-        log.info("File validation passed: {}, size: {} bytes", originalFilename, file.getSize());
+        log.info("File validation passed: {}, size: {} bytes", fileData.getOriginalFilename(), fileData.getSize());
     }
 
-    private boolean hasValidExtension(String filename) {
-        int lastDotIndex = filename.lastIndexOf('.');
-        if (lastDotIndex == -1) {
-            return false;
-        }
-        String extension = filename.substring(lastDotIndex + 1).toLowerCase();
-        return ALLOWED_EXTENSIONS.contains(extension);
-    }
-
-    private AudioTranslateResponse sendToFastAPI(MultipartFile file) throws IOException {
+    private AudioTranslateResponse sendToFastAPI(TranslateFileData fileData) {
         log.info("Sending file to FastAPI server: {}", fastapiUrl);
 
-        // MultipartFile을 ByteArrayResource로 변환
-        ByteArrayResource resource = new ByteArrayResource(file.getBytes()) {
+        // TranslateFileData를 ByteArrayResource로 변환
+        ByteArrayResource resource = new ByteArrayResource(fileData.getContent()) {
             @Override
             public String getFilename() {
-                return file.getOriginalFilename();
+                return fileData.getOriginalFilename();
             }
         };
 
