@@ -13,4 +13,12 @@ public interface QuestionBankRepository extends JpaRepository<QuestionBank, Inte
      * @return 질문 목록
      */
     List<QuestionBank> findByCategoryOrderByOrderIndex(String category);
+
+    /**
+     * 카테고리와 순서로 특정 질문 조회
+     * @param category 카테고리명
+     * @param orderIndex 질문 순서
+     * @return 질문 (Optional)
+     */
+    java.util.Optional<QuestionBank> findByCategoryAndOrderIndex(String category, Integer orderIndex);
 }

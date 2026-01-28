@@ -103,6 +103,36 @@ public class LearningController {
                 questions
         ));
     }
+
+    /**
+     * 카테고리와 순서로 질문 텍스트 조회 (모국어 모드)
+     */
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.SUCCESS_CODE,
+                    description = "질문 텍스트 조회 성공"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.BAD_REQUEST_CODE,
+                    description = "잘못된 카테고리 또는 순서"
+            )
+    })
+    @GetMapping("/categories/{categoryId}/stages/{orderIndex}/native")
+    public ResponseEntity<ApiResponse<String>> getQuestionTextForNativeMode(
+            @Parameter(description = "카테고리명 (예: 자기소개, 학업, 주제)", required = true)
+            @PathVariable String categoryId,
+            @Parameter(description = "질문 순서 (1부터 시작)", required = true)
+            @PathVariable Integer orderIndex
+    ) {
+        log.info("Fetching native question text for category: {}, order: {}", categoryId, orderIndex);
+        
+        String questionText = questionService.getQuestionText(categoryId, orderIndex);
+        
+        return ResponseEntity.ok(ApiResponse.success(
+                "질문 조회 성공", 
+                questionText
+        ));
+    }
     
     /**
      * 학습 카테고리 목록 조회
