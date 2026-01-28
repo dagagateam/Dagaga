@@ -50,4 +50,19 @@ public class QuestionServiceImpl implements QuestionService {
                         String.format("질문을 찾을 수 없습니다. (카테고리: %s, 순서: %d)", category, orderIndex)
                 ));
     }
+
+    @Override
+    public com.dagaga.domain.learning.dto.QuestionWithExampleResponse getQuestionWithExample(String category, Integer orderIndex) {
+        log.info("Fetching question with example for category: {}, orderIndex: {}", category, orderIndex);
+        
+        QuestionBank question = questionBankRepository.findByCategoryAndOrderIndex(category, orderIndex)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("질문을 찾을 수 없습니다. (카테고리: %s, 순서: %d)", category, orderIndex)
+                ));
+        
+        return com.dagaga.domain.learning.dto.QuestionWithExampleResponse.builder()
+                .questionText(question.getQuestionText())
+                .exampleAnswer(question.getExampleAnswer())
+                .build();
+    }
 }
