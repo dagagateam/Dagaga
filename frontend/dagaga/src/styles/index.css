@@ -23,12 +23,12 @@ body {
     -webkit-font-smoothing: antialiased;
 
     /* 1. 배경 설정: 이미지 위에 투명도 레이어를 합칩니다 */
-    background: linear-gradient(0deg,
+    /* background: linear-gradient(0deg,
             rgba(255, 255, 255, 0.5) 0%,
             rgba(255, 255, 255, 0.5) 100%),
         url('../assets/images/background.png') no-repeat center center fixed;
     background-size: cover;
-    min-height: 100vh;
+    min-height: 100vh; */
 }
 
 /* 3. 언어별 세부 조정 (2번 내용) */

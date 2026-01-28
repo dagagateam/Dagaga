@@ -14,19 +14,20 @@ const ProblemSelect = () => {
   // Find the scenario based on categoryId
   const scenario = scenarios.find(s => s.id === categoryId);
 
-  // Sample problem data
-  const problems = [
-    { id: 1, text: "아이가 특별히 어려워하는 과목이 있나요?" },
-    { id: 2, text: "아이가 누구랑 친한가요?" },
-    { id: 3, text: "아이가 좋아하는 활동은 무엇인가요?" },
-    { id: 4, text: "아이의 학습 태도는 어떠한가요?" },
-    { id: 5, text: "아이가 매체를 얼마나 사용하나요?" },
-  ];
+  // Get problems from the scenario data
+  const problems = scenario?.problems || [];
 
-  // Handle wheel scroll
+  // Handle wheel scroll with limits
   const handleWheel = (e) => {
     e.preventDefault();
-    setScrollOffset(prev => prev + e.deltaY * 0.2);
+    const cardSpacing = 15; // degrees between cards
+    const maxOffset = 0; // First card can't go past its starting position
+    const minOffset = -((problems.length - 1) * cardSpacing); // Last card limit
+
+    setScrollOffset(prev => {
+      const newOffset = prev + e.deltaY * 0.2;
+      return Math.max(minOffset, Math.min(maxOffset, newOffset));
+    });
   };
 
   // Handle card click
