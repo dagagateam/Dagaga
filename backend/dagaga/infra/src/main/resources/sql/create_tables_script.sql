@@ -164,6 +164,18 @@ ADD CONSTRAINT fk_native_lang
 FOREIGN KEY (native_lang_code) REFERENCES languages(lang_code);
 
 ---
+-- 11. 예시 질문 및 답변 (자기소개, 학업, 주제)
+CREATE TABLE IF NOT EXISTS question_bank (
+    question_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    category VARCHAR(50) NOT NULL,        -- 대분류: '자기소개', '학업', '주제'
+    question_text TEXT NOT NULL,          -- 질문 내용
+    example_answer TEXT NOT NULL,         -- 예시 답변
+    order_index INT DEFAULT 0,            -- 카테고리 내 순서
+    -- 같은 카테고리 내에서 순서가 중복되지 않도록 제약
+    UNIQUE(category, order_index)
+);
+
+
 -- 외래키 및 제약 조건 (DO 블록)
 ---
 DO $$ 
@@ -268,3 +280,8 @@ CREATE INDEX IF NOT EXISTS idx_program_images_order ON program_images(article_se
 
 -- 특정 메시지의 번역본을 찾거나, 특정 언어로 된 번역들을 필터링할 때 사용
 CREATE INDEX IF NOT EXISTS idx_translations_msg_lang ON message_translations(message_id, target_lang);
+---
+-- 질문 관련 인덱스
+-- 카테고리별 질문 조회,순서 정렬
+CREATE INDEX IF NOT EXISTS idx_question_bank_category_order ON question_bank(category, order_index);
+
