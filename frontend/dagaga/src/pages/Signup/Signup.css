@@ -1,0 +1,307 @@
+/* Reuse Login.css variables/styles where possible, but customized for Signup layout */
+
+.signup-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: #fcfcfc;
+    /* Light background */
+}
+
+.signup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 50px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+/* Inherited from Login but renamed for clarity */
+.lang-btn {
+    background-color: white !important;
+    border: 1px solid #eee !important;
+    border-radius: 20px !important;
+    padding: 8px 20px !important;
+    font-size: 0.9rem;
+    color: #666 !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+}
+
+.signup-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+}
+
+.signup-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    /* Reduced from 1200px */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.signup-card {
+    background: white;
+    padding: 30px 40px;
+    /* Adjusted padding */
+    border-radius: 40px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+    width: 100%;
+    max-width: 1000px;
+    min-height: 550px;
+    /* Reduced from 600px */
+    display: flex;
+    flex-direction: column;
+    /* Stack content vertically */
+    z-index: 1;
+    position: relative;
+    justify-content: center;
+}
+
+.signup-left-section {
+    width: 100%;
+    padding-right: 200px;
+    /* Make space for the tiger image on the right */
+}
+
+.signup-left-section h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Form Layout */
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.input-group.half {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.input-group label span {
+    color: #ff4d4f;
+    /* Red asterisk */
+    margin-left: 2px;
+}
+
+.input-group input,
+.region-select {
+    padding: 10px 15px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background-color: #fff;
+}
+
+.input-group input:focus,
+.region-select:focus {
+    border-color: #F8B15E;
+}
+
+/* Validation Styling */
+.error-input {
+    border-color: #ff4d4f !important;
+    background-color: #fff2f0;
+}
+
+.error-msg {
+    color: #ff4d4f;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+/* Regions */
+.validation-msg {
+    font-size: 0.8rem;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.validation-msg.success {
+    color: #52c41a;
+}
+
+.validation-msg.error {
+    color: #ff4d4f;
+}
+
+/* Nickname Group (Input + Button) */
+.nickname-group {
+    display: flex;
+    gap: 10px;
+}
+
+.nickname-group input {
+    flex: 1;
+}
+
+.check-btn {
+    white-space: nowrap;
+    background-color: #666;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0 16px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.check-btn:hover {
+    background-color: #444;
+}
+
+/* Region Selects specific styling */
+.region-selects {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.region-dropdown {
+    flex: 1;
+    width: 100%;
+}
+
+.region-toggle {
+    width: 100%;
+    text-align: left;
+    background-color: white !important;
+    border: 1px solid #eee !important;
+    border-radius: 12px !important;
+    padding: 10px 15px !important;
+    color: #333 !important;
+    font-size: 0.95rem !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.region-toggle::after {
+    margin-left: auto;
+}
+
+/* Scrollable Dropdown Menu */
+.region-menu {
+    width: 100%;
+    max-height: 200px;
+    /* Limit height to enable scrolling */
+    overflow-y: auto;
+    /* Enable vertical scroll */
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.region-menu .dropdown-item {
+    font-size: 0.9rem;
+    padding: 8px 15px;
+    color: #555;
+    transition: background-color 0.1s;
+}
+
+.region-menu .dropdown-item:hover {
+    background-color: #F8B15E;
+    color: white;
+}
+
+.region-select {
+    flex: 1;
+    min-width: 0;
+    /* Prevent overflow */
+    appearance: none;
+    /* Custom styling often removes default arrow */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right .7em top 50%;
+    background-size: .65em auto;
+    padding-right: 1.5em;
+    color: #333;
+    /* Placeholder color like */
+}
+
+/* Signup Action Button */
+.signup-action {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.signup-btn {
+    background-color: #F8B15E;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 15px 60px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 300px;
+}
+
+.signup-btn:hover {
+    background-color: #e09b4d;
+}
+
+/* Login Link */
+.login-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.login-link span {
+    color: #0066cc;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+/* Tiger Image - Same as Login but positioning might need tweak */
+.tiger-image {
+    position: absolute;
+    top: -80px;
+    right: -20px;
+    width: 380px;
+    /* Slightly smaller or adjusted for this layout? */
+    height: auto;
+    z-index: 2;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
+}

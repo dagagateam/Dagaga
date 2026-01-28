@@ -11,7 +11,7 @@ const Navbar = () => {
     <BootstrapNavbar className="navbar bg-white border-bottom px-3 position-relative">
       <Container fluid>
         {/* 로고 */}
-        <BootstrapNavbar.Brand href="/" className="p-0">
+        <BootstrapNavbar.Brand className="p-0">
           <img src={logo} alt="Dagaga Logo" style={{ height: "40px" }} />
         </BootstrapNavbar.Brand>
 
