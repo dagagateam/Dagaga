@@ -133,6 +133,37 @@ public class LearningController {
                 questionText
         ));
     }
+
+    /**
+     * 카테고리와 순서로 질문과 예시 답변 조회 (예시 모드)
+     */
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.SUCCESS_CODE,
+                    description = "질문 및 예시 답변 조회 성공"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.BAD_REQUEST_CODE,
+                    description = "잘못된 카테고리 또는 순서"
+            )
+    })
+    @GetMapping("/categories/{categoryId}/stages/{orderIndex}/example")
+    public ResponseEntity<ApiResponse<com.dagaga.domain.learning.dto.QuestionWithExampleResponse>> getQuestionWithExample(
+            @Parameter(description = "카테고리명 (예: 자기소개, 학업, 주제)", required = true)
+            @PathVariable String categoryId,
+            @Parameter(description = "질문 순서 (1부터 시작)", required = true)
+            @PathVariable Integer orderIndex
+    ) {
+        log.info("Fetching question with example for category: {}, order: {}", categoryId, orderIndex);
+        
+        com.dagaga.domain.learning.dto.QuestionWithExampleResponse response = 
+                questionService.getQuestionWithExample(categoryId, orderIndex);
+        
+        return ResponseEntity.ok(ApiResponse.success(
+                "질문 및 예시 답변 조회 성공", 
+                response
+        ));
+    }
     
     /**
      * 학습 카테고리 목록 조회

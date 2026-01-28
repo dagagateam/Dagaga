@@ -20,4 +20,12 @@ public interface QuestionService {
      * @return 질문 텍스트
      */
     String getQuestionText(String category, Integer orderIndex);
+
+    /**
+     * 카테고리와 순서로 질문과 예시 답변 조회 (예시 모드용)
+     * @param category 카테고리명
+     * @param orderIndex 질문 순서
+     * @return 질문과 예시 답변
+     */
+    com.dagaga.domain.learning.dto.QuestionWithExampleResponse getQuestionWithExample(String category, Integer orderIndex);
 }
