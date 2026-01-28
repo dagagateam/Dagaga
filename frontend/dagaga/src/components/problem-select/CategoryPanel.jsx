@@ -1,10 +1,14 @@
+import { motion } from "framer-motion";
 import "./CategoryPanel.css";
 
 const CategoryPanel = ({ scenario }) => {
   if (!scenario) return null;
 
   return (
-    <div className="category-panel">
+    <motion.div 
+      className="category-panel"
+      layoutId={`scenario-card-${scenario.id}`}
+    >
       <div className="category-icon">
         <img src={scenario.icon} alt={scenario.title} />
       </div>
@@ -15,7 +19,7 @@ const CategoryPanel = ({ scenario }) => {
           <li key={index}>-{item}</li>
         ))}
       </ul>
-    </div>
+    </motion.div>
   );
 };
 

@@ -6,6 +6,8 @@ import Problem from "../pages/Problem/Problem";
 import Login from "../pages/Login/Login";
 import Signup from "../pages/Signup/Signup";
 
+import ProblemNative from "../pages/problem-native/problem-native";
+
 const router = createBrowserRouter([
     {
         path: "/",
@@ -33,6 +35,10 @@ const router = createBrowserRouter([
             {
               path: "problem/:problemId",
               element: <Problem />,
+            },
+            {
+              path: "problem-translate/:problemId",
+              element: <ProblemNative />,
             },
         ],
     },
