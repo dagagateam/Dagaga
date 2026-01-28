@@ -72,4 +72,25 @@ public class LearningController {
             throw new RuntimeException("파일을 읽는 중 오류가 발생했습니다.", e);
         }
     }
+
+    /**
+     * 학습 카테고리 목록 조회
+     * 일단 조회 단이라서 고려 해보기
+     */
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.SUCCESS_CODE,
+                    description = "카테고리 목록 조회 성공"
+            )
+    })
+    @GetMapping("/categories")
+    public ResponseEntity<ApiResponse<java.util.List<String>>> getCategories() {
+        log.info("Fetching learning categories");
+        
+        var categories = java.util.Arrays.asList("자기소개", "학업", "주제");
+        
+        return ResponseEntity.ok(ApiResponse.success("카테고리 목록 조회 성공", categories));
+    }
+
+
 }
