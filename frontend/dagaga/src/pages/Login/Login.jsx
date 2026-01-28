@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Dropdown } from 'react-bootstrap';
 import { loginAPI } from '../../api/userApi';
 import './Login.css';
 import loginTiger from '../../assets/characters/login_tiger.png';
 import logo from '../../assets/icons/logo.png';
 import googleIcon from '../../assets/icons/google.png';
 import lineIcon from '../../assets/icons/line.png';
+import LanguageSelector from '../../components/auth/LanguageSelector';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -50,17 +50,7 @@ const Login = () => {
                     <img src={logo} alt="Dagaga Logo" style={{ height: '40px' }} />
                 </div>
 
-                <Dropdown className="lang-dropdown">
-                    <Dropdown.Toggle variant="light" id="dropdown-basic" className="lang-btn">
-                        화면 표시 언어 설정 <span>{language}</span>
-                    </Dropdown.Toggle>
-
-                    <Dropdown.Menu className="custom-dropdown-menu">
-                        <Dropdown.Item onClick={() => setLanguage('한국어')}>🇰🇷 한국어</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setLanguage('중국어')}>🇨🇳 중국어</Dropdown.Item>
-                        <Dropdown.Item onClick={() => setLanguage('베트남어')}>🇻🇳 베트남어</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
+                <LanguageSelector language={language} setLanguage={setLanguage} />
             </header>
 
             <main className="login-content">
@@ -98,7 +88,7 @@ const Login = () => {
                             </form>
 
                             <div className="signup-link">
-                                아직 계정이 없으신가요? <a href="#">회원가입</a>
+                                아직 계정이 없으신가요? <span onClick={() => navigate('/signup')} style={{ cursor: 'pointer', color: '#0066cc', fontWeight: 'bold' }}>회원가입</span>
                             </div>
 
                             <div className="divider">
