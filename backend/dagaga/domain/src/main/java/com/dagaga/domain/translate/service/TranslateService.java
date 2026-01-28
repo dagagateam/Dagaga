@@ -1,8 +1,8 @@
 package com.dagaga.domain.translate.service;
 
 import com.dagaga.domain.translate.dto.AudioTranslateResponse;
-import org.springframework.web.multipart.MultipartFile;
+import com.dagaga.domain.translate.dto.TranslateFileData;
 
 public interface TranslateService {
-    AudioTranslateResponse translateAudioFile(MultipartFile file);
+    AudioTranslateResponse translateAudioFile(TranslateFileData fileData);
 }
