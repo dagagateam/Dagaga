@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -27,5 +28,5 @@ public class ProgramPostResponse {
 
     private String capacity;
 
-    private java.util.List<String> imageUrls;
+    private List<String> imageUrls;
 }
