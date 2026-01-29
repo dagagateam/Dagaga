@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import ScenarioCard from "../../components/scenario-select/ScenarioCard";
 import { scenarios } from "../../data/scenarios";
@@ -6,7 +6,13 @@ import "./Scenario-select.css";
 import study_tiger from "../../assets/characters/study_tiger.png";
 
 const ScenarioSelect = () => {
-  const [selectedScenario, setSelectedScenario] = useState("학습");
+  const [selectedScenario, setSelectedScenario] = useState(() => {
+    return sessionStorage.getItem("selectedScenario") || "학습";
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("selectedScenario", selectedScenario);
+  }, [selectedScenario]);
 
   return (
     <Container fluid className="scenario-select-container">

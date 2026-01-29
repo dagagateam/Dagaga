@@ -1,0 +1,85 @@
+.problem-done-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #6CC551; /* Green color from image reference */
+  border-radius: 20px;
+  padding: 30px 40px;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: white;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.problem-done-message {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.problem-done-buttons {
+  display: flex;
+  gap: 40px;
+  width: 100%;
+  justify-content: center;
+}
+
+.done-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 10px 15px;
+  border-radius: 10px;
+  transition: background-color 0.2s;
+}
+
+.done-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.done-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 576px) {
+  .problem-done-container {
+    padding: 20px;
+  }
+  
+  .problem-done-message {
+    font-size: 1.2rem;
+  }
+  
+  .problem-done-buttons {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .done-button {
+    justify-content: center;
+  }
+}

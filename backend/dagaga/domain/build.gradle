@@ -5,10 +5,31 @@ plugins {
 dependencies {
     api project(':common')
 
+    // Spring Core and Context for @Service, @Value annotations
+    implementation 'org.springframework:spring-context'
+    implementation 'org.springframework:spring-web'
+    
+    // Jackson for JSON serialization
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    
+    // SLF4J for logging
+    implementation 'org.slf4j:slf4j-api'
+    
     // JPA
-    // implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    // lombok
+
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.h2database:h2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

@@ -1,0 +1,12 @@
+.problem-mascot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.mascot-image {
+  width: 150px;
+  height: auto;
+  object-fit: contain;
+}

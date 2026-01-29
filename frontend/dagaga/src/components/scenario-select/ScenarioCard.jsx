@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import "./ScenarioCard.css";
 
 const ScenarioCard = ({ scenario, isSelected, onClick }) => {
@@ -10,7 +11,12 @@ const ScenarioCard = ({ scenario, isSelected, onClick }) => {
   };
 
   return (
-    <div className={`scenario-card ${isSelected ? "expanded" : "collapsed"}`} onClick={onClick}>
+    <motion.div 
+      className={`scenario-card ${isSelected ? "expanded" : "collapsed"}`} 
+      onClick={onClick}
+      layout
+      layoutId={isSelected ? `scenario-card-${scenario.id}` : undefined}
+    >
       <div className="scenario-card-icon">
         <img
           src={scenario.icon}
@@ -39,7 +45,7 @@ const ScenarioCard = ({ scenario, isSelected, onClick }) => {
       ) : (
         <span className="scenario-card-text">{scenario.label}</span>
       )}
-    </div>
+    </motion.div>
   );
 };
 

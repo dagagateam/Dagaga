@@ -1,0 +1,58 @@
+.record-button {
+  width: 80px;
+  height: 80px;
+  border: none;
+  border-radius: 50%;
+  background: #F3AE5C;
+  box-shadow: 0 6px 0 #C9954A;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.record-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 9px 0 #C9954A;
+}
+
+.record-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 #C9954A;
+}
+
+.record-button.recording {
+  background: #E74C3C;
+  box-shadow: 0 6px 0 #C0392B;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.record-button.recording:hover {
+  box-shadow: 0 9px 0 #C0392B;
+}
+
+.record-button.recording:active {
+  box-shadow: 0 3px 0 #C0392B;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.record-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.record-stop-icon {
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 4px;
+}

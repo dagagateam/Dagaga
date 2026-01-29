@@ -1,0 +1,288 @@
+.community-info-container {
+    padding: 40px 0;
+    height: calc(100vh - 80px); /* Adjust based on Navbar height */
+    overflow: hidden; /* Hide main scrollbar */
+}
+
+/* Target the Bootstrap Container */
+.community-info-container > .container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-header {
+    flex-shrink: 0; /* Prevent header from shrinking */
+    display: flex;
+    justify-content: space-between; /* Space between title/badge and search */
+    align-items: center;
+    margin-bottom: 30px;
+    padding-left: 10px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.info-header h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #333;
+    margin: 0;
+}
+
+.location-badge {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #555;
+    background-color: white; /* Optional: background for badge */
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+.search-wrapper {
+    flex-grow: 1;
+    max-width: 300px; /* Reduced width */
+    margin-left: 20px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px; /* Rounded pill shape */
+    font-size: 0.95rem;
+    background-color: #fff;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: #F8B15E;
+    box-shadow: 0 0 0 3px rgba(248, 177, 94, 0.2);
+}
+
+.pin-icon {
+    margin-right: 5px;
+    color: #F8B15E;
+}
+
+/* Info List & Card */
+.info-list {
+    flex-grow: 1;
+    overflow-y: auto; /* Enable internal scrolling */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-right: 10px; /* Space for scrollbar */
+    padding-bottom: 20px;
+}
+
+/* Custom Scrollbar Styling */
+.info-list::-webkit-scrollbar {
+    width: 6px;
+}
+.info-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+.info-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+.info-list::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+.info-card {
+    flex-shrink: 0; /* CRITICAL: Prevent cards from squashing */
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.info-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.info-card-inner {
+    display: flex;
+    height: 210px;
+}
+
+.info-img-wrapper {
+    flex: 0 0 42%;
+    overflow: hidden;
+    position: relative;
+}
+
+.info-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top; 
+}
+
+/* Expired Status Styling */
+.expired-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.6); /* Light overlay to wash out image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    backdrop-filter: blur(2px); /* Subtle blur */
+}
+
+.expired-overlay span {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 8px 24px;
+    background-color: rgba(50, 50, 50, 0.9); /* Dark modern badge */
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    letter-spacing: 1px;
+}
+
+.info-card.expired .info-img-wrapper img {
+    filter: grayscale(80%); /* Slightly less harsh grayscale */
+}
+
+.info-card.expired .info-content {
+    opacity: 0.7;
+}
+
+/* Make card look disabled/inactive on hover */
+.info-card.expired:hover {
+    transform: none;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    cursor: default;
+}
+
+.info-content {
+    flex: 1;
+    padding: 25px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: white;
+}
+
+.info-meta-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.org-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.org-logo {
+    font-weight: bold;
+    color: #F8B15E;
+    font-size: 0.9rem;
+}
+
+.org-name {
+    font-weight: 700;
+    color: #333;
+    font-size: 1rem;
+}
+
+.action-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.icon-btn {
+    background: none;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 0;
+}
+
+.icon-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.icon-btn:hover {
+    background-color: #f9f9f9;
+}
+
+.info-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #222;
+    margin-bottom: 15px;
+    line-height: 1.3;
+    /* Limit lines if title is too long */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.info-periods {
+    font-size: 0.85rem;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.period-row {
+    display: flex;
+    align-items: center;
+}
+
+.period-label {
+    font-weight: 600;
+    width: 60px; /* Fixed width for alignment */
+    margin-right: 5px;
+}
+
+.period-date {
+    color: #444;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .info-card-inner {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .info-img-wrapper {
+        height: 200px;
+    }
+    
+    .info-content {
+        padding: 20px;
+    }
+}
