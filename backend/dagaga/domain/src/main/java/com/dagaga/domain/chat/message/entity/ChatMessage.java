@@ -4,10 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "chat_messages")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -33,9 +36,18 @@ public class ChatMessage {
     @Column(name = "sent_at")
     private OffsetDateTime sentAt;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "chatMessage", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MessageTranslation> translations = new ArrayList<>();
+
+    public void addTranslation(MessageTranslation translation) {
+        this.translations.add(translation);
+        translation.setChatMessage(this);
+    }
+
     public static ChatMessage create(Integer roomId, Integer senderId,
-                                     String originalText,
-                                     String originalLang) {
+            String originalText,
+            String originalLang) {
         return ChatMessage.builder()
                 .roomId(roomId)
                 .senderId(senderId)

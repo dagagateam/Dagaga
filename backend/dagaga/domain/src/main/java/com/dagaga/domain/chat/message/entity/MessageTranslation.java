@@ -19,8 +19,9 @@ public class MessageTranslation {
     @Column(name = "translation_id", nullable = false)
     private Long translationId;
 
-    @Column(name = "message_id", nullable = false)
-    private Long messageId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "message_id", nullable = false)
+    private ChatMessage chatMessage;
 
     @Column(name = "target_lang", nullable = false, length = 10)
     private String targetLang;
@@ -31,11 +32,11 @@ public class MessageTranslation {
     @Column(name = "translated_at")
     private OffsetDateTime translatedAt;
 
-    public static MessageTranslation create(Long messageId,
-                                            String targetLang,
-                                            String translatedText) {
+    public static MessageTranslation create(ChatMessage chatMessage,
+            String targetLang,
+            String translatedText) {
         return MessageTranslation.builder()
-                .messageId(messageId)
+                .chatMessage(chatMessage)
                 .targetLang(targetLang)
                 .translatedText(translatedText)
                 .translatedAt(OffsetDateTime.now())
