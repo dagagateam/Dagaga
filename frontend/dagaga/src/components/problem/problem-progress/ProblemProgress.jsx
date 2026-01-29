@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import "./problem-progress.css";
+import "./ProblemProgress.css";
 
 const ProblemProgress = ({ currentWord, totalWords }) => {
   const navigate = useNavigate();

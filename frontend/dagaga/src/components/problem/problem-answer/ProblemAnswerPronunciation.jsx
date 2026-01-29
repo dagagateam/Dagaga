@@ -1,4 +1,4 @@
-import "./problem-answer-pronunciation.css";
+import "./ProblemAnswerPronunciation.css";
 
 const ProblemAnswerPronunciation = ({ words, pronunciations }) => {
   return (

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import ScenarioCard from "../../components/scenario-select/ScenarioCard";
 import { scenarios } from "../../data/scenarios";
-import "./Scenario-select.css";
+import "./ScenarioSelect.css";
 import study_tiger from "../../assets/characters/study_tiger.png";
 
 const ScenarioSelect = () => {

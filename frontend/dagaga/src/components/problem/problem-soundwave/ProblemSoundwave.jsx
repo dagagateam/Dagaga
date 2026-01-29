@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react";
-import "./problem-soundwave.css";
+import "./ProblemSoundwave.css";
 
 const ProblemSoundwave = ({ analyser, isRecording }) => {
   const canvasRef = useRef(null);

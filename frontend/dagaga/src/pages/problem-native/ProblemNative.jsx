@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Container } from "react-bootstrap";
-import ProblemProgress from "../../components/problem/problem-progress/problem-progress";
-import ProblemAnswer from "../../components/problem/problem-answer/problem-answer";
-import ProblemRecordButton from "../../components/problem/problem-record/problem-record-button";
-import ProblemSoundwave from "../../components/problem/problem-soundwave/problem-soundwave";
-import ProblemMascot from "../../components/problem/problem-mascot/problem-mascot";
-import BufferingButton from "../../components/problem-native/buffering-button";
-import ProblemDone from "../../components/problem/problem-done/problem-done";
+import ProblemProgress from "../../components/problem/problem-progress/ProblemProgress";
+import ProblemAnswer from "../../components/problem/problem-answer/ProblemAnswer";
+import ProblemRecordButton from "../../components/problem/problem-record/ProblemRecordButton";
+import ProblemSoundwave from "../../components/problem/problem-soundwave/ProblemSoundwave";
+import ProblemMascot from "../../components/problem/problem-mascot/ProblemMascot";
+import BufferingButton from "../../components/problem-native/BufferingButton";
+import ProblemDone from "../../components/problem/problem-done/ProblemDone";
 import { useSpeechApi } from "../../api/useSpeechApi";
-import "./problem-native.css";
+import "./ProblemNative.css";
 
 const MAX_TRIES = 3;
 

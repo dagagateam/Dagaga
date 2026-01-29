@@ -4,7 +4,7 @@ import { Container } from "react-bootstrap";
 import CategoryPanel from "../../components/problem-select/CategoryPanel";
 import ProblemCard from "../../components/problem-select/ProblemCard";
 import { scenarios } from "../../data/scenarios";
-import "./Problem-select.css";
+import "./ProblemSelect.css";
 
 const ProblemSelect = () => {
   const { categoryId } = useParams();

@@ -1,5 +1,5 @@
 import React from 'react';
-import './chat-placeholder.css';
+import './ChatPlaceholder.css';
 
 const ChatPlaceholder = () => {
   return (
