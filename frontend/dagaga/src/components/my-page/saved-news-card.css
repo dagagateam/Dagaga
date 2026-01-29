@@ -1,0 +1,128 @@
+.saved-news-card {
+  width: 300px; /* Reduced width for mini version */
+  min-width: 300px;
+  border-radius: 16px;
+  border: 1px solid #f0f0f0; /* Light border */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); /* Softer shadow */
+  margin-right: 20px;
+  background-color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+  overflow: hidden;
+  height: 100%; /* Auto height container */
+}
+
+.saved-news-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.saved-news-inner {
+  display: flex;
+  flex-direction: column; /* Vertical layout for content only */
+  height: 100%;
+}
+
+/* Content Section */
+.saved-news-content {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.saved-news-meta-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.saved-news-org {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.saved-news-org-logo {
+  font-weight: bold;
+  color: #F8B15E;
+  font-size: 0.75rem;
+  background-color: #FFF8E1;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.saved-news-org-name {
+  font-weight: 700;
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.saved-news-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.saved-news-icon-btn {
+  background: none;
+  border: none; /* No border for simpler look in mini version */
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.saved-news-icon-btn:hover {
+  opacity: 0.7;
+}
+
+.saved-news-icon-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.saved-news-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #222;
+  margin-bottom: 15px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 2.7em; /* Fixed height for consistent alignment */
+}
+
+.saved-news-periods {
+  font-size: 0.8rem;
+  color: #666;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto; /* Push to bottom */
+}
+
+.saved-news-period-row {
+  display: flex;
+  align-items: center;
+}
+
+.saved-news-period-label {
+  font-weight: 600;
+  width: 45px;
+  margin-right: 4px;
+  color: #888;
+}
+
+.saved-news-period-date {
+  color: #444;
+  font-weight: 500;
+}

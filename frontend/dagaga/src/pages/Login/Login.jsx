@@ -8,8 +8,11 @@ import googleIcon from '../../assets/icons/google.png';
 import lineIcon from '../../assets/icons/line.png';
 import LanguageSelector from '../../components/auth/LanguageSelector';
 
+import { useUserStore } from '../../store/userStore';
+
 const Login = () => {
     const navigate = useNavigate();
+    const login = useUserStore((state) => state.login);
     const [language, setLanguage] = useState('한국어');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -23,18 +26,17 @@ const Login = () => {
 
             // Mocking 응답 구조에 맞게 처리 (response.data.accessToken)
             if (response.data && response.data.accessToken) {
-                // 2. 성공 시 토큰과 사용자 정보 저장
-                // TODO: 보안 강화를 위해 HttpOnly 쿠키 방식으로 accessToken 저장 로직 변경 필요
-                localStorage.setItem('accessToken', response.data.accessToken);
-                localStorage.setItem('nickname', response.data.user.nickname);
-                localStorage.setItem('regionName', response.data.user.regionName);
+                // 2. 성공 시 토큰과 사용자 정보 Store에 저장
+                login({
+                    ...response.data.user,
+                    accessToken: response.data.accessToken
+                });
 
                 alert(response.message || "로그인에 성공했습니다.");
 
                 // 3. 메인 페이지로 이동
                 navigate('/scenario-select');
             } else {
-                // 실제 백엔드 연동 시 응답 구조에 따라 달라질 수 있음
                 console.log('Login success but unhandled response structure:', response);
                 navigate('/');
             }

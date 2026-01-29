@@ -1,0 +1,8 @@
+.chat-placeholder-container {
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  padding: 20px;
+  min-height: 200px; /* Minimum height to match My Info approx */
+}

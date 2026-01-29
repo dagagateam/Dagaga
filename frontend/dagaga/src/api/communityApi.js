@@ -38,7 +38,7 @@ export const fetchCommunityInfo = async (page = 0, size = 20) => {
                             image: "https://www.liveinkorea.kr/upload/editor/74e0d0fa-48ca-4ab8-bd51-256d15e8a071.jpg"
                         },
                         {
-                            postId: 102,
+                            postId: 103,
                             organization: "종로구가족센터",
                             title: "북촌문화센터와 함께하는 ★문화해설사&전통공예가 직업체험★",
                             content: "- 접수기간 2025-11-24 ~ 2025-12-20\n - 프로그램기간 2025-12-20 ~ 2025-12-20\n - 대상: 한국어 소통이 어려운 결혼이민자\n - 내용: 의사소통 문제해결을 위한 통번역서비스 지원",
