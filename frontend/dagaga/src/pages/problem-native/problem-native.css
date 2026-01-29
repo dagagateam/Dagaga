@@ -1,0 +1,165 @@
+.problem-native-container {
+  min-height: calc(100vh - 60px);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ============================================
+   PRE-TRANSLATE STATE
+   ============================================ */
+.problem-native-container.pre-translate {
+  justify-content: flex-start;
+}
+
+.problem-native-instruction {
+  font-family: var(--main-font);
+  font-size: 1.2rem;
+  color: #666;
+  text-align: left;
+  margin: 0;
+}
+
+/* Reuse Problem page styles for pre-translate */
+.problem-native-container.pre-translate .problem-question {
+  font-family: var(--main-font);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #333;
+  text-align: left;
+  margin: 20px 0 30px;
+  padding: 0 40px;
+  width: 100%;
+}
+
+.problem-native-container.pre-translate .problem-answer-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  padding: 0 40px;
+}
+
+.problem-native-container.pre-translate .problem-answer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.problem-native-container.pre-translate .problem-spacer {
+  flex: 1;
+  min-height: 50px;
+}
+
+.problem-native-container.pre-translate .problem-bottom-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 20px 40px;
+  margin-bottom: 30px;
+}
+
+/* ============================================
+   TRANSLATING STATE
+   ============================================ */
+.problem-native-container.translating {
+  justify-content: flex-start;
+}
+
+/* Reuse Problem page styles for translating */
+.problem-native-container.translating .problem-question {
+  font-family: var(--main-font);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #333;
+  text-align: left;
+  margin: 20px 0 30px;
+  padding: 0 40px;
+  width: 100%;
+}
+
+.problem-native-container.translating .problem-answer-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  padding: 0 40px;
+}
+
+.problem-native-container.translating .problem-answer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.problem-native-container.translating .problem-spacer {
+  flex: 1;
+  min-height: 50px;
+}
+
+.problem-native-container.translating .problem-bottom-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 20px 40px;
+  margin-bottom: 30px;
+}
+
+/* ============================================
+   POST-TRANSLATE STATE
+   ============================================ */
+.problem-native-container.post-translate {
+  justify-content: flex-start;
+}
+
+/* Reuse styles from Problem.css */
+.problem-native-container.post-translate .problem-question {
+  font-family: var(--main-font);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #333;
+  text-align: left;
+  margin: 20px 0 30px;
+  padding: 0 40px;
+  width: 100%;
+}
+
+.problem-native-container.post-translate .problem-answer-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  padding: 0 40px;
+}
+
+.problem-native-container.post-translate .problem-answer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.problem-native-container.post-translate .problem-spacer {
+  flex: 1;
+  min-height: 50px;
+}
+
+.problem-native-container.post-translate .problem-bottom-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 20px 40px;
+  margin-bottom: 30px;
+}

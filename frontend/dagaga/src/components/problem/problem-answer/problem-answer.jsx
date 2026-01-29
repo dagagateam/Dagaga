@@ -2,7 +2,7 @@ import ProblemRepeat from "../problem-repeat/problem-repeat";
 import ProblemRepeatSlow from "../problem-repeat/problem-repeat-slow";
 import "./problem-answer.css";
 
-const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIndex }) => {
+const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIndex, wordResults }) => {
   // Check if we're on the full sentence step (last step)
   const isFullSentenceStep = currentStep >= words.length;
   
@@ -15,20 +15,39 @@ const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIn
         const isCurrentWord = index === currentStep;
         const isCompleted = index < currentStep;
         
+        // Get result for this word (correct/incorrect/null)
+        const result = wordResults?.[index] || null;
+        
         // During full sentence mode, highlight based on sentenceHighlightIndex
         // If sentenceHighlightIndex is -1, highlight all words
         const isSentenceHighlight = isFullSentenceStep && (sentenceHighlightIndex === index || isAllSelected);
         
+        // Build class names
+        const wordClasses = [
+          'word',
+          isCurrentWord ? 'current' : '',
+          isCompleted ? 'completed' : '',
+          isFullSentenceStep ? 'full-sentence' : '',
+          isSentenceHighlight ? 'sentence-highlight' : '',
+          result === 'correct' ? 'correct' : '',
+          result === 'incorrect' ? 'incorrect' : ''
+        ].filter(Boolean).join(' ');
+        
+        const pronunciationClasses = [
+          'pronunciation',
+          isCurrentWord ? 'current' : '',
+          isCompleted ? 'completed' : '',
+          isSentenceHighlight ? 'sentence-highlight' : '',
+          result === 'correct' ? 'correct' : '',
+          result === 'incorrect' ? 'incorrect' : ''
+        ].filter(Boolean).join(' ');
+        
         return (
           <div key={index} className="word-group">
-            <span
-              className={`word ${isCurrentWord ? 'current' : ''} ${isCompleted ? 'completed' : ''} ${isFullSentenceStep ? 'full-sentence' : ''} ${isSentenceHighlight ? 'sentence-highlight' : ''}`}
-            >
+            <span className={wordClasses}>
               {word}
             </span>
-            <span
-              className={`pronunciation ${isCurrentWord ? 'current' : ''} ${isCompleted ? 'completed' : ''} ${isSentenceHighlight ? 'sentence-highlight' : ''}`}
-            >
+            <span className={pronunciationClasses}>
               [ {pronunciations[index] || word.split('').join(' ')} ]
             </span>
             {isCurrentWord && (

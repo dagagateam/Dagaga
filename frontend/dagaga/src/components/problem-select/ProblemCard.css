@@ -6,10 +6,9 @@
   border-radius: 15px;
   padding: 15px 25px;
   transition: all 0.3s ease;
-  transform-origin: -500px center;
-  /* Rotate around left edge of container */
-  left: 100px;
-  /* Position at right edge of category panel */
+
+  transform-origin: calc(-55vh - 50px) center; /* Pivot adjusted for gap */
+  left: 50px; /* Add gap from panel edge */
   top: 50%;
   margin-top: -40px;
   cursor: pointer;
