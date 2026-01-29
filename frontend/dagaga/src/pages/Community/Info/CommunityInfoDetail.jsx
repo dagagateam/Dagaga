@@ -116,11 +116,9 @@ const CommunityInfoDetail = () => {
                                 {comments.map(cmt => (
                                     <div key={cmt.id} className="comment-item">
                                         <img src={cmt.avatar} alt={cmt.user} className="comment-avatar" />
-                                        <div>
-                                            <div className="comment-content">
-                                                <div className="comment-author">{cmt.user}</div>
-                                                <p className="comment-text">{cmt.text}</p>
-                                            </div>
+                                        <div className="comment-text-wrapper">
+                                            <span className="comment-author">{cmt.user}</span>
+                                            <span className="comment-body">{cmt.text}</span>
                                         </div>
                                     </div>
                                 ))}
