@@ -1,0 +1,16 @@
+.region-dropdown .dropdown-toggle {
+    background-color: #f8f9fa;
+    border: none;
+    padding: 0.5rem 1rem;
+    color: #495057;
+}
+
+.region-dropdown .dropdown-toggle::after {
+    margin-left: auto;
+}
+
+.region-menu {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 12px;
+}

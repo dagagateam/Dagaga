@@ -10,6 +10,8 @@ import CommunityInfoDetail from "../pages/Community/Info/CommunityInfoDetail";
 import CommunityChatList from "../pages/Community/Chat/CommunityChatList";
 import CommunityChatRoom from "../pages/Community/Chat/CommunityChatRoom";
 import ProblemNative from "../pages/problem-native/problem-native";
+import MyPage from "../pages/my-page/my-page";
+import MyPageEdit from "../pages/my-page-edit/my-page-edit";
 
 const router = createBrowserRouter([
     {
@@ -58,6 +60,14 @@ const router = createBrowserRouter([
             {
                 path: "community/chat/room/:id",
                 element: <CommunityChatRoom />,
+            },
+            {
+              path: "my-page",
+              element: <MyPage />,
+            },
+            {
+              path: "my-page/edit",
+              element: <MyPageEdit />,
             },
         ],
     },
