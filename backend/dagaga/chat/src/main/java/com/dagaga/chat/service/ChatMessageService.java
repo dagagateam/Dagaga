@@ -2,11 +2,12 @@ package com.dagaga.chat.service;
 
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageCommand;
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
+import com.dagaga.domain.chat.language.repository.LanguageRepository;
 import com.dagaga.domain.chat.message.entity.ChatMessage;
 import com.dagaga.domain.chat.message.entity.MessageTranslation;
 import com.dagaga.domain.chat.message.repository.ChatMessageRepository;
 import com.dagaga.domain.chat.translate.port.TranslationPort;
-import com.dagaga.domain.chat.user.repository.ChatRoomUserRepository;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,14 +19,14 @@ import java.util.List;
 public class ChatMessageService {
 
     private final ChatMessageRepository chatMessageRepository;
-    private final ChatRoomUserRepository chatRoomUserRepository;
+    private final LanguageRepository languageRepository;
     private final TranslationPort translationPort;
 
     public ChatMessageService(ChatMessageRepository chatMessageRepository,
-            ChatRoomUserRepository chatRoomUserRepository,
+            LanguageRepository languageRepository,
             TranslationPort translationPort) {
         this.chatMessageRepository = chatMessageRepository;
-        this.chatRoomUserRepository = chatRoomUserRepository;
+        this.languageRepository = languageRepository;
         this.translationPort = translationPort;
     }
 
@@ -41,11 +42,10 @@ public class ChatMessageService {
                 cmd.originalText(),
                 cmd.originalLang());
 
-        // 타겟 언어 조회 (채팅방 참여자들의 모국어)
-        List<String> targetLangs = chatRoomUserRepository.findActiveUserLanguages(cmd.roomId())
+        // 타겟 언어 조회 (전체 지원 언어 중 원문 언어 제외)
+        List<String> targetLangs = languageRepository.findAllActiveLangCodes()
                 .stream()
                 .filter(lang -> !lang.equalsIgnoreCase(cmd.originalLang())) // 원문 언어 제외
-                .distinct()
                 .toList();
 
         // 번역
