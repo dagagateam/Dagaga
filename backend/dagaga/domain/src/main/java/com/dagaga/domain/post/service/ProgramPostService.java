@@ -1,5 +1,6 @@
 package com.dagaga.domain.post.service;
 
+import com.dagaga.domain.post.dto.ProgramPostDetailResponse;
 import com.dagaga.domain.post.dto.ProgramPostResponse;
 import com.dagaga.domain.post.entity.Location;
 import com.dagaga.domain.post.entity.Post;
@@ -28,6 +29,52 @@ public class ProgramPostService {
 
     private static final String DEFAULT_CATEGORY = "PROGRAM";
     private static final Integer ADMIN_USER_ID = 1; // Assuming admin user ID is 1
+
+    /**
+     * 특정 프로그램 게시글 상세 내용을 조회합니다.
+     */
+    @Transactional
+    public ProgramPostDetailResponse getProgramPostDetail(Integer postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. (ID: " + postId + ")"));
+
+        // 조회수 증가
+        post.incrementViewCount();
+
+        // 관련 프로그램 정보 조회 (프로그램 게시글인 경우)
+        Program program = null;
+        if (post.getArticleSeq() != null) {
+            program = programRepository.findAllByArticleSeqIn(java.util.List.of(post.getArticleSeq()))
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        // 관련 이미지 조회
+        java.util.List<String> imageUrls = java.util.Collections.emptyList();
+        if (post.getArticleSeq() != null) {
+            imageUrls = programImageRepository.findAllByArticleSeqOrderByImageOrderAsc(post.getArticleSeq())
+                    .stream()
+                    .map(com.dagaga.domain.post.entity.ProgramImage::getImageUrl)
+                    .toList();
+        } else if (post.getContentImages() != null) {
+            imageUrls = post.getContentImages();
+        }
+
+        return ProgramPostDetailResponse.builder()
+                .postId(post.getPostId())
+                .category(post.getCategory())
+                .contact(program != null ? program.getContact() : null)
+                .title(post.getTitle())
+                .content(post.getContent())
+                .locationId(post.getLocationId())
+                .viewCount(post.getViewCount())
+                .createdAt(post.getCreatedAt())
+                .updatedAt(program != null ? program.getUpdatedAt() : post.getCreatedAt())
+                .capacity(program != null ? program.getCapacity() : null)
+                .imageUrls(imageUrls)
+                .build();
+    }
 
     /**
      * 모든 프로그램을 게시글로 동기화합니다.

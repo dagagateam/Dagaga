@@ -54,6 +54,10 @@ public class Post {
         }
     }
 
+    public void incrementViewCount() {
+        this.viewCount++;
+    }
+
     @Builder
     public Post(Integer userId, String category, Integer locationId, String title, String content,
             java.util.List<String> contentImages,

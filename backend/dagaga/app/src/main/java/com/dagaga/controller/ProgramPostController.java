@@ -2,6 +2,7 @@ package com.dagaga.controller;
 
 import com.dagaga.common.constants.ApiConstants;
 import com.dagaga.common.response.ApiResponse;
+import com.dagaga.domain.post.dto.ProgramPostDetailResponse;
 import com.dagaga.domain.post.dto.ProgramPostResponse;
 import com.dagaga.domain.post.service.ProgramPostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +42,19 @@ public class ProgramPostController {
                 Pageable pageable = PageRequest.of(page, size);
                 Page<ProgramPostResponse> response = programPostService.getProgramPosts(pageable);
                 return ResponseEntity.ok(ApiResponse.success("프로그램 게시글 조회가 완료되었습니다.", response));
+        }
+
+        @Operation(summary = "프로그램 게시글 상세 조회", description = "특정 프로그램 게시글의 상세 내용을 조회합니다.")
+        @ApiResponses(value = {
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = ApiConstants.SUCCESS_CODE, description = "조회 성공", content = @Content(schema = @Schema(implementation = ProgramPostDetailResponse.class))),
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = ApiConstants.BAD_REQUEST_CODE, description = "게시글을 찾을 수 없음"),
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = ApiConstants.INTERNAL_SERVER_ERROR_CODE, description = "서버 내부 오류")
+        })
+        @GetMapping("/{postId}")
+        public ResponseEntity<ApiResponse<ProgramPostDetailResponse>> getProgramPostDetail(
+                        @PathVariable Integer postId) {
+                ProgramPostDetailResponse response = programPostService.getProgramPostDetail(postId);
+                return ResponseEntity.ok(ApiResponse.success("프로그램 게시글 상세 조회가 완료되었습니다.", response));
         }
 
         // TODO: 데이터 동기화를 API 요청으로 해결해야하나? Scheduler + ShedLock으로 하면 안됨?
