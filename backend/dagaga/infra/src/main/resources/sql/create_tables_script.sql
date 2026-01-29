@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS posts (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     content_image TEXT,
+    article_seq INT,
     view_count INT DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -239,6 +240,9 @@ CREATE INDEX IF NOT EXISTS idx_post_likes_post ON post_likes(post_id);
 -- 프로그램(다누리 크롤링 데이터) 관련 인덱스
 -- 크롤링 중복 검사 최적화 (데일리 업데이트 시 article_seq 존재 여부 확인)
 CREATE INDEX IF NOT EXISTS idx_programs_article_seq ON programs(article_seq);
+
+-- 생성되는 포스트에서 기반이 되는 크롤링 데이터 인덱스 추가 
+CREATE INDEX idx_posts_article_seq ON posts(article_seq);
 
 -- 지역별 프로그램 검색/필터링 최적화
 CREATE INDEX IF NOT EXISTS idx_programs_region ON programs(program_region);
