@@ -7,7 +7,7 @@ import Login from "../pages/Login/Login";
 import Signup from "../pages/Signup/Signup";
 import CommunityInfo from "../pages/Community/Info/CommunityInfo";
 import CommunityInfoDetail from "../pages/Community/Info/CommunityInfoDetail";
-
+import CommunityChatList from "../pages/Community/Chat/CommunityChatList";
 import ProblemNative from "../pages/problem-native/problem-native";
 
 const router = createBrowserRouter([
@@ -47,8 +47,12 @@ const router = createBrowserRouter([
                 element: <CommunityInfoDetail />,
             },
             {
-              path: "problem-translate/:problemId",
-              element: <ProblemNative />,
+                path: "problem-translate/:problemId",
+                element: <ProblemNative />,
+            },
+            {
+                path: "community/chat",
+                element: <CommunityChatList />,
             },
         ],
     },

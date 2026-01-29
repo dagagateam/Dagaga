@@ -1,0 +1,494 @@
+.community-chat-container {
+    padding-bottom: 50px;
+    /* background-color: #fcfcfc; */
+    min-height: calc(100vh - 80px); /* Adjust based on navbar height */
+}
+
+/* Header Section */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 20px 20px;
+    margin-bottom: 20px;
+}
+
+.chat-header h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chat-location-badge {
+    color: #F8B15E; /* Theme color */
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.create-chat-btn {
+    background-color: #F8B15E;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px; /* Pill shape */
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 6px rgba(248, 177, 94, 0.3);
+}
+
+.create-chat-btn:hover {
+    background-color: #e09f4e;
+}
+
+/* Regional Chat Section (Large Card) */
+.regional-chat-section {
+    margin-bottom: 40px;
+}
+
+.section-label-badge {
+    display: inline-block;
+    background-color: #F8B15E;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.section-label-badge {
+    display: inline-block;
+    background-color: #F8B15E;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+}
+
+.regional-chat-card {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    overflow: hidden;
+    display: flex;
+    height: 300px;
+    /* border-bottom removed */
+}
+
+/* ... */
+
+.user-chat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05); /* Matched Info Page */
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+    /* border-bottom removed */
+}
+
+.user-chat-card:hover {
+    transform: translateY(-3px); /* Matched Info Page hover transform */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1); /* Matched Info Page hover shadow */
+}
+
+.chat-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space out group and button */
+    margin-bottom: 15px;
+}
+
+.header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.creator-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.creator-name {
+    font-weight: 800;
+    font-size: 1rem;
+    color: #333;
+}
+
+.user-join-btn {
+    background-color: #F8B15E;
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 8px; /* Less rounded */
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.chat-card-body {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end; /* Align to bottom for title */
+}
+
+.chat-card-thm-wrapper {
+    width: 90px;
+    height: 90px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.chat-card-thm {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Content at bottom */
+    height: 90px; /* Match image height */
+}
+
+.chat-participants {
+    font-size: 0.8rem;
+    color: #888;
+    align-self: flex-end; /* Align right */
+    margin-bottom: auto; /* Push to top */
+}
+
+.chat-title {
+    font-weight: 800;
+    font-size: 1.1rem;
+    margin: 0;
+    line-height: 1.3;
+    text-align: right; /* Right align title as per visual hierarchy request, or left? Let's check visual.
+                     Visual shows title on right, heavily weighted at bottom? 
+                     Actually visual shows title "한국어 공부 같이해요" at bottom right. */
+    word-break: keep-all;
+}
+
+.chat-location-badge {
+    color: #F8B15E; /* Theme color */
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.create-chat-btn {
+    background-color: #F8B15E;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px; /* Pill shape */
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 6px rgba(248, 177, 94, 0.3);
+}
+
+.create-chat-btn:hover {
+    background-color: #e09f4e;
+}
+
+/* Top Section Layout */
+.top-section-layout {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 5px; /* Further reduced */
+}
+
+@media (max-width: 992px) {
+    .top-section-layout {
+        flex-direction: column;
+    }
+}
+
+/* Regional Chat Section (Large Card) */
+.regional-chat-section {
+    flex: 2; /* Takes up 2/3 space */
+}
+
+/* Joined Chats Section */
+.joined-chats-section {
+    flex: 1; /* Takes up 1/3 space */
+    background-color: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    height: 240px; /* Match regional card height */
+    display: flex;
+    flex-direction: column;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.joined-chats-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px; /* Space for scrollbar */
+}
+
+/* Custom scrollbar for joined list */
+.joined-chats-list::-webkit-scrollbar {
+    width: 4px;
+}
+.joined-chats-list::-webkit-scrollbar-thumb {
+    background-color: #ddd;
+    border-radius: 2px;
+}
+
+.joined-chat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.joined-chat-item:last-child {
+    border-bottom: none;
+}
+
+.joined-chat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.joined-chat-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #333;
+    margin-bottom: 2px;
+}
+
+.joined-chat-count {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.enter-btn {
+    background-color: #f0f0f0;
+    color: #333;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.enter-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.no-joined-chats {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.regional-chat-card {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    overflow: hidden;
+    display: flex;
+    height: 240px;
+    width: 100%;
+}
+
+.regional-card-content {
+    flex: 1;
+    padding: 30px; /* Reduced padding */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.regional-card-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 20px; /* Reduced margin */
+    color: #222;
+}
+
+.join-btn {
+    background-color: #F8B15E;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 10px rgba(248, 177, 94, 0.4);
+}
+
+.participant-info {
+    margin-left: 15px;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.regional-card-image {
+    flex: 1.2; /* Take slightly more space */
+    background-color: #eee;
+}
+
+.regional-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* User Chat Section */
+.user-chat-section {
+    margin-bottom: 40px;
+}
+
+.user-chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.chat-search-input {
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    width: 300px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.chat-search-input:focus {
+    border-color: #F8B15E;
+}
+
+.user-chat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.user-chat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s;
+}
+
+.user-chat-card:hover {
+    transform: translateY(-5px);
+}
+
+.chat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.creator-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.creator-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #333;
+}
+
+.user-join-btn {
+    margin-left: auto; /* Push to right */
+    background-color: #F8B15E;
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.chat-card-body {
+    display: flex;
+    gap: 15px;
+}
+
+.chat-card-info {
+    flex: 1;
+}
+
+.chat-title {
+    font-weight: 800;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+    line-height: 1.3;
+}
+
+.chat-desc {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.chat-participants {
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.chat-card-thm {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    object-fit: cover;
+    background-color: #eee;
+}
