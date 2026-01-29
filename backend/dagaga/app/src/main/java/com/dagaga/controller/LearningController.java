@@ -267,5 +267,70 @@ public class LearningController {
         }
     }
 
+    /**
+     * 텍스트를 음성으로 변환 (TTS)
+     */
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.SUCCESS_CODE,
+                    description = "TTS 변환 성공"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.BAD_REQUEST_CODE,
+                    description = "잘못된 요청"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = ApiConstants.INTERNAL_SERVER_ERROR_CODE,
+                    description = "서버 오류 또는 FastAPI 통신 오류"
+            )
+    })
+    @PostMapping("/tts")
+    public ResponseEntity<byte[]> synthesizeSpeech(
+            @Parameter(description = "음성으로 변환할 텍스트", required = true)
+            @RequestParam("text") String text,
+            @Parameter(description = "언어 코드 (기본: ko)", required = false)
+            @RequestParam(value = "language", defaultValue = "ko") String language
+    ) {
+        log.info("TTS request - text: {}, language: {}", text, language);
+
+        try {
+            // FastAPI로 전달할 URL
+            String fastApiUrl = translateService.getFastApiBaseUrl() + "/api/v1/tts/synthesize";
+
+            // Form 데이터 준비
+            org.springframework.util.LinkedMultiValueMap<String, Object> body =
+                new org.springframework.util.LinkedMultiValueMap<>();
+            body.add("text", text);
+            body.add("language", language);
+
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            org.springframework.http.HttpEntity<org.springframework.util.LinkedMultiValueMap<String, Object>> requestEntity =
+                new org.springframework.http.HttpEntity<>(body, headers);
+
+            // RestTemplate으로 FastAPI 호출
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            org.springframework.http.ResponseEntity<byte[]> response =
+                restTemplate.postForEntity(fastApiUrl, requestEntity, byte[].class);
+
+            log.info("TTS synthesis completed successfully");
+
+            // 응답 헤더 설정
+            org.springframework.http.HttpHeaders responseHeaders = new org.springframework.http.HttpHeaders();
+            responseHeaders.setContentType(MediaType.parseMediaType("audio/mpeg"));
+            responseHeaders.setContentDispositionFormData("attachment", "tts_" + language + ".mp3");
+
+            return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(response.getBody());
+
+        } catch (Exception e) {
+            log.error("TTS synthesis failed", e);
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(null);
+        }
+    }
+
     
 }
