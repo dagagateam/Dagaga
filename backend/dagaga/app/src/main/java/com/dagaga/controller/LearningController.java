@@ -26,6 +26,9 @@ public class LearningController {
     private final TranslateService translateService;
     private final com.dagaga.domain.learning.service.QuestionService questionService;
     
+    @org.springframework.beans.factory.annotation.Value("${gms.api.url}")
+    private String gmsApiUrl;
+    
     // swagger check
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -93,7 +96,7 @@ public class LearningController {
      */
     private java.util.List<String> callGmsTokenizeApi(String text) {
         try {
-            String gmsApiUrl = "http://localhost:8001/api/v1/tokenize";
+            String apiUrl = gmsApiUrl + "/api/v1/tokenize";
             
             // 요청 본문 생성
             java.util.Map<String, String> requestBody = new java.util.HashMap<>();
@@ -109,7 +112,7 @@ public class LearningController {
             org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
             org.springframework.http.ResponseEntity<java.util.Map<String, Object>> response =
                 restTemplate.exchange(
-                    gmsApiUrl, 
+                    apiUrl, 
                     org.springframework.http.HttpMethod.POST, 
                     requestEntity,
                     new org.springframework.core.ParameterizedTypeReference<java.util.Map<String, Object>>() {}
@@ -137,7 +140,7 @@ public class LearningController {
      */
     private java.util.List<String> callGmsPronunciationGuideApi(java.util.List<String> words) {
         try {
-            String gmsApiUrl = "http://localhost:8001/api/v1/pronunciation-guide";
+            String apiUrl = gmsApiUrl + "/api/v1/pronunciation-guide";
             
             // 요청 본문 생성
             java.util.Map<String, Object> requestBody = new java.util.HashMap<>();
@@ -153,7 +156,7 @@ public class LearningController {
             org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
             org.springframework.http.ResponseEntity<java.util.Map<String, Object>> response =
                 restTemplate.exchange(
-                    gmsApiUrl, 
+                    apiUrl, 
                     org.springframework.http.HttpMethod.POST, 
                     requestEntity,
                     new org.springframework.core.ParameterizedTypeReference<java.util.Map<String, Object>>() {}
@@ -258,12 +261,26 @@ public class LearningController {
     ) {
         log.info("Fetching question with example for category: {}, order: {}", categoryId, orderIndex);
         
-        com.dagaga.domain.learning.dto.QuestionWithExampleResponse response = 
+        com.dagaga.domain.learning.dto.QuestionWithExampleResponse originalResponse = 
                 questionService.getQuestionWithExample(categoryId, orderIndex);
+        
+        // GMS API를 통해 단어 분리 및 발음 가이드 생성
+        String exampleAnswer = originalResponse.getExampleAnswer();
+        java.util.List<String> words = callGmsTokenizeApi(exampleAnswer);
+        java.util.List<String> pronunciationGuide = callGmsPronunciationGuideApi(words);
+        
+        // 새로운 응답 객체 생성 (빌더 패턴 사용)
+        com.dagaga.domain.learning.dto.QuestionWithExampleResponse enhancedResponse = 
+                com.dagaga.domain.learning.dto.QuestionWithExampleResponse.builder()
+                    .questionText(originalResponse.getQuestionText())
+                    .exampleAnswer(exampleAnswer)
+                    .words(words)
+                    .pronunciationGuide(pronunciationGuide)
+                    .build();
         
         return ResponseEntity.ok(ApiResponse.success(
                 "질문 및 예시 답변 조회 성공", 
-                response
+                enhancedResponse
         ));
     }
     
