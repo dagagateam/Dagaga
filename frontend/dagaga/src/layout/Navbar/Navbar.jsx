@@ -30,7 +30,7 @@ const Navbar = () => {
 
             <Dropdown.Menu className="custom-dropdown-menu">
               <Dropdown.Item href="#">채팅</Dropdown.Item>
-              <Dropdown.Item href="#">정보</Dropdown.Item>
+              <Dropdown.Item as={Link} to="/community/info">정보</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
           <Nav.Link href="#" className="fw-medium text-dark p-0">
