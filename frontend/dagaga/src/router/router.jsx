@@ -14,72 +14,71 @@ import MyPage from "../pages/my-page/MyPage";
 import MyPageEdit from "../pages/my-page-edit/MyPageEdit";
 
 const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <Navigate to="/login" replace />,
-    },
-    {
-        path: "/login",
-        element: <Login />,
-    },
-    {
-        path: "/signup",
-        element: <Signup />,
-    },
-    {
-        element: <App />,
-        children: [
-            {
-                path: "scenario-select",
-                element: <ScenarioSelect />,
-            },
-            {
-                path: "problem-select/:categoryId",
-                element: <ProblemSelect />,
-            },
-            {
-                path: "problem/:problemId",
-                element: <Problem />,
-            },
-            {
-                path: "community/info",
-                element: <CommunityInfo />,
-            },
-            {
-                path: "community/info/:id",
-                element: <CommunityInfoDetail />,
-            },
-            {
-                path: "problem-translate/:problemId",
-                element: <ProblemNative />,
-            },
-            {
-                path: "community/chat",
-                element: <CommunityChatList />,
-            },
-            {
-                path: "community/chat/room/:id",
-                element: <CommunityChatRoom />,
-            },
-            {
-              path: "my-page",
-              element: <MyPage />,
-            },
-            {
-              path: "my-page/edit",
-              element: <MyPageEdit />,
-            },
-            {
-              path: "my-page",
-              element: <MyPage />,
-            },
-            {
-              path: "my-page/edit",
-              element: <MyPageEdit />,
-            },
-        ],
-    },
+  {
+    path: "/",
+    element: <Navigate to="/login" replace />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <Signup />,
+  },
+  {
+    element: <App />,
+    children: [
+      {
+        path: "scenario-select",
+        element: <ScenarioSelect />,
+      },
+      {
+        path: "problem-select/:categoryId",
+        element: <ProblemSelect />,
+      },
+      {
+        path: "problem/:problemId",
+        element: <Problem />,
+      },
+      {
+        path: "community/info",
+        element: <CommunityInfo />,
+      },
+      {
+        path: "community/info/:id",
+        element: <CommunityInfoDetail />,
+      },
+      {
+        path: "problem-translate/:problemId",
+        element: <ProblemNative />,
+      },
+      {
+        path: "community/chat",
+        element: <CommunityChatList />,
+      },
+      {
+        path: "community/chat/room/:id",
+        element: <CommunityChatRoom />,
+      },
+      {
+        path: "my-page",
+        element: <MyPage />,
+      },
+      {
+        path: "my-page/edit",
+        element: <MyPageEdit />,
+      },
+      {
+        path: "my-page",
+        element: <MyPage />,
+      },
+      {
+        path: "my-page/edit",
+        element: <MyPageEdit />,
+      },
+    ],
+  },
 ]);
 
 export default router;
-
