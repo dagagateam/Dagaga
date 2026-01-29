@@ -6,6 +6,7 @@ import Problem from "../pages/Problem/Problem";
 import Login from "../pages/Login/Login";
 import Signup from "../pages/Signup/Signup";
 import CommunityInfo from "../pages/Community/Info/CommunityInfo";
+import CommunityInfoDetail from "../pages/Community/Info/CommunityInfoDetail";
 
 const router = createBrowserRouter([
     {
@@ -32,12 +33,16 @@ const router = createBrowserRouter([
                 element: <ProblemSelect />,
             },
             {
-              path: "problem/:problemId",
-              element: <Problem />,
-            },  
+                path: "problem/:problemId",
+                element: <Problem />,
+            },
             {
                 path: "community/info",
                 element: <CommunityInfo />,
+            },
+            {
+                path: "community/info/:id",
+                element: <CommunityInfoDetail />,
             },
         ],
     },

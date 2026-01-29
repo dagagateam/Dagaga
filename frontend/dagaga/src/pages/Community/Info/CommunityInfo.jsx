@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './CommunityInfo.css';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { fetchCommunityInfo } from '../../../api/communityApi';
@@ -9,6 +10,7 @@ import bookmarkedIcon from '../../../assets/icons/bookmark.png';
 import unbookmarkIcon from '../../../assets/icons/unbookmark.png';
 
 const CommunityInfo = () => {
+    const navigate = useNavigate();
     const [infos, setInfos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [userRegion, setUserRegion] = useState('');
@@ -22,13 +24,13 @@ const CommunityInfo = () => {
     };
 
     const toggleLike = (id) => {
-        setInfos(infos.map(info => 
+        setInfos(infos.map(info =>
             info.id === id ? { ...info, isLiked: !info.isLiked } : info
         ));
     };
 
     const toggleBookmark = (id) => {
-        setInfos(infos.map(info => 
+        setInfos(infos.map(info =>
             info.id === id ? { ...info, isBookmarked: !info.isBookmarked } : info
         ));
     };
@@ -39,7 +41,7 @@ const CommunityInfo = () => {
         setUserRegion(region || '서울 종로구'); // Fallback to default if not found
 
         const loadData = async () => {
-             // To verify the loading state or handle errors, we utilize try-catch block here.
+            // To verify the loading state or handle errors, we utilize try-catch block here.
             try {
                 const response = await fetchCommunityInfo(0, 20);
                 const items = response.data.items.map(item => ({
@@ -50,7 +52,7 @@ const CommunityInfo = () => {
                     applicationPeriod: parseDateFromContent(item.content, "접수기간"),
                     progressPeriod: parseDateFromContent(item.content, "프로그램기간"),
                     // Use image from API or fallback
-                    image: item.image || `https://via.placeholder.com/600x300/F8B15E/FFFFFF?text=${encodeURIComponent(item.organization)}`, 
+                    image: item.image || `https://via.placeholder.com/600x300/F8B15E/FFFFFF?text=${encodeURIComponent(item.organization)}`,
                     isLiked: false,
                     isBookmarked: false
                 }));
@@ -81,7 +83,7 @@ const CommunityInfo = () => {
                 {/* Info List */}
                 <div className="info-list">
                     {infos.map((info) => (
-                        <Card key={info.id} className="info-card">
+                        <Card key={info.id} className="info-card" onClick={() => navigate(`/community/info/${info.id}`)} style={{ cursor: 'pointer' }}>
                             <div className="info-card-inner">
                                 {/* Left: Image */}
                                 <div className="info-img-wrapper">
@@ -96,18 +98,18 @@ const CommunityInfo = () => {
                                             <span className="org-name">{info.orgName}</span>
                                         </div>
                                         <div className="action-icons">
-                                            <button className="icon-btn" onClick={() => toggleLike(info.id)}>
-                                                <img 
-                                                    src={info.isLiked ? heartIcon : unheartIcon} 
-                                                    alt="Like" 
-                                                    className="icon-img" 
+                                            <button className="icon-btn" onClick={(e) => { e.stopPropagation(); toggleLike(info.id); }}>
+                                                <img
+                                                    src={info.isLiked ? heartIcon : unheartIcon}
+                                                    alt="Like"
+                                                    className="icon-img"
                                                 />
                                             </button>
-                                            <button className="icon-btn" onClick={() => toggleBookmark(info.id)}>
-                                                <img 
-                                                    src={info.isBookmarked ? bookmarkedIcon : unbookmarkIcon} 
-                                                    alt="Bookmark" 
-                                                    className="icon-img" 
+                                            <button className="icon-btn" onClick={(e) => { e.stopPropagation(); toggleBookmark(info.id); }}>
+                                                <img
+                                                    src={info.isBookmarked ? bookmarkedIcon : unbookmarkIcon}
+                                                    alt="Bookmark"
+                                                    className="icon-img"
                                                 />
                                             </button>
                                         </div>
