@@ -1,6 +1,6 @@
 package com.dagaga.chat.adapter;
 
-import com.dagaga.chat.adapter.dto.GeminiExternalDto;
+import com.dagaga.chat.dto.GeminiExternalDto;
 import com.dagaga.domain.chat.translate.port.TranslationPort;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

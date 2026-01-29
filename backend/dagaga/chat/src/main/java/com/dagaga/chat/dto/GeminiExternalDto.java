@@ -1,4 +1,4 @@
-package com.dagaga.chat.adapter.dto;
+package com.dagaga.chat.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
