@@ -8,6 +8,7 @@ import Signup from "../pages/Signup/Signup";
 import CommunityInfo from "../pages/Community/Info/CommunityInfo";
 import CommunityInfoDetail from "../pages/Community/Info/CommunityInfoDetail";
 import CommunityChatList from "../pages/Community/Chat/CommunityChatList";
+import CommunityChatRoom from "../pages/Community/Chat/CommunityChatRoom";
 import ProblemNative from "../pages/problem-native/problem-native";
 
 const router = createBrowserRouter([
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
             {
                 path: "community/chat",
                 element: <CommunityChatList />,
+            },
+            {
+                path: "community/chat/room/:id",
+                element: <CommunityChatRoom />,
             },
         ],
     },

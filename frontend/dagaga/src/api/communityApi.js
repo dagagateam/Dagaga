@@ -143,6 +143,15 @@ export const fetchChatRooms = async () => {
                             participantCount: 5,
                             image: "https://via.placeholder.com/150",
                             description: "한글 같이 배워요"
+                        },
+                        {
+                            id: 105,
+                            title: "한글 공부방",
+                            creator: "버터",
+                            avatar: "https://i.pravatar.cc/150?u=butter",
+                            participantCount: 5,
+                            image: "https://via.placeholder.com/150",
+                            description: "한글 같이 배워요"
                         }
                     ]
                 }
