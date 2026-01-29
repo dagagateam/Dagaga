@@ -15,7 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -44,14 +44,14 @@ public class ProgramPostService {
         // 관련 프로그램 정보 조회 (프로그램 게시글인 경우)
         Program program = null;
         if (post.getArticleSeq() != null) {
-            program = programRepository.findAllByArticleSeqIn(java.util.List.of(post.getArticleSeq()))
+            program = programRepository.findAllByArticleSeqIn(List.of(post.getArticleSeq()))
                     .stream()
                     .findFirst()
                     .orElse(null);
         }
 
         // 관련 이미지 조회
-        java.util.List<String> imageUrls = java.util.Collections.emptyList();
+        List<String> imageUrls = Collections.emptyList();
         if (post.getArticleSeq() != null) {
             imageUrls = programImageRepository.findAllByArticleSeqOrderByImageOrderAsc(post.getArticleSeq())
                     .stream()
@@ -95,7 +95,7 @@ public class ProgramPostService {
     private void createPostFromProgram(Program program) {
         Integer locationId = mapRegionToLocationId(program.getProgramRegion());
 
-        java.util.List<String> imageUrls = programImageRepository
+        List<String> imageUrls = programImageRepository
                 .findAllByArticleSeqOrderByImageOrderAsc(program.getArticleSeq())
                 .stream()
                 .map(com.dagaga.domain.post.entity.ProgramImage::getImageUrl)
@@ -128,14 +128,14 @@ public class ProgramPostService {
             String parentName = parts[0];
             String districtName = parts[parts.length - 1];
 
-            java.util.List<Location> locations = locationRepository
+            List<Location> locations = locationRepository
                     .findByDistrictNameAndDepthAndParentName(districtName, 2, parentName);
             if (!locations.isEmpty()) {
                 return locations.get(0).getLocationId();
             }
         } else if (parts.length == 1) {
             String districtName = parts[0];
-            java.util.List<Location> locations = locationRepository.findByDistrictNameAndDepth(districtName, 2);
+            List<Location> locations = locationRepository.findByDistrictNameAndDepth(districtName, 2);
             if (!locations.isEmpty()) {
                 return locations.get(0).getLocationId();
             }
@@ -156,18 +156,18 @@ public class ProgramPostService {
         }
 
         // Fetch programs for the posts in current page to optimize
-        java.util.List<Integer> articleSeqs = posts.getContent().stream()
+        List<Integer> articleSeqs = posts.getContent().stream()
                 .map(Post::getArticleSeq)
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .toList();
 
         // Fetch programs ONLY for the matching article sequences to optimize
         // performance
-        java.util.Map<Integer, Program> programMap = programRepository.findAllByArticleSeqIn(articleSeqs).stream()
+        Map<Integer, Program> programMap = programRepository.findAllByArticleSeqIn(articleSeqs).stream()
                 .collect(java.util.stream.Collectors.toMap(Program::getArticleSeq, p -> p));
 
         // Fetch multiple images for each program
-        java.util.Map<Integer, java.util.List<String>> imageMap = programImageRepository
+        Map<Integer, List<String>> imageMap = programImageRepository
                 .findAllByArticleSeqIn(articleSeqs).stream()
                 .collect(java.util.stream.Collectors.groupingBy(
                         com.dagaga.domain.post.entity.ProgramImage::getArticleSeq,
@@ -176,8 +176,8 @@ public class ProgramPostService {
 
         return posts.map(post -> {
             Program program = programMap.get(post.getArticleSeq());
-            java.util.List<String> imageUrls = imageMap.getOrDefault(post.getArticleSeq(),
-                    java.util.Collections.emptyList());
+            List<String> imageUrls = imageMap.getOrDefault(post.getArticleSeq(),
+                    Collections.emptyList());
 
             return ProgramPostResponse.builder()
                     .postId(post.getPostId())
