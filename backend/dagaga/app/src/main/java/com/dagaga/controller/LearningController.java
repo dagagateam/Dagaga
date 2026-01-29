@@ -66,10 +66,19 @@ public class LearningController {
             );
             
             var response = translateService.translateAudioFile(fileData);
+            String translatedText = response.getTranslatedText();
             
-            // 번역 텍스트만 추출하여 반환
+            // GMS API를 호출하여 번역된 텍스트를 단어 단위로 분리
+            java.util.List<String> words = callGmsTokenizeApi(translatedText);
+            
+            // GMS API를 호출하여 발음 가이드 생성
+            java.util.List<String> pronunciationGuide = callGmsPronunciationGuideApi(words);
+            
+            // 번역 텍스트, 단어 리스트, 발음 가이드 반환
             TranslateResultDto result = TranslateResultDto.builder()
-                    .translatedText(response.getTranslatedText())
+                    .translatedText(translatedText)
+                    .words(words)
+                    .pronunciationGuide(pronunciationGuide)
                     .build();
             
             return ResponseEntity.ok(ApiResponse.success("음성 파일 번역이 완료", result));
@@ -78,7 +87,96 @@ public class LearningController {
             throw new RuntimeException("파일을 읽는 중 오류가 발생했습니다.", e);
         }
     }
+    
+    /**
+     * GMS API를 호출하여 텍스트를 단어 단위로 분리
+     */
+    private java.util.List<String> callGmsTokenizeApi(String text) {
+        try {
+            String gmsApiUrl = "http://localhost:8001/api/v1/tokenize";
+            
+            // 요청 본문 생성
+            java.util.Map<String, String> requestBody = new java.util.HashMap<>();
+            requestBody.put("text", text);
+            
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            org.springframework.http.HttpEntity<java.util.Map<String, String>> requestEntity =
+                new org.springframework.http.HttpEntity<>(requestBody, headers);
+            
+            // RestTemplate으로 GMS API 호출
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            org.springframework.http.ResponseEntity<java.util.Map<String, Object>> response =
+                restTemplate.exchange(
+                    gmsApiUrl, 
+                    org.springframework.http.HttpMethod.POST, 
+                    requestEntity,
+                    new org.springframework.core.ParameterizedTypeReference<java.util.Map<String, Object>>() {}
+                );
+            
+            // 응답에서 words 추출
+            java.util.Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null && responseBody.containsKey("words")) {
+                @SuppressWarnings("unchecked")
+                java.util.List<String> words = (java.util.List<String>) responseBody.get("words");
+                log.info("GMS tokenization completed: {} words", words.size());
+                return words;
+            }
+            
+            return java.util.Collections.emptyList();
+        } catch (Exception e) {
+            log.error("GMS API call failed: {}", e.getMessage());
+            // GMS API 실패 시 빈 리스트 반환
+            return java.util.Collections.emptyList();
+        }
+    }
 
+    /**
+     * GMS API를 호출하여 발음 가이드 생성
+     */
+    private java.util.List<String> callGmsPronunciationGuideApi(java.util.List<String> words) {
+        try {
+            String gmsApiUrl = "http://localhost:8001/api/v1/pronunciation-guide";
+            
+            // 요청 본문 생성
+            java.util.Map<String, Object> requestBody = new java.util.HashMap<>();
+            requestBody.put("words", words);
+            
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            org.springframework.http.HttpEntity<java.util.Map<String, Object>> requestEntity =
+                new org.springframework.http.HttpEntity<>(requestBody, headers);
+            
+            // RestTemplate으로 GMS API 호출
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            org.springframework.http.ResponseEntity<java.util.Map<String, Object>> response =
+                restTemplate.exchange(
+                    gmsApiUrl, 
+                    org.springframework.http.HttpMethod.POST, 
+                    requestEntity,
+                    new org.springframework.core.ParameterizedTypeReference<java.util.Map<String, Object>>() {}
+                );
+            
+            // 응답에서 pronunciation_guide 추출
+            java.util.Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null && responseBody.containsKey("pronunciation_guide")) {
+                @SuppressWarnings("unchecked")
+                java.util.List<String> pronunciationGuide = (java.util.List<String>) responseBody.get("pronunciation_guide");
+                log.info("GMS pronunciation guide completed: {} pronunciations", pronunciationGuide.size());
+                return pronunciationGuide;
+            }
+            
+            // 실패 시 원본 단어 그대로 반환
+            return words;
+        } catch (Exception e) {
+            log.error("GMS pronunciation guide API call failed: {}", e.getMessage());
+            // GMS API 실패 시 원본 단어 그대로 반환
+            return words;
+        }
+    }
+    
     /**
      * 특정 카테고리의 질문 목록 조회
      */
@@ -123,7 +221,7 @@ public class LearningController {
     })
     @GetMapping("/categories/{categoryId}/stages/{orderIndex}/native")
     public ResponseEntity<ApiResponse<String>> getQuestionTextForNativeMode(
-            @Parameter(description = "카테고리명 (예: 자기소개, 학업, 주제)", required = true)
+            @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true)
             @PathVariable String categoryId,
             @Parameter(description = "질문 순서 (1부터 시작)", required = true)
             @PathVariable Integer orderIndex
