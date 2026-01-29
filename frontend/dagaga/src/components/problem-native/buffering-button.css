@@ -1,0 +1,27 @@
+.buffering-button {
+  width: 80px;
+  height: 80px;
+  border: none;
+  border-radius: 50%;
+  background: #F3AE5C;
+  box-shadow: 0 6px 0 #C9954A;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+}
+
+.buffering-spinner {
+  width: 36px;
+  height: 36px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  animation: buffering-spin 1s linear infinite;
+}
+
+@keyframes buffering-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

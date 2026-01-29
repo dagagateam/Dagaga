@@ -1,14 +1,21 @@
 .category-panel {
   position: relative;
-  width: 500px;
-  height: 100%;
+  width: 110vh; /* 20% bigger */
+  height: 110vh;
   background-color: #e8a549;
-  border-radius: 0 500px 500px 0;
-  padding: 80px 60px 80px 40px;
+  border-radius: 50%;
+  padding: 0 100px; /* Symmetrical padding */
   display: flex;
   flex-direction: column;
   gap: 20px;
   color: white;
+  justify-content: center; /* Center vertically */
+  align-items: center; /* Center horizontally */
+  text-align: left; /* text left */
+  align-self: center;
+  margin-left: -25vh; /* Adjust offset */
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
 .category-icon {
