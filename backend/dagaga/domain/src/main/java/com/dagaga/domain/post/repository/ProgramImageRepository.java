@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ProgramImageRepository extends JpaRepository<ProgramImage, Integer> {
     List<ProgramImage> findAllByArticleSeqOrderByImageOrderAsc(Integer articleSeq);
+
+    List<ProgramImage> findAllByArticleSeqIn(List<Integer> articleSeqs);
 }

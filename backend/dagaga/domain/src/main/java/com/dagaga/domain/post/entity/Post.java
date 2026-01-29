@@ -34,8 +34,9 @@ public class Post {
     @Column(name = "content", nullable = false)
     private String content;
 
+    @Convert(converter = com.dagaga.domain.post.converter.StringListConverter.class)
     @Column(name = "content_image")
-    private String contentImage;
+    private java.util.List<String> contentImages;
 
     @Column(name = "article_seq")
     private Integer articleSeq;
@@ -54,14 +55,15 @@ public class Post {
     }
 
     @Builder
-    public Post(Integer userId, String category, Integer locationId, String title, String content, String contentImage,
+    public Post(Integer userId, String category, Integer locationId, String title, String content,
+            java.util.List<String> contentImages,
             Integer articleSeq) {
         this.userId = userId;
         this.category = category;
         this.locationId = locationId;
         this.title = title;
         this.content = content;
-        this.contentImage = contentImage;
+        this.contentImages = contentImages;
         this.articleSeq = articleSeq;
     }
 }

@@ -38,6 +38,9 @@ class ProgramPostServiceTest {
     @Mock
     private LocationRepository locationRepository;
 
+    @Mock
+    private com.dagaga.domain.post.repository.ProgramImageRepository programImageRepository;
+
     @InjectMocks
     private ProgramPostService programPostService;
 
@@ -55,7 +58,7 @@ class ProgramPostServiceTest {
 
         Location location = mock(Location.class);
         given(location.getLocationId()).willReturn(10);
-        given(locationRepository.findByDistrictNameAndDepth("수원시", 2)).willReturn(Optional.of(location));
+        given(locationRepository.findByDistrictNameAndDepthAndParentName("수원시", 2, "경기")).willReturn(List.of(location));
 
         // when
         programPostService.syncProgramsToPosts();
@@ -85,6 +88,7 @@ class ProgramPostServiceTest {
         given(program.getUpdatedAt()).willReturn(LocalDateTime.now());
 
         given(programRepository.findAllByArticleSeqIn(any())).willReturn(List.of(program));
+        given(programImageRepository.findAllByArticleSeqIn(any())).willReturn(List.of());
 
         // when
         Page<ProgramPostResponse> result = programPostService.getProgramPosts(PageRequest.of(0, 10));

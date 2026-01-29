@@ -26,4 +26,6 @@ public class ProgramPostResponse {
     private LocalDateTime updatedAt;
 
     private String capacity;
+
+    private java.util.List<String> imageUrls;
 }

@@ -24,6 +24,7 @@ public class ProgramPostService {
     private final PostRepository postRepository;
     private final ProgramRepository programRepository;
     private final LocationRepository locationRepository;
+    private final com.dagaga.domain.post.repository.ProgramImageRepository programImageRepository;
 
     private static final String DEFAULT_CATEGORY = "PROGRAM";
     private static final Integer ADMIN_USER_ID = 1; // Assuming admin user ID is 1
@@ -47,17 +48,24 @@ public class ProgramPostService {
     private void createPostFromProgram(Program program) {
         Integer locationId = mapRegionToLocationId(program.getProgramRegion());
 
+        java.util.List<String> imageUrls = programImageRepository
+                .findAllByArticleSeqOrderByImageOrderAsc(program.getArticleSeq())
+                .stream()
+                .map(com.dagaga.domain.post.entity.ProgramImage::getImageUrl)
+                .toList();
+
         Post post = Post.builder()
                 .userId(ADMIN_USER_ID)
                 .category(DEFAULT_CATEGORY)
                 .locationId(locationId)
                 .title(program.getTitle())
                 .content(program.getContentText())
+                .contentImages(imageUrls)
                 .articleSeq(program.getArticleSeq())
                 .build();
 
         postRepository.save(post);
-        log.info("Created post for articleSeq: {}", program.getArticleSeq());
+        log.info("Created post with {} images for articleSeq: {}", imageUrls.size(), program.getArticleSeq());
     }
 
     /**
@@ -68,13 +76,25 @@ public class ProgramPostService {
             return 1; // Default or global location
         }
 
-        // program_region이 "서울 강남구"와 같은 형식일 수 있으므로 마지막 단어를 추출해봅니다.
         String[] parts = programRegion.split("\\s+");
-        String districtName = parts[parts.length - 1];
+        if (parts.length >= 2) {
+            String parentName = parts[0];
+            String districtName = parts[parts.length - 1];
 
-        return locationRepository.findByDistrictNameAndDepth(districtName, 2)
-                .map(Location::getLocationId)
-                .orElse(1); // Default to depth 1 or root if not found
+            java.util.List<Location> locations = locationRepository
+                    .findByDistrictNameAndDepthAndParentName(districtName, 2, parentName);
+            if (!locations.isEmpty()) {
+                return locations.get(0).getLocationId();
+            }
+        } else if (parts.length == 1) {
+            String districtName = parts[0];
+            java.util.List<Location> locations = locationRepository.findByDistrictNameAndDepth(districtName, 2);
+            if (!locations.isEmpty()) {
+                return locations.get(0).getLocationId();
+            }
+        }
+
+        return 1; // Default
     }
 
     /**
@@ -99,8 +119,18 @@ public class ProgramPostService {
         java.util.Map<Integer, Program> programMap = programRepository.findAllByArticleSeqIn(articleSeqs).stream()
                 .collect(java.util.stream.Collectors.toMap(Program::getArticleSeq, p -> p));
 
+        // Fetch multiple images for each program
+        java.util.Map<Integer, java.util.List<String>> imageMap = programImageRepository
+                .findAllByArticleSeqIn(articleSeqs).stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        com.dagaga.domain.post.entity.ProgramImage::getArticleSeq,
+                        java.util.stream.Collectors.mapping(com.dagaga.domain.post.entity.ProgramImage::getImageUrl,
+                                java.util.stream.Collectors.toList())));
+
         return posts.map(post -> {
             Program program = programMap.get(post.getArticleSeq());
+            java.util.List<String> imageUrls = imageMap.getOrDefault(post.getArticleSeq(),
+                    java.util.Collections.emptyList());
 
             return ProgramPostResponse.builder()
                     .postId(post.getPostId())
@@ -112,6 +142,7 @@ public class ProgramPostService {
                     .createdAt(post.getCreatedAt())
                     .updatedAt(program != null ? program.getUpdatedAt() : post.getCreatedAt())
                     .capacity(program != null ? program.getCapacity() : null)
+                    .imageUrls(imageUrls)
                     .build();
         });
     }
