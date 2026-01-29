@@ -206,13 +206,15 @@ public class LearningController {
             )
     })
     @PostMapping(value = "/shadowing/evaluate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<com.dagaga.domain.learning.dto.PronunciationEvaluationResponse>> evaluatePronunciation(
+    public ResponseEntity<ApiResponse<Boolean>> evaluatePronunciation(
             @Parameter(description = "업로드할 음성 파일", required = true)
             @RequestParam("file") MultipartFile file,
             @Parameter(description = "기대하는 텍스트 (예: '제 장점은')", required = true)
-            @RequestParam("expectedText") String expectedText
+            @RequestParam("expectedText") String expectedText,
+            @Parameter(description = "현재 시도 횟수 (5번 이상 시 자동 합격)", required = false)
+            @RequestParam(value = "retryCount", defaultValue = "0") Integer retryCount
     ) {
-        log.info("Pronunciation evaluation request - expectedText: {}", expectedText);
+        log.info("Pronunciation evaluation request - expectedText: {}, retryCount: {}", expectedText, retryCount);
 
         try {
             // FastAPI로 전달할 URL
@@ -228,6 +230,7 @@ public class LearningController {
                 }
             });
             body.add("expected_text", expectedText);
+            body.add("retry_count", retryCount);
             body.add("language", "ko");
 
             org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
@@ -248,35 +251,13 @@ public class LearningController {
                 throw new RuntimeException("FastAPI returned empty response");
             }
 
-            // 점수 파싱
-            @SuppressWarnings("unchecked")
-            java.util.Map<String, Double> scoresMap = 
-                (java.util.Map<String, Double>) responseBody.get("scores");
+            // isPass 값만 추출
+            Boolean isPass = (Boolean) responseBody.get("is_pass");
             
-            com.dagaga.domain.learning.dto.PronunciationScores scores = 
-                com.dagaga.domain.learning.dto.PronunciationScores.builder()
-                    .accuracy(scoresMap.get("accuracy"))
-                    .pronunciation(scoresMap.get("pronunciation"))
-                    .fluency(scoresMap.get("fluency"))
-                    .overall(scoresMap.get("overall"))
-                    .build();
-
-            // 응답 DTO 생성
-            com.dagaga.domain.learning.dto.PronunciationEvaluationResponse evaluationResponse = 
-                com.dagaga.domain.learning.dto.PronunciationEvaluationResponse.builder()
-                    .transcribedText((String) responseBody.get("transcribed_text"))
-                    .expectedText((String) responseBody.get("expected_text"))
-                    .scores(scores)
-                    .feedback((String) responseBody.get("feedback"))
-                    .isPass((Boolean) responseBody.get("is_pass"))
-                    .language((String) responseBody.get("language"))
-                    .build();
-
-            log.info("Evaluation completed - Score: {}, Pass: {}", 
-                scores.getOverall(), evaluationResponse.getIsPass());
+            log.info("Evaluation completed - Pass: {}", isPass);
 
             return ResponseEntity.ok(
-                ApiResponse.success("발음 평가 완료", evaluationResponse)
+                ApiResponse.success("발음 평가 완료", isPass)
             );
 
         } catch (Exception e) {
