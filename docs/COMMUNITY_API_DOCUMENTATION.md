@@ -24,21 +24,7 @@
   "message": "프로그램 게시글 조회가 완료되었습니다.",
   "data": {
     "content": [
-      {
-        "postId": 1,
-        "category": "PROGRAM",
-        "contact": "010-1234-5678",
-        "title": "다문화 가족 한국어 교실",
-        "locationId": 102,
-        "viewCount": 0,
-        "createdAt": "2026-01-29T10:00:00",
-        "updatedAt": "2026-01-29T10:00:00",
-        "capacity": "20명",
-        "imageUrls": [
-          "https://example.com/image1.jpg",
-          "https://example.com/image2.jpg"
-        ]
-      }
+      { ... }
     ],
     "pageable": { ... },
     "totalElements": 1,
@@ -47,7 +33,36 @@
 }
 ```
 
-### 1-2. 프로그램 데이터 동기화
+### 1-2. 프로그램 게시글 상세 조회
+특정 프로그램 게시글의 상세 내용을 조회하고 조회수를 1 증가시킵니다.
+
+- **URL**: `/{postId}`
+- **메서드**: `GET`
+- **응답 (200 SUCCESS)**:
+```json
+{
+  "success": true,
+  "message": "프로그램 게시글 상세 조회가 완료되었습니다.",
+  "data": {
+    "postId": 1,
+    "category": "PROGRAM",
+    "contact": "010-1234-5678",
+    "title": "다문화 가족 한국어 교실",
+    "content": "한국어 초급 반 모집 안내입니다...",
+    "locationId": 102,
+    "viewCount": 11,
+    "createdAt": "2026-01-29T10:00:00",
+    "updatedAt": "2026-01-29T10:00:00",
+    "capacity": "20명",
+    "imageUrls": [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg"
+    ]
+  }
+}
+```
+
+### 1-3. 프로그램 데이터 동기화
 크롤링된 프로그램 데이터를 기반으로 커뮤니티 게시글을 생성하는 수동 동기화 작업을 트리거합니다.
 
 - **URL**: `/sync`
@@ -71,6 +86,7 @@
 - **URL**: `/{postId}/comments`
 - **메서드**: `POST`
 - **요청 본문 (Request Body)**:
+
 | 필드명 | 타입 | 필수 여부 | 설명 |
 | :--- | :--- | :--- | :--- |
 | `content` | String | 예 | 댓글 내용 |
