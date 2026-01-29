@@ -94,7 +94,7 @@ public class LearningController {
     })
     @GetMapping("/categories/{categoryId}/stages")
     public ResponseEntity<ApiResponse<java.util.List<com.dagaga.domain.learning.dto.QuestionResponse>>> getQuestionsByCategory(
-            @Parameter(description = "카테고리명 (예: 자기소개, 학업, 주제)", required = true)
+            @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true)
             @PathVariable String categoryId
     ) {
         log.info("Fetching questions for category: {}", categoryId);
@@ -153,7 +153,7 @@ public class LearningController {
     })
     @GetMapping("/categories/{categoryId}/stages/{orderIndex}/example")
     public ResponseEntity<ApiResponse<com.dagaga.domain.learning.dto.QuestionWithExampleResponse>> getQuestionWithExample(
-            @Parameter(description = "카테고리명 (예: 자기소개, 학업, 주제)", required = true)
+            @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true)
             @PathVariable String categoryId,
             @Parameter(description = "질문 순서 (1부터 시작)", required = true)
             @PathVariable Integer orderIndex
@@ -183,7 +183,7 @@ public class LearningController {
     public ResponseEntity<ApiResponse<java.util.List<String>>> getCategories() {
         log.info("Fetching learning categories");
         
-        var categories = java.util.Arrays.asList("자기소개", "학업", "주제");
+        var categories = java.util.Arrays.asList("자기소개", "학업", "의료");
         
         return ResponseEntity.ok(ApiResponse.success("카테고리 목록 조회 성공", categories));
     }
