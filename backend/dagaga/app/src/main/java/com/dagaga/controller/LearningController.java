@@ -221,7 +221,6 @@ public class LearningController {
             // MultipartFile을 FastAPI로 전송
             org.springframework.util.LinkedMultiValueMap<String, Object> body = 
                 new org.springframework.util.LinkedMultiValueMap<>();
-            
             body.add("file", new org.springframework.core.io.ByteArrayResource(file.getBytes()) {
                 @Override
                 public String getFilename() {
