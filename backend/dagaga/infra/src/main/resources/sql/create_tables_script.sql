@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS posts (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     content_image TEXT,
+    article_seq INT,
     view_count INT DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -164,6 +165,18 @@ ADD CONSTRAINT fk_native_lang
 FOREIGN KEY (native_lang_code) REFERENCES languages(lang_code);
 
 ---
+-- 11. 예시 질문 및 답변 (자기소개, 학업, 의료)
+CREATE TABLE IF NOT EXISTS question_bank (
+    question_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    category VARCHAR(50) NOT NULL,        -- 대분류: '자기소개', '학업', '의료'
+    question_text TEXT NOT NULL,          -- 질문 내용
+    example_answer TEXT NOT NULL,         -- 예시 답변
+    order_index INT DEFAULT 0,            -- 카테고리 내 순서
+    -- 같은 카테고리 내에서 순서가 중복되지 않도록 제약
+    UNIQUE(category, order_index)
+);
+
+
 -- 외래키 및 제약 조건 (DO 블록)
 ---
 DO $$ 
@@ -240,6 +253,9 @@ CREATE INDEX IF NOT EXISTS idx_post_likes_post ON post_likes(post_id);
 -- 크롤링 중복 검사 최적화 (데일리 업데이트 시 article_seq 존재 여부 확인)
 CREATE INDEX IF NOT EXISTS idx_programs_article_seq ON programs(article_seq);
 
+-- 생성되는 포스트에서 기반이 되는 크롤링 데이터 인덱스 추가 
+CREATE INDEX idx_posts_article_seq ON posts(article_seq);
+
 -- 지역별 프로그램 검색/필터링 최적화
 CREATE INDEX IF NOT EXISTS idx_programs_region ON programs(program_region);
 
@@ -268,3 +284,8 @@ CREATE INDEX IF NOT EXISTS idx_program_images_order ON program_images(article_se
 
 -- 특정 메시지의 번역본을 찾거나, 특정 언어로 된 번역들을 필터링할 때 사용
 CREATE INDEX IF NOT EXISTS idx_translations_msg_lang ON message_translations(message_id, target_lang);
+---
+-- 질문 관련 인덱스
+-- 카테고리별 질문 조회,순서 정렬
+CREATE INDEX IF NOT EXISTS idx_question_bank_category_order ON question_bank(category, order_index);
+

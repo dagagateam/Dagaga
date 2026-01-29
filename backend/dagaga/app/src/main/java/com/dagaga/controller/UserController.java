@@ -1,4 +1,4 @@
-package com.dagaga.app.user.controller;
+package com.dagaga.controller;
 
 import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
@@ -24,7 +24,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/register")
+    @PostMapping("/signup")
     public ResponseEntity<Integer> register(@RequestBody @Valid UserRegisterDto dto) {
         Integer userId = userService.register(dto);
         return ResponseEntity.ok(userId);
