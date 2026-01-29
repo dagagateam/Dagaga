@@ -8,6 +8,8 @@ import Signup from "../pages/Signup/Signup";
 import CommunityInfo from "../pages/Community/Info/CommunityInfo";
 import CommunityInfoDetail from "../pages/Community/Info/CommunityInfoDetail";
 
+import ProblemNative from "../pages/problem-native/problem-native";
+
 const router = createBrowserRouter([
     {
         path: "/",
@@ -43,6 +45,10 @@ const router = createBrowserRouter([
             {
                 path: "community/info/:id",
                 element: <CommunityInfoDetail />,
+            },
+            {
+              path: "problem-translate/:problemId",
+              element: <ProblemNative />,
             },
         ],
     },

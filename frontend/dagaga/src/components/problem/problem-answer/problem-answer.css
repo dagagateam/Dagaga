@@ -49,6 +49,23 @@
   color: #888;
 }
 
+/* Pronunciation feedback colors */
+.word.correct {
+  color: #27AE60 !important;
+}
+
+.word.incorrect {
+  color: #E74C3C !important;
+}
+
+.pronunciation.correct {
+  color: #27AE60 !important;
+}
+
+.pronunciation.incorrect {
+  color: #E74C3C !important;
+}
+
 .word-buttons {
   display: flex;
   gap: 10px;

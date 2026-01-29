@@ -1,17 +1,23 @@
 import { useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Container } from "react-bootstrap";
 import ProblemProgress from "../../components/problem/problem-progress/problem-progress";
 import ProblemAnswer from "../../components/problem/problem-answer/problem-answer";
 import ProblemRecordButton from "../../components/problem/problem-record/problem-record-button";
 import ProblemSoundwave from "../../components/problem/problem-soundwave/problem-soundwave";
 import ProblemMascot from "../../components/problem/problem-mascot/problem-mascot";
+import ProblemDone from "../../components/problem/problem-done/problem-done";
+import { useSpeechApi } from "../../api/useSpeechApi";
 import "./Problem.css";
+
+const MAX_TRIES = 3;
 
 const Problem = () => {
   const { problemId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const problemText = location.state?.problemText || "문제를 불러오는 중...";
+  const { checkPronunciation } = useSpeechApi();
   
   // Sample sentence broken into words
   const words = ["저희", "아이는", "수학을", "어려워해요"];
@@ -25,9 +31,6 @@ const Problem = () => {
   // Track which step the user is currently on (0-indexed, completed steps)
   const [currentStep, setCurrentStep] = useState(0);
   
-  // Store the latest recording
-  const [lastRecording, setLastRecording] = useState(null);
-  
   // Audio analyser for visualization
   const [audioAnalyser, setAudioAnalyser] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -35,12 +38,17 @@ const Problem = () => {
   // For full sentence mode: track which word is currently highlighted (-1 = all words)
   const [sentenceHighlightIndex, setSentenceHighlightIndex] = useState(0);
   
+  // Pronunciation feedback state
+  const [wordResults, setWordResults] = useState(new Array(words.length).fill(null));
+  const [currentTries, setCurrentTries] = useState(0);
+  
   // Check if we're on the full sentence step
   const isFullSentenceStep = currentStep >= words.length;
+  const isProblemDone = currentStep >= totalSteps;
 
   // Animate through words during full sentence step, then select all
   useEffect(() => {
-    if (isFullSentenceStep) {
+    if (isFullSentenceStep && !isProblemDone) {
       // Reset to first word
       setSentenceHighlightIndex(0);
       
@@ -60,59 +68,78 @@ const Problem = () => {
       
       return () => clearInterval(interval);
     }
-  }, [isFullSentenceStep, words.length]);
+  }, [isFullSentenceStep, isProblemDone, words.length]);
 
-  // Function to move to next step
-  const handleStepComplete = () => {
+  // Function to move to next step with result
+  const handleStepComplete = (result) => {
+    // Update the result for the current word
+    if (currentStep < words.length && result) {
+      setWordResults(prev => {
+        const newResults = [...prev];
+        newResults[currentStep] = result;
+        return newResults;
+      });
+    }
+    
+    // Move to next step and reset tries
     if (currentStep < totalSteps) {
       setCurrentStep(prev => prev + 1);
+      setCurrentTries(0);
     }
   };
 
-  // Handle recording completion
+  // Handle return to list
+  const handleReturn = () => {
+    navigate(-1); // Go back to problem select
+  };
+
+  // Handle retry problem
+  const handleRetry = () => {
+    setCurrentStep(0);
+    setWordResults(new Array(words.length).fill(null));
+    setCurrentTries(0);
+    setSentenceHighlightIndex(0);
+  };
+
+  // Handle recording completion with pronunciation feedback
   const handleRecordingComplete = async (audioBlob, audioUrl) => {
-    console.log("Recording completed!", { audioBlob, audioUrl });
-    
-    // Store the recording in state
-    setLastRecording({ blob: audioBlob, url: audioUrl });
-    
     // Get the current word being practiced
     const currentWord = currentStep < words.length 
       ? words[currentStep] 
       : words.join(" "); // Full sentence for last step
     
-    // TODO: Send to backend when ready
-    // Example API call (uncomment when backend is available):
-    /*
-    try {
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "recording.webm");
-      formData.append("problemId", problemId);
-      formData.append("currentWord", currentWord);
-      formData.append("step", currentStep.toString());
+    console.log(
+      `Recorded word: "${currentWord}" (Step ${currentStep + 1}/${totalSteps}, Try ${currentTries + 1}/${MAX_TRIES})`,
+    );
+
+    // Use the hook to check pronunciation
+    // Internally it mocks the response for now, but has the real API call commented out
+    const result = await checkPronunciation(audioBlob, problemId, currentWord, currentStep);
+    const isCorrect = result.isCorrect;
+    
+    if (isCorrect) {
+      console.log("✓ Pronunciation correct!");
+      handleStepComplete("correct");
+    } else {
+      console.log("✗ Pronunciation incorrect");
+      const newTries = currentTries + 1;
+      setCurrentTries(newTries);
       
-      const response = await fetch("/api/speech/analyze", {
-        method: "POST",
-        body: formData,
-      });
-      
-      const result = await response.json();
-      console.log("Speech analysis result:", result);
-      
-      // If pronunciation is correct, move to next step
-      if (result.isCorrect) {
-        handleStepComplete();
+      if (newTries >= MAX_TRIES) {
+        console.log(`Max tries (${MAX_TRIES}) reached, moving to next word`);
+        handleStepComplete("incorrect");
+      } else {
+        console.log(`Try again (${newTries}/${MAX_TRIES})`);
+        // Update result to show current attempt was wrong, but don't advance
+        if (currentStep < words.length) {
+          setWordResults(prev => {
+            const newResults = [...prev];
+            newResults[currentStep] = "incorrect";
+            return newResults;
+          });
+        }
       }
-    } catch (error) {
-      console.error("Failed to send recording:", error);
     }
-    */
-    
-    // For now, just log the recording info and auto-advance
-    console.log(`Recorded word: "${currentWord}" (Step ${currentStep + 1}/${totalSteps})`);
-    
-    // Auto-advance to next step after recording
-    handleStepComplete();
   };
 
   // Handle analyser changes from record button
@@ -136,16 +163,23 @@ const Problem = () => {
             pronunciations={pronunciations} 
             currentStep={currentStep}
             sentenceHighlightIndex={isFullSentenceStep ? sentenceHighlightIndex : null}
+            wordResults={wordResults}
           />
         </div>
       </div>
       <div className="problem-spacer"></div>
       <div className="problem-bottom-controls">
-        <ProblemRecordButton 
-          onRecordingComplete={handleRecordingComplete}
-          onAnalyserChange={handleAnalyserChange}
-        />
-        <ProblemSoundwave analyser={audioAnalyser} isRecording={isRecording} />
+        {isProblemDone ? (
+          <ProblemDone onRetry={handleRetry} onReturn={handleReturn} />
+        ) : (
+          <>
+            <ProblemRecordButton 
+              onRecordingComplete={handleRecordingComplete}
+              onAnalyserChange={handleAnalyserChange}
+            />
+            <ProblemSoundwave analyser={audioAnalyser} isRecording={isRecording} />
+          </>
+        )}
       </div>
     </Container>
   );
