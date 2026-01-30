@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS chat_rooms (
     title VARCHAR(255) NOT NULL,
     max_participants INT DEFAULT 10,
     room_type room_type NOT NULL, -- 사용자 정의 타입 사용
+    status VARCHAR(20) DEFAULT 'ACTIVE', -- ACTIVE, DELETED
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_room_creator FOREIGN KEY (creator_id) REFERENCES users(user_id) ON DELETE SET NULL,
     CONSTRAINT fk_room_location FOREIGN KEY (location_id) REFERENCES locations(location_id) ON DELETE CASCADE

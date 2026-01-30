@@ -38,6 +38,11 @@ public class ChatRoom {
     @Column(name = "room_type", nullable = false)
     private RoomType roomType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    @Builder.Default
+    private RoomStatus status = RoomStatus.ACTIVE;
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
