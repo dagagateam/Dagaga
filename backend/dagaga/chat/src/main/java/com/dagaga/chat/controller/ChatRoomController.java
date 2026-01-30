@@ -1,11 +1,10 @@
 package com.dagaga.chat.controller;
 
+import com.dagaga.chat.dto.ChatRoomResponse;
 import com.dagaga.chat.dto.CreateChatRoomRequest;
 import com.dagaga.chat.service.ChatRoomService;
 import com.dagaga.domain.chat.message.entity.ChatMessage;
 import com.dagaga.domain.chat.message.repository.ChatMessageRepository;
-import com.dagaga.domain.chat.room.entity.ChatRoom;
-import com.dagaga.domain.chat.room.repository.ChatRoomRepository;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
     private final UserRepository userRepository;
-    private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
 
     @PostMapping
@@ -62,8 +60,16 @@ public class ChatRoomController {
 
     // 내 지역 방 목록
     @GetMapping("/by-location")
-    public List<ChatRoom> listByLocation(@RequestParam int userLocationId) {
-        return chatRoomRepository.findAllByLocationIdOrderByRoomTypeAscRoomIdAsc(userLocationId);
+    public List<ChatRoomResponse> listByLocation(
+            @RequestParam int userLocationId,
+            @RequestParam(required = false, defaultValue = "popularity") String sortBy) {
+        return chatRoomService.getRoomsByLocation(userLocationId, sortBy);
+    }
+
+    // 내가 참여 중인 방 목록
+    @GetMapping("/joined")
+    public List<ChatRoomResponse> listJoinedRooms(@RequestParam int userId) {
+        return chatRoomService.getRoomsByUserId(userId);
     }
 
     // 최신 메시지부터 {size}개 반환

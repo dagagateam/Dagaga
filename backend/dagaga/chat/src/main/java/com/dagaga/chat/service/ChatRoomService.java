@@ -9,21 +9,67 @@ import com.dagaga.domain.chat.user.entity.ChatRoomUserId;
 import com.dagaga.domain.chat.user.entity.Role;
 import com.dagaga.domain.chat.user.entity.UserStatus;
 import com.dagaga.domain.chat.user.repository.ChatRoomUserRepository;
+import com.dagaga.domain.user.entity.User;
+import com.dagaga.domain.user.repository.UserRepository;
+import com.dagaga.chat.dto.ChatRoomResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
+    private final UserRepository userRepository;
 
     public ChatRoomService(ChatRoomRepository chatRoomRepository,
-            ChatRoomUserRepository chatRoomUserRepository) {
+            ChatRoomUserRepository chatRoomUserRepository,
+            UserRepository userRepository) {
         this.chatRoomRepository = chatRoomRepository;
         this.chatRoomUserRepository = chatRoomUserRepository;
+        this.userRepository = userRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatRoomResponse> getRoomsByLocation(int locationId, String sortBy) {
+        // 기본 정렬은 인기순
+        if (sortBy == null || sortBy.isBlank()) {
+            sortBy = "popularity";
+        }
+        List<ChatRoom> rooms = chatRoomRepository.findAllByLocationWithSort(locationId, sortBy);
+        return rooms.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatRoomResponse> getRoomsByUserId(int userId) {
+        List<ChatRoomUser> chatRoomUsers = chatRoomUserRepository.findAllByIdUserIdAndStatus(userId, UserStatus.ACTIVE);
+        return chatRoomUsers.stream()
+                .map(cru -> chatRoomRepository.findById(cru.getId().getRoomId())
+                        .orElseThrow(() -> new IllegalStateException(
+                                "채팅방 정보를 찾을 수 없습니다. roomId=" + cru.getId().getRoomId())))
+                .filter(room -> room.getStatus() == RoomStatus.ACTIVE)
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    private ChatRoomResponse toResponse(ChatRoom room) {
+        User creator = userRepository.findById(room.getCreatorId())
+                .orElseThrow(() -> new IllegalStateException("방장 정보를 찾을 수 없습니다. creatorId=" + room.getCreatorId()));
+
+        long participantCount = chatRoomUserRepository.countByIdRoomIdAndStatus(room.getRoomId(), UserStatus.ACTIVE);
+
+        return ChatRoomResponse.builder()
+                .roomId(room.getRoomId())
+                .title(room.getTitle())
+                .roomType(room.getRoomType())
+                .creatorNickname(creator.getNickname())
+                .participantCount(participantCount)
+                .build();
     }
 
     @Transactional
@@ -77,7 +123,7 @@ public class ChatRoomService {
         room.setStatus(RoomStatus.DELETED);
 
         // 삭제한 채팅방에 속한 모든 유저를 LEFT 상태로 변경
-        List<ChatRoomUser> users = chatRoomUserRepository.findAllByRoomId(roomId);
+        List<ChatRoomUser> users = chatRoomUserRepository.findAllByIdRoomId(roomId);
         for (ChatRoomUser user : users) {
             user.leave();
         }
