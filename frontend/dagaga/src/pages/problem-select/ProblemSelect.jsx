@@ -4,19 +4,54 @@ import { Container } from "react-bootstrap";
 import CategoryPanel from "../../components/problem-select/CategoryPanel";
 import ProblemCard from "../../components/problem-select/ProblemCard";
 import { scenarios } from "../../data/scenarios";
+import { fetchCategoryStages } from "../../api/learningApi";
 import "./ProblemSelect.css";
 
 const ProblemSelect = () => {
   const { categoryId } = useParams();
   const [scrollOffset, setScrollOffset] = useState(0);
   const [selectedCardId, setSelectedCardId] = useState(null);
+  const [problems, setProblems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const wheelRef = useRef(null);
 
   // Find the scenario based on categoryId
   const scenario = scenarios.find(s => s.id === categoryId);
 
-  // Get problems from the scenario data
-  const problems = scenario?.problems || [];
+  // Fetch problems from API
+  useEffect(() => {
+    const loadProblems = async () => {
+      if (!categoryId) return;
+      
+      setIsLoading(true);
+      try {
+        const response = await fetchCategoryStages(categoryId);
+        console.log("API Full Response:", response);
+        if (response.data && response.data.success) {
+          // Map API data to component format if necessary
+          // API returns: { questionId, category, questionText, exampleAnswer, orderIndex }
+          // Component expects: { id, text }
+          const mappedProblems = response.data.data.map(item => ({
+            id: item.questionId,
+            text: item.questionText,
+            ...item
+          }));
+          setProblems(mappedProblems);
+        } else {
+          // Fallback to static data if API fails or returns empty
+          console.warn("Failed to fetch problems, response unsuccessful:", response.data);
+          setProblems(scenario?.problems || []);
+        }
+      } catch (error) {
+        console.error("Error fetching problems:", error);
+        setProblems(scenario?.problems || []);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProblems();
+  }, [categoryId, scenario]);
 
   // Handle wheel scroll with limits
   const handleWheel = useCallback((e) => {
@@ -47,7 +82,9 @@ const ProblemSelect = () => {
     setSelectedCardId(problemId === selectedCardId ? null : problemId);
   };
 
-  const totalCards = problems.length;
+  if (!scenario) {
+    return <div>존재하지 않는 카테고리입니다.</div>;
+  }
 
   return (
     <Container fluid className="problem-select-container">
@@ -55,22 +92,26 @@ const ProblemSelect = () => {
         <CategoryPanel scenario={scenario} />
 
         <div className="problem-wheel" ref={wheelRef}>
-          {problems.map((problem, index) => {
-            // Cards spaced 15 degrees apart
-            const rotation = index * 15 + scrollOffset;
-            const isActive = selectedCardId === problem.id;
+          {isLoading ? (
+            <div className="loading-message">로딩 중...</div>
+          ) : (
+            problems.map((problem, index) => {
+              // Cards spaced 15 degrees apart
+              const rotation = index * 15 + scrollOffset;
+              const isActive = selectedCardId === problem.id;
 
-            return (
-              <ProblemCard
-                key={problem.id}
-                problemNumber={problem.id}
-                problemText={problem.text}
-                rotation={rotation}
-                isActive={isActive}
-                onClick={() => handleCardClick(problem.id)}
-              />
-            );
-          })}
+              return (
+                <ProblemCard
+                  key={problem.id}
+                  problemNumber={index + 1}
+                  problemText={problem.text}
+                  rotation={rotation}
+                  isActive={isActive}
+                  onClick={() => handleCardClick(problem.id)}
+                />
+              );
+            })
+          )}
         </div>
       </div>
     </Container>
