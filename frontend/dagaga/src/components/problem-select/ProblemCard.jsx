@@ -18,7 +18,7 @@ const ProblemCard = ({ problemNumber, problemText, rotation, isActive, onClick }
     <div
       className={`problem-card ${isActive ? "active" : ""}`}
       style={{
-        transform: `rotate(${rotation}deg)`,
+        transform: `translateY(-50%) rotate(${rotation}deg)`,
       }}
       onClick={onClick}
     >
