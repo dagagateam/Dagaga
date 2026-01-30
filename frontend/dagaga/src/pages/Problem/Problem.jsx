@@ -102,7 +102,7 @@ const Problem = () => {
   };
 
   // Handle recording completion with pronunciation feedback
-  const handleRecordingComplete = async (audioBlob, audioUrl) => {
+  const handleRecordingComplete = async ({ audioBlob, audioUrl }) => {
     // Get the current word being practiced
     const currentWord = currentStep < words.length 
       ? words[currentStep] 

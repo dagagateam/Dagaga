@@ -39,7 +39,7 @@ const ProblemNative = () => {
   const [currentTries, setCurrentTries] = useState(0);
 
   // Handle recording completion in pre-translate state
-  const handlePreTranslateRecordingComplete = async (audioBlob, audioUrl) => {
+  const handlePreTranslateRecordingComplete = async ({ audioBlob, audioUrl }) => {
     console.log("Native recording completed!", { audioBlob, audioUrl });
 
     // Switch to translating state
@@ -128,7 +128,7 @@ const ProblemNative = () => {
   };
 
   // Post-translate: handle recording completion with pronunciation feedback
-  const handlePostTranslateRecordingComplete = async (audioBlob, audioUrl) => {
+  const handlePostTranslateRecordingComplete = async ({ audioBlob, audioUrl }) => {
     const currentWord =
       currentStep < words.length ? words[currentStep] : words.join(" ");
 

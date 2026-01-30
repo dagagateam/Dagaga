@@ -35,12 +35,27 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
     return blob;
   };
 
+  // AudioWorkletProcessor code as a string
+  const workletCode = `
+    class RecorderProcessor extends AudioWorkletProcessor {
+      process(inputs, outputs, parameters) {
+        const input = inputs[0];
+        if (input && input.length > 0) {
+          // Send the first channel's data to the main thread
+          this.port.postMessage(input[0]);
+        }
+        return true;
+      }
+    }
+    registerProcessor('recorder-processor', RecorderProcessor);
+  `;
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       
-      // Set up Web Audio API for visualization and recording
+      // Set up Web Audio API
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       audioContextRef.current = audioContext;
       
@@ -57,14 +72,19 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
         onAnalyserChange(analyser, true);
       }
       
-      // Create ScriptProcessor for capturing raw audio data
-      const bufferSize = 4096;
-      const processor = audioContext.createScriptProcessor(bufferSize, 1, 1);
-      processorRef.current = processor;
+      // Initialize AudioWorklet
+      const blob = new Blob([workletCode], { type: "application/javascript" });
+      const workletUrl = URL.createObjectURL(blob);
+      
+      await audioContext.audioWorklet.addModule(workletUrl);
+      
+      const workletNode = new AudioWorkletNode(audioContext, 'recorder-processor');
+      processorRef.current = workletNode; // Store worklet node in ref instead of ScriptProcessor
       audioBufferRef.current = [];
       
-      processor.onaudioprocess = (e) => {
-        const inputData = e.inputBuffer.getChannelData(0);
+      workletNode.port.onmessage = (e) => {
+        const inputData = e.data; // Float32Array from worklet
+        
         // Convert Float32 to Int16 for MP3 encoding
         const samples = new Int16Array(inputData.length);
         for (let i = 0; i < inputData.length; i++) {
@@ -74,8 +94,8 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
         audioBufferRef.current.push(samples);
       };
       
-      source.connect(processor);
-      processor.connect(audioContext.destination);
+      source.connect(workletNode);
+      workletNode.connect(audioContext.destination);
       
       setIsRecording(true);
     } catch (err) {
@@ -87,9 +107,10 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
   const stopRecording = () => {
     if (!isRecording) return;
     
-    // Stop processor
+    // Stop worklet/processor
     if (processorRef.current) {
       processorRef.current.disconnect();
+      processorRef.current.port.close(); // Close port if it's a WorkletNode
     }
     
     // Stop all tracks to release microphone
@@ -110,6 +131,7 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
     // Encode to MP3
     const mp3Blob = encodeToMp3(combined, sampleRate);
     const audioUrl = URL.createObjectURL(mp3Blob);
+    console.log("Recorded Audio URL:", audioUrl);
     
     // Close audio context
     if (audioContextRef.current) {
@@ -121,9 +143,14 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
       onAnalyserChange(null, false);
     }
     
-    // Call callback with MP3 blob
+    // Create output object
+    const recordingData = { audioBlob: mp3Blob, audioUrl };
+
+    console.log("Recording Complete:", recordingData);
+    
+    // Call callback with object
     if (onRecordingComplete) {
-      onRecordingComplete(mp3Blob, audioUrl);
+      onRecordingComplete(recordingData);
     }
     
     setIsRecording(false);

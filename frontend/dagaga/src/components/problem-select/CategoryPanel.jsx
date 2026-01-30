@@ -7,6 +7,7 @@ const CategoryPanel = ({ scenario }) => {
   return (
     <motion.div 
       className="category-panel"
+      layoutId={`scenario-card-${scenario.id}`}
     >
       <div className="category-icon">
         <img src={scenario.icon} alt={scenario.title} />

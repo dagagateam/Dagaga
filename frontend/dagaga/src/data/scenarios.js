@@ -4,8 +4,8 @@ import hospital_cross from "../assets/icons/hospital_cross.png";
 
 export const scenarios = [
   {
-    id: "학습",
-    label: "학습",
+    id: "학업",
+    label: "학업",
     title: "학교에서",
     tag: "학습내용",
     icon: book,
@@ -16,6 +16,7 @@ export const scenarios = [
       "학습 태도 및 환경",
       "매체 사용 및 향후 지도 방향"
     ],
+    // Static problems kept as fallback or initial state if needed
     problems: [
       { id: 1, text: "아이가 특별히 어려워하는 과목이 있나요?" },
       { id: 2, text: "아이가 누구랑 친한가요?" },
@@ -45,8 +46,8 @@ export const scenarios = [
     ]
   },
   {
-    id: "병원에서",
-    label: "병원에서",
+    id: "의료",
+    label: "의료",
     title: "병원에서",
     tag: "병원내용",
     icon: hospital_cross,
