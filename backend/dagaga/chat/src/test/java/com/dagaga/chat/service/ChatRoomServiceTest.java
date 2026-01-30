@@ -167,4 +167,49 @@ class ChatRoomServiceTest {
         assertThatThrownBy(() -> chatRoomService.leaveRoom(userId, roomId)).isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("기본 채팅방은 나갈 수 없습니다");
     }
+
+    @Test
+    @DisplayName("Success: 지역코드가 일치하면 채팅방 참여에 성공함")
+    void joinRoom_shouldSuccess_whenLocationMatches() {
+        // given
+        int roomId = 1;
+        int userId = 10;
+        int locationId = 100;
+
+        ChatRoom room = ChatRoom.builder()
+                .roomId(roomId)
+                .locationId(locationId)
+                .build();
+
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
+        given(chatRoomUserRepository.findById(any(ChatRoomUserId.class))).willReturn(Optional.empty());
+
+        // when
+        chatRoomService.joinRoom(userId, locationId, roomId);
+
+        // then
+        verify(chatRoomUserRepository).save(any(ChatRoomUser.class));
+    }
+
+    @Test
+    @DisplayName("Fail: 지역코드가 일치하지 않으면 채팅방 참여에 실패함")
+    void joinRoom_shouldThrowException_whenLocationMismatches() {
+        // given
+        int roomId = 1;
+        int userId = 10;
+        int userLocationId = 999; // 유저 지역
+        int roomLocationId = 100; // 방 지역
+
+        ChatRoom room = ChatRoom.builder()
+                .roomId(roomId)
+                .locationId(roomLocationId)
+                .build();
+
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
+
+        // when & then
+        assertThatThrownBy(() -> chatRoomService.joinRoom(userId, userLocationId, roomId))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("다른 지역 채팅방에는 접근할 수 없습니다");
+    }
 }
