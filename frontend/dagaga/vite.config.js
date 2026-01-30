@@ -12,4 +12,13 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://i14b110.p.ssafy.io',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

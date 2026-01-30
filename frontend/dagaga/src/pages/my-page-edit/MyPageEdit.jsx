@@ -108,17 +108,8 @@ const MyPageEdit = () => {
         
         const updates = {
             nickname: formData.nickname,
-            region: user.region, // Keep original region code if we want to preserve it, or logic to update it? 
-            // Actually, handle submit creates a regionStr from names. 
-            // If the backend expects a code, we might have an issue here.
-            // But for now, let's assume sending the string name (as constructed below) is what's intended or we are correcting the "thing".
-            // The user said "change the region thing", likely referring to the display/load issue.
-            // The existing code constructs `regionStr` from names:
-            // const regionStr = `${formData.sido} ${formData.gugun !== '구/군 선택' ? formData.gugun : ''}`.trim();
-            // And sends `region: regionStr`.
-            // If the backend expects a code, this frontend logic was already potentially sending names.
-            // I will leave the submit logic as is for now unless I see a reason to change it, 
-            // but the request was "change the region thing in the edit page" likely meaning the loading part.
+            // region: user.region,
+            // The logic below constructs regionStr from names and sends it.
             region: regionStr,
             regionName: regionStr, // Update regionName as well just in case
             preferredLang: formData.preferredLang,
