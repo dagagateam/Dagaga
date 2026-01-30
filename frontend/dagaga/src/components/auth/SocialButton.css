@@ -1,0 +1,29 @@
+.social-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+    color: #333;
+    gap: 10px;
+    font-family: var(--main-font);
+    transition: background-color 0.2s;
+}
+
+.social-btn img {
+    width: 18px;
+    height: 18px;
+}
+
+.social-btn:hover {
+    background-color: #eee;
+}
+
+/* Provider specific styles can be added here if needed in the future */
+/* e.g. .social-btn.google { ... } */
