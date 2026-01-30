@@ -1,17 +1,9 @@
-/* Region Selects Container */
-.region-selects {
-    display: flex;
-    gap: 10px;
+/* Reuse the styles that were successful in RegionSelect.css but make them generic */
+.common-select {
     width: 100%;
 }
 
-.region-dropdown {
-    flex: 1;
-    width: 100%;
-}
-
-/* Toggle Button Style */
-.region-toggle {
+.common-select-toggle {
     width: 100%;
     text-align: left;
     background-color: white !important;
@@ -23,15 +15,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-family: var(--main-font); /* Ensure consistent font */
+    font-family: var(--main-font);
 }
 
-.region-toggle::after {
+.common-select-toggle::after {
     margin-left: auto;
 }
 
-/* Scrollable Dropdown Menu */
-.region-menu {
+.common-select-menu {
     width: 100%;
     max-height: 200px;
     overflow-y: auto;
@@ -40,7 +31,7 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.region-menu .dropdown-item {
+.common-select-menu .dropdown-item {
     font-size: 0.9rem;
     padding: 8px 15px;
     color: #555;
@@ -48,7 +39,7 @@
     font-family: var(--main-font);
 }
 
-.region-menu .dropdown-item:hover {
+.common-select-menu .dropdown-item:hover {
     background-color: var(--main-orange, #F8B15E);
     color: white;
 }

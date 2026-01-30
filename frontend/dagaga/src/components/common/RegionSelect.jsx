@@ -30,23 +30,23 @@ const RegionSelect = ({ sido, gugun, onSidoChange, onGugunChange }) => {
     };
 
     return (
-        <div className="d-flex gap-2">
-            <Dropdown className="region-dropdown w-50" onSelect={handleSidoSelect}>
-                <Dropdown.Toggle variant="light" className="region-toggle w-100 d-flex justify-content-between align-items-center">
+        <div className="region-selects">
+            <Dropdown className="region-dropdown" onSelect={handleSidoSelect}>
+                <Dropdown.Toggle variant="light" className="region-toggle">
                     {sido || '시/도 선택'}
                 </Dropdown.Toggle>
-                <Dropdown.Menu className="region-menu w-100" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                <Dropdown.Menu className="region-menu">
                     {area0.map((area) => (
                         <Dropdown.Item eventKey={area} key={area}>{area}</Dropdown.Item>
                     ))}
                 </Dropdown.Menu>
             </Dropdown>
 
-            <Dropdown className="region-dropdown w-50" onSelect={handleGugunSelect}>
-                <Dropdown.Toggle variant="light" className="region-toggle w-100 d-flex justify-content-between align-items-center">
+            <Dropdown className="region-dropdown" onSelect={handleGugunSelect}>
+                <Dropdown.Toggle variant="light" className="region-toggle">
                     {gugun || '구/군 선택'}
                 </Dropdown.Toggle>
-                <Dropdown.Menu className="region-menu w-100" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                <Dropdown.Menu className="region-menu">
                     {gugunList.length > 0 ? (
                         gugunList.map((area) => (
                             area !== '구/군 선택' && <Dropdown.Item eventKey={area} key={area}>{area}</Dropdown.Item>

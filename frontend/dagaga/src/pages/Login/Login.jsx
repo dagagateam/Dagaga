@@ -4,11 +4,14 @@ import { loginAPI } from '../../api/userApi';
 import './Login.css';
 import loginTiger from '../../assets/characters/login_tiger.png';
 import logo from '../../assets/icons/logo.png';
-import googleIcon from '../../assets/icons/google.png';
-import lineIcon from '../../assets/icons/line.png';
 import LanguageSelector from '../../components/auth/LanguageSelector';
+import SocialButton from '../../components/auth/SocialButton';
+import Button from '../../components/common/Button';
+import Input from '../../components/common/Input';
 
 import { useUserStore } from '../../store/userStore';
+
+import { motion } from 'framer-motion';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -47,7 +50,13 @@ const Login = () => {
     };
 
     return (
-        <div className="login-container">
+        <motion.div 
+            className="login-container"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+        >
             <header className="login-header">
                 <div className="logo-area">
                     <img src={logo} alt="Dagaga Logo" style={{ height: '40px' }} />
@@ -63,9 +72,9 @@ const Login = () => {
                             <h2>로그인</h2>
 
                             <form onSubmit={handleLogin}>
-                                <div className="input-group">
+                                <div className="custom-input-group">
                                     <label>이메일</label>
-                                    <input
+                                    <Input
                                         type="text"
                                         placeholder="이메일을 입력하세요"
                                         value={email}
@@ -73,9 +82,9 @@ const Login = () => {
                                     />
                                 </div>
 
-                                <div className="input-group">
+                                <div className="custom-input-group">
                                     <label>비밀번호</label>
-                                    <input
+                                    <Input
                                         type="password"
                                         placeholder="비밀번호를 입력하세요"
                                         value={password}
@@ -87,7 +96,7 @@ const Login = () => {
                                     <a href="#">아이디, 비밀번호를 잊으셨나요?</a>
                                 </div>
 
-                                <button type="submit" className="login-btn">로그인</button>
+                                <Button type="submit" className="login-btn">로그인</Button>
                             </form>
 
                             <div className="signup-link">
@@ -99,29 +108,26 @@ const Login = () => {
                             </div>
 
                             <div className="social-login">
-                                <button className="social-btn google">
-                                    <img src={googleIcon} alt="Google" />
+                                <SocialButton provider="google">
                                     Google로 계속하기
-                                </button>
-                                <button className="social-btn line">
-                                    <img src={lineIcon} alt="Line" />
+                                </SocialButton>
+                                <SocialButton provider="line">
                                     Line으로 계속하기
-                                </button>
+                                </SocialButton>
                             </div>
                         </div>
 
                         <div className="login-right-section">
+                            <img src={loginTiger} alt="Welcome Tiger" className="login-tiger-image" />
                             <div className="welcome-text">
                                 <h1>한국 생활이<br /> 많이 어려우신가요?</h1>
                                 <p>다가가와 함께라면 더 쉽게!</p>
                             </div>
                         </div>
                     </div>
-
-                    <img src={loginTiger} alt="Welcome Tiger" className="tiger-image" />
                 </div>
             </main>
-        </div>
+        </motion.div>
     );
 };
 
