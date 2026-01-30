@@ -39,6 +39,12 @@ public class ChatRoomController {
         return ResponseEntity.ok(roomId);
     }
 
+    @DeleteMapping("/{roomId}")
+    public ResponseEntity<Void> deleteChatRoom(@PathVariable int roomId, @RequestParam int requesterId) {
+        chatRoomService.deleteRoom(roomId, requesterId);
+        return ResponseEntity.ok().build();
+    }
+
     // 기본방 참여 보장
     @PostMapping("/default/join")
     public int joinDefault(@RequestParam int userId, @RequestParam int locationId) {
