@@ -1,12 +1,16 @@
-import { Navbar as BootstrapNavbar, Nav, Container, Dropdown } from "react-bootstrap";
+import {
+  Navbar as BootstrapNavbar,
+  Nav,
+  Container,
+  Dropdown,
+} from "react-bootstrap";
 import { Link } from "react-router-dom";
 import logo from "../../assets/icons/logo.png";
 import alarm_bell from "../../assets/icons/alarm_bell.png";
 import bell from "../../assets/icons/bell.png";
 import "./Navbar.css";
 
-
-import { useUserStore } from '../../store/userStore';
+import { useUserStore } from "../../store/userStore";
 
 const Navbar = () => {
   const isLoggedIn = useUserStore((state) => state.isLoggedIn);
@@ -23,8 +27,15 @@ const Navbar = () => {
         {isLoggedIn && (
           <>
             {/* 중앙 메뉴 */}
-            <Nav className="position-absolute start-50 translate-middle-x d-none d-md-flex" style={{ gap: "100px" }}>
-              <Nav.Link as={Link} to="/scenario-select" className="fw-medium text-dark p-0">
+            <Nav
+              className="position-absolute start-50 translate-middle-x d-none d-md-flex"
+              style={{ gap: "100px" }}
+            >
+              <Nav.Link
+                as={Link}
+                to="/scenario-select"
+                className="fw-medium text-dark p-0"
+              >
                 학습
               </Nav.Link>
               <Dropdown as={Nav.Item}>
@@ -34,21 +45,33 @@ const Navbar = () => {
                 >
                   커뮤니티
                 </Dropdown.Toggle>
-    
+
                 <Dropdown.Menu className="custom-dropdown-menu">
-                  <Dropdown.Item as={Link} to="/community/chat">채팅</Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/community/info">정보</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/community/chat">
+                    채팅
+                  </Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/community/info">
+                    정보
+                  </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              <Nav.Link as={Link} to="/my-page" className="fw-medium text-dark p-0">
+              <Nav.Link
+                as={Link}
+                to="/my-page"
+                className="fw-medium text-dark p-0"
+              >
                 마이페이지
               </Nav.Link>
             </Nav>
-    
+
             {/* 알림 */}
             <div className="ms-auto notification">
               <Nav.Link href="#" className="p-0 d-flex align-items-center">
-                <img src={bell} alt="Notification" style={{ height: "32px", width: "auto" }} />
+                <img
+                  src={bell}
+                  alt="Notification"
+                  style={{ height: "32px", width: "auto" }}
+                />
               </Nav.Link>
             </div>
           </>

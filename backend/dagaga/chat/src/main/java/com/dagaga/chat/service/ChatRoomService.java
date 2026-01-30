@@ -2,6 +2,7 @@ package com.dagaga.chat.service;
 
 import com.dagaga.domain.chat.room.entity.ChatRoom;
 import com.dagaga.domain.chat.room.entity.RoomType;
+import com.dagaga.domain.chat.room.entity.RoomStatus;
 import com.dagaga.domain.chat.room.repository.ChatRoomRepository;
 import com.dagaga.domain.chat.user.entity.ChatRoomUser;
 import com.dagaga.domain.chat.user.entity.ChatRoomUserId;
@@ -11,6 +12,8 @@ import com.dagaga.domain.chat.user.repository.ChatRoomUserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class ChatRoomService {
 
@@ -18,7 +21,7 @@ public class ChatRoomService {
     private final ChatRoomUserRepository chatRoomUserRepository;
 
     public ChatRoomService(ChatRoomRepository chatRoomRepository,
-                           ChatRoomUserRepository chatRoomUserRepository) {
+            ChatRoomUserRepository chatRoomUserRepository) {
         this.chatRoomRepository = chatRoomRepository;
         this.chatRoomUserRepository = chatRoomUserRepository;
     }
@@ -33,13 +36,11 @@ public class ChatRoomService {
     }
 
     @Transactional
-    public int createCustomRoom(int creatorId, int creatorLocationId, String title, String topic) {
+    public int createCustomRoom(int creatorId, int creatorLocationId, String title) {
         ChatRoom room = ChatRoom.createCustomRoom(
                 creatorId,
                 creatorLocationId,
-                title,
-                topic
-        );
+                title);
 
         ChatRoom saved = chatRoomRepository.save(room);
 
@@ -50,7 +51,7 @@ public class ChatRoomService {
     @Transactional(readOnly = true)
     public ChatRoom getRoomAndValidateLocation(int roomId, int userLocationId) {
         ChatRoom room = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("room not found: " + roomId));
+                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다. roomId : " + roomId));
 
         if (!room.getLocationId().equals(userLocationId)) {
             throw new IllegalStateException("다른 지역 채팅방에는 접근할 수 없습니다.");
@@ -62,6 +63,40 @@ public class ChatRoomService {
     public void joinRoom(int userId, int userLocationId, int roomId) {
         getRoomAndValidateLocation(roomId, userLocationId);
         upsertActiveStatus(roomId, userId, Role.MEMBER);
+    }
+
+    @Transactional
+    public void deleteRoom(int roomId, int requesterId) {
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다. roomId : " + roomId));
+
+        if (!room.getCreatorId().equals(requesterId)) {
+            throw new IllegalArgumentException("채팅방을 삭제할 권한이 없습니다.");
+        }
+
+        room.setStatus(RoomStatus.DELETED);
+
+        // 삭제한 채팅방에 속한 모든 유저를 LEFT 상태로 변경
+        List<ChatRoomUser> users = chatRoomUserRepository.findAllByRoomId(roomId);
+        for (ChatRoomUser user : users) {
+            user.leave();
+        }
+    }
+
+    @Transactional
+    public void leaveRoom(int userId, int roomId) {
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다. roomId : " + roomId));
+
+        if (room.getRoomType() == RoomType.DEFAULT) {
+            throw new IllegalStateException("기본 채팅방은 나갈 수 없습니다.");
+        }
+
+        ChatRoomUserId id = new ChatRoomUserId(roomId, userId);
+        ChatRoomUser user = chatRoomUserRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방에 참여 중인 유저가 아닙니다."));
+
+        user.leave();
     }
 
     private void upsertActiveStatus(int roomId, int userId, Role role) {

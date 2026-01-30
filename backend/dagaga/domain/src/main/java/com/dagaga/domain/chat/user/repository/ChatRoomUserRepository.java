@@ -18,4 +18,6 @@ public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUser, Chat
             "JOIN User u ON cru.id.userId = u.userId " +
             "WHERE cru.id.roomId = :roomId AND cru.status = 'ACTIVE'")
     List<String> findActiveUserLanguages(@Param("roomId") Integer roomId);
+
+    List<ChatRoomUser> findAllByRoomId(Integer roomId);
 }
