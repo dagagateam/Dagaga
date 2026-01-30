@@ -69,6 +69,14 @@ const router = createBrowserRouter([
               path: "my-page/edit",
               element: <MyPageEdit />,
             },
+            {
+              path: "my-page",
+              element: <MyPage />,
+            },
+            {
+              path: "my-page/edit",
+              element: <MyPageEdit />,
+            },
         ],
     },
 ]);
