@@ -184,7 +184,8 @@
 .detail-comments-section {
     border-top: 1px solid #eee;
     padding-top: 20px;
-    margin-top: auto; /* Push to bottom if flex column */
+    margin-top: auto;
+    /* Push to bottom if flex column */
 }
 
 .comment-list {
@@ -195,9 +196,11 @@
 
 .comment-item {
     display: flex;
-    gap: 12px; /* Space between avatar and text */
+    gap: 12px;
+    /* Space between avatar and text */
     margin-bottom: 12px;
-    align-items: center; /* Center vertically */
+    align-items: center;
+    /* Center vertically */
 }
 
 .comment-avatar {
@@ -210,22 +213,30 @@
 
 .comment-text-wrapper {
     display: flex;
-    flex-direction: column; /* Stack vertically */
-    align-items: flex-start; /* Align left */
-    gap: 3px; /* Small gap between name and text */
+    flex-direction: column;
+    /* Stack vertically */
+    align-items: flex-start;
+    /* Align left */
+    gap: 3px;
+    /* Small gap between name and text */
 }
 
 .comment-author {
-    font-weight: 800; /* Bold */
-    font-size: 0.9rem; /* Smaller */
+    font-weight: 800;
+    /* Bold */
+    font-size: 0.9rem;
+    /* Smaller */
     color: #222;
-    white-space: nowrap; /* Prevent name wrapping */
+    white-space: nowrap;
+    /* Prevent name wrapping */
 }
 
 .comment-body {
     color: #333;
-    font-weight: 400; /* Regular weight */
-    font-size: 1.0rem; /* Slightly larger than name (0.9rem) */
+    font-weight: 400;
+    /* Regular weight */
+    font-size: 1.0rem;
+    /* Slightly larger than name (0.9rem) */
     line-height: 1.4;
 }
 

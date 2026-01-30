@@ -10,7 +10,7 @@
     --main-orange: #F3AE5C;
 }
 
-/* 2. 전체 공통 적용 */
+/* 전체 공통 적용 */
 * {
     box-sizing: border-box;
     font-family: var(--main-font);
@@ -51,7 +51,7 @@ body::before {
     opacity: 0.4;
 }
 
-/* 3. 언어별 세부 조정 (2번 내용) */
+/* 언어별 세부 조정 */
 /* 한국어 페이지인 경우 자간을 살짝 좁게 설정하여 가독성 향상 */
 :lang(ko) {
     letter-spacing: 0;

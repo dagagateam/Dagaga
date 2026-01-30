@@ -1,0 +1,44 @@
+.joined-chat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.joined-chat-item:last-child {
+    border-bottom: none;
+}
+
+.joined-chat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.joined-chat-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.joined-chat-count {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.enter-btn {
+    background-color: #f0f0f0;
+    color: #333;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.enter-btn:hover {
+    background-color: #e0e0e0;
+}
