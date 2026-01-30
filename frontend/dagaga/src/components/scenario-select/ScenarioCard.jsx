@@ -14,8 +14,9 @@ const ScenarioCard = ({ scenario, isSelected, onSelect }) => {
     <motion.div 
       className={`scenario-card ${isSelected ? "expanded" : "collapsed"}`} 
       onClick={() => onSelect(scenario.id)}
+
       layout
-      layoutId={isSelected ? `scenario-card-${scenario.id}` : undefined}
+      initial={false} // Prevent animation on mount/back navigation
       whileHover={!isSelected ? { scale: 1.02, y: -4 } : {}}
     >
       <div className="scenario-card-icon">
