@@ -305,10 +305,11 @@ public class LearningController {
         ));
     }
     
-    /**
+    /*
      * 학습 카테고리 목록 조회
      * 일단 조회 단이라서 고려 해보기
      */
+    /* 
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = ApiConstants.SUCCESS_CODE,
@@ -322,7 +323,8 @@ public class LearningController {
         var categories = Arrays.asList("자기소개", "학업", "의료");
         
         return ResponseEntity.ok(ApiResponse.success("카테고리 목록 조회 성공", categories));
-    }
+    } 
+    */
 
     /**
      * 발음 평가 API (섀도잉용)
