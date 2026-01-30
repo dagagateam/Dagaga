@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,4 +15,10 @@ import lombok.NoArgsConstructor;
 public class TranslateResultDto {
     @JsonProperty("translated_text")
     private String translatedText;
+    
+    @JsonProperty("words")
+    private List<String> words;
+    
+    @JsonProperty("pronunciation_guide")
+    private List<String> pronunciationGuide;
 }

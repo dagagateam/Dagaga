@@ -4,6 +4,11 @@ import com.dagaga.common.constants.ApiConstants;
 import com.dagaga.common.response.ApiResponse;
 import com.dagaga.domain.translate.dto.TranslateResultDto;
 import com.dagaga.domain.translate.service.TranslateService;
+import com.dagaga.domain.learning.service.QuestionService;
+import com.dagaga.domain.learning.dto.QuestionResponse;
+import com.dagaga.domain.learning.dto.QuestionWithExampleResponse;
+import com.dagaga.domain.translate.dto.TranslateFileData;
+
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,10 +16,26 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -24,7 +45,10 @@ import org.springframework.web.multipart.MultipartFile;
 public class LearningController {
 
     private final TranslateService translateService;
-    private final com.dagaga.domain.learning.service.QuestionService questionService;
+    private final QuestionService questionService;
+    
+    @Value("${gms.api.url}")
+    private String gmsApiUrl;
     
     // swagger check
     @ApiResponses(value = {
@@ -59,26 +83,124 @@ public class LearningController {
         
         try {
             // MultipartFile을 TranslateFileData로 변환
-            var fileData = new com.dagaga.domain.translate.dto.TranslateFileData(
+            var fileData = new TranslateFileData(
                     file.getBytes(),
                     file.getOriginalFilename(),
                     file.getSize()
             );
             
             var response = translateService.translateAudioFile(fileData);
+            String translatedText = response.getTranslatedText();
             
-            // 번역 텍스트만 추출하여 반환
+            // GMS API를 호출하여 번역된 텍스트를 단어 단위로 분리
+            List<String> words = callGmsTokenizeApi(translatedText);
+            
+            // GMS API를 호출하여 발음 가이드 생성
+            List<String> pronunciationGuide = callGmsPronunciationGuideApi(words);
+            
+            // 번역 텍스트, 단어 리스트, 발음 가이드 반환
             TranslateResultDto result = TranslateResultDto.builder()
-                    .translatedText(response.getTranslatedText())
+                    .translatedText(translatedText)
+                    .words(words)
+                    .pronunciationGuide(pronunciationGuide)
                     .build();
             
             return ResponseEntity.ok(ApiResponse.success("음성 파일 번역이 완료", result));
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             log.error("Failed to read file: {}", file.getOriginalFilename(), e);
             throw new RuntimeException("파일을 읽는 중 오류가 발생했습니다.", e);
         }
     }
+    
+    /**
+     * GMS API를 호출하여 텍스트를 단어 단위로 분리
+     */
+    private List<String> callGmsTokenizeApi(String text) {
+        try {
+            String apiUrl = gmsApiUrl + "/api/v1/tokenize";
+            
+            // 요청 본문 생성
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("text", text);
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            HttpEntity<Map<String, String>> requestEntity =
+                new HttpEntity<>(requestBody, headers);
+            
+            // RestTemplate으로 GMS API 호출
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Map<String, Object>> response =
+                restTemplate.exchange(
+                    apiUrl, 
+                    HttpMethod.POST, 
+                    requestEntity,
+                    new ParameterizedTypeReference<Map<String, Object>>() {}
+                );
+            
+            // 응답에서 words 추출
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null && responseBody.containsKey("words")) {
+                @SuppressWarnings("unchecked")
+                List<String> words = (List<String>) responseBody.get("words");
+                log.info("GMS tokenization completed: {} words", words.size());
+                return words;
+            }
+            
+            return Collections.emptyList();
+        } catch (Exception e) {
+            log.error("GMS API call failed: {}", e.getMessage());
+            // GMS API 실패 시 빈 리스트 반환
+            return Collections.emptyList();
+        }
+    }
 
+    /**
+     * GMS API를 호출하여 발음 가이드 생성
+     */
+    private List<String> callGmsPronunciationGuideApi(List<String> words) {
+        try {
+            String apiUrl = gmsApiUrl + "/api/v1/pronunciation-guide";
+            
+            // 요청 본문 생성
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("words", words);
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            HttpEntity<Map<String, Object>> requestEntity =
+                new HttpEntity<>(requestBody, headers);
+            
+            // RestTemplate으로 GMS API 호출
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Map<String, Object>> response =
+                restTemplate.exchange(
+                    apiUrl, 
+                    HttpMethod.POST, 
+                    requestEntity,
+                    new ParameterizedTypeReference<Map<String, Object>>() {}
+                );
+            
+            // 응답에서 pronunciation_guide 추출
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null && responseBody.containsKey("pronunciation_guide")) {
+                @SuppressWarnings("unchecked")
+                List<String> pronunciationGuide = (List<String>) responseBody.get("pronunciation_guide");
+                log.info("GMS pronunciation guide completed: {} pronunciations", pronunciationGuide.size());
+                return pronunciationGuide;
+            }
+            
+            // 실패 시 원본 단어 그대로 반환
+            return words;
+        } catch (Exception e) {
+            log.error("GMS pronunciation guide API call failed: {}", e.getMessage());
+            // GMS API 실패 시 원본 단어 그대로 반환
+            return words;
+        }
+    }
+    
     /**
      * 특정 카테고리의 질문 목록 조회
      */
@@ -93,13 +215,13 @@ public class LearningController {
             )
     })
     @GetMapping("/categories/{categoryId}/stages")
-    public ResponseEntity<ApiResponse<java.util.List<com.dagaga.domain.learning.dto.QuestionResponse>>> getQuestionsByCategory(
+    public ResponseEntity<ApiResponse<List<QuestionResponse>>> getQuestionsByCategory(
             @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true)
             @PathVariable String categoryId
     ) {
         log.info("Fetching questions for category: {}", categoryId);
         
-        java.util.List<com.dagaga.domain.learning.dto.QuestionResponse> questions = 
+        List<QuestionResponse> questions = 
                 questionService.getQuestionsByCategory(categoryId);
         
         return ResponseEntity.ok(ApiResponse.success(
@@ -123,7 +245,7 @@ public class LearningController {
     })
     @GetMapping("/categories/{categoryId}/stages/{orderIndex}/native")
     public ResponseEntity<ApiResponse<String>> getQuestionTextForNativeMode(
-            @Parameter(description = "카테고리명 (예: 자기소개, 학업, 주제)", required = true)
+            @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true)
             @PathVariable String categoryId,
             @Parameter(description = "질문 순서 (1부터 시작)", required = true)
             @PathVariable Integer orderIndex
@@ -152,7 +274,7 @@ public class LearningController {
             )
     })
     @GetMapping("/categories/{categoryId}/stages/{orderIndex}/example")
-    public ResponseEntity<ApiResponse<com.dagaga.domain.learning.dto.QuestionWithExampleResponse>> getQuestionWithExample(
+    public ResponseEntity<ApiResponse<QuestionWithExampleResponse>> getQuestionWithExample(
             @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true)
             @PathVariable String categoryId,
             @Parameter(description = "질문 순서 (1부터 시작)", required = true)
@@ -160,19 +282,34 @@ public class LearningController {
     ) {
         log.info("Fetching question with example for category: {}, order: {}", categoryId, orderIndex);
         
-        com.dagaga.domain.learning.dto.QuestionWithExampleResponse response = 
+        QuestionWithExampleResponse originalResponse = 
                 questionService.getQuestionWithExample(categoryId, orderIndex);
+        
+        // GMS API를 통해 단어 분리 및 발음 가이드 생성
+        String exampleAnswer = originalResponse.getExampleAnswer();
+        List<String> words = callGmsTokenizeApi(exampleAnswer);
+        List<String> pronunciationGuide = callGmsPronunciationGuideApi(words);
+        
+        // 새로운 응답 객체 생성 (빌더 패턴 사용)
+        QuestionWithExampleResponse enhancedResponse = 
+                QuestionWithExampleResponse.builder()
+                    .questionText(originalResponse.getQuestionText())
+                    .exampleAnswer(exampleAnswer)
+                    .words(words)
+                    .pronunciationGuide(pronunciationGuide)
+                    .build();
         
         return ResponseEntity.ok(ApiResponse.success(
                 "질문 및 예시 답변 조회 성공", 
-                response
+                enhancedResponse
         ));
     }
     
-    /**
+    /*
      * 학습 카테고리 목록 조회
      * 일단 조회 단이라서 고려 해보기
      */
+    /* 
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = ApiConstants.SUCCESS_CODE,
@@ -180,13 +317,14 @@ public class LearningController {
             )
     })
     @GetMapping("/categories")
-    public ResponseEntity<ApiResponse<java.util.List<String>>> getCategories() {
+    public ResponseEntity<ApiResponse<List<String>>> getCategories() {
         log.info("Fetching learning categories");
         
-        var categories = java.util.Arrays.asList("자기소개", "학업", "의료");
+        var categories = Arrays.asList("자기소개", "학업", "의료");
         
         return ResponseEntity.ok(ApiResponse.success("카테고리 목록 조회 성공", categories));
-    }
+    } 
+    */
 
     /**
      * 발음 평가 API (섀도잉용)
@@ -221,9 +359,9 @@ public class LearningController {
             String fastApiUrl = translateService.getFastApiBaseUrl() + "/api/v1/asr/evaluate/pronunciation";
 
             // MultipartFile을 FastAPI로 전송
-            org.springframework.util.LinkedMultiValueMap<String, Object> body = 
-                new org.springframework.util.LinkedMultiValueMap<>();
-            body.add("file", new org.springframework.core.io.ByteArrayResource(file.getBytes()) {
+            LinkedMultiValueMap<String, Object> body = 
+                new LinkedMultiValueMap<>();
+            body.add("file", new ByteArrayResource(file.getBytes()) {
                 @Override
                 public String getFilename() {
                     return file.getOriginalFilename();
@@ -233,19 +371,19 @@ public class LearningController {
             body.add("retry_count", retryCount);
             body.add("language", "ko");
 
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-            org.springframework.http.HttpEntity<org.springframework.util.LinkedMultiValueMap<String, Object>> requestEntity = 
-                new org.springframework.http.HttpEntity<>(body, headers);
+            HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = 
+                new HttpEntity<>(body, headers);
 
             // RestTemplate으로 FastAPI 호출
-            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
-            org.springframework.http.ResponseEntity<java.util.Map> response = 
-                restTemplate.postForEntity(fastApiUrl, requestEntity, java.util.Map.class);
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Map> response = 
+                restTemplate.postForEntity(fastApiUrl, requestEntity, Map.class);
 
             // FastAPI 응답 파싱
-            java.util.Map<String, Object> responseBody = response.getBody();
+            Map<String, Object> responseBody = response.getBody();
             
             if (responseBody == null) {
                 throw new RuntimeException("FastAPI returned empty response");
@@ -262,7 +400,7 @@ public class LearningController {
 
         } catch (Exception e) {
             log.error("Pronunciation evaluation failed", e);
-            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("발음 평가 중 오류가 발생했습니다: " + e.getMessage()));
         }
     }
@@ -298,26 +436,26 @@ public class LearningController {
             String fastApiUrl = translateService.getFastApiBaseUrl() + "/api/v1/tts/synthesize";
 
             // Form 데이터 준비
-            org.springframework.util.LinkedMultiValueMap<String, Object> body =
-                new org.springframework.util.LinkedMultiValueMap<>();
+            LinkedMultiValueMap<String, Object> body =
+                new LinkedMultiValueMap<>();
             body.add("text", text);
             body.add("language", language);
 
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-            org.springframework.http.HttpEntity<org.springframework.util.LinkedMultiValueMap<String, Object>> requestEntity =
-                new org.springframework.http.HttpEntity<>(body, headers);
+            HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity =
+                new HttpEntity<>(body, headers);
 
             // RestTemplate으로 FastAPI 호출
-            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
-            org.springframework.http.ResponseEntity<byte[]> response =
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<byte[]> response =
                 restTemplate.postForEntity(fastApiUrl, requestEntity, byte[].class);
 
             log.info("TTS synthesis completed successfully");
 
             // 응답 헤더 설정
-            org.springframework.http.HttpHeaders responseHeaders = new org.springframework.http.HttpHeaders();
+            HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.setContentType(MediaType.parseMediaType("audio/mpeg"));
             responseHeaders.setContentDispositionFormData("attachment", "tts_" + language + ".mp3");
 
@@ -327,7 +465,7 @@ public class LearningController {
 
         } catch (Exception e) {
             log.error("TTS synthesis failed", e);
-            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(null);
         }
     }

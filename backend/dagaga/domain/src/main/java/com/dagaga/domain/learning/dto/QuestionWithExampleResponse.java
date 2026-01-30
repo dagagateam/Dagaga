@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,4 +14,6 @@ import lombok.NoArgsConstructor;
 public class QuestionWithExampleResponse {
     private String questionText;
     private String exampleAnswer;
+    private List<String> words;
+    private List<String> pronunciationGuide;
 }
