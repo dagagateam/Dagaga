@@ -23,8 +23,8 @@
 }
 
 .mascot-image {
-  max-width: 350px;
-  height: auto;
+  width: 350px; /* Fixed width */
+  height: 400px; /* Fixed height to reserve space */
   object-fit: contain;
 }
 
