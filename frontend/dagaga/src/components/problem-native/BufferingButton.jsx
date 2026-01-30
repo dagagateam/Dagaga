@@ -1,4 +1,4 @@
-import "./buffering-button.css";
+import "./BufferingButton.css";
 
 const BufferingButton = () => {
   return (

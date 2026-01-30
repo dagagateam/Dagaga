@@ -4,7 +4,7 @@ import heartIcon from '../../assets/icons/heart.png';
 import unheartIcon from '../../assets/icons/unheart.png';
 import bookmarkedIcon from '../../assets/icons/bookmark.png';
 import unbookmarkIcon from '../../assets/icons/unbookmark.png';
-import './saved-news-card.css';
+import './SavedNewsCard.css';
 
 const SavedNewsCard = ({ 
   title, 

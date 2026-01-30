@@ -1,5 +1,5 @@
 import talking_tiger from "../../../assets/characters/talking_tiger.png";
-import "./problem-mascot.css";
+import "./ProblemMascot.css";
 
 const ProblemMascot = () => {
   return (

@@ -1,6 +1,6 @@
-import ProblemRepeat from "../problem-repeat/problem-repeat";
-import ProblemRepeatSlow from "../problem-repeat/problem-repeat-slow";
-import "./problem-answer.css";
+import ProblemRepeat from "../problem-repeat/ProblemRepeat";
+import ProblemRepeatSlow from "../problem-repeat/ProblemRepeatSlow";
+import "./ProblemAnswer.css";
 
 const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIndex, wordResults }) => {
   // Check if we're on the full sentence step (last step)

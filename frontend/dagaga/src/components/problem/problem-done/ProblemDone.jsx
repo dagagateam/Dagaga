@@ -1,5 +1,5 @@
 import React from 'react';
-import './problem-done.css';
+import './ProblemDone.css';
 
 const ProblemDone = ({ onRetry, onReturn }) => {
   return (

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import lamejs from "@breezystack/lamejs";
-import "./problem-record-button.css";
+import "./ProblemRecordButton.css";
 
 const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
   const [isRecording, setIsRecording] = useState(false);

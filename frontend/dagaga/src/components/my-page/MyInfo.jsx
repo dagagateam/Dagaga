@@ -1,18 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Row, Col, Button, Badge } from 'react-bootstrap';
-import './my-info.css';
+import { Card, Row, Col, Button } from 'react-bootstrap';
+import { useUserStore } from '../../store/userStore';
+import './MyInfo.css';
 
 const MyInfo = () => {
   const navigate = useNavigate();
-  // Mock user data
-  const userInfo = {
-    nickname: "닉네임",
-    email: "닉네임@gmail.com",
-    preferredLang: "한국어",
-    nativeLang: "중국어",
-    region: "서울 종로구",
-    entryDate: "2012/03/06"
+  const { user } = useUserStore();
+
+  const userInfo = user || {
+    nickname: "Guest",
+    email: "-",
+    preferredLang: "-",
+    nativeLang: "-",
+    region: "-",
+    entryDate: "-"
   };
 
   return (

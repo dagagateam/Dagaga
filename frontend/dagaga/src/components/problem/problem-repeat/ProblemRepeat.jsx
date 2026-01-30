@@ -1,4 +1,4 @@
-import "./problem-repeat.css";
+import "./ProblemRepeat.css";
 
 const ProblemRepeat = ({ onClick }) => {
   return (

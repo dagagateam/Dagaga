@@ -1,10 +1,10 @@
 import React from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
-import SavedNewsCard from '../../components/my-page/saved-news-card';
-import MyInfo from '../../components/my-page/my-info';
-import ChatPlaceholder from '../../components/my-page/chat-placeholder';
+import SavedNewsCard from '../../components/my-page/SavedNewsCard';
+import MyInfo from '../../components/my-page/MyInfo';
+import ChatPlaceholder from '../../components/my-page/ChatPlaceholder';
 import { useUserStore } from '../../store/userStore';
-import './my-page.css';
+import './MyPage.css';
 
 const MyPage = () => {
   const { user, savedItems, likedPostIds, toggleSave, toggleLike } = useUserStore();
@@ -17,7 +17,12 @@ const MyPage = () => {
       <Card className="greeting-card mb-3">
         <Card.Body className="greeting-body">
           <div className="profile-circle">
-            <img src="/assets/profile-placeholder.jpg" alt="Profile" className="profile-img" onError={(e) => {e.target.style.display='none'}} />
+            <img 
+              src={user?.profileImage || "/assets/profile-placeholder.jpg"} 
+              alt="Profile" 
+              className="profile-img" 
+              onError={(e) => {e.target.style.display='none'}} 
+            />
           </div>
           <h2 className="greeting-text">
             <strong>{userNickname}</strong>님, 안녕하세요
