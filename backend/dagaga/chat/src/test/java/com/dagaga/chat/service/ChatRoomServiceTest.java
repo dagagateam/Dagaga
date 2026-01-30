@@ -53,7 +53,7 @@ class ChatRoomServiceTest {
                 .build();
 
         given(chatRoomRepository.save(any(ChatRoom.class))).willReturn(savedRoom);
-        
+
         // ChatRoomUser 모킹 (upsertActiveStatus 내부 로직)
         given(chatRoomUserRepository.findById(any(ChatRoomUserId.class))).willReturn(Optional.empty());
         given(chatRoomUserRepository.save(any(ChatRoomUser.class))).willAnswer(invocation -> invocation.getArgument(0));
@@ -63,10 +63,10 @@ class ChatRoomServiceTest {
 
         // then
         assertThat(roomId).isEqualTo(10);
-        
+
         // 방 저장 호출 검증
         verify(chatRoomRepository).save(any(ChatRoom.class));
-        
+
         // 참여자 저장(OWNER) 호출 검증
         verify(chatRoomUserRepository).save(any(ChatRoomUser.class));
     }
@@ -77,13 +77,13 @@ class ChatRoomServiceTest {
         // given
         int roomId = 1;
         int creatorId = 100;
-        
+
         ChatRoom room = ChatRoom.builder()
                 .roomId(roomId)
                 .creatorId(creatorId)
                 .status(RoomStatus.ACTIVE)
                 .build();
-        
+
         ChatRoomUser user1 = ChatRoomUser.builder().status(UserStatus.ACTIVE).build();
         ChatRoomUser user2 = ChatRoomUser.builder().status(UserStatus.ACTIVE).build();
 
@@ -106,7 +106,7 @@ class ChatRoomServiceTest {
         // given
         int roomId = 1;
         int creatorId = 100;
-        int requesterId = 999; 
+        int requesterId = 999;
 
         ChatRoom room = ChatRoom.builder()
                 .roomId(roomId)
@@ -116,8 +116,55 @@ class ChatRoomServiceTest {
         given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
 
         // when & then
-        assertThatThrownBy(() -> 
-            chatRoomService.deleteRoom(roomId, requesterId)
-        ).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> chatRoomService.deleteRoom(roomId, requesterId))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("Success: Custom 채팅방의 경우 유저가 나가면 status가 LEFT로 변경됨")
+    void leaveRoom_shouldMarkUserAsLeft_whenRoomIsCustom() {
+        // given
+        int roomId = 1;
+        int userId = 10;
+
+        ChatRoom room = ChatRoom.builder()
+                .roomId(roomId)
+                .roomType(RoomType.CUSTOM)
+                .build();
+
+        ChatRoomUserId id = new ChatRoomUserId(roomId, userId);
+        ChatRoomUser user = ChatRoomUser.builder()
+                .id(id)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
+        given(chatRoomUserRepository.findById(any(ChatRoomUserId.class))).willReturn(Optional.of(user));
+
+        // when
+        chatRoomService.leaveRoom(userId, roomId);
+
+        // then
+        assertThat(user.getStatus()).isEqualTo(UserStatus.LEFT);
+        assertThat(user.getLeftAt()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Fail: Default 채팅방은 나갈 수 없음")
+    void leaveRoom_shouldThrowException_whenRoomIsDefault() {
+        // given
+        int roomId = 1;
+        int userId = 10;
+
+        ChatRoom room = ChatRoom.builder()
+                .roomId(roomId)
+                .roomType(RoomType.DEFAULT)
+                .build();
+
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
+
+        // when & then
+        assertThatThrownBy(() -> chatRoomService.leaveRoom(userId, roomId)).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("기본 채팅방은 나갈 수 없습니다");
     }
 }

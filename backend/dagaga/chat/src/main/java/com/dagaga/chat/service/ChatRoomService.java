@@ -21,7 +21,7 @@ public class ChatRoomService {
     private final ChatRoomUserRepository chatRoomUserRepository;
 
     public ChatRoomService(ChatRoomRepository chatRoomRepository,
-                           ChatRoomUserRepository chatRoomUserRepository) {
+            ChatRoomUserRepository chatRoomUserRepository) {
         this.chatRoomRepository = chatRoomRepository;
         this.chatRoomUserRepository = chatRoomUserRepository;
     }
@@ -40,8 +40,7 @@ public class ChatRoomService {
         ChatRoom room = ChatRoom.createCustomRoom(
                 creatorId,
                 creatorLocationId,
-                title
-        );
+                title);
 
         ChatRoom saved = chatRoomRepository.save(room);
 
@@ -76,12 +75,28 @@ public class ChatRoomService {
         }
 
         room.setStatus(RoomStatus.DELETED);
-        
+
         // 삭제한 채팅방에 속한 모든 유저를 LEFT 상태로 변경
         List<ChatRoomUser> users = chatRoomUserRepository.findAllByRoomId(roomId);
         for (ChatRoomUser user : users) {
-             user.leave();
+            user.leave();
         }
+    }
+
+    @Transactional
+    public void leaveRoom(int userId, int roomId) {
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다. roomId : " + roomId));
+
+        if (room.getRoomType() == RoomType.DEFAULT) {
+            throw new IllegalStateException("기본 채팅방은 나갈 수 없습니다.");
+        }
+
+        ChatRoomUserId id = new ChatRoomUserId(roomId, userId);
+        ChatRoomUser user = chatRoomUserRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방에 참여 중인 유저가 아닙니다."));
+
+        user.leave();
     }
 
     private void upsertActiveStatus(int roomId, int userId, Role role) {
