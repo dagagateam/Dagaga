@@ -8,6 +8,7 @@ export const useUserStore = create(
       isLoggedIn: false,
       savedItems: [], // Array of community objects
       likedPostIds: [], // Array of IDs
+      joinedChats: [], // Persisted chat rooms
 
       login: (userData) => set({ 
         user: userData, 
@@ -18,8 +19,11 @@ export const useUserStore = create(
         user: null, 
         isLoggedIn: false,
         savedItems: [],
-        likedPostIds: []
+        likedPostIds: [],
+        joinedChats: []
       }),
+      
+      setJoinedChats: (chats) => set({ joinedChats: chats }),
       
       toggleSave: (item) => set((state) => {
         const isSaved = state.savedItems.some(i => i.id === item.id);

@@ -14,6 +14,10 @@ const ScenarioSelect = () => {
     sessionStorage.setItem("selectedScenario", selectedScenario);
   }, [selectedScenario]);
 
+  const handleScenarioSelect = (id) => {
+    setSelectedScenario(id);
+  };
+
   return (
     <Container fluid className="scenario-select-container">
       <div className="scenario-content">
@@ -29,7 +33,7 @@ const ScenarioSelect = () => {
               key={scenario.id}
               scenario={scenario}
               isSelected={selectedScenario === scenario.id}
-              onClick={() => setSelectedScenario(scenario.id)}
+              onSelect={handleScenarioSelect}
             />
           ))}
         </div>

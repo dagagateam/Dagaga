@@ -104,3 +104,32 @@
     flex-direction: column;
   }
 }
+/* Joined Chat Card */
+.joined-chat-card {
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  background-color: white;
+  height: 100%; /* Stretch to fill column */
+  min-height: 200px; /* Reduced min-height */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.joined-chat-body {
+  padding: 10px 20px 20px 20px;
+  overflow-y: auto;
+  flex: 1; /* Take remaining space */
+  min-height: 0; /* Important for firefox/flex scroll */
+}
+
+/* Custom Scrollbar for chat list */
+.joined-chat-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.joined-chat-body::-webkit-scrollbar-thumb {
+  background-color: #ddd;
+  border-radius: 3px;
+}
