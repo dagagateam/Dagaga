@@ -33,8 +33,7 @@ public class ChatRoomController {
         int roomId = chatRoomService.createCustomRoom(
                 user.getUserId(),
                 user.getLocationId(),
-                request.getTitle()
-        );
+                request.getTitle());
 
         return ResponseEntity.ok(roomId);
     }
@@ -51,6 +50,16 @@ public class ChatRoomController {
         return chatRoomService.ensureDefaultRoomAndJoin(userId, locationId);
     }
 
+    // 채팅방 참여
+    @PostMapping("/{roomId}/join")
+    public ResponseEntity<Void> joinChatRoom(
+            @PathVariable int roomId,
+            @RequestParam int userId,
+            @RequestParam int userLocationId) {
+        chatRoomService.joinRoom(userId, userLocationId, roomId);
+        return ResponseEntity.ok().build();
+    }
+
     // 내 지역 방 목록
     @GetMapping("/by-location")
     public List<ChatRoom> listByLocation(@RequestParam int userLocationId) {
@@ -63,8 +72,7 @@ public class ChatRoomController {
             @PathVariable int roomId,
             @RequestParam int userLocationId,
             @RequestParam(required = false) Long cursor,
-            @RequestParam(defaultValue = "30") int size
-    ) {
+            @RequestParam(defaultValue = "30") int size) {
         // 지역 검증
         chatRoomService.getRoomAndValidateLocation(roomId, userLocationId);
 
