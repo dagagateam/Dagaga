@@ -7,6 +7,13 @@ import loginTiger from '../../assets/characters/login_tiger.png';
 import logo from '../../assets/icons/logo.png';
 import { area0, allAreas } from '../../data/regionData';
 import LanguageSelector from '../../components/auth/LanguageSelector';
+import Button from '../../components/common/Button';
+import Input from '../../components/common/Input';
+import RegionSelect from '../../components/common/RegionSelect';
+import Select from '../../components/common/Select';
+import ArrivalDateInput from '../../components/common/ArrivalDateInput';
+
+import { motion } from 'framer-motion';
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -19,40 +26,30 @@ const Signup = () => {
         password: '',
         confirmPassword: '',
         nativeLanguage: '중국어',
-        sido: area0[0],
+        sido: '시/도 선택',
         gugun: '구/군 선택',
         arrivalDate: ''
     });
 
-    const [gugunList, setGugunList] = useState([]);
     const [errors, setErrors] = useState({});
     
     // Nickname Verification State
     const [nicknameMessage, setNicknameMessage] = useState('');
     const [isNicknameAvailable, setIsNicknameAvailable] = useState(null); // null, true, false
 
-    // Handle Region Change (Bootstrap Dropdown)
-    const handleSidoSelect = (eventKey) => {
-        const selectedSido = eventKey;
-        const index = area0.indexOf(selectedSido);
-
+    // Region Handlers
+    const handleSidoChange = (selectedSido) => {
         setFormData({
             ...formData,
             sido: selectedSido,
             gugun: '구/군 선택' // Reset gugun
         });
-
-        if (index > 0 && allAreas[index]) {
-            setGugunList(allAreas[index]);
-        } else {
-            setGugunList([]);
-        }
     };
 
-    const handleGugunSelect = (eventKey) => {
+    const handleGugunChange = (selectedGugun) => {
         setFormData({
             ...formData,
-            gugun: eventKey
+            gugun: selectedGugun
         });
     };
 
@@ -177,7 +174,13 @@ const Signup = () => {
     };
 
     return (
-        <div className="signup-container">
+        <motion.div 
+            className="signup-container"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+        >
             <header className="signup-header">
                 <div className="logo-area">
                     <img src={logo} alt="Dagaga Logo" style={{ height: '40px' }} />
@@ -195,9 +198,9 @@ const Signup = () => {
 
                             <form onSubmit={handleSignup} className="signup-form">
                                 <div className="form-row">
-                                    <div className="input-group half">
+                                    <div className="custom-input-group half">
                                         <label>이메일 <span>*</span></label>
-                                        <input
+                                        <Input
                                             type="email"
                                             name="email"
                                             placeholder="example@email.com"
@@ -208,26 +211,21 @@ const Signup = () => {
                                         />
                                         {errors.email && <span className="error-msg">{errors.email}</span>}
                                     </div>
-                                    <div className="input-group half">
+                                    <div className="custom-input-group half">
                                         <label>화면 표시 언어 <span>*</span></label>
-                                        <Dropdown className="region-dropdown" onSelect={(e) => setLanguage(e)}>
-                                            <Dropdown.Toggle variant="light" className="region-toggle">
-                                                {language}
-                                            </Dropdown.Toggle>
-                                            <Dropdown.Menu className="region-menu">
-                                                {['한국어', '중국어', '베트남어'].map((lang) => (
-                                                    <Dropdown.Item eventKey={lang} key={lang}>{lang}</Dropdown.Item>
-                                                ))}
-                                            </Dropdown.Menu>
-                                        </Dropdown>
+                                        <Select
+                                            value={language}
+                                            options={['한국어', '중국어', '베트남어']}
+                                            onChange={(val) => setLanguage(val)}
+                                        />
                                     </div>
                                 </div>
 
                                 <div className="form-row">
-                                    <div className="input-group half">
+                                    <div className="custom-input-group half">
                                         <label>닉네임</label>
                                         <div className="nickname-group">
-                                            <input
+                                            <Input
                                                 type="text"
                                                 name="nickname"
                                                 placeholder="닉네임을 입력하세요"
@@ -246,25 +244,20 @@ const Signup = () => {
                                             nicknameMessage && <span className={`validation-msg ${isNicknameAvailable ? 'success' : 'error'}`}>{nicknameMessage}</span>
                                         )}
                                     </div>
-                                    <div className="input-group half">
+                                    <div className="custom-input-group half">
                                         <label>모국어 <span>*</span></label>
-                                        <Dropdown className="region-dropdown" onSelect={(e) => setFormData({...formData, nativeLanguage: e})}>
-                                            <Dropdown.Toggle variant="light" className="region-toggle">
-                                                {formData.nativeLanguage}
-                                            </Dropdown.Toggle>
-                                            <Dropdown.Menu className="region-menu">
-                                                {['한국어', '중국어', '베트남어'].map((lang) => (
-                                                    <Dropdown.Item eventKey={lang} key={lang}>{lang}</Dropdown.Item>
-                                                ))}
-                                            </Dropdown.Menu>
-                                        </Dropdown>
+                                        <Select
+                                            value={formData.nativeLanguage}
+                                            options={['한국어', '중국어', '베트남어']}
+                                            onChange={(val) => setFormData({ ...formData, nativeLanguage: val })}
+                                        />
                                     </div>
                                 </div>
 
                                 <div className="form-row">
-                                    <div className="input-group half">
+                                    <div className="custom-input-group half">
                                         <label>비밀번호 <span>*</span></label>
-                                        <input
+                                        <Input
                                             type="password"
                                             name="password"
                                             placeholder="비밀번호를 입력하세요"
@@ -275,42 +268,23 @@ const Signup = () => {
                                         />
                                         {errors.password && <span className="error-msg">{errors.password}</span>}
                                     </div>
-                                    <div className="input-group half">
+                                    <div className="custom-input-group half">
                                         <label>지역 <span>*</span></label>
                                         <div className="region-selects">
-                                            <Dropdown className="region-dropdown" onSelect={handleSidoSelect}>
-                                                <Dropdown.Toggle variant="light" className="region-toggle">
-                                                    {formData.sido}
-                                                </Dropdown.Toggle>
-                                                <Dropdown.Menu className="region-menu">
-                                                    {area0.map((area) => (
-                                                        <Dropdown.Item eventKey={area} key={area}>{area}</Dropdown.Item>
-                                                    ))}
-                                                </Dropdown.Menu>
-                                            </Dropdown>
-
-                                            <Dropdown className="region-dropdown" onSelect={handleGugunSelect}>
-                                                <Dropdown.Toggle variant="light" className="region-toggle">
-                                                    {formData.gugun}
-                                                </Dropdown.Toggle>
-                                                <Dropdown.Menu className="region-menu">
-                                                    {gugunList.length > 0 ? (
-                                                        gugunList.map((area) => (
-                                                            area !== '구/군 선택' && <Dropdown.Item eventKey={area} key={area}>{area}</Dropdown.Item>
-                                                        ))
-                                                    ) : (
-                                                        <Dropdown.Item disabled>구/군 선택</Dropdown.Item>
-                                                    )}
-                                                </Dropdown.Menu>
-                                            </Dropdown>
+                                            <RegionSelect
+                                                sido={formData.sido}
+                                                gugun={formData.gugun}
+                                                onSidoChange={handleSidoChange}
+                                                onGugunChange={handleGugunChange}
+                                            />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="form-row">
-                                    <div className="input-group half">
+                                    <div className="custom-input-group half">
                                         <label>비밀번호 확인 <span>*</span></label>
-                                        <input
+                                        <Input
                                             type="password"
                                             name="confirmPassword"
                                             placeholder="비밀번호를 입력하세요"
@@ -321,11 +295,8 @@ const Signup = () => {
                                         />
                                         {errors.confirmPassword && <span className="error-msg">{errors.confirmPassword}</span>}
                                     </div>
-                                    <div className="input-group half">
-                                        <label>한국에 온 날짜</label>
-                                        <input
-                                            type="date"
-                                            name="arrivalDate"
+                                    <div className="custom-input-group half">
+                                        <ArrivalDateInput
                                             value={formData.arrivalDate}
                                             onChange={handleChange}
                                         />
@@ -333,7 +304,7 @@ const Signup = () => {
                                 </div>
 
                                 <div className="signup-action">
-                                    <button type="submit" className="signup-btn">가입하기</button>
+                                    <Button type="submit" className="signup-btn">가입하기</Button>
                                 </div>
                             </form>
 
@@ -344,10 +315,10 @@ const Signup = () => {
 
                     </div>
 
-                    <img src={loginTiger} alt="Welcome Tiger" className="tiger-image" />
+                    <img src={loginTiger} alt="Welcome Tiger" className="signup-tiger-image" />
                 </div>
             </main>
-        </div>
+        </motion.div>
     );
 };
 

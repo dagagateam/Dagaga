@@ -36,21 +36,8 @@
 }
 
 .create-chat-btn {
-    background-color: #F8B15E;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    /* Pill shape */
-    font-weight: 700;
     font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
     box-shadow: 0 4px 6px rgba(248, 177, 94, 0.3);
-}
-
-.create-chat-btn:hover {
-    background-color: #e09f4e;
 }
 
 /* Regional Chat Section (Large Card) */
@@ -191,14 +178,8 @@
 }
 
 .join-btn {
-    background-color: #F8B15E;
-    color: white;
-    border: none;
     padding: 10px 30px;
-    border-radius: 25px;
-    font-weight: 700;
     font-size: 1.1rem;
-    cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 10px;

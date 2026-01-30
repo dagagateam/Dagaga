@@ -5,6 +5,7 @@ import './CommunityChatList.css';
 import { fetchChatRooms } from '../../../api/communityApi';
 import UserChatCard from '../../../components/community/chat/UserChatCard';
 import JoinedChatItem from '../../../components/community/chat/JoinedChatItem';
+import Button from '../../../components/common/Button';
 
 const CommunityChatList = () => {
     const navigate = useNavigate();
@@ -48,9 +49,9 @@ const CommunityChatList = () => {
                         채팅방
                         <span className="chat-location-badge">📍 {userRegion}</span>
                     </h2>
-                    <button className="create-chat-btn" onClick={() => alert('채팅방 생성 기능은 준비 중입니다.')}>
+                    <Button className="create-chat-btn" onClick={() => alert('채팅방 생성 기능은 준비 중입니다.')}>
                         채팅방 생성하기 +
-                    </button>
+                    </Button>
                 </div>
 
                 {/* Regional Chat Section */}
@@ -63,9 +64,9 @@ const CommunityChatList = () => {
                                 <div className="regional-card-content">
                                     <h3 className="regional-card-title">{data.regionalChat.title}</h3>
                                     <div>
-                                        <button className="join-btn" onClick={() => navigate(`/community/chat/room/${data.regionalChat.id}`)}>
+                                        <Button className="join-btn" onClick={() => navigate(`/community/chat/room/${data.regionalChat.id}`)}>
                                             참여하기
-                                        </button>
+                                        </Button>
                                         <span className="participant-info">{data.regionalChat.participantCount}명 참여중</span>
                                     </div>
                                 </div>

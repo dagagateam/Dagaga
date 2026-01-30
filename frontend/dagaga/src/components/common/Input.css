@@ -1,0 +1,22 @@
+.common-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px; /* Matches Button curvature */
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background-color: white;
+    font-family: var(--main-font);
+    box-sizing: border-box;
+}
+
+.common-input:focus {
+    border-color: var(--main-orange, #F8B15E);
+}
+
+/* Error state styling if needed */
+.common-input.error-input {
+    border-color: #ff4d4f !important;
+    background-color: #fff2f0;
+}
