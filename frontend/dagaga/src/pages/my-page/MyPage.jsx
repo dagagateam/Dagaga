@@ -1,13 +1,33 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import SavedNewsCard from '../../components/my-page/SavedNewsCard';
 import MyInfo from '../../components/my-page/MyInfo';
-import ChatPlaceholder from '../../components/my-page/ChatPlaceholder';
+import JoinedChatItem from '../../components/community/chat/JoinedChatItem';
+import { fetchChatRooms } from '../../api/communityApi';
 import { useUserStore } from '../../store/userStore';
 import './MyPage.css';
 
 const MyPage = () => {
-  const { user, savedItems, likedPostIds, toggleSave, toggleLike } = useUserStore();
+  const { user, savedItems, likedPostIds, joinedChats, setJoinedChats, toggleSave, toggleLike } = useUserStore();
+  
+  useEffect(() => {
+    // Fetch only if empty or background update needed. 
+    // Here we fetch if empty to avoid layout shift, or could fetch in background to update staleness.
+    // Given the user request "doesn't have to load for a while", checking length > 0 is good.
+    if (joinedChats.length === 0) {
+      const loadChats = async () => {
+        try {
+          const response = await fetchChatRooms();
+          if (response?.data?.joinedChats) {
+            setJoinedChats(response.data.joinedChats);
+          }
+        } catch (error) {
+          console.error("Failed to fetch chat rooms:", error);
+        }
+      };
+      loadChats();
+    }
+  }, [joinedChats.length, setJoinedChats]);
   
   const userNickname = user?.nickname || "Guest";
 
@@ -65,7 +85,19 @@ const MyPage = () => {
           <div className="section-title-wrapper mb-3">
             <span className="section-badge">내 채팅방</span>
           </div>
-          <ChatPlaceholder />
+          <Card className="joined-chat-card">
+            <Card.Body className="joined-chat-body">
+              {joinedChats.length > 0 ? (
+                joinedChats.map(chat => (
+                  <JoinedChatItem key={chat.id} chat={chat} />
+                ))
+              ) : (
+                <div className="p-3 text-muted text-center">
+                  참여 중인 채팅방이 없습니다.
+                </div>
+              )}
+            </Card.Body>
+          </Card>
         </Col>
         <Col lg={8} md={12}>
           <div className="section-title-wrapper mb-3">

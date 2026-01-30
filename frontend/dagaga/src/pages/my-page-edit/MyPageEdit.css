@@ -44,3 +44,21 @@ label.text-muted {
     font-size: 0.9rem;
     margin-bottom: 0.4rem;
 }
+
+.edit-form-scroll {
+    max-height: 55vh; /* Adjustable constraint */
+    overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    padding-right: 10px; /* Space for scrollbar */
+    margin-bottom: 20px;
+}
+
+/* Custom Scrollbar */
+.edit-form-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.edit-form-scroll::-webkit-scrollbar-thumb {
+    background-color: #ddd;
+    border-radius: 3px;
+}

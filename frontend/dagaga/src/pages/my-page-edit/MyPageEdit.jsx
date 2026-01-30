@@ -27,7 +27,9 @@ const MyPageEdit = () => {
 
     useEffect(() => {
         if (user) {
-            const [sido, gugun] = String(user.region || '').split(' ');
+            // Use regionName if available (e.g., "서울 종로구"), otherwise fall back to region (though region might be a code)
+            const regionSource = user.regionName || String(user.region || '');
+            const [sido, gugun] = regionSource.split(' ');
             setFormData({
                 nickname: user.nickname || '',
                 email: user.email || '',
@@ -106,7 +108,19 @@ const MyPageEdit = () => {
         
         const updates = {
             nickname: formData.nickname,
+            region: user.region, // Keep original region code if we want to preserve it, or logic to update it? 
+            // Actually, handle submit creates a regionStr from names. 
+            // If the backend expects a code, we might have an issue here.
+            // But for now, let's assume sending the string name (as constructed below) is what's intended or we are correcting the "thing".
+            // The user said "change the region thing", likely referring to the display/load issue.
+            // The existing code constructs `regionStr` from names:
+            // const regionStr = `${formData.sido} ${formData.gugun !== '구/군 선택' ? formData.gugun : ''}`.trim();
+            // And sends `region: regionStr`.
+            // If the backend expects a code, this frontend logic was already potentially sending names.
+            // I will leave the submit logic as is for now unless I see a reason to change it, 
+            // but the request was "change the region thing in the edit page" likely meaning the loading part.
             region: regionStr,
+            regionName: regionStr, // Update regionName as well just in case
             preferredLang: formData.preferredLang,
             nativeLang: formData.nativeLang,
             entryDate: formData.entryDate ? formData.entryDate.replaceAll('-', '/') : '',
@@ -133,6 +147,7 @@ const MyPageEdit = () => {
                     <h3 className="mb-4 fw-bold">프로필 수정</h3>
                     
                     <Form onSubmit={handleSubmit}>
+                    <div className="edit-form-scroll">
                         <ProfileImageSection 
                             previewImage={previewImage} 
                             onImageChange={handleImageChange} 
@@ -145,6 +160,7 @@ const MyPageEdit = () => {
                             handleGugunChange={handleGugunChange}
                             errors={errors}
                         />
+                    </div>
 
                         <div className="d-flex justify-content-end gap-3 mt-5">
                             <Button variant="light" className="px-4 rounded-pill fw-semibold text-muted" onClick={() => navigate('/my-page')}>

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import "./ScenarioCard.css";
 
-const ScenarioCard = ({ scenario, isSelected, onClick }) => {
+const ScenarioCard = ({ scenario, isSelected, onSelect }) => {
   const navigate = useNavigate();
 
   const handleArrowClick = (e) => {
@@ -13,9 +13,10 @@ const ScenarioCard = ({ scenario, isSelected, onClick }) => {
   return (
     <motion.div 
       className={`scenario-card ${isSelected ? "expanded" : "collapsed"}`} 
-      onClick={onClick}
+      onClick={() => onSelect(scenario.id)}
       layout
       layoutId={isSelected ? `scenario-card-${scenario.id}` : undefined}
+      whileHover={!isSelected ? { scale: 1.02, y: -4 } : {}}
     >
       <div className="scenario-card-icon">
         <img

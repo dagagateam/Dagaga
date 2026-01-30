@@ -21,7 +21,7 @@ const MyInfo = () => {
     <Card className="my-info-card">
       <Card.Body>
         <div className="my-info-header">
-          <Button className="edit-info-btn" onClick={() => navigate('/my-page/edit')}>수정하기</Button>
+          <Button className="edit-info-btn" onClick={() => navigate('/my-page/edit')}>프로필 수정하기</Button>
         </div>
         
         <Row className="info-grid">
@@ -35,18 +35,18 @@ const MyInfo = () => {
           </Col>
           <Col md={4} className="info-item">
             <label className="info-label">지역</label>
-            <div className="info-value">{userInfo.region}</div>
+            <div className="info-value">{userInfo.regionName || userInfo.region}</div>
           </Col>
           
-          <Col md={4} className="info-item mt-4">
+          <Col md={4} className="info-item mt-3">
             <label className="info-label">이메일</label>
             <div className="info-value email-value">{userInfo.email}</div>
           </Col>
-          <Col md={4} className="info-item mt-4">
+          <Col md={4} className="info-item mt-3">
             <label className="info-label">모국어</label>
             <div className="info-value">{userInfo.nativeLang}</div>
           </Col>
-          <Col md={4} className="info-item mt-4">
+          <Col md={4} className="info-item mt-3">
             <label className="info-label">한국에 온 날</label>
             <div className="info-value">{userInfo.entryDate}</div>
           </Col>

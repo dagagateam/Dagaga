@@ -3,7 +3,8 @@
   border: none;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   background-color: white;
-  height: fit-content;
+  height: 100%;
+  min-height: 200px; /* Reduced specific height */
   padding: 10px;
 }
 
@@ -17,9 +18,10 @@
   background-color: #E67E22; /* Orange color */
   border-color: #E67E22;
   border-radius: 20px;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  padding: 5px 15px;
+  padding: 8px 10px;
+  min-width: 150px; /* Ensure wide enough for text */
 }
 
 .edit-info-btn:hover {
@@ -28,7 +30,7 @@
 }
 
 .info-grid {
-  padding: 0 20px 20px 20px;
+  padding: 0 20px 10px 20px; /* Reduced bottom padding */
 }
 
 .info-item {
