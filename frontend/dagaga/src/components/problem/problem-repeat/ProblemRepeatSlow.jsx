@@ -1,5 +1,5 @@
 import turtleIcon from "../../../assets/icons/turtle.png";
-import "./problem-repeat-slow.css";
+import "./ProblemRepeatSlow.css";
 
 const ProblemRepeatSlow = ({ onClick }) => {
   return (

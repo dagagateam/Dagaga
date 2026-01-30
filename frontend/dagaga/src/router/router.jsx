@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "../App";
-import ScenarioSelect from "../pages/Scenario-Select/Scenario-select";
-import ProblemSelect from "../pages/Problem-Select/Problem-select";
+import ScenarioSelect from "../pages/Scenario-Select/ScenarioSelect";
+import ProblemSelect from "../pages/Problem-Select/ProblemSelect";
 import Problem from "../pages/Problem/Problem";
 import Login from "../pages/Login/Login";
 import Signup from "../pages/Signup/Signup";
@@ -9,7 +9,9 @@ import CommunityInfo from "../pages/Community/Info/CommunityInfo";
 import CommunityInfoDetail from "../pages/Community/Info/CommunityInfoDetail";
 import CommunityChatList from "../pages/Community/Chat/CommunityChatList";
 import CommunityChatRoom from "../pages/Community/Chat/CommunityChatRoom";
-import ProblemNative from "../pages/problem-native/problem-native";
+import ProblemNative from "../pages/problem-native/ProblemNative";
+import MyPage from "../pages/my-page/MyPage";
+import MyPageEdit from "../pages/my-page-edit/MyPageEdit";
 
 const router = createBrowserRouter([
     {
@@ -58,6 +60,22 @@ const router = createBrowserRouter([
             {
                 path: "community/chat/room/:id",
                 element: <CommunityChatRoom />,
+            },
+            {
+              path: "my-page",
+              element: <MyPage />,
+            },
+            {
+              path: "my-page/edit",
+              element: <MyPageEdit />,
+            },
+            {
+              path: "my-page",
+              element: <MyPage />,
+            },
+            {
+              path: "my-page/edit",
+              element: <MyPageEdit />,
             },
         ],
     },

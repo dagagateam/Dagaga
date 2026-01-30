@@ -1,0 +1,46 @@
+.my-page-edit-container {
+    max-width: 900px;
+}
+
+.edit-card {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.profile-edit-wrapper {
+    width: 100px;
+    position: relative;
+}
+
+.profile-edit-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #f8f9fa;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.btn-save {
+    background-color: #E67E22;
+    border: none;
+}
+
+.btn-save:hover {
+    background-color: #D35400;
+}
+
+/* Customizing Form Controls */
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(230, 126, 34, 0.25);
+}
+
+.bg-light {
+    background-color: #F8F9FA !important;
+}
+
+label.text-muted {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+}
