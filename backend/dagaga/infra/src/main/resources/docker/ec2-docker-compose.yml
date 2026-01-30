@@ -1,0 +1,15 @@
+# EC2에 올라간 docker-compose.yml 백업본
+# services:
+#   backend:
+#     image: arinkkk/dagaga-backend:latest
+#     container_name: dagaga-backend
+#     ports:
+#       - "8080:8080"
+#     env_file:
+#       - ./.env
+#     restart: always
+#     logging:
+#       driver: "json-file"
+#       options:
+#         max-size: "10m"
+#         max-file: "3"
