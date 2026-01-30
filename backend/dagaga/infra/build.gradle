@@ -8,11 +8,6 @@ group = 'com.dagaga'
 version = '0.0.1-SNAPSHOT'
 description = 'infra'
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
 
 repositories {
     mavenCentral()
