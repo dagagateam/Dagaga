@@ -159,3 +159,24 @@ export const fetchChatRooms = async () => {
         }, 500);
     });
 };
+
+/**
+ * Fetch chat messages for a specific room.
+ * @param {number} roomId - The chat room ID.
+ * @param {number} userLocationId - The user's location ID (required).
+ * @param {number|null} cursor - The message ID cursor for pagination (optional).
+ * @param {number} size - Number of messages to fetch (default 30).
+ * @returns {Promise<Array>} - List of chat messages.
+ */
+export const fetchChatMessages = async (roomId, userLocationId, cursor = null, size = 30) => {
+    const params = {
+        userLocationId,
+        size
+    };
+    if (cursor) {
+        params.cursor = cursor;
+    }
+
+    const response = await instance.get(`/community/chats/${roomId}/messages`, { params });
+    return response.data;
+};

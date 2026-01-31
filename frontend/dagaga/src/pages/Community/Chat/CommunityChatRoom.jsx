@@ -5,6 +5,7 @@ import './CommunityChatRoom.css';
 import chattingTiger from '../../../assets/characters/chat_tiger.png';
 import EmojiPicker from 'emoji-picker-react';
 import ChatMessage from '../../../components/community/chat/ChatMessage';
+import { fetchChatMessages } from '../../../api/communityApi';
 
 const CommunityChatRoom = () => {
     const { id } = useParams();
@@ -15,24 +16,37 @@ const CommunityChatRoom = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [showMoreMenu, setShowMoreMenu] = useState(false);
-    const [messages, setMessages] = useState([
-        { id: 1, sender: '배우는엄마', text: '다들 학부모 상담 잘 하셨나요?', time: '10:15 pm', isMe: true },
-        { id: 2, sender: '배우는엄마', text: '저는 어제 학부모 상담했는데 다가가에서 연습한 내용이 많이 나와서 도움이 되었던 거 같아요!', time: '10:15 pm', isMe: true },
-        { id: 3, sender: '배우는엄마', text: '그치만 저희 아이가 앞으로 어떤 사람으로 자라길 바라시나요?라고 물어보셔서 대답하기 어려웠어요ㅜ', time: '10:15 pm', isMe: true },
-        { id: 4, sender: '한나', text: '당황스러우셨겠어요ㅜ', time: '12:15 pm', isMe: false },
-        { id: 5, sender: '한나', text: '저는 오늘 다녀왔는데 다행이 어려운 질문이 나오지 않아서 괜찮았던 거 같아요', time: '12:15 pm', isMe: false },
-        { id: 6, sender: '한나', text: '저는 내일 가는데.. 걱정이 많이 되네요..', time: '12:17 pm', isMe: false },
-        { id: 7, sender: '한나', text: '배우는엄마님이 말씀하신 질문도 생각해보고 가야겠어요. 좋은 정보 감사해요!!', time: '12:17 pm', isMe: false },
-        { id: 8, sender: '배우는엄마', text: '나머지 분들도 상담 다녀오시면 힘들었던 질문들 모아서 같이 연습해봐요~', time: '12:25 pm', isMe: true },
-        { id: 9, sender: '한나', text: '네 너무 좋아요~', time: '12:25 pm', isMe: false },
-        { id: 10, sender: '한나', text: '오늘 상담에서 어려웠던 부분 정리해놓아야겠네요', time: '12:25 pm', isMe: false },
-    ]);
+    const [messages, setMessages] = useState([]);
+    
+    // Hardcoded location ID for now as per plan
+    const userLocationId = 1;
 
-    const [joinedChats, setJoinedChats] = useState([
-        { id: 101, title: '동네 맛집 공유', lastMessage: '우와 여기 엄청 맛있을 거 같다', time: '2h' },
-        { id: 102, title: '한국어 공부 같이해요', lastMessage: '오늘 상담에서 어려웠던 부분 ...', time: '1m', active: true },
-        { id: 103, title: '정보 공유방', lastMessage: '유성다문화센터에서 한국어수 ...', time: '30m' },
-    ]);
+    useEffect(() => {
+        const loadMessages = async () => {
+             // Basic implementation: fetch messages when room ID changes
+             if (id) {
+                 try {
+                     const apiMessages = await fetchChatMessages(id, userLocationId);
+                     // Map API response to UI model if necessary
+                     // API returns: { messageId, senderId, originalText, sentAt, ... }
+                     // UI expects: { id, sender, text, time, isMe }
+                     // We need to fetch user info or infer 'isMe'. For now assume senderId 123 is 'me' (this needs real user ID later)
+                     const mappedMessages = apiMessages.map(msg => ({
+                         id: msg.messageId,
+                         sender: msg.senderId === 123 ? '나' : `User ${msg.senderId}`, // Placeholder logic
+                         text: msg.originalText,
+                         time: new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                         isMe: msg.senderId === 123, // Placeholder logic
+                         type: 'text'
+                     }));
+                     setMessages(mappedMessages);
+                 } catch (error) {
+                     console.error("Failed to fetch chat messages:", error);
+                 }
+             }
+        };
+        loadMessages();
+    }, [id]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -41,6 +55,12 @@ const CommunityChatRoom = () => {
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    const [joinedChats, setJoinedChats] = useState([
+        { id: 101, title: '동네 맛집 공유', lastMessage: '우와 여기 엄청 맛있을 거 같다', time: '2h' },
+        { id: 102, title: '한국어 공부 같이해요', lastMessage: '오늘 상담에서 어려웠던 부분 ...', time: '1m', active: true },
+        { id: 103, title: '정보 공유방', lastMessage: '유성다문화센터에서 한국어수 ...', time: '30m' },
+    ]);
 
     const handleSendMessage = (e) => {
         e.preventDefault();

@@ -83,3 +83,47 @@ export const fetchTts = async (text) => {
     });
     return response.data;
 };
+
+/**
+ * Upload audio for translation.
+ * @param {Blob} audioBlob - The recorded audio blob.
+ * @returns {Promise<Object>} - The translation result.
+ */
+export const translateAudio = async (audioBlob) => {
+    const formData = new FormData();
+    // The backend expects 'file' as the key
+    formData.append('file', audioBlob, 'recording.mp3');
+
+    const response = await instance.post('/learning/translate/audio', formData, {
+        headers: {
+            // Let the browser set the Content-Type with boundary for FormData
+            // We explicitly set it to undefined to override any default 'application/json' if set in instance
+            'Content-Type': undefined 
+        }
+    });
+    return response.data;
+};
+
+/**
+ * Evaluate pronunciation for shadowing.
+ * @param {Blob} audioBlob - The recorded audio blob.
+ * @param {string} expectedText - The text the user should be speaking.
+ * @param {number} retryCount - Current retry count (default 0).
+ * @returns {Promise<Object>} - The evaluation result { success, message, data: boolean }.
+ */
+export const evaluatePronunciation = async (audioBlob, expectedText, retryCount = 0) => {
+    const formData = new FormData();
+    formData.append('file', audioBlob, 'recording.mp3');
+    
+    // Using query params for expectedText and retryCount as per Swagger/Docs
+    const response = await instance.post('/learning/shadowing/evaluate', formData, {
+        params: {
+            expectedText,
+            retryCount
+        },
+        headers: {
+            'Content-Type': undefined
+        }
+    });
+    return response.data;
+};

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axiosInstance from "./axios";
+import * as learningApi from "./learningApi";
 
 /**
  * Hook to handle speech-related API calls (translation, pronunciation check)
@@ -18,39 +18,24 @@ export const useSpeechApi = () => {
     setIsUploading(true);
     setError(null);
 
-    // Mock response for now (simulated delay)
-    // When backend is ready, uncomment the axios block below and remove the mock
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        setIsUploading(false);
-        resolve({
-          words: ["저희", "아이는", "수학을", "어려워해요"],
-          pronunciations: ["저 히", "아 이 는", "수 하 글", "어 려 워 해 요"],
-        });
-      }, 2000);
-    });
-
-    /* 
     try {
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "recording.mp3");
-      formData.append("problemId", problemId);
-
-      const response = await axiosInstance.post("/api/translate", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      setIsUploading(false);
-      return response.data;
+      const responseData = await learningApi.translateAudio(audioBlob);
+      
+      if (responseData.success) {
+        setIsUploading(false);
+        return {
+           words: responseData.data.words,
+           pronunciations: responseData.data.pronunciation_guide // Backend returns 'pronunciation_guide'
+        };
+      } else {
+        throw new Error(responseData.message || "Translation failed");
+      }
     } catch (err) {
       console.error("Translation error:", err);
       setError(err);
       setIsUploading(false);
-      throw err;
+      return null;
     }
-    */
   };
 
   /**
@@ -65,38 +50,22 @@ export const useSpeechApi = () => {
     setIsUploading(true);
     setError(null);
 
-    // Mock response for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        setIsUploading(false);
-        const isCorrect = Math.random() > 0.3; // 70% chance correct
-        resolve({ isCorrect });
-      }, 500); // Small delay for effect
-    });
-
-    /*
     try {
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "recording.mp3");
-      formData.append("problemId", problemId);
-      formData.append("currentWord", word);
-      formData.append("step", step.toString());
-
-      const response = await axiosInstance.post("/api/speech/analyze", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      setIsUploading(false);
-      return response.data;
+      const responseData = await learningApi.evaluatePronunciation(audioBlob, word); // word corresponds to 'expectedText'
+      
+      if (responseData.success) {
+        setIsUploading(false);
+        return { isCorrect: responseData.data };
+      } else {
+        throw new Error(responseData.message || "Pronunciation check failed");
+      }
     } catch (err) {
       console.error("Pronunciation check error:", err);
       setError(err);
       setIsUploading(false);
-      throw err;
+      // Return false on error so the user can try again or see failure
+      return { isCorrect: false };
     }
-    */
   };
 
   return {
