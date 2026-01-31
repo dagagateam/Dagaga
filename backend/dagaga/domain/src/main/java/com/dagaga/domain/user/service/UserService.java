@@ -21,6 +21,12 @@ public class UserService {
         }
     }
 
+    public void checkNicknameDuplicate(String nickname) {
+        if (userRepository.existsByNickname(nickname)) {
+            throw new IllegalArgumentException("닉네임이 이미 존재합니다: " + nickname);
+        }
+    }
+
     @Transactional
     public Integer register(UserRegisterDto dto) {
         checkEmailDuplicate(dto.getEmail());
