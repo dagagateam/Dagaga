@@ -50,15 +50,6 @@ public class ChatRoomController {
         return ResponseEntity.ok().build();
     }
 
-    // 기본방 참여 보장
-    @Operation(summary = "기본 지역 채팅방 참여", description = "지역 기반 기본 채팅방에 참여합니다.")
-    @PostMapping("/default/join")
-    public int joinDefault(
-            @Parameter(description = "사용자 ID") @RequestParam int userId,
-            @Parameter(description = "지역 ID") @RequestParam int locationId) {
-        return chatRoomService.ensureDefaultRoomAndJoin(userId, locationId);
-    }
-
     // 채팅방 참여
     @Operation(summary = "채팅방 참여", description = "사용자가 자신의 지역에 있는 유저 생성 채팅방에 참여합니다.")
     @PostMapping("/{roomId}/join")

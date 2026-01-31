@@ -72,6 +72,7 @@ public class TranslationAdapter implements TranslationPort {
                 Translate the following text from %s to %s.
                 Text: "%s"
                 Output ONLY a JSON object where keys are language codes and values are translated text.
+                Do not include the source language in the output.
                 Example: {"ko": "안녕하세요", "en": "Hello"}
                 """, sourceLang, String.join(", ", targetLangs), text);
     }
