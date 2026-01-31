@@ -2,6 +2,7 @@ package com.dagaga.domain.chat.user.repository;
 
 import com.dagaga.domain.chat.user.entity.ChatRoomUser;
 import com.dagaga.domain.chat.user.entity.ChatRoomUserId;
+import com.dagaga.domain.chat.user.entity.UserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,5 +20,9 @@ public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUser, Chat
             "WHERE cru.id.roomId = :roomId AND cru.status = 'ACTIVE'")
     List<String> findActiveUserLanguages(@Param("roomId") Integer roomId);
 
-    List<ChatRoomUser> findAllByRoomId(Integer roomId);
+    List<ChatRoomUser> findAllByIdRoomId(Integer roomId);
+
+    long countByIdRoomIdAndStatus(Integer roomId, UserStatus status);
+
+    List<ChatRoomUser> findAllByIdUserIdAndStatus(Integer userId, UserStatus status);
 }

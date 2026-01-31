@@ -8,12 +8,16 @@ import com.dagaga.domain.chat.user.entity.ChatRoomUser;
 import com.dagaga.domain.chat.user.entity.ChatRoomUserId;
 import com.dagaga.domain.chat.user.entity.UserStatus;
 import com.dagaga.domain.chat.user.repository.ChatRoomUserRepository;
+import com.dagaga.domain.user.entity.User;
+import com.dagaga.domain.user.repository.UserRepository;
+import com.dagaga.chat.dto.ChatRoomResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +25,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -35,6 +40,9 @@ class ChatRoomServiceTest {
 
     @Mock
     private ChatRoomUserRepository chatRoomUserRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Test
     @DisplayName("Success: 사용자 custom 채팅방 생성 및 owner 설정")
@@ -88,7 +96,7 @@ class ChatRoomServiceTest {
         ChatRoomUser user2 = ChatRoomUser.builder().status(UserStatus.ACTIVE).build();
 
         given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
-        given(chatRoomUserRepository.findAllByRoomId(roomId)).willReturn(List.of(user1, user2));
+        given(chatRoomUserRepository.findAllByIdRoomId(roomId)).willReturn(List.of(user1, user2));
 
         // when
         chatRoomService.deleteRoom(roomId, creatorId);
@@ -211,5 +219,63 @@ class ChatRoomServiceTest {
         assertThatThrownBy(() -> chatRoomService.joinRoom(userId, userLocationId, roomId))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("다른 지역 채팅방에는 접근할 수 없습니다");
+    }
+
+                
+    @Test
+                
+    @DisplayName("Success: 내 지역 채팅방 목록 조회 시 DEFAULT 타입이 항상 첫 번째로 옴")
+    void getRoomsByLocation_shouldReturnDefaultRoomFirst() {
+        // given
+        int locationId = 1;
+        ChatRoom defaultRoom = ChatRoom.builder().roomId(1).title("기본방").roomType(
+                RoomType.DEFAULT).creatorId(1).status(RoomStatus.ACTIVE).build();
+        ChatRoom customRoom = ChatRoom.builder().roomId(2).title("일반방").roomType(RoomType.CUSTOM).creatorId(1).status(RoomStatus.ACTIVE).build();
+
+        User creator = User.builder().nickname("방장").build();
+        ReflectionTestUtils.setField(creator, "userId", 1);
+
+        given(chatRoomRepository.findAllByLocationWithSort(eq(locationId), any())).willReturn(List.of(defaultRoom, customRoom));
+        given(userRepository.findById(1)).willReturn(Optional.of(creator));
+        given(chatRoomUserRepository.countByIdRoomIdAndStatus(any(), eq(UserStatus.ACTIVE))).willReturn(10L);
+
+        // when
+        List<ChatRoomResponse> responses = chatRoomService.getRoomsByLocation(locationId, "popularity");
+
+        // then
+        assertThat(responses).hasSize(2);
+        assertThat(responses.get(0).getRoomType()).isEqualTo(RoomType.DEFAULT);
+        assertThat(responses.get(1).getRoomType()).isEqualTo(RoomType.CUSTOM);
+    }
+
+                
+    @Test
+    @DisplayName("Success: 내가 참여 중인 방 목록 조회 시 ACTIVE 상태인 방만 반환")
+    void getRoomsByUserId_shouldReturnOnlyActiveRooms() {
+        // given
+        int userId = 1;
+        ChatRoom activeRoom = ChatRoom.builder().roomId(1).title("활동중").status(RoomStatus.ACTIVE).creatorId(1).build();
+        ChatRoom deletedRoom = ChatRoom.builder().roomId(2).title("삭제됨").status(RoomStatus.DELETED).creatorId(1).build();
+
+        ChatRoomUserId id1 = new ChatRoomUserId(1, userId);
+        ChatRoomUserId id2 = new ChatRoomUserId(2, userId);
+                
+        ChatRoomUser cru1 = ChatRoomUser.builder().id(id1).status(UserStatus.ACTIVE).build();
+        ChatRoomUser cru2 = ChatRoomUser.builder().id(id2).status(UserStatus.ACTIVE).build();
+
+        User creator = User.builder().nickname("방장").build();
+        ReflectionTestUtils.setField(creator, "userId", 1);
+
+        given(chatRoomUserRepository.findAllByIdUserIdAndStatus(userId, UserStatus.ACTIVE)).willReturn(List.of(cru1, cru2));
+        given(chatRoomRepository.findById(1)).willReturn(Optional.of(activeRoom));
+        given(chatRoomRepository.findById(2)).willReturn(Optional.of(deletedRoom));
+        given(userRepository.findById(1)).willReturn(Optional.of(creator));
+
+        // when
+        List<ChatRoomResponse> responses = chatRoomService.getRoomsByUserId(userId);
+
+        // then
+        assertThat(responses).hasSize(1);
+        assertThat(responses.get(0).getTitle()).isEqualTo("활동중");
     }
 }
