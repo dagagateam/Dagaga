@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "../App";
-import ScenarioSelect from "../pages/Scenario-Select/ScenarioSelect";
-import ProblemSelect from "../pages/Problem-Select/ProblemSelect";
+import ScenarioSelect from "../pages/scenario-select/ScenarioSelect";
+import ProblemSelect from "../pages/problem-select/ProblemSelect";
 import Problem from "../pages/Problem/Problem";
 import Login from "../pages/Login/Login";
 import Signup from "../pages/Signup/Signup";
