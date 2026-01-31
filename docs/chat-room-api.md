@@ -3,12 +3,12 @@
 채팅방 API는 채팅방의 생성, 참여, 관리 및 메시지 조회를 위한 엔드포인트를 제공합니다.
 
 ## 기본 URL
-`/api/v1/chat/rooms`
+`/api/v1/community/chats`
 
 ---
 
 ## 1. 커스텀 채팅방 생성
-사용자가 새로운 커스텀 채팅방을 생성합니다.
+사용자가 지역 기반으로 새로운 채팅방을 생성합니다.
 
 - **엔드포인트:** `POST /`
 - **요청 방식:** `POST`
@@ -28,7 +28,7 @@
 ---
 
 ## 2. 채팅방 삭제
-특정 채팅방을 삭제합니다.
+채팅방을 삭제합니다.
 
 - **엔드포인트:** `DELETE /{roomId}`
 - **요청 방식:** `DELETE`
@@ -44,8 +44,8 @@
 
 ---
 
-## 3. 기본 채팅방 참여
-특정 지역의 기본 채팅방이 존재하는지 확인하고 사용자를 참여시킵니다.
+## 3. 기본 지역 채팅방 참여
+지역 기반 기본 채팅방에 참여합니다. (기본방이 없으면 생성 후 참여)
 
 - **엔드포인트:** `POST /default/join`
 - **요청 방식:** `POST`
@@ -61,7 +61,7 @@
 ---
 
 ## 4. 채팅방 참여
-사용자를 특정 채팅방에 참여시킵니다.
+사용자가 자신의 지역에 있는 다른 사용자가 생성한 채팅방에 참여합니다.
 
 - **엔드포인트:** `POST /{roomId}/join`
 - **요청 방식:** `POST`
@@ -79,34 +79,61 @@
 ---
 
 ## 5. 지역별 채팅방 목록 조회
-특정 지역의 모든 활성 채팅방(기본 및 커스텀)을 조회합니다.
+사용자의 지역에 있는 채팅방 목록을 조회합니다.
 
 - **엔드포인트:** `GET /by-location`
 - **요청 방식:** `GET`
 - **쿼리 파라미터:**
   - `userLocationId` (Integer, 필수): 지역 ID.
+  - `sortBy` (String, 선택, 기본값: "popularity"): 정렬 기준. ("popularity" 또는 "latest")
 - **응답 본문 (Response Body):**
   - **200 OK**
     ```json
     [
       {
         "roomId": 1,
-        "creatorId": 123,
-        "locationId": 1,
         "title": "기본 채팅방",
-        "maxParticipants": 100,
         "roomType": "DEFAULT",
-        "status": "ACTIVE",
-        "createdAt": "2024-01-01T10:00:00Z",
-        "updatedAt": "2024-01-01T10:00:00Z"
+        "creatorNickname": "시스템",
+        "participantCount": 50
+      },
+      {
+        "roomId": 2,
+        "title": "우리동네 수다방",
+        "roomType": "CUSTOM",
+        "creatorNickname": "다가가",
+        "participantCount": 5
       }
     ]
     ```
 
 ---
 
-## 6. 채팅 메시지 조회
-특정 채팅방의 메시지를 커서 기반 페이징으로 조회합니다.
+## 6. 참여 중인 채팅방 목록 조회
+사용자가 참여하고 있는 채팅방 목록을 조회합니다.
+
+- **엔드포인트:** `GET /joined`
+- **요청 방식:** `GET`
+- **쿼리 파라미터:**
+  - `userId` (Integer, 필수): 사용자 ID.
+- **응답 본문 (Response Body):**
+  - **200 OK**
+    ```json
+    [
+      {
+        "roomId": 1,
+        "title": "기능 테스트용 방",
+        "roomType": "CUSTOM",
+        "creatorNickname": "에이전트",
+        "participantCount": 10
+      }
+    ]
+    ```
+
+---
+
+## 7. 채팅 메시지 조회
+채팅방의 메시지를 조회합니다. 기본적으로 30개의 메시지를 가져옵니다.
 
 - **엔드포인트:** `GET /{roomId}/messages`
 - **요청 방식:** `GET`
@@ -114,8 +141,8 @@
   - `roomId` (Integer, 필수): 채팅방 ID.
 - **쿼리 파라미터:**
   - `userLocationId` (Integer, 필수): 사용자의 지역 ID (검증용).
-  - `cursor` (Long, 선택): 시작할 메시지 ID (이전 메시지 조회를 위해 제외됨).
-  - `size` (Integer, 기본값: 30): 가져올 메시지 수.
+  - `cursor` (Long, 선택): 기준 메시지 ID. (null이면 가장 최신 메시지부터 가져옴. 있으면 해당 ID 이전의 과거 메시지 반환)
+  - `size` (Integer, 기본값: 30): 가져올 메시지 개수. (최대 100개)
 - **응답 본문 (Response Body):**
   - **200 OK**
     ```json
