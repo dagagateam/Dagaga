@@ -5,7 +5,7 @@ import { signupAPI, checkEmailAPI, checkNicknameAPI } from '../../api/userApi';
 import './Signup.css';
 import loginTiger from '../../assets/characters/login_tiger.png';
 import logo from '../../assets/icons/logo.png';
-import { area0, allAreas } from '../../data/regionData';
+import { area0, allAreas, getLocationId } from '../../data/regionData';
 import LanguageSelector from '../../components/auth/LanguageSelector';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -33,9 +33,17 @@ const Signup = () => {
 
     const [errors, setErrors] = useState({});
     
+    // Email Verification State
+    const [emailMessage, setEmailMessage] = useState('');
+    const [isEmailAvailable, setIsEmailAvailable] = useState(null); // null, true, false
+    
     // Nickname Verification State
     const [nicknameMessage, setNicknameMessage] = useState('');
     const [isNicknameAvailable, setIsNicknameAvailable] = useState(null); // null, true, false
+
+    // Password Match State
+    const [passwordMatchMessage, setPasswordMatchMessage] = useState('');
+    const [isPasswordMatch, setIsPasswordMatch] = useState(null); // null, true, false
 
     // Region Handlers
     const handleSidoChange = (selectedSido) => {
@@ -51,6 +59,37 @@ const Signup = () => {
             ...formData,
             gugun: selectedGugun
         });
+    };
+
+    // Handle Email Check
+    const handleCheckEmail = async () => {
+        const { email } = formData;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!email) {
+            setErrors({...errors, email: "이메일을 입력해주세요."});
+            return;
+        }
+
+        if (!emailRegex.test(email)) {
+            setErrors({...errors, email: "올바른 이메일 형식이 아닙니다."});
+            return;
+        }
+
+        try {
+            const isAvailable = await checkEmailAPI(email);
+            setIsEmailAvailable(isAvailable);
+            
+            if (isAvailable) {
+                setEmailMessage("사용 가능한 이메일입니다.");
+                setErrors({...errors, email: ''});
+            } else {
+                setEmailMessage("이미 사용 중인 이메일입니다.");
+            }
+        } catch (error) {
+            setEmailMessage("이메일 확인 중 오류가 발생했습니다.");
+            setIsEmailAvailable(false);
+        }
     };
 
     // Handle Nickname Check
@@ -89,9 +128,32 @@ const Signup = () => {
         });
         
         // Reset verification on change
+        if (name === 'email') {
+            setIsEmailAvailable(null);
+            setEmailMessage('');
+        }
         if (name === 'nickname') {
             setIsNicknameAvailable(null);
             setNicknameMessage('');
+        }
+
+        // Check password match in real-time
+        if (name === 'password' || name === 'confirmPassword') {
+            const newPassword = name === 'password' ? value : formData.password;
+            const newConfirmPassword = name === 'confirmPassword' ? value : formData.confirmPassword;
+
+            if (newConfirmPassword) {
+                if (newPassword === newConfirmPassword) {
+                    setPasswordMatchMessage('비밀번호가 일치합니다.');
+                    setIsPasswordMatch(true);
+                } else {
+                    setPasswordMatchMessage('비밀번호가 일치하지 않습니다.');
+                    setIsPasswordMatch(false);
+                }
+            } else {
+                setPasswordMatchMessage('');
+                setIsPasswordMatch(null);
+            }
         }
 
         // Clear error when user types
@@ -151,20 +213,26 @@ const Signup = () => {
         if (!isValid) return;
 
         try {
+            // 선택된 지역을 location_id로 변환
+            const locationId = getLocationId(formData.sido, formData.gugun);
+            
             // API Call Construction
             const requestData = {
                 email: formData.email,
                 password: formData.password,
                 nickname: formData.nickname || formData.email.split('@')[0], // 닉네임 미입력시 이메일 앞부분
-                viewLanguage: language === '한국어' ? 'ko' : (language === '중국어' ? 'zh' : 'vi'),
-                nativeLanguage: formData.nativeLanguage === '한국어' ? 'ko' : (formData.nativeLanguage === '중국어' ? 'zh' : 'vi'),
-                region: 1111000000, // Mocking: 서울특별시 중구 명동 코드
-                entryDate: formData.arrivalDate || null
+                viewLangCode: language === '한국어' ? 'ko' : (language === '중국어' ? 'zh' : 'vi'),
+                nativeLangCode: formData.nativeLanguage === '한국어' ? 'ko' : (formData.nativeLanguage === '중국어' ? 'zh' : 'vi'),
+                locationId: locationId, // 선택된 지역의 location_id
+                arrivalDate: formData.arrivalDate || null
             };
+
+            console.log("🔍 회원가입 요청 데이터:", requestData);
 
             const response = await signupAPI(requestData);
 
-            alert(response.message);
+            console.log("✅ 회원가입 성공! 응답:", response);
+            alert("회원가입에 성공했습니다!");
             navigate('/login');
 
         } catch (error) {
@@ -200,16 +268,26 @@ const Signup = () => {
                                 <div className="form-row">
                                     <div className="custom-input-group half">
                                         <label>이메일 <span>*</span></label>
-                                        <Input
-                                            type="email"
-                                            name="email"
-                                            placeholder="example@email.com"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            required
-                                            className={errors.email ? 'error-input' : ''}
-                                        />
-                                        {errors.email && <span className="error-msg">{errors.email}</span>}
+                                        <div className="nickname-group">
+                                            <Input
+                                                type="email"
+                                                name="email"
+                                                placeholder="example@email.com"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                required
+                                                className={errors.email ? 'error-input' : ''}
+                                            />
+                                            <button type="button" className="check-btn" onClick={handleCheckEmail}>
+                                                중복 확인
+                                            </button>
+                                        </div>
+                                        {/* 우선순위: 에러 메시지 > 성공/실패 메시지 */}
+                                        {errors.email ? (
+                                            <span className="error-msg">{errors.email}</span>
+                                        ) : (
+                                            emailMessage && <span className={`validation-msg ${isEmailAvailable ? 'success' : 'error'}`}>{emailMessage}</span>
+                                        )}
                                     </div>
                                     <div className="custom-input-group half">
                                         <label>화면 표시 언어 <span>*</span></label>
@@ -293,7 +371,12 @@ const Signup = () => {
                                             required
                                             className={errors.confirmPassword ? 'error-input' : ''}
                                         />
-                                        {errors.confirmPassword && <span className="error-msg">{errors.confirmPassword}</span>}
+                                        {/* 우선순위: 에러 메시지 > 일치 여부 메시지 */}
+                                        {errors.confirmPassword ? (
+                                            <span className="error-msg">{errors.confirmPassword}</span>
+                                        ) : (
+                                            passwordMatchMessage && <span className={`validation-msg ${isPasswordMatch ? 'success' : 'error'}`}>{passwordMatchMessage}</span>
+                                        )}
                                     </div>
                                     <div className="custom-input-group half">
                                         <ArrivalDateInput
