@@ -31,12 +31,13 @@ const ProblemSelect = () => {
           // Map API data to component format if necessary
           // API returns: { questionId, category, questionText, exampleAnswer, orderIndex }
           // Component expects: { id, text }
-          const mappedProblems = response.data.data.map(item => ({
+          setProblems(response.data.data.map(item => ({
             id: item.questionId,
             text: item.questionText,
+            // Map pronunciation_guide (docs) or pronunciationGuide (camelCase) to pronunciations
+            pronunciations: item.pronunciation_guide || item.pronunciationGuide || [],
             ...item
-          }));
-          setProblems(mappedProblems);
+          })));
         } else {
           // Fallback to static data if API fails or returns empty
           console.warn("Failed to fetch problems, response unsuccessful:", response.data);
@@ -105,6 +106,9 @@ const ProblemSelect = () => {
                   key={problem.id}
                   problemNumber={index + 1}
                   problemText={problem.text}
+                  categoryId={categoryId} // Pass categoryId for navigation
+                  words={problem.words}
+                  pronunciations={problem.pronunciations}
                   rotation={rotation}
                   isActive={isActive}
                   onClick={() => handleCardClick(problem.id)}

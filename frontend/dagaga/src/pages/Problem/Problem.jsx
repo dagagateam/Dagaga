@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Container } from "react-bootstrap";
 import ProblemProgress from "../../components/problem/problem-progress/ProblemProgress";
@@ -9,6 +9,7 @@ import ProblemMascot from "../../components/problem/problem-mascot/ProblemMascot
 import ProblemDone from "../../components/problem/problem-done/ProblemDone";
 import { useSpeechApi } from "../../api/useSpeechApi";
 import { useTts } from "../../hooks/useTts";
+import { fetchProblemDetail } from "../../api/learningApi"; // Import API
 import "./Problem.css";
 
 const MAX_TRIES = 3;
@@ -17,14 +18,49 @@ const Problem = () => {
   const { problemId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const problemText = location.state?.problemText || "문제를 불러오는 중...";
   const { checkPronunciation } = useSpeechApi();
   
-  // Sample sentence broken into words
-  const words = ["저희", "아이는", "수학을", "어려워해요"];
+  // Initialize state from navigation, or defaults
+  const [navState, setNavState] = useState(location.state || {});
   
-  // Pronunciation breakdown for each word
-  const pronunciations = ["저 히", "아 이 는", "수 하 글", "어 려 워 해 요"];
+  // Fetch data if missing from navigation state
+  useEffect(() => {
+    const fetchData = async () => {
+      // If we have words already, no need to fetch
+      if (navState.words && navState.words.length > 0) return;
+
+      // We need categoryId to fetch. If missing (e.g. reload), we might be stuck unless we update route.
+      // For now, check if we passed it.
+      const categoryId = navState.categoryId;
+      if (categoryId && problemId) {
+        try {
+            console.log(`Fetching details for ${categoryId} problem ${problemId}...`);
+            const response = await fetchProblemDetail(categoryId, problemId);
+            if (response.data && response.data.success) {
+                const data = response.data.data;
+                setNavState(prev => ({
+                    ...prev,
+                    problemText: data.questionText,
+                    words: data.words,
+                    // Handle API field names
+                    pronunciations: data.pronunciation_guide || data.pronunciationGuide || []
+                }));
+            }
+        } catch (err) {
+            console.error("Failed to fetch problem details", err);
+        }
+      } else {
+         console.warn("Cannot fetch details: Missing categoryId or problemId");
+      }
+    };
+    fetchData();
+  }, [navState.words, navState.categoryId, problemId]);
+
+  const problemText = navState.problemText || "문제를 불러오는 중...";
+  
+  // Memoize words and pronunciations
+  const words = useMemo(() => navState.words || [], [navState.words]);
+  const pronunciations = useMemo(() => navState.pronunciations || [], [navState.pronunciations]);
   
   // Total steps = individual words + 1 for reading the full sentence
   const totalSteps = words.length + 1;
@@ -55,7 +91,7 @@ const Problem = () => {
       
       let currentIndex = 0;
       
-      // Animate through words every 800ms
+      // Animate through words every 500ms
       const interval = setInterval(() => {
         currentIndex++;
         if (currentIndex < words.length) {
@@ -65,7 +101,7 @@ const Problem = () => {
           setSentenceHighlightIndex(-1);
           clearInterval(interval);
         }
-      }, 800);
+      }, 100);
       
       return () => clearInterval(interval);
     }
