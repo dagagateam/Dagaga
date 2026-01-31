@@ -22,28 +22,30 @@ const CommunityInfoDetail = () => {
     useEffect(() => {
         const loadDetail = async () => {
             try {
-                // Fetch detail using the new API function
+                // Fetch detail using the API function
                 const response = await fetchCommunityInfoDetail(id);
                 const data = response.data;
 
                 if (data) {
                     setInfo({
                         id: data.postId,
-                        title: data.title,
-                        orgName: data.organization,
-                        content: data.content,
-                        image: data.image || `https://via.placeholder.com/600x800/F8B15E/FFFFFF?text=${encodeURIComponent(data.organization)}`,
-                        startDate: data.startDate,
-                        endDate: data.endDate,
-                        isLiked: data.isLiked,
-                        isBookmarked: data.isBookmarked
+                        title: data.title || "제목 없음",
+                        orgName: "다가가정보지원", // 고정값
+                        content: data.content || "내용이 없습니다.",
+                        image: data.imageUrls?.[0] || 'https://via.placeholder.com/600x800/F8B15E/FFFFFF?text=No+Image',
+                        contact: data.contact || "",
+                        capacity: data.capacity || "",
+                        startDate: "미정", // TODO: 백엔드에서 날짜 필드 추가 필요
+                        endDate: "미정",
+                        isLiked: false, // TODO: 좋아요 기능 구현 시 수정
+                        isBookmarked: false // TODO: 북마크 기능 구현 시 수정
                     });
-                    if (data.comments) {
-                        setComments(data.comments);
-                    }
+                    // 댓글은 현재 백엔드 응답에 없음
+                    setComments([]);
                 }
             } catch (error) {
                 console.error("Failed to load detail:", error);
+                setInfo(null);
             } finally {
                 setLoading(false);
             }

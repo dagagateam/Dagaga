@@ -43,23 +43,44 @@ const CommunityInfo = () => {
 
         const loadData = async () => {
             try {
-                const response = await fetchCommunityInfo(0, 20);
-                const items = response.data.items.map(item => {
-                    const progressPeriod = parseDateFromContent(item.content, "프로그램기간");
+                const response = await fetchCommunityInfo(0, 100); // 더 많은 데이터 요청
+                
+                // 백엔드 응답 구조: { success, message, data: { content: [...], totalElements, ... } }
+                const allPosts = response.data.content || [];
+                
+                // TODO: JWT 인증 완성 후 이 필터링 코드 제거 (백엔드가 자동 처리)
+                // 임시: 사용자 locationId로 프론트엔드 필터링
+                const userLocationId = useUserStore.getState().user?.locationId;
+                
+                let filteredPosts = allPosts;
+                if (userLocationId) {
+                    filteredPosts = allPosts.filter(post => post.locationId === userLocationId);
+                    console.log(`Filtered ${allPosts.length} posts to ${filteredPosts.length} for locationId: ${userLocationId}`);
+                }
+                
+                // 백엔드 응답 형식 → 프론트엔드 형식 변환
+                const items = filteredPosts.map(post => {
+                    // content에서 날짜 파싱 (백엔드에 별도 필드가 없는 경우)
+                    const content = post.content || "";
+                    const progressPeriod = parseDateFromContent(content, "프로그램기간");
+                    
                     return {
-                        id: item.postId,
-                        title: item.title,
-                        orgName: item.organization,
-                        content: item.content,
-                        applicationPeriod: parseDateFromContent(item.content, "접수기간"),
+                        id: post.postId,
+                        title: post.title || "제목 없음",
+                        orgName: "다가가정보지원", // 고정값
+                        content: content,
+                        applicationPeriod: parseDateFromContent(content, "접수기간"),
                         progressPeriod: progressPeriod,
                         isExpired: checkIsExpired(progressPeriod),
-                        image: item.image || `https://via.placeholder.com/600x300/F8B15E/FFFFFF?text=${encodeURIComponent(item.organization)}`
+                        image: post.imageUrls?.[0] || `https://via.placeholder.com/600x300/F8B15E/FFFFFF?text=${encodeURIComponent(post.title || 'No Image')}`
                     };
                 });
+                
                 setInfos(items);
             } catch (error) {
                 console.error("Failed to fetch community info:", error);
+                // 에러 발생 시 빈 배열로 설정
+                setInfos([]);
             } finally {
                 setLoading(false);
             }
