@@ -73,7 +73,7 @@ class ChatRoomControllerTest {
         given(chatRoomService.createCustomRoom(anyInt(), anyInt(), anyString())).willReturn(123);
 
         // when & then
-        mockMvc.perform(post("/api/v1/chat/rooms")
+        mockMvc.perform(post("/api/v1/community/chats")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
@@ -94,7 +94,7 @@ class ChatRoomControllerTest {
         // when & then
         // GlobalExceptionHandler가 없으므로 Exception이 밖으로 던져짐
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> 
-            mockMvc.perform(post("/api/v1/chat/rooms")
+            mockMvc.perform(post("/api/v1/community/chats")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
         ).hasCauseInstanceOf(IllegalArgumentException.class);
@@ -108,7 +108,7 @@ class ChatRoomControllerTest {
         int requesterId = 1;
 
         // when & then
-        mockMvc.perform(delete("/api/v1/chat/rooms/{roomId}", roomId)
+        mockMvc.perform(delete("/api/v1/community/chats/{roomId}", roomId)
                         .param("requesterId", String.valueOf(requesterId)))
                 .andExpect(status().isOk());
                 
@@ -127,7 +127,7 @@ class ChatRoomControllerTest {
 
         // when & then
         assertThatThrownBy(() ->
-            mockMvc.perform(delete("/api/v1/chat/rooms/{roomId}", roomId)
+            mockMvc.perform(delete("/api/v1/community/chats/{roomId}", roomId)
                             .param("requesterId", String.valueOf(requesterId)))
         ).hasCauseInstanceOf(IllegalArgumentException.class);
     }
