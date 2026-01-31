@@ -65,3 +65,21 @@ export const fetchCategoryStages = async (categoryId) => {
     });
     */
 };
+
+/**
+ * Fetch TTS audio for the given text.
+ * @param {string} text - The text to convert to speech.
+ * @returns {Promise<Blob>} - The audio blob.
+ */
+export const fetchTts = async (text) => {
+    // Swagger defines text as a query parameter.
+    // We explicitly unset content-type since there is no body, to prevent server parsing errors.
+    const response = await instance.post('/learning/tts', null, {
+        params: { text },
+        responseType: 'blob',
+        headers: {
+            'Content-Type': undefined 
+        }
+    });
+    return response.data;
+};
