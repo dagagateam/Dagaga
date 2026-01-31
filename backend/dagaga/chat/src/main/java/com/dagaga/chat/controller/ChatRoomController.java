@@ -10,12 +10,18 @@ import com.dagaga.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Chat API", description = "채팅 관련 API")
 @RestController
-@RequestMapping("/api/v1/chat/rooms")
+@RequestMapping("/api/v1/community/chats")
 @RequiredArgsConstructor
 public class ChatRoomController {
 
@@ -23,6 +29,7 @@ public class ChatRoomController {
     private final UserRepository userRepository;
     private final ChatMessageRepository chatMessageRepository;
 
+    @Operation(summary = "사용자 커스텀 채팅방 생성", description = "사용자가 지역 기반으로 새로운 채팅방을 생성합니다.")
     @PostMapping
     public ResponseEntity<Integer> createCustomChatRoom(@RequestBody CreateChatRoomRequest request) {
         User user = userRepository.findById(request.getUserId())
@@ -36,49 +43,59 @@ public class ChatRoomController {
         return ResponseEntity.ok(roomId);
     }
 
+    @Operation(summary = "채팅방 삭제", description = "채팅방을 삭제합니다.")
     @DeleteMapping("/{roomId}")
-    public ResponseEntity<Void> deleteChatRoom(@PathVariable int roomId, @RequestParam int requesterId) {
+    public ResponseEntity<Void> deleteChatRoom(
+            @Parameter(description = "Room ID") @PathVariable int roomId,
+            @Parameter(description = "Requester User ID") @RequestParam int requesterId) {
         chatRoomService.deleteRoom(roomId, requesterId);
         return ResponseEntity.ok().build();
     }
 
     // 기본방 참여 보장
+    @Operation(summary = "Join Default Room", description = "Ensures the default room exists for the location and joins the user.")
     @PostMapping("/default/join")
-    public int joinDefault(@RequestParam int userId, @RequestParam int locationId) {
+    public int joinDefault(
+            @Parameter(description = "User ID") @RequestParam int userId,
+            @Parameter(description = "Location ID") @RequestParam int locationId) {
         return chatRoomService.ensureDefaultRoomAndJoin(userId, locationId);
     }
 
     // 채팅방 참여
+    @Operation(summary = "채팅방 참여", description = "사용자가 자신의 지역에 있는 유저 생성 채팅방에 참여합니다.")
     @PostMapping("/{roomId}/join")
     public ResponseEntity<Void> joinChatRoom(
-            @PathVariable int roomId,
-            @RequestParam int userId,
-            @RequestParam int userLocationId) {
+            @Parameter(description = "Room ID") @PathVariable int roomId,
+            @Parameter(description = "User ID") @RequestParam int userId,
+            @Parameter(description = "User Location ID") @RequestParam int userLocationId) {
         chatRoomService.joinRoom(userId, userLocationId, roomId);
         return ResponseEntity.ok().build();
     }
 
     // 내 지역 방 목록
+    @Operation(summary = "전체 채팅방 목록 조회: 지역 기반", description = "사용자의 지역에 있는 채팅방 목록을 조회합니다.")
     @GetMapping("/by-location")
     public List<ChatRoomResponse> listByLocation(
-            @RequestParam int userLocationId,
-            @RequestParam(required = false, defaultValue = "popularity") String sortBy) {
+            @Parameter(description = "User Location ID") @RequestParam int userLocationId,
+            @Parameter(description = "Sort by: 'popularity' or 'latest'") @RequestParam(required = false, defaultValue = "popularity") String sortBy) {
         return chatRoomService.getRoomsByLocation(userLocationId, sortBy);
     }
 
     // 내가 참여 중인 방 목록
+    @Operation(summary = "참여 중인 채팅방 목록 조회", description = "사용자가 참여하고 있는 채팅방 목록을 조회합니다.")
     @GetMapping("/joined")
-    public List<ChatRoomResponse> listJoinedRooms(@RequestParam int userId) {
+    public List<ChatRoomResponse> listJoinedRooms(@Parameter(description = "User ID") @RequestParam int userId) {
         return chatRoomService.getRoomsByUserId(userId);
     }
 
     // 최신 메시지부터 {size}개 반환
+    @Operation(summary = "채팅방별 메시지 조회", description = "채팅방의 메시지를 조회합니다. 기본적으로 30개의 메시지를 가져옵니다.")
     @GetMapping("/{roomId}/messages")
     public List<ChatMessage> getMessages(
-            @PathVariable int roomId,
-            @RequestParam int userLocationId,
-            @RequestParam(required = false) Long cursor,
-            @RequestParam(defaultValue = "30") int size) {
+            @Parameter(description = "Room ID") @PathVariable int roomId,
+            @Parameter(description = "User Location ID") @RequestParam int userLocationId,
+            @Parameter(description = "Cursor Message ID (exclusive), null for latest") @RequestParam(required = false) Long cursor,
+            @Parameter(description = "Number of messages to retrieve") @RequestParam(defaultValue = "30") int size) {
         // 지역 검증
         chatRoomService.getRoomAndValidateLocation(roomId, userLocationId);
 
