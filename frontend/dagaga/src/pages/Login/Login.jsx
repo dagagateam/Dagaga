@@ -19,33 +19,33 @@ const Login = () => {
     const [language, setLanguage] = useState('한국어');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loginError, setLoginError] = useState('');
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setLoginError('');
 
         try {
-            // 1. API 호출
-            const response = await loginAPI(email, password);
+            // 1. API 호출 (이제 userId 숫자만 반환됨)
+            const userId = await loginAPI(email, password);
 
-            // Mocking 응답 구조에 맞게 처리 (response.data.accessToken)
-            if (response.data && response.data.accessToken) {
-                // 2. 성공 시 토큰과 사용자 정보 Store에 저장
+            if (userId) {
+                // 2. 백엔드 형식(userId)에 맞춰 Store 업데이트
+                // 토큰 같은 건 없으므로 ID와 이메일만 우선 저장
                 login({
-                    ...response.data.user,
-                    accessToken: response.data.accessToken
+                    userId: userId,
+                    email: email,
                 });
-
-                alert(response.message || "로그인에 성공했습니다.");
 
                 // 3. 메인 페이지로 이동
                 navigate('/scenario-select');
             } else {
-                console.log('Login success but unhandled response structure:', response);
-                navigate('/');
+                console.log('Login failed: invalid userId received', userId);
+                setLoginError("이메일 또는 비밀번호가 잘못 되었습니다.");
             }
         } catch (error) {
             console.error('Login failed:', error);
-            alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+            setLoginError("이메일 또는 비밀번호가 잘못 되었습니다.");
         }
     };
 
@@ -78,7 +78,10 @@ const Login = () => {
                                         type="text"
                                         placeholder="이메일을 입력하세요"
                                         value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        onChange={(e) => {
+                                            setEmail(e.target.value);
+                                            if (loginError) setLoginError('');
+                                        }}
                                     />
                                 </div>
 
@@ -88,9 +91,18 @@ const Login = () => {
                                         type="password"
                                         placeholder="비밀번호를 입력하세요"
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        onChange={(e) => {
+                                            setPassword(e.target.value);
+                                            if (loginError) setLoginError('');
+                                        }}
                                     />
                                 </div>
+
+                                {loginError && (
+                                    <div className="login-error-message">
+                                        {loginError}
+                                    </div>
+                                )}
 
                                 <div className="forgot-password">
                                     <a href="#">아이디, 비밀번호를 잊으셨나요?</a>

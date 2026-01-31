@@ -2,73 +2,50 @@
 import instance from './axios';
 
 export const loginAPI = async (email, password) => {
-    // [나중에 백엔드 연결 시 주석 해제]
-    // const response = await instance.post('/users/login', { email, password });
-    // return response.data;
+    try {
+        // [백엔드 연결] 실제 API 호출
+        const response = await instance.post('/users/login', { email, password });
 
-    // [현재: 명세서 기반 Mocking]
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                message: "로그인에 성공했습니다.",
-                data: {
-                    accessToken: "JWT_ACCESS_TOKEN_EXAMPLE",
-                    tokenType: "Bearer",
-                    expiresIn: 3600,
-                    user: {
-                        userId: 5,
-                        email: email, // 입력받은 이메일 반영
-                        nickname: "테스트계정",
-                        viewLanguage: "ko",
-                        nativeLanguage: "zh",
-                        region: 1111000000,
-                        regionName: "서울 종로구"
-                    }
-                }
-            });
-        }, 500);
-    });
+        // 백엔드 응답: 현재 userId(Int)만 반환됨
+        // 프론트엔드에서 바로 이 값을 사용하도록 수정
+        return response.data; 
+    } catch (error) {
+        console.error("Login API Error:", error);
+        throw error;
+    }
 };
 
 export const signupAPI = async (userData) => {
-    // [나중에 백엔드 연결 시]
-    // const response = await instance.post('/users/signup', userData);
-    // return response.data;
-
-    console.log("Signup Request Data:", userData);
-
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                message: "회원가입에 성공했습니다.",
-                data: {
-                    userId: 5,
-                    email: userData.email,
-                    description: "안녕하세요",
-                    nickname: userData.nickname,
-                    createAt: new Date().toISOString(),
-                    modifiedAt: new Date().toISOString()
-                }
-            });
-        }, 500);
-    });
+    try {
+        // [백엔드 연결] 실제 회원가입 API 호출
+        const response = await instance.post('/users/signup', userData);
+        
+        // 백엔드 응답: userId(Int)만 반환됨
+        return response.data;
+    } catch (error) {
+        console.error("Signup API Error:", error);
+        throw error;
+    }
 };
 
 export const checkEmailAPI = async (email) => {
-    // [나중에 백엔드 연결 시]
-    // return await instance.get(`/users/check-email?email=${email}`);
-
-    // Mocking: 'exist@email.com'은 이미 존재한다고 가정
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            if (email === 'exist@email.com') {
-                // API 에러 구조에 따라 달라질 수 있음, 여기선 false 리턴 혹은 에러 throw
-                resolve(false); // 중복됨
-            } else {
-                resolve(true); // 사용 가능
-            }
-        }, 300);
-    });
+    try {
+        // [백엔드 연결] 이메일 중복 확인 API 호출
+        await instance.post('/users/check-email', null, {
+            params: { email }
+        });
+        
+        // 200 OK 응답 = 사용 가능한 이메일
+        return true;
+    } catch (error) {
+        // 400 에러 = 이미 존재하는 이메일
+        if (error.response && error.response.status === 400) {
+            return false;
+        }
+        // 그 외 에러는 다시 throw
+        console.error("Check Email API Error:", error);
+        throw error;
+    }
 };
 
 export const checkNicknameAPI = async (nickname) => {
