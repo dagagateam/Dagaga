@@ -5,8 +5,8 @@ services:
     restart: always
     ports:
       - "8080:8080"
-    env_file:
-      - /home/ubuntu/.env
+    volumes:
+      - /home/ubuntu/.env:/app/.env:ro
     networks:
       - app-network
   frontend:
