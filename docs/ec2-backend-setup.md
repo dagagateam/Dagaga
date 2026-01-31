@@ -136,8 +136,53 @@ sudo usermod -aG docker $USER
 
 ---
 
-## 8. 이미지 Pull 및 서비스 실행
-Docker Hub에 올라온 최신 이미지를 받아 서비스를 실행합니다. `docker-compose.yml` 파일이 위치한 경로에서 실행하세요.
+## 8. Docker 배포 설정 파일 작성
+서버에서 직접 파일을 생성하거나 로컬에서 전송할 수 있습니다.
+
+### 방법 1: 터미널에서 직접 생성 (추천)
+가장 빠르고 간편한 방법입니다. `cat` 명령어를 복사하여 터미널에 붙여넣으세요.
+
+#### `docker-compose.yml` 생성
+```bash
+cat <<EOF > docker-compose.yml
+services:
+  backend:
+    container_name: dagaga-backend
+    image: <your-docker-hub-id>/dagaga-backend:latest
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+EOF
+```
+
+#### `.env` 생성 (환경 변수)
+```bash
+cat <<EOF > .env
+DB_URL=jdbc:postgresql://<db-host>:5432/<db-name>
+DB_USERNAME=<username>
+DB_PASSWORD=<password>
+# 필요한 기타 환경 변수들...
+EOF
+```
+
+### 방법 2: 로컬에서 서버로 파일 전송 (SCP)
+로컬 터미널에서 서버로 파일을 바로 보낼 때 사용합니다.
+```bash
+# 로컬 터미널에서 실행
+scp -i <your-key>.pem docker-compose.yml ubuntu@13.125.219.161:~/
+```
+
+---
+
+## 9. 이미지 Pull 및 서비스 실행
+설정 파일이 준비되었다면 다음 명령어로 서비스를 실행합니다.
 
 ```bash
 # 이미지 Pull 및 컨테이너 실행
