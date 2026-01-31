@@ -83,7 +83,8 @@ public class TranslateServiceImpl implements TranslateService {
         ByteArrayResource resource = new ByteArrayResource(fileData.getContent()) {
             @Override
             public String getFilename() {
-                return fileData.getOriginalFilename();
+                // 파일명이 null이면 기본값 설정 (FastAPI가 파일로 인식하기 위해 필수)
+                return fileData.getOriginalFilename() != null ? fileData.getOriginalFilename() : "unknown.wav";
             }
         };
 
@@ -91,9 +92,9 @@ public class TranslateServiceImpl implements TranslateService {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", resource);
 
-        // 헤더 설정
+        // 헤더 설정 - RestTemplate이 Boundary를 포함하여 자동으로 설정하도록 Content-Type 수동 설정을 제거하거나 비워둠
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        // headers.setContentType(MediaType.MULTIPART_FORM_DATA); // 주의: 수동 설정 시 Boundary가 누락될 수 있음
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
@@ -109,6 +110,7 @@ public class TranslateServiceImpl implements TranslateService {
         if (responseBody == null) {
             throw new VoiceProcessException("FastAPI 서버로부터 응답을 받지 못했습니다.");
         }
+
 
         log.info("Received response from FastAPI server - Translated: {} ({}→{})", 
                 responseBody.getTranslatedText(),
