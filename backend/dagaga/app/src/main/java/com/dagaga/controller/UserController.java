@@ -26,6 +26,12 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/check-nickname")
+    public ResponseEntity<Void> checkNickname(@RequestParam("nickname") String nickname) {
+        userService.checkNicknameDuplicate(nickname);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<Integer> register(@RequestBody @Valid UserRegisterDto dto) {
         Integer userId = userService.register(dto);
