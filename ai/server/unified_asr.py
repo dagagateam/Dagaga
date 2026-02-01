@@ -615,7 +615,7 @@ async def translate_text_endpoint(
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", 3000))
     uvicorn.run(
         "unified_asr:app",
         host="0.0.0.0",
