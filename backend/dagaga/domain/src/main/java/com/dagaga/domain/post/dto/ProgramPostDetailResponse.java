@@ -30,5 +30,13 @@ public class ProgramPostDetailResponse {
 
     private String capacity;
 
+    private String regStartDate;
+
+    private String regEndDate;
+
+    private String progStartDate;
+
+    private String progEndDate;
+
     private List<String> imageUrls;
 }
