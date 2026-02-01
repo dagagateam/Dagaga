@@ -13,7 +13,7 @@ import "./Navbar.css";
 import { useUserStore } from "../../store/userStore";
 
 const Navbar = () => {
-  const isLoggedIn = useUserStore((state) => state.isLoggedIn);
+  const { isLoggedIn, user } = useUserStore();
 
   return (
     <BootstrapNavbar className="navbar bg-white border-bottom px-3 position-relative">
@@ -64,15 +64,11 @@ const Navbar = () => {
               </Nav.Link>
             </Nav>
 
-            {/* 알림 */}
-            <div className="ms-auto notification">
-              <Nav.Link href="#" className="p-0 d-flex align-items-center">
-                <img
-                  src={bell}
-                  alt="Notification"
-                  style={{ height: "32px", width: "auto" }}
-                />
-              </Nav.Link>
+            {/* 사용자 닉네임 */}
+            <div className="ms-auto user-info">
+              <span className="user-nickname">
+                {user?.nickname || '사용자'}님
+              </span>
             </div>
           </>
         )}

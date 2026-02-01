@@ -253,3 +253,77 @@
 .user-chat-grid::-webkit-scrollbar-track {
     background-color: transparent;
 }
+
+/* Chat Room Creation Modal */
+.modal-content {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 20px 25px;
+}
+
+.modal-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-body .form-label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.modal-body .form-control {
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.modal-body .form-control:focus {
+    border-color: #F8B15E;
+    box-shadow: 0 0 0 3px rgba(248, 177, 94, 0.1);
+    outline: none;
+}
+
+.modal-footer {
+    border-top: 1px solid #f0f0f0;
+    padding: 15px 25px;
+    gap: 10px;
+}
+
+.modal-footer button {
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.modal-footer button[variant="secondary"] {
+    background-color: #f5f5f5;
+    color: #666;
+    border: none;
+}
+
+.modal-footer button[variant="secondary"]:hover {
+    background-color: #e0e0e0;
+}
+
+.modal-footer button:not([variant="secondary"]) {
+    box-shadow: 0 4px 10px rgba(248, 177, 94, 0.3);
+}
+
+.modal-footer button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

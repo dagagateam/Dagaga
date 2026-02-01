@@ -2,7 +2,7 @@ import ProblemRepeat from "../problem-repeat/ProblemRepeat";
 import ProblemRepeatSlow from "../problem-repeat/ProblemRepeatSlow";
 import "./ProblemAnswer.css";
 
-const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIndex, wordResults }) => {
+const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIndex, wordResults, onReplay, onSlowReplay }) => {
   // Check if we're on the full sentence step (last step)
   const isFullSentenceStep = currentStep >= words.length;
   
@@ -52,8 +52,8 @@ const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIn
             </span>
             {isCurrentWord && (
               <div className="word-buttons">
-                <ProblemRepeat />
-                <ProblemRepeatSlow />
+                <ProblemRepeat onClick={onReplay} />
+                <ProblemRepeatSlow onClick={onSlowReplay} />
               </div>
             )}
           </div>
@@ -62,8 +62,8 @@ const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIn
       {/* Show repeat buttons for entire sentence during full sentence mode - visible only when all selected */}
       {isFullSentenceStep && (
         <div className={`sentence-buttons ${isAllSelected ? 'visible' : ''}`}>
-          <ProblemRepeat />
-          <ProblemRepeatSlow />
+          <ProblemRepeat onClick={onReplay} />
+          <ProblemRepeatSlow onClick={onSlowReplay} />
         </div>
       )}
     </div>

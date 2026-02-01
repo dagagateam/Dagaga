@@ -41,7 +41,18 @@
   font-size: 0.9rem;
 }
 
-.notification a {
+.user-info {
   display: flex;
   align-items: center;
+}
+
+.user-nickname {
+  font-family: var(--main-font);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #F8B15E;
+  padding: 8px 16px;
+  background-color: #FFF5E6;
+  border-radius: 20px;
+  border: 2px solid #F8B15E;
 }
