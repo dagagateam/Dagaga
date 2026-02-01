@@ -5,7 +5,8 @@ import './CommunityChatRoom.css';
 import chattingTiger from '../../../assets/characters/chat_tiger.png';
 import EmojiPicker from 'emoji-picker-react';
 import ChatMessage from '../../../components/community/chat/ChatMessage';
-import { fetchChatMessages } from '../../../api/communityApi';
+import { fetchChatMessages, fetchJoinedChats, sendChatMessage } from '../../../api/communityApi';
+import { useUserStore } from '../../../store/userStore';
 
 const CommunityChatRoom = () => {
     const { id } = useParams();
@@ -18,8 +19,11 @@ const CommunityChatRoom = () => {
     const [showMoreMenu, setShowMoreMenu] = useState(false);
     const [messages, setMessages] = useState([]);
     
-    // Hardcoded location ID for now as per plan
-    const userLocationId = 1;
+    // Get user data from store (or use test data for now)
+    const { user } = useUserStore();
+    // Test user data: userId: 27, locationId: 86, nickname: "오호라비비빅"
+    const currentUserId = user?.userId || 27;
+    const userLocationId = user?.locationId || 86;
 
     useEffect(() => {
         const loadMessages = async () => {
@@ -33,10 +37,10 @@ const CommunityChatRoom = () => {
                      // We need to fetch user info or infer 'isMe'. For now assume senderId 123 is 'me' (this needs real user ID later)
                      const mappedMessages = apiMessages.map(msg => ({
                          id: msg.messageId,
-                         sender: msg.senderId === 123 ? '나' : `User ${msg.senderId}`, // Placeholder logic
+                         sender: msg.senderId === currentUserId ? '나' : `User ${msg.senderId}`,
                          text: msg.originalText,
                          time: new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                         isMe: msg.senderId === 123, // Placeholder logic
+                         isMe: msg.senderId === currentUserId,
                          type: 'text'
                      }));
                      setMessages(mappedMessages);
@@ -56,26 +60,73 @@ const CommunityChatRoom = () => {
         scrollToBottom();
     }, [messages]);
 
-    const [joinedChats, setJoinedChats] = useState([
-        { id: 101, title: '동네 맛집 공유', lastMessage: '우와 여기 엄청 맛있을 거 같다', time: '2h' },
-        { id: 102, title: '한국어 공부 같이해요', lastMessage: '오늘 상담에서 어려웠던 부분 ...', time: '1m', active: true },
-        { id: 103, title: '정보 공유방', lastMessage: '유성다문화센터에서 한국어수 ...', time: '30m' },
-    ]);
+    const [joinedChats, setJoinedChats] = useState([]);
+    const [currentRoomInfo, setCurrentRoomInfo] = useState(null);
 
-    const handleSendMessage = (e) => {
+    // Fetch joined chats for sidebar
+    useEffect(() => {
+        const loadJoinedChats = async () => {
+            if (user?.userId) {
+                try {
+                    const response = await fetchJoinedChats(user.userId);
+                    const joinedData = Array.isArray(response) ? response : response.data;
+                    
+                    if (joinedData && Array.isArray(joinedData)) {
+                        const mappedChats = joinedData.map(chat => ({
+                            id: chat.roomId,
+                            title: chat.title,
+                            creatorNickname: chat.creatorNickname,
+                            lastMessage: '메시지를 확인하세요', // TODO: 마지막 메시지 API 추가 필요
+                            time: '', // TODO: 시간 정보 API 추가 필요
+                            active: parseInt(id) === chat.roomId
+                        }));
+                        setJoinedChats(mappedChats);
+                        
+                        // Set current room info
+                        const currentRoom = joinedData.find(chat => parseInt(id) === chat.roomId);
+                        if (currentRoom) {
+                            setCurrentRoomInfo({
+                                title: currentRoom.title,
+                                creatorNickname: currentRoom.creatorNickname,
+                                participantCount: currentRoom.participantCount
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to load joined chats:', error);
+                }
+            }
+        };
+        loadJoinedChats();
+    }, [user?.userId, id]);
+
+    const handleSendMessage = async (e) => {
         e.preventDefault();
         if (!message.trim()) return;
 
-        const newMsg = {
-            id: Date.now(),
-            sender: '나',
-            text: message,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            isMe: true,
-            type: 'text'
-        };
-        setMessages([...messages, newMsg]);
-        setMessage('');
+        try {
+            // Send message to API
+            await sendChatMessage(id, currentUserId, message.trim(), userLocationId);
+            
+            // Add message to local state for immediate display
+            const newMsg = {
+                id: Date.now(),
+                sender: '나',
+                text: message,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                isMe: true,
+                type: 'text'
+            };
+            setMessages([...messages, newMsg]);
+            setMessage('');
+            
+            // Optionally reload messages from API to get server-side data
+            // const apiMessages = await fetchChatMessages(id, userLocationId);
+            // ... map and setMessages
+        } catch (error) {
+            console.error('Failed to send message:', error);
+            alert('메시지 전송에 실패했습니다. 다시 시도해주세요.');
+        }
     };
 
     const handleImageUpload = (e) => {
@@ -140,7 +191,12 @@ const CommunityChatRoom = () => {
                             {joinedChats
                                 .filter(chat => chat.title.toLowerCase().includes(searchTerm.toLowerCase()))
                                 .map(chat => (
-                                    <div key={chat.id} className={`sidebar-chat-item ${chat.active ? 'active' : ''}`}>
+                                    <div 
+                                        key={chat.id} 
+                                        className={`sidebar-chat-item ${chat.active ? 'active' : ''}`}
+                                        onClick={() => navigate(`/community/chat/room/${chat.id}`)}
+                                        style={{ cursor: 'pointer' }}
+                                    >
                                         <div className="chat-item-icon">
                                             {/* Placeholder icon based on title chars */}
                                             <div className="chat-item-avatar">{chat.title.substring(0, 2)}</div>
@@ -165,9 +221,9 @@ const CommunityChatRoom = () => {
                     <div className="chat-main">
                         <div className="chat-main-header">
                             <div className="header-user-info">
-                                <img src="https://i.pravatar.cc/150?u=mom" alt="User" className="header-avatar" />
+                                <img src="https://i.pravatar.cc/150?u=creator" alt="User" className="header-avatar" />
                                 <div>
-                                    <div className="header-username">배우는엄마</div>
+                                    <div className="header-username">{currentRoomInfo?.creatorNickname}</div>
                                     <div className="header-user-status">모임방 방장 👑</div>
                                 </div>
                             </div>

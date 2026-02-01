@@ -31,10 +31,13 @@ const Login = () => {
 
             if (userId) {
                 // 2. 백엔드 형식(userId)에 맞춰 Store 업데이트
-                // 토큰 같은 건 없으므로 ID와 이메일만 우선 저장
+                // TODO: JWT 인증 완성 후 실제 사용자 정보로 교체
+                // 임시 테스트 데이터: userId: 27, nickname: "오호라비비빅", locationId: 86
                 login({
                     userId: userId,
                     email: email,
+                    nickname: userId === 27 ? "오호라비비빅" : "사용자", // 테스트용
+                    locationId: userId === 27 ? 86 : 1, // 테스트용
                 });
 
                 // 3. 메인 페이지로 이동
