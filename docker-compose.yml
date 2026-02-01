@@ -1,4 +1,22 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: dagaga-redis
+    platform: linux/amd64
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   backend:
     image: arinkkk/dagaga-backend:latest
     container_name: dagaga-backend
@@ -9,6 +27,10 @@ services:
       - /home/ubuntu/.env:/app/.env:ro
     networks:
       - app-network
+    depends_on:
+      redis:
+        condition: service_healthy
+
   frontend:
     image: arinkkk/dagaga-frontend:latest
     container_name: dagaga-frontend
@@ -17,6 +39,10 @@ services:
       - "3000:80"
     networks:
       - app-network
+
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  redis-data:
