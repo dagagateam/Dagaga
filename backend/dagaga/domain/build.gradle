@@ -7,6 +7,7 @@ dependencies {
 
     // Spring Core and Context for @Service, @Value annotations
     implementation 'org.springframework:spring-context'
+    implementation 'org.springframework.security:spring-security-crypto'
     implementation 'org.springframework:spring-web'
     
     // Jackson for JSON serialization
