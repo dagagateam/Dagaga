@@ -6,7 +6,9 @@ INSERT INTO users (
     native_lang_code, 
     location_id, 
     arrival_date,
-    social_provider
+    social_provider,
+    role,
+    is_active
 ) VALUES 
 (
     'test3@dagaga.com', 
@@ -16,7 +18,9 @@ INSERT INTO users (
     'vi', 
     (SELECT location_id FROM locations WHERE district_name = '강남구' LIMIT 1), 
     '2023-05-10',
-    NULL
+    NULL,
+    'ROLE_USER',
+    TRUE
 ),
 (
     'test4@dagaga.com', 
@@ -26,7 +30,9 @@ INSERT INTO users (
     'zh', 
     (SELECT location_id FROM locations WHERE district_name = '해운대구' LIMIT 1), 
     '2024-02-15', 
-    NULL
+    NULL,
+    'ROLE_USER',
+    TRUE
 ),
 (
     'jeju_orange@example.com', 
@@ -36,7 +42,9 @@ INSERT INTO users (
     'vi', 
     (SELECT location_id FROM locations WHERE district_name = '제주시' LIMIT 1), 
     '2022-11-20', 
-    NULL
+    NULL,
+    'ROLE_USER',
+    TRUE
 ),
 (
     'daejeon_nojam@example.com', 
@@ -46,7 +54,9 @@ INSERT INTO users (
     'vi', 
     (SELECT location_id FROM locations WHERE district_name = '유성구' LIMIT 1), 
     '2025-01-05', 
-    NULL
+    NULL,
+    'ROLE_USER',
+    TRUE
 ),
 (
     'suwon_king@gmail.com', 
@@ -56,5 +66,7 @@ INSERT INTO users (
     'zh', 
     (SELECT location_id FROM locations WHERE district_name = '수원시' LIMIT 1), 
     '2023-08-12', 
-    'LINE'
+    'LINE',
+    'ROLE_USER',
+    TRUE
 );
