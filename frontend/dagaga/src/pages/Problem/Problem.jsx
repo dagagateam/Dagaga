@@ -8,6 +8,7 @@ import ProblemSoundwave from "../../components/problem/problem-soundwave/Problem
 import ProblemMascot from "../../components/problem/problem-mascot/ProblemMascot";
 import ProblemDone from "../../components/problem/problem-done/ProblemDone";
 import { useSpeechApi } from "../../api/useSpeechApi";
+import { useTts } from "../../hooks/useTts";
 import "./Problem.css";
 
 const MAX_TRIES = 3;
@@ -101,6 +102,55 @@ const Problem = () => {
     setSentenceHighlightIndex(0);
   };
 
+  // Tts Hook
+  const { playTts } = useTts();
+
+  // Handle Recording Complete ...
+
+  // Auto-play TTS when step changes
+  useEffect(() => {
+    // Determine the text to play
+    let textToPlay = null;
+    if (currentStep < words.length) {
+      textToPlay = words[currentStep];
+    } else if (currentStep === words.length && !isProblemDone) {
+      // Full sentence step
+      textToPlay = words.join(" ");
+    }
+
+    if (textToPlay) {
+      playTts(textToPlay);
+    }
+  }, [currentStep, words, isProblemDone, playTts]);
+
+  // Handle replay at normal speed
+  const handleReplay = () => {
+    let textToPlay = null;
+    if (currentStep < words.length) {
+      textToPlay = words[currentStep];
+    } else if (currentStep === words.length) {
+      textToPlay = words.join(" ");
+    }
+
+    if (textToPlay) {
+      playTts(textToPlay, 'normal');
+    }
+  };
+
+  // Handle replay at slow speed
+  const handleSlowReplay = () => {
+     let textToPlay = null;
+    if (currentStep < words.length) {
+      textToPlay = words[currentStep];
+    } else if (currentStep === words.length) {
+      textToPlay = words.join(" ");
+    }
+
+    if (textToPlay) {
+      playTts(textToPlay, 'slow');
+    }
+  };
+
   // Handle recording completion with pronunciation feedback
   const handleRecordingComplete = async ({ audioBlob, audioUrl }) => {
     // Get the current word being practiced
@@ -164,6 +214,8 @@ const Problem = () => {
             currentStep={currentStep}
             sentenceHighlightIndex={isFullSentenceStep ? sentenceHighlightIndex : null}
             wordResults={wordResults}
+            onReplay={handleReplay}
+            onSlowReplay={handleSlowReplay}
           />
         </div>
       </div>
