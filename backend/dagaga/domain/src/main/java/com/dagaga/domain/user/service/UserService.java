@@ -5,6 +5,7 @@ import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public void checkEmailDuplicate(String email) {
         if (userRepository.existsByEmail(email)) {
@@ -28,7 +30,7 @@ public class UserService {
     }
 
     @Transactional
-    public Integer register(UserRegisterDto dto) {
+    public User register(UserRegisterDto dto) {
         checkEmailDuplicate(dto.getEmail());
 
         String nickname = dto.getNickname();
@@ -40,9 +42,12 @@ public class UserService {
             throw new IllegalArgumentException("닉네임이 이미 존재합니다: " + nickname);
         }
 
+        // Encode password
+        String encodedPassword = passwordEncoder.encode(dto.getPassword());
+
         User user = User.builder()
                 .email(dto.getEmail())
-                .password(dto.getPassword()) // In real world, use PasswordEncoder!
+                .password(encodedPassword)
                 .nickname(nickname)
                 .viewLangCode(dto.getViewLangCode())
                 .nativeLangCode(dto.getNativeLangCode())
@@ -50,17 +55,22 @@ public class UserService {
                 .arrivalDate(dto.getArrivalDate())
                 .build();
 
-        return userRepository.save(user).getUserId();
+        return userRepository.save(user);
     }
 
-    public Integer login(UserLoginDto dto) {
-        User user = userRepository.findByEmail(dto.getEmail())
+    public User authenticate(String email, String password) {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다"));
 
-        if (!user.getPassword().equals(dto.getPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다");
         }
 
-        return user.getUserId();
+        return user;
+    }
+
+    public User getUserById(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + userId));
     }
 }
