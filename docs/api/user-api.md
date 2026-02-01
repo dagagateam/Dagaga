@@ -1,90 +1,347 @@
-# 사용자 API 명세서
+# 사용자 및 인증 API 명세서 (User & Authentication API)
 
-사용자 API는 사용자 등록, 로그인, 이메일 중복 확인을 위한 엔드포인트를 제공합니다.
+## 개요
+사용자 등록, 로그인(JWT), 토큰 관리(갱신/로그아웃), 중복 확인 등 사용자 관련 모든 기능을 제공하는 API입니다.
+Access Token과 Refresh Token을 사용하는 JWT 기반 인증 시스템을 포함하며, Redis를 통해 세션 및 블랙리스트를 관리합니다.
 
-## 기본 URL
-`/api/v1/users`
-
----
-
-## 1. 이메일 중복 확인
-시스템에 이미 등록된 이메일인지 확인합니다.
-
-- **엔드포인트:** `POST /check-email`
-- **요청 방식:** `POST`
-- **쿼리 파라미터:**
-  - `email` (String, 필수, 이메일 형식): 확인할 이메일 주소.
-- **응답 본문 (Response Body):**
-  - **200 OK**
-    ```json
-    {}
-    ```
-  - **400 Bad Request** (중복된 이메일 또는 유효하지 않은 형식)
-    ```json
-    {
-      "success": false,
-      "message": "이미 이메일이 존재합니다: example@email.com",
-      "data": null
-    }
-    ```
+**기본 URL:** `/api/v1/users`
 
 ---
 
-## 2. 사용자 회원가입
-시스템에 새로운 사용자를 등록합니다.
+## 엔드포인트
 
-- **엔드포인트:** `POST /signup`
-- **요청 방식:** `POST`
-- **바디 (Body):**
-  ```json
-  {
-    "email": "user@example.com",
-    "password": "Password123*",
-    "nickname": "사용자닉네임",
-    "viewLangCode": "ko",
-    "nativeLangCode": "en",
+### 1. 회원가입 (Signup)
+
+새로운 사용자 계정을 생성합니다.
+
+**엔드포인트:** `POST /api/v1/users/signup`
+
+**인증:** 불필요
+
+**요청 본문 (Request Body):**
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123",
+  "nickname": "username",
+  "viewLangCode": "en",
+  "nativeLangCode": "ko",
+  "locationId": 1,
+  "arrivalDate": "2026-02-01"
+}
+```
+
+**응답 (Response):**
+```json
+200 OK
+123
+```
+
+**오류 응답:**
+- `400 Bad Request` - 유효성 검사 오류 또는 중복된 이메일/닉네임
+```json
+{
+  "error": "Bad Request",
+  "message": "이미 이메일이 존재합니다: user@example.com"
+}
+```
+
+---
+
+### 2. 로그인 (Login)
+
+사용자 인증 후 JWT 토큰을 발급받습니다.
+
+**엔드포인트:** `POST /api/v1/users/login`
+
+**인증:** 불필요
+
+**요청 본문 (Request Body):**
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123"
+}
+```
+
+**응답 (Response):**
+```json
+200 OK
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tokenType": "Bearer",
+  "expiresIn": 1800,
+  "userId": 123,
+  "email": "user@example.com",
+  "locationId": 1
+}
+```
+
+**토큰 상세:**
+- `accessToken`: API 인증을 위한 단기 토큰 (30분)
+- `refreshToken`: 새로운 Access Token 발급을 위한 장기 토큰 (7일)
+- `expiresIn`: Access Token 만료 시간 (초 단위)
+
+**오류 응답:**
+- `400 Bad Request` - 자격 증명 오류
+```json
+{
+  "error": "Bad Request",
+  "message": "이메일 또는 비밀번호가 올바르지 않습니다"
+}
+```
+
+---
+
+### 3. Access Token 갱신 (Refresh Access Token)
+
+Refresh Token을 사용하여 새로운 Access Token을 발급받습니다.
+
+**엔드포인트:** `POST /api/v1/users/refresh`
+
+**인증:** 불필요 (Body에 Refresh Token 포함)
+
+**요청 본문 (Request Body):**
+```json
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**응답 (Response):**
+```json
+200 OK
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tokenType": "Bearer",
+  "expiresIn": 1800,
+  "userId": 123,
+  "email": "user@example.com",
+  "locationId": 1
+}
+```
+
+**오류 응답:**
+- `400 Bad Request` - 유효하지 않거나 만료된 Refresh Token, 또는 토큰이 존재하지 않음
+```json
+{
+  "error": "Bad Request",
+  "message": "Refresh token not found or expired"
+}
+```
+
+---
+
+### 4. 로그아웃 (Logout)
+
+Access Token을 무효화하고 세션을 삭제합니다.
+
+**엔드포인트:** `POST /api/v1/users/logout`
+
+**인증:** 필요 (Bearer token)
+
+**헤더 (Headers):**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**응답 (Response):**
+```json
+200 OK
+```
+
+**오류 응답:**
+- `401 Unauthorized` - 토큰이 없거나 유효하지 않음
+- `400 Bad Request` - 유효하지 않은 인증 헤더
+
+**참고:**
+- Access Token은 만료될 때까지 Redis 블랙리스트에 추가됩니다.
+- 완전한 로그아웃을 위해 클라이언트에서도 저장된 토큰을 삭제해야 합니다.
+
+---
+
+### 5. 이메일 중복 확인 (Check Email Availability)
+
+이메일이 가입 가능한지 확인합니다.
+
+**엔드포인트:** `POST /api/v1/users/check-email?email={email}`
+
+**인증:** 불필요
+
+**쿼리 파라미터:**
+- `email` (문자열, 필수): 확인할 이메일
+
+**응답 (Response):**
+```json
+200 OK
+```
+
+**오류 응답:**
+- `400 Bad Request` - 이미 존재하는 이메일
+```json
+{
+  "error": "Bad Request",
+  "message": "이미 이메일이 존재합니다: user@example.com"
+}
+```
+
+---
+
+### 6. 닉네임 중복 확인 (Check Nickname Availability)
+
+닉네임이 사용 가능한지 확인합니다.
+
+**엔드포인트:** `POST /api/v1/users/check-nickname?nickname={nickname}`
+
+**인증:** 불필요
+
+**쿼리 파라미터:**
+- `nickname` (문자열, 필수): 확인할 닉네임
+
+**응답 (Response):**
+```json
+200 OK
+```
+
+**오류 응답:**
+- `400 Bad Request` - 이미 존재하는 닉네임
+```json
+{
+  "error": "Bad Request",
+  "message": "닉네임이 이미 존재합니다: username"
+}
+```
+
+---
+
+## 보호된 엔드포인트 (Protected Endpoints)
+
+API의 다른 모든 엔드포인트는 인증이 필요합니다. Authorization 헤더에 Access Token을 포함해야 합니다:
+
+```
+Authorization: Bearer {accessToken}
+```
+
+**예시:**
+```bash
+curl -X GET http://localhost:8080/api/v1/posts \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+**공통 오류 응답:**
+- `401 Unauthorized` - 토큰 누락, 유효하지 않음, 또는 만료됨
+```json
+{
+  "error": "Unauthorized",
+  "message": "Full authentication is required to access this resource",
+  "path": "/api/v1/posts",
+  "timestamp": 1706826000000
+}
+```
+
+---
+
+## 위치 기반 필터링 (Location-Based Filtering)
+
+보호된 엔드포인트는 Access Token에 포함된 사용자의 `locationId`를 기반으로 데이터를 자동으로 필터링합니다. 사용자는 등록된 지역의 데이터만 볼 수 있습니다.
+
+**예시:**
+- `locationId: 1`인 사용자는 1번 지역의 게시글만 볼 수 있습니다.
+- 사용자가 위치를 변경하면(프로필 업데이트), 새로운 `locationId`가 포함된 토큰을 받기 위해 다시 로그인해야 합니다.
+
+---
+
+## 보안 기능 (Security Features)
+
+### 동시 세션 제한 (Concurrent Session Limit)
+- 사용자당 최대 3개의 활성 세션을 허용합니다.
+- 4번째 로그인 시 가장 오래된 세션이 무효화됩니다.
+- 세션은 Redis 키 `user_sessions:{userId}`로 추적됩니다.
+
+### 토큰 블랙리스트 (Token Blacklist)
+- 로그아웃된 Access Token은 블랙리스트에 추가됩니다.
+- 블랙리스트는 Redis에 저장되며 토큰의 남은 만료 시간만큼 유지됩니다.
+- 취소된 토큰의 재사용을 방지합니다.
+
+### Refresh Token 저장소 (Refresh Token Storage)
+- Refresh Token은 메타데이터와 함께 Redis에 저장됩니다.
+- 키 패턴: `refresh_token:{userId}:{tokenId}`
+- TTL: 7일
+- `createdAt` 및 `lastUsedAt` 타임스탬프를 추적합니다.
+
+---
+
+## cURL 테스트 가이드 (Testing with cURL)
+
+### 전체 인증 흐름 (Complete Authentication Flow)
+
+```bash
+# 1. 회원가입 (Register)
+curl -X POST http://localhost:8080/api/v1/users/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "password123",
+    "nickname": "testuser",
+    "viewLangCode": "en",
+    "nativeLangCode": "ko",
     "locationId": 1,
-    "arrivalDate": "2024-01-01"
-  }
-  ```
-- **응답 본문 (Response Body):**
-  - **200 OK** (사용자 ID 반환)
-    ```json
-    123
-    ```
-  - **400 Bad Request** (유효성 검사 실패 또는 중복된 사용자)
-    ```json
-    {
-      "success": false,
-      "message": "닉네임이 이미 존재합니다: 사용자닉네임",
-      "data": null
-    }
-    ```
+    "arrivalDate": "2026-02-01"
+  }'
+
+# 2. 로그인 (Login)
+curl -X POST http://localhost:8080/api/v1/users/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "password123"
+  }'
+
+# 응답에서 accessToken과 refreshToken 저장
+
+# 3. 보호된 엔드포인트 접근 (Access protected endpoint)
+curl -X GET http://localhost:8080/api/v1/posts \
+  -H "Authorization: Bearer {accessToken}"
+
+# 4. Access Token 만료 시 토큰 갱신 (Refresh token)
+curl -X POST http://localhost:8080/api/v1/users/refresh \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refreshToken": "{refreshToken}"
+  }'
+
+# 5. 로그아웃 (Logout)
+curl -X POST http://localhost:8080/api/v1/users/logout \
+  -H "Authorization: Bearer {accessToken}"
+```
 
 ---
 
-## 3. 사용자 로그인
-사용자를 인증하고 사용자 ID를 반환합니다.
+## 환경 설정 (Environment Configuration)
 
-- **엔드포인트:** `POST /login`
-- **요청 방식:** `POST`
-- **바디 (Body):**
-  ```json
-  {
-    "email": "user@example.com",
-    "password": "Password123*"
-  }
-  ```
-- **응답 본문 (Response Body):**
-  - **200 OK** (사용자 ID 반환)
-    ```json
-    123
-    ```
-  - **400 Bad Request** (잘못된 인증 정보)
-    ```json
-    {
-      "success": false,
-      "message": "이메일 또는 비밀번호가 올바르지 않습니다",
-      "data": null
-    }
-    ```
+필요한 환경 변수:
+
+```properties
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# JWT
+JWT_SECRET={your-secret-key}
+JWT_ACCESS_TOKEN_EXPIRY=1800
+JWT_REFRESH_TOKEN_EXPIRY=604800
+
+# Security
+MAX_CONCURRENT_SESSIONS=3
+```
+
+---
+
+## 참고 (Notes)
+
+- 비밀번호는 BCrypt를 사용하여 해싱됩니다.
+- 토큰은 HS256 알고리즘으로 서명됩니다.
+- 응답의 모든 타임스탬프는 밀리초(Unix epoch) 단위입니다.
+- OAuth 통합(Google, LINE)은 준비되어 있으나 아직 구현되지 않았습니다.
