@@ -12,14 +12,17 @@ CREATE TABLE IF NOT EXISTS locations (
 CREATE TABLE IF NOT EXISTS users (
     user_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255), -- Nullable for OAuth users
     nickname VARCHAR(50) UNIQUE,
     view_lang_code VARCHAR(10) NOT NULL,
     native_lang_code VARCHAR(10) NOT NULL,
     location_id INT,
     arrival_date DATE,
-    profile_image VARCHAR(500) DEFAULT 'default_avatar.png', -- 미리 저장되어있던 디폴트 이미지
+    profile_image VARCHAR(500) DEFAULT 'default_avatar.png',
     social_provider VARCHAR(20),
+    social_id VARCHAR(255), -- Added for OAuth
+    role VARCHAR(50) NOT NULL DEFAULT 'ROLE_USER', -- Added for Authorization
+    is_active BOOLEAN NOT NULL DEFAULT TRUE, -- Added for Account Status
     modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -248,6 +251,10 @@ CREATE INDEX IF NOT EXISTS idx_messages_room_sent ON chat_messages(room_id, sent
 -- 좋아요 조회를 위한 인덱스
 CREATE INDEX IF NOT EXISTS idx_post_likes_user ON post_likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_post_likes_post ON post_likes(post_id);
+
+-- 4. 사용자 관련 인덱스 (JWT/OAuth 추가)
+CREATE INDEX IF NOT EXISTS idx_users_social_id ON users(social_id);
+CREATE INDEX IF NOT EXISTS idx_users_is_active ON users(is_active);
 
 ---
 -- 프로그램(다누리 크롤링 데이터) 관련 인덱스
