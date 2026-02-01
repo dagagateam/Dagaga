@@ -3,6 +3,7 @@ package com.dagaga.controller;
 import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.service.UserService;
+import com.dagaga.chat.service.ChatRoomService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final ChatRoomService chatRoomService;
 
     @PostMapping("/check-email")
     public ResponseEntity<Void> checkEmail(@RequestParam("email") @Email String email) {
@@ -24,9 +26,19 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/check-nickname")
+    public ResponseEntity<Void> checkNickname(@RequestParam("nickname") String nickname) {
+        userService.checkNicknameDuplicate(nickname);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<Integer> register(@RequestBody @Valid UserRegisterDto dto) {
         Integer userId = userService.register(dto);
+
+        // 회원가입 후 해당 지역의 기본 채팅방 자동 참여
+        chatRoomService.joinDefaultRoom(userId, dto.getLocationId());
+
         return ResponseEntity.ok(userId);
     }
 

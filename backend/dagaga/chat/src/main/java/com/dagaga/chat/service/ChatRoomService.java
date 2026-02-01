@@ -73,7 +73,7 @@ public class ChatRoomService {
     }
 
     @Transactional
-    public int ensureDefaultRoomAndJoin(int userId, int locationId) {
+    public int joinDefaultRoom(int userId, int locationId) {
         ChatRoom room = chatRoomRepository.findByLocationIdAndRoomType(locationId, RoomType.DEFAULT)
                 .orElseThrow(() -> new IllegalStateException("해당 지역의 기본 채팅방이 존재하지 않습니다. locationId=" + locationId));
 
@@ -143,6 +143,17 @@ public class ChatRoomService {
                 .orElseThrow(() -> new IllegalArgumentException("채팅방에 참여 중인 유저가 아닙니다."));
 
         user.leave();
+    }
+
+    @Transactional
+    public void leaveDefaultRoom(int userId, int locationId) {
+        ChatRoom room = chatRoomRepository.findByLocationIdAndRoomType(locationId, RoomType.DEFAULT)
+                .orElseThrow(() -> new IllegalStateException("해당 지역의 기본 채팅방이 존재하지 않습니다. locationId=" + locationId));
+
+        ChatRoomUserId id = new ChatRoomUserId(room.getRoomId(), userId);
+        
+        // 유저가 해당 방에 참여중일 때만 나감 처리
+        chatRoomUserRepository.findById(id).ifPresent(ChatRoomUser::leave);
     }
 
     private void upsertActiveStatus(int roomId, int userId, Role role) {

@@ -364,7 +364,7 @@ public class LearningController {
             body.add("file", new ByteArrayResource(file.getBytes()) {
                 @Override
                 public String getFilename() {
-                    return file.getOriginalFilename();
+                    return file.getOriginalFilename() != null ? file.getOriginalFilename() : "evaluation.wav";
                 }
             });
             body.add("expected_text", expectedText);
@@ -372,7 +372,7 @@ public class LearningController {
             body.add("language", "ko");
 
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            // headers.setContentType(MediaType.MULTIPART_FORM_DATA); // Boundary 생성은 RestTemplate에 위임
 
             HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = 
                 new HttpEntity<>(body, headers);
@@ -442,7 +442,7 @@ public class LearningController {
             body.add("language", language);
 
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            // headers.setContentType(MediaType.MULTIPART_FORM_DATA); // Boundary 생성을 위해 제거
 
             HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity =
                 new HttpEntity<>(body, headers);

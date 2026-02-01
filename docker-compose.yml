@@ -1,0 +1,22 @@
+services:
+  backend:
+    image: arinkkk/dagaga-backend:latest
+    container_name: dagaga-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - /home/ubuntu/.env:/app/.env:ro
+    networks:
+      - app-network
+  frontend:
+    image: arinkkk/dagaga-frontend:latest
+    container_name: dagaga-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
