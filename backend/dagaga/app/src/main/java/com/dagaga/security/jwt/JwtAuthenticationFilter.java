@@ -51,6 +51,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 
                 // 인증 객체 생성
                 UserPrincipal userPrincipal = new UserPrincipal(userId, locationId);
+                
+                // TODO: 추후 DB의 role 컬럼 값을 사용하여 동적으로 권한을 부여하도록 수정 필요
+                // 현재는 모든 사용자에게 ROLE_USER를 하드코딩으로 부여 중
+                // 이후 ROLE_ADMIN 등을 통해 관리자 기능 구현 예정
                 List<SimpleGrantedAuthority> authorities = Collections.singletonList(
                         new SimpleGrantedAuthority("ROLE_USER")
                 );
