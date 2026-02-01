@@ -10,16 +10,21 @@ import BufferingButton from "../../components/problem-native/BufferingButton";
 import ProblemDone from "../../components/problem/problem-done/ProblemDone";
 import { useSpeechApi } from "../../api/useSpeechApi";
 import { useTts } from "../../hooks/useTts";
+import { fetchProblemNative } from "../../api/learningApi";
 import "./ProblemNative.css";
 
 const MAX_TRIES = 3;
 
 const ProblemNative = () => {
-  const { problemId } = useParams();
+  const { categoryId, problemId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const problemText = location.state?.problemText || "문제를 불러오는 중...";
-  const { translateAudio, checkPronunciation } = useSpeechApi();
+  
+  const [fetchedProblemText, setFetchedProblemText] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const problemText = location.state?.problemText || fetchedProblemText || "문제를 불러오는 중...";
+  const { translateAudio, checkPronunciation, isUploading } = useSpeechApi();
 
   // Page state: "pre-translate" | "translating" | "post-translate"
   const [pageState, setPageState] = useState("pre-translate");
@@ -38,6 +43,26 @@ const ProblemNative = () => {
   // Pronunciation feedback state
   const [wordResults, setWordResults] = useState([]); // "correct" | "incorrect" | null for each word
   const [currentTries, setCurrentTries] = useState(0);
+
+    // Fetch problem text if missing
+    useEffect(() => {
+      if (!location.state?.problemText && categoryId && problemId) {
+        setIsLoading(true);
+        fetchProblemNative(categoryId, problemId)
+          .then((response) => {
+            if (response && response.data && response.data.success) {
+              setFetchedProblemText(response.data.data);
+            } else {
+              setFetchedProblemText("문제 정보를 불러올 수 없습니다.");
+            }
+          })
+          .catch((err) => {
+            console.error("Error fetching native problem:", err);
+            setFetchedProblemText("오류가 발생했습니다.");
+          })
+          .finally(() => setIsLoading(false));
+      }
+    }, [categoryId, problemId, location.state]);
 
   // Handle recording completion in pre-translate state
   const handlePreTranslateRecordingComplete = async ({ audioBlob, audioUrl }) => {
@@ -285,10 +310,14 @@ const ProblemNative = () => {
           <ProblemDone onRetry={handleRetry} onReturn={handleReturn} />
         ) : (
           <>
-            <ProblemRecordButton
-              onRecordingComplete={handlePostTranslateRecordingComplete}
-              onAnalyserChange={handlePreTranslateAnalyserChange}
-            />
+            {isUploading ? (
+              <BufferingButton />
+            ) : (
+              <ProblemRecordButton
+                onRecordingComplete={handlePostTranslateRecordingComplete}
+                onAnalyserChange={handlePreTranslateAnalyserChange}
+              />
+            )}
             <ProblemSoundwave analyser={audioAnalyser} isRecording={isRecording} />
           </>
         )}

@@ -27,7 +27,7 @@ const ProblemCard = ({
 
   const handleTranslateClick = (e) => {
     e.stopPropagation(); // Prevent card click from triggering
-    navigate(`/problem-translate/${problemNumber}`, { 
+    navigate(`/problem-translate/${categoryId}/${problemNumber}`, { 
       state: { 
         problemText,
         words,
