@@ -29,4 +29,16 @@ public class QuestionBank {
 
     @Column(name = "order_index")
     private Integer orderIndex;
+
+    @Column(name = "vite_questions", columnDefinition = "TEXT")
+    private String viteQuestions;
+
+    @Column(name = "vite_answers", columnDefinition = "TEXT")
+    private String viteAnswers;
+
+    @Column(name = "chz_questions", columnDefinition = "TEXT")
+    private String chzQuestions;
+
+    @Column(name = "chz_answers", columnDefinition = "TEXT")
+    private String chzAnswers;
 }

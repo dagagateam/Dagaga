@@ -31,7 +31,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -278,25 +277,31 @@ public class LearningController {
             @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true)
             @PathVariable String categoryId,
             @Parameter(description = "질문 순서 (1부터 시작)", required = true)
-            @PathVariable Integer orderIndex
+            @PathVariable Integer orderIndex,
+            @Parameter(description = "국적 코드 (vite: 베트남, chz: 중국)", required = false)
+            @RequestParam(value = "countryCode", required = false) String countryCode
     ) {
-        log.info("Fetching question with example for category: {}, order: {}", categoryId, orderIndex);
+        log.info("Fetching question with example for category: {}, order: {}, countryCode: {}", categoryId, orderIndex, countryCode);
         
         QuestionWithExampleResponse originalResponse = 
-                questionService.getQuestionWithExample(categoryId, orderIndex);
+                questionService.getQuestionWithExample(categoryId, orderIndex, countryCode);
         
         // GMS API를 통해 단어 분리 및 발음 가이드 생성
         String exampleAnswer = originalResponse.getExampleAnswer();
         List<String> words = callGmsTokenizeApi(exampleAnswer);
         List<String> pronunciationGuide = callGmsPronunciationGuideApi(words);
         
-        // 새로운 응답 객체 생성 (빌더 패턴 사용)
+        // 응답 객체 생성
         QuestionWithExampleResponse enhancedResponse = 
                 QuestionWithExampleResponse.builder()
                     .questionText(originalResponse.getQuestionText())
                     .exampleAnswer(exampleAnswer)
                     .words(words)
                     .pronunciationGuide(pronunciationGuide)
+                    .viteQuestions(originalResponse.getViteQuestions())
+                    .viteAnswers(originalResponse.getViteAnswers())
+                    .chzQuestions(originalResponse.getChzQuestions())
+                    .chzAnswers(originalResponse.getChzAnswers())
                     .build();
         
         return ResponseEntity.ok(ApiResponse.success(

@@ -52,17 +52,28 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public com.dagaga.domain.learning.dto.QuestionWithExampleResponse getQuestionWithExample(String category, Integer orderIndex) {
-        log.info("Fetching question with example for category: {}, orderIndex: {}", category, orderIndex);
+    public com.dagaga.domain.learning.dto.QuestionWithExampleResponse getQuestionWithExample(String category, Integer orderIndex, String countryCode) {
+        log.info("Fetching question with example for category: {}, orderIndex: {}, countryCode: {}", category, orderIndex, countryCode);
         
         QuestionBank question = questionBankRepository.findByCategoryAndOrderIndex(category, orderIndex)
                 .orElseThrow(() -> new IllegalArgumentException(
                         String.format("질문을 찾을 수 없습니다. (카테고리: %s, 순서: %d)", category, orderIndex)
                 ));
         
-        return com.dagaga.domain.learning.dto.QuestionWithExampleResponse.builder()
+        // 기본 빌더 생성
+        var builder = com.dagaga.domain.learning.dto.QuestionWithExampleResponse.builder()
                 .questionText(question.getQuestionText())
-                .exampleAnswer(question.getExampleAnswer())
-                .build();
+                .exampleAnswer(question.getExampleAnswer());
+        
+        // countryCode에 따라 지역별 데이터 선택적으로 추가
+        if ("vite".equalsIgnoreCase(countryCode)) {
+            builder.viteQuestions(question.getViteQuestions())
+                   .viteAnswers(question.getViteAnswers());
+        } else if ("chz".equalsIgnoreCase(countryCode)) {
+            builder.chzQuestions(question.getChzQuestions())
+                   .chzAnswers(question.getChzAnswers());
+        }
+        
+        return builder.build();
     }
 }
