@@ -9,7 +9,9 @@ export const useTts = () => {
     useEffect(() => {
         return () => {
             if (audioRef.current) {
-                URL.revokeObjectURL(audioRef.current.src);
+                // We don't revoke cache URLs here to keep them valid across reused Hooks
+                // Only revoke if we created a specific one-off URL not in cache
+                // But for simplicity, we rely on browser GC or manual cache clearing if needed
                 audioRef.current = null;
             }
         };
@@ -22,10 +24,15 @@ export const useTts = () => {
             // Stop any currently playing audio
             if (audioRef.current) {
                 audioRef.current.pause();
-                URL.revokeObjectURL(audioRef.current.src);
+                // Do not revoke object URL if it's cached
             }
 
-            const blob = await fetchTts(text);
+            let blob = ttsCache.get(text);
+            if (!blob) {
+                blob = await fetchTts(text);
+                ttsCache.set(text, blob);
+            }
+
             const url = URL.createObjectURL(blob);
             const audio = new Audio(url);
             
@@ -37,6 +44,9 @@ export const useTts = () => {
 
             audio.onended = () => {
                 setIsPlaying(false);
+                // Don't revoke URL immediately if we want to reuse it, 
+                // but usually createObjectURL is cheap enough if blob is cached.
+                // To be safe against memory leaks, we can revoke.
                 URL.revokeObjectURL(url);
             };
 
@@ -53,5 +63,19 @@ export const useTts = () => {
         }
     }, []);
 
-    return { playTts, isPlaying };
+    const preloadTts = useCallback(async (text) => {
+        if (!text || ttsCache.has(text)) return;
+        try {
+            const blob = await fetchTts(text);
+            ttsCache.set(text, blob);
+            console.log(`Preloaded TTS for: "${text}"`);
+        } catch (err) {
+            console.warn(`Failed to preload TTS for "${text}"`, err);
+        }
+    }, []);
+
+    return { playTts, isPlaying, preloadTts };
 };
+
+// Module-level cache
+const ttsCache = new Map();

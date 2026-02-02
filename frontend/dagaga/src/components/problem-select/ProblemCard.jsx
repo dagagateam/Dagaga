@@ -1,17 +1,39 @@
 import { useNavigate } from "react-router-dom";
 import "./ProblemCard.css";
 
-const ProblemCard = ({ problemNumber, problemText, rotation, isActive, onClick }) => {
+const ProblemCard = ({ 
+  problemNumber, 
+  problemText, 
+  categoryId, // New prop
+  words = [], 
+  pronunciations = [],
+  rotation, 
+  isActive, 
+  onClick 
+}) => {
   const navigate = useNavigate();
 
   const handleExampleClick = (e) => {
     e.stopPropagation(); // Prevent card click from triggering
-    navigate(`/problem/${problemNumber}`, { state: { problemText } });
+    navigate(`/problem/${problemNumber}`, { 
+      state: { 
+        categoryId, // Pass for API calls if needed
+        problemText,
+        words,
+        pronunciations
+      } 
+    });
   };
 
   const handleTranslateClick = (e) => {
     e.stopPropagation(); // Prevent card click from triggering
-    navigate(`/problem-translate/${problemNumber}`, { state: { problemText } });
+    navigate(`/problem-translate/${categoryId}/${problemNumber}`, { 
+      state: { 
+        problemText,
+        words,
+        pronunciations
+      } 
+    });
   };
 
   return (

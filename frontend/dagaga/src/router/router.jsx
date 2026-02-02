@@ -50,7 +50,7 @@ const router = createBrowserRouter([
         element: <CommunityInfoDetail />,
       },
       {
-        path: "problem-translate/:problemId",
+        path: "problem-translate/:categoryId/:problemId",
         element: <ProblemNative />,
       },
       {
