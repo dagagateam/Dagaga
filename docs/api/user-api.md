@@ -80,16 +80,11 @@ Access Token과 Refresh Token을 사용하는 JWT 기반 인증 시스템을 포
 
 **토큰 상세:**
 - `accessToken`: API 인증을 위한 단기 토큰 (30분)
-<<<<<<< HEAD
   - JWT 페이로드에 `userId`, `locationId`, `viewLangCode`, `nativeLangCode` 포함
 - `refreshToken`: 새로운 Access Token 발급을 위한 장기 토큰 (7일)
 - `expiresIn`: Access Token 만료 시간 (초 단위)
 - `viewLangCode`: 사용자의 화면 표시 언어 코드 (예: "ko", "en")
 - `nativeLangCode`: 사용자의 모국어 코드 (채팅/번역용)
-=======
-- `refreshToken`: 새로운 Access Token 발급을 위한 장기 토큰 (7일)
-- `expiresIn`: Access Token 만료 시간 (초 단위)
->>>>>>> b1f3e35 (Docs: 인증 인가 구현 문서 수정 및 추가)
 
 **오류 응답:**
 - `400 Bad Request` - 자격 증명 오류

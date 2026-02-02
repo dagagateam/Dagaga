@@ -233,6 +233,62 @@ public class LearningController {
         @GetMapping("/categories/{categoryId}/stages/{orderIndex}/example")
         public ResponseEntity<ApiResponse<QuestionWithExampleResponse>> getQuestionWithExample(
                         @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true) @PathVariable String categoryId,
+                        @Parameter(description = "질문 순서 (1부터 시작)", required = true) @PathVariable Integer orderIndex) {
+                log.info("Fetching question with example for category: {}, order: {}", categoryId, orderIndex);
+
+                QuestionWithExampleResponse originalResponse = questionService.getQuestionWithExample(categoryId,
+                                orderIndex);
+
+                // GMS API를 통해 단어 분리 및 발음 가이드 생성
+                String exampleAnswer = originalResponse.getExampleAnswer();
+                List<String> words = callGmsTokenizeApi(exampleAnswer);
+                List<String> pronunciationGuide = callGmsPronunciationGuideApi(words);
+
+                // 새로운 응답 객체 생성 (빌더 패턴 사용)
+                QuestionWithExampleResponse enhancedResponse = QuestionWithExampleResponse.builder()
+                                .questionText(originalResponse.getQuestionText())
+                                .exampleAnswer(exampleAnswer)
+                                .words(words)
+                                .pronunciationGuide(pronunciationGuide)
+                                .build();
+
+                return ResponseEntity.ok(ApiResponse.success(
+                                "질문 및 예시 답변 조회 성공",
+                                enhancedResponse));
+        }
+
+        /*
+         * 학습 카테고리 목록 조회
+         * 일단 조회 단이라서 고려 해보기
+         */
+        /*
+         * @ApiResponses(value = {
+         * 
+         * @io.swagger.v3.oas.annotations.responses.ApiResponse(
+         * responseCode = ApiConstants.SUCCESS_CODE,
+         * description = "카테고리 목록 조회 성공"
+         * )
+         * })
+         * 
+         * @GetMapping("/categories")
+         * public ResponseEntity<ApiResponse<List<String>>> getCategories() {
+         * log.info("Fetching learning categories");
+         * 
+         * var categories = Arrays.asList("자기소개", "학업", "의료");
+         * 
+         * return ResponseEntity.ok(ApiResponse.success("카테고리 목록 조회 성공", categories));
+         * }
+         */
+        /**
+         * 카테고리와 순서로 질문과 예시 답변 조회 (예시 모드)
+         */
+        @ApiResponses(value = {
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = ApiConstants.SUCCESS_CODE, description = "질문 및 예시 답변 조회 성공"),
+                        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = ApiConstants.BAD_REQUEST_CODE, description = "잘못된 카테고리 또는 순서")
+        })
+        @GetMapping("/categories/{categoryId}/stages/{orderIndex}/example")
+        public ResponseEntity<ApiResponse<QuestionWithExampleResponse>> getQuestionWithExample(
+                        @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true) @PathVariable String categoryId,
                         @Parameter(description = "질문 순서 (1부터 시작)", required = true) @PathVariable Integer orderIndex,
                         @Parameter(description = "국적 코드 (vi: 베트남, zh: 중국)", required = false) @RequestParam(value = "countryCode", required = false) String countryCode) {
                 log.info("Fetching question with example for category: {}, order: {}, countryCode: {}", categoryId,
