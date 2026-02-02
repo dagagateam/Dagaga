@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Container } from "react-bootstrap";
-import ProblemProgress from "../../components/problem/ProblemProgress/ProblemProgress";
-import ProblemAnswer from "../../components/problem/ProblemAnswer/ProblemAnswer";
-import ProblemRecordButton from "../../components/problem/ProblemRecord/ProblemRecordButton";
-import ProblemSoundwave from "../../components/problem/ProblemSoundwave/ProblemSoundwave";
-import ProblemMascot from "../../components/problem/ProblemMascot/ProblemMascot";
+import ProblemProgress from "../../components/Problem/ProblemProgress/ProblemProgress";
+import ProblemAnswer from "../../components/Problem/ProblemAnswer/ProblemAnswer";
+import ProblemRecordButton from "../../components/Problem/ProblemRecord/ProblemRecordButton";
+import ProblemSoundwave from "../../components/Problem/ProblemSoundwave/ProblemSoundwave";
+import ProblemMascot from "../../components/Problem/ProblemMascot/ProblemMascot";
 import BufferingButton from "../../components/ProblemNative/BufferingButton";
-import ProblemDone from "../../components/problem/ProblemDone/ProblemDone";
+import ProblemDone from "../../components/Problem/ProblemDone/ProblemDone";
 import { useSpeechApi } from "../../api/useSpeechApi";
 import { useTts } from "../../hooks/useTts";
 import { fetchProblemNative } from "../../api/learningApi";
@@ -19,7 +19,7 @@ const ProblemNative = () => {
   const { categoryId, problemId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const [fetchedProblemText, setFetchedProblemText] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -39,30 +39,30 @@ const ProblemNative = () => {
   // Post-translate state management (same as Problem page)
   const [currentStep, setCurrentStep] = useState(0);
   const [sentenceHighlightIndex, setSentenceHighlightIndex] = useState(0);
-  
+
   // Pronunciation feedback state
   const [wordResults, setWordResults] = useState([]); // "correct" | "incorrect" | null for each word
   const [currentTries, setCurrentTries] = useState(0);
 
-    // Fetch problem text if missing
-    useEffect(() => {
-      if (!location.state?.problemText && categoryId && problemId) {
-        setIsLoading(true);
-        fetchProblemNative(categoryId, problemId)
-          .then((response) => {
-            if (response && response.data && response.data.success) {
-              setFetchedProblemText(response.data.data);
-            } else {
-              setFetchedProblemText("문제 정보를 불러올 수 없습니다.");
-            }
-          })
-          .catch((err) => {
-            console.error("Error fetching native problem:", err);
-            setFetchedProblemText("오류가 발생했습니다.");
-          })
-          .finally(() => setIsLoading(false));
-      }
-    }, [categoryId, problemId, location.state]);
+  // Fetch problem text if missing
+  useEffect(() => {
+    if (!location.state?.problemText && categoryId && problemId) {
+      setIsLoading(true);
+      fetchProblemNative(categoryId, problemId)
+        .then((response) => {
+          if (response && response.data && response.data.success) {
+            setFetchedProblemText(response.data.data);
+          } else {
+            setFetchedProblemText("문제 정보를 불러올 수 없습니다.");
+          }
+        })
+        .catch((err) => {
+          console.error("Error fetching native problem:", err);
+          setFetchedProblemText("오류가 발생했습니다.");
+        })
+        .finally(() => setIsLoading(false));
+    }
+  }, [categoryId, problemId, location.state]);
 
   // Handle recording completion in pre-translate state
   const handlePreTranslateRecordingComplete = async ({ audioBlob, audioUrl }) => {
@@ -73,7 +73,7 @@ const ProblemNative = () => {
 
     // Use the hook to translate audio
     const result = await translateAudio(audioBlob, problemId);
-    
+
     if (result) {
       setTranslatedData({
         words: result.words,
@@ -96,7 +96,7 @@ const ProblemNative = () => {
 
   // Tts Hook
   const { playTts } = useTts();
-  
+
   // Post-translate: derived values
   const words = translatedData?.words || [];
   const pronunciations = translatedData?.pronunciations || [];
@@ -127,22 +127,22 @@ const ProblemNative = () => {
 
   // Auto-play TTS when step changes (only in post-translate state)
   useEffect(() => {
-      if (pageState !== "post-translate") return;
+    if (pageState !== "post-translate") return;
 
-      // Determine the text to play
-      let textToPlay = null;
-      if (currentStep < words.length) {
-        textToPlay = words[currentStep];
-      } else if (currentStep === words.length && !isProblemDone) {
-        // Full sentence step
-        textToPlay = words.join(" ");
-      }
-  
-      if (textToPlay) {
-        playTts(textToPlay);
-      }
+    // Determine the text to play
+    let textToPlay = null;
+    if (currentStep < words.length) {
+      textToPlay = words[currentStep];
+    } else if (currentStep === words.length && !isProblemDone) {
+      // Full sentence step
+      textToPlay = words.join(" ");
+    }
+
+    if (textToPlay) {
+      playTts(textToPlay);
+    }
   }, [pageState, currentStep, words, isProblemDone, playTts]);
-  
+
   // Handle replay at normal speed
   const handleReplay = () => {
     let textToPlay = null;
@@ -159,7 +159,7 @@ const ProblemNative = () => {
 
   // Handle replay at slow speed
   const handleSlowReplay = () => {
-     let textToPlay = null;
+    let textToPlay = null;
     if (currentStep < words.length) {
       textToPlay = words[currentStep];
     } else if (currentStep === words.length) {
@@ -181,7 +181,7 @@ const ProblemNative = () => {
         return newResults;
       });
     }
-    
+
     // Move to next step and reset tries
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
@@ -214,7 +214,7 @@ const ProblemNative = () => {
     // Use the hook to check pronunciation
     const result = await checkPronunciation(audioBlob, problemId, currentWord, currentStep);
     const isCorrect = result.isCorrect;
-    
+
     if (isCorrect) {
       console.log("✓ Pronunciation correct!");
       handleStepComplete("correct");
@@ -222,7 +222,7 @@ const ProblemNative = () => {
       console.log("✗ Pronunciation incorrect");
       const newTries = currentTries + 1;
       setCurrentTries(newTries);
-      
+
       if (newTries >= MAX_TRIES) {
         console.log(`Max tries (${MAX_TRIES}) reached, moving to next word`);
         handleStepComplete("incorrect");
