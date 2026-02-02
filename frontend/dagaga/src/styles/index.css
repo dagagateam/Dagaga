@@ -8,6 +8,7 @@
     /* 한국어 글자는 스포카가 먼저 처리하고, 없는 글자(중국어/베트남어)는 Noto Sans가 처리합니다. */
     --main-font: 'Spoqa Han Sans Neo', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans Vietnamese', sans-serif;
     --main-orange: #F3AE5C;
+    --navbar-gap: 24px;
 }
 
 /* 전체 공통 적용 */
