@@ -5,9 +5,10 @@ import com.dagaga.domain.post.service.ProgramPostService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -19,16 +20,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProgramPostController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class ProgramPostControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private ProgramPostService programPostService;
 
-    @MockBean
+    @MockitoBean
     private com.dagaga.domain.post.service.CommentService commentService;
+
+    @MockitoBean
+    private com.dagaga.security.jwt.JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockitoBean
+    private com.dagaga.security.jwt.JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Test
     @DisplayName("게시글 상세 조회 API가 정상적으로 동작한다")
@@ -52,6 +60,7 @@ class ProgramPostControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("프로그램 게시글 상세 조회가 완료되었습니다."))
                 .andExpect(jsonPath("$.data.postId").value(postId))
                 .andExpect(jsonPath("$.data.title").value("Test Title"))
                 .andExpect(jsonPath("$.data.content").value("Test Content"))
