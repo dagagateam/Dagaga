@@ -69,7 +69,11 @@ public class UserController {
         User user = userService.authenticate(dto.getEmail(), dto.getPassword());
 
         // 토큰 생성
-        String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId(), user.getLocationId());
+        String accessToken = jwtTokenProvider.generateAccessToken(
+                user.getUserId(),
+                user.getLocationId(),
+                user.getViewLangCode(),
+                user.getNativeLangCode());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
 
         // 토큰 ID 추출
@@ -90,6 +94,8 @@ public class UserController {
                 .userId(user.getUserId())
                 .email(user.getEmail())
                 .locationId(user.getLocationId())
+                .viewLangCode(user.getViewLangCode())
+                .nativeLangCode(user.getNativeLangCode())
                 .build();
 
         return ResponseEntity.ok(response);
@@ -123,7 +129,11 @@ public class UserController {
         User user = userService.getUserById(userId);
 
         // 새로운 Access Token 생성
-        String newAccessToken = jwtTokenProvider.generateAccessToken(userId, user.getLocationId());
+        String newAccessToken = jwtTokenProvider.generateAccessToken(
+                userId,
+                user.getLocationId(),
+                user.getViewLangCode(),
+                user.getNativeLangCode());
 
         // 응답 생성
         AuthResponse response = AuthResponse.builder()
@@ -134,6 +144,8 @@ public class UserController {
                 .userId(userId)
                 .email(user.getEmail())
                 .locationId(user.getLocationId())
+                .viewLangCode(user.getViewLangCode())
+                .nativeLangCode(user.getNativeLangCode())
                 .build();
 
         return ResponseEntity.ok(response);
