@@ -2,6 +2,8 @@ package com.dagaga.domain.user.service;
 
 import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
+import com.dagaga.domain.user.dto.UserResponseDto;
+import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -72,5 +74,46 @@ public class UserService {
     public User getUserById(Integer userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + userId));
+    }
+
+    public UserResponseDto getUserResponse(Integer userId) {
+        User user = getUserById(userId);
+        return UserResponseDto.from(user);
+    }
+
+    @Transactional
+    public UserResponseDto updateUser(Integer userId, UserUpdateDto dto) {
+        User user = getUserById(userId);
+
+        // Update password if provided
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            user.updatePassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        // Handle nickname
+        String newNickname = dto.getNickname();
+        if (newNickname != null && !newNickname.equals(user.getNickname())) {
+            if (newNickname.isBlank()) {
+                newNickname = user.getEmail().split("@")[0];
+                // Generated nickname should also be checked for duplicates
+                if (userRepository.existsByNickname(newNickname)) {
+                    // If generated nickname exists, add some randomness or just fail
+                    // For now, let's keep it simple and throw if both original and generated exist
+                    // But typically register already handled this.
+                }
+            }
+            checkNicknameDuplicate(newNickname);
+        }
+
+        user.updateProfile(
+                newNickname,
+                dto.getViewLangCode(),
+                dto.getNativeLangCode(),
+                dto.getLocationId(),
+                dto.getArrivalDate(),
+                dto.getProfileImage()
+        );
+
+        return UserResponseDto.from(user);
     }
 }

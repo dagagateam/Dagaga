@@ -102,4 +102,20 @@ public class User {
         this.locationId = locationId;
         this.modifiedAt = LocalDateTime.now();
     }
+
+    public void updateProfile(String nickname, String viewLangCode, String nativeLangCode,
+                              Integer locationId, LocalDate arrivalDate, String profileImage) {
+        if (nickname != null) this.nickname = nickname;
+        if (viewLangCode != null) this.viewLangCode = viewLangCode;
+        if (nativeLangCode != null) this.nativeLangCode = nativeLangCode;
+        if (locationId != null) this.locationId = locationId;
+        if (arrivalDate != null) this.arrivalDate = arrivalDate;
+        if (profileImage != null) this.profileImage = profileImage;
+        this.modifiedAt = LocalDateTime.now();
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+        this.modifiedAt = LocalDateTime.now();
+    }
 }
