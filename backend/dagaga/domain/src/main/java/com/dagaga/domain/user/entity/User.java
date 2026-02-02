@@ -23,7 +23,7 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password") // Nullable for OAuth users
     private String password;
 
     @Column(name = "nickname", unique = true)
@@ -47,6 +47,15 @@ public class User {
     @Column(name = "social_provider")
     private String socialProvider;
 
+    @Column(name = "social_id") // External OAuth provider ID
+    private String socialId;
+
+    @Column(name = "role", nullable = false)
+    private String role;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
+
     @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
@@ -62,10 +71,19 @@ public class User {
         if (this.profileImage == null) {
             this.profileImage = "default_avatar.png";
         }
+        if (this.role == null) {
+            this.role = "ROLE_USER";
+        }
+        if (this.isActive == null) {
+            this.isActive = true;
+        }
     }
 
     @Builder
-    public User(String email, String password, String nickname, String viewLangCode, String nativeLangCode, Integer locationId, LocalDate arrivalDate, String profileImage, String socialProvider) {
+    public User(String email, String password, String nickname, String viewLangCode, 
+                String nativeLangCode, Integer locationId, LocalDate arrivalDate, 
+                String profileImage, String socialProvider, String socialId, 
+                String role, Boolean isActive) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
@@ -75,5 +93,13 @@ public class User {
         this.arrivalDate = arrivalDate;
         this.profileImage = profileImage;
         this.socialProvider = socialProvider;
+        this.socialId = socialId;
+        this.role = role;
+        this.isActive = isActive;
+    }
+
+    public void updateLocationId(Integer locationId) {
+        this.locationId = locationId;
+        this.modifiedAt = LocalDateTime.now();
     }
 }
