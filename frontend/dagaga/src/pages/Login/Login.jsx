@@ -4,10 +4,10 @@ import { loginAPI } from '../../api/userApi';
 import './Login.css';
 import loginTiger from '../../assets/characters/login_tiger.png';
 import logo from '../../assets/icons/logo.png';
-import LanguageSelector from '../../components/Auth/LanguageSelector';
-import SocialButton from '../../components/Auth/SocialButton';
-import Button from '../../components/Common/Button';
-import Input from '../../components/Common/Input';
+import LanguageSelector from '../../components/auth/LanguageSelector';
+import SocialButton from '../../components/auth/SocialButton';
+import Button from '../../components/common/Button';
+import Input from '../../components/common/Input';
 
 import { useUserStore } from '../../store/userStore';
 
@@ -53,7 +53,7 @@ const Login = () => {
     };
 
     return (
-        <motion.div 
+        <motion.div
             className="login-container"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
