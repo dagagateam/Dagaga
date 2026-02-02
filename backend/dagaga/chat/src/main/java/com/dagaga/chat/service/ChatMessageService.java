@@ -12,6 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dagaga.chat.dto.ChatMessageResponse;
+import com.dagaga.domain.user.entity.User;
+import com.dagaga.domain.user.repository.UserRepository;
+import org.springframework.data.domain.PageRequest;
+import java.util.stream.Collectors;
 import java.util.List;
 
 @Slf4j
@@ -21,13 +26,19 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final LanguageRepository languageRepository;
     private final TranslationPort translationPort;
+    private final ChatRoomService chatRoomService;
+    private final UserRepository userRepository;
 
     public ChatMessageService(ChatMessageRepository chatMessageRepository,
             LanguageRepository languageRepository,
-            TranslationPort translationPort) {
+            TranslationPort translationPort,
+            ChatRoomService chatRoomService,
+            UserRepository userRepository) {
         this.chatMessageRepository = chatMessageRepository;
         this.languageRepository = languageRepository;
         this.translationPort = translationPort;
+        this.chatRoomService = chatRoomService;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -68,4 +79,49 @@ public class ChatMessageService {
         return new SaveMessageResult(savedMsg, savedMsg.getTranslations());
     }
 
+    @Transactional(readOnly = true)
+    public List<ChatMessageResponse> getMessages(int roomId, int userLocationId, int userId, Long cursor, int size) {
+        // 지역 검증
+        chatRoomService.getRoomAndValidateLocation(roomId, userLocationId);
+
+        // 사용자 모국어 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userId=" + userId));
+        String userLang = user.getNativeLangCode();
+
+        // 메시지 조회
+        PageRequest page = PageRequest.of(0, Math.min(size, 100));
+        List<ChatMessage> messages;
+
+        if (cursor == null) {
+            messages = chatMessageRepository.findByRoomIdOrderByMessageIdDesc(roomId, page);
+        } else {
+            messages = chatMessageRepository.findByRoomIdAndMessageIdLessThanOrderByMessageIdDesc(roomId, cursor, page);
+        }
+
+        // 언어에 맞게 변환
+        return messages.stream()
+                .map(msg -> {
+                    boolean isTranslated = false;
+                    String content = msg.getOriginalText();
+
+                    // 원문 언어가 사용자의 모국어와 다르면 번역본 찾기
+                    if (!msg.getOriginalLang().equalsIgnoreCase(userLang)) {
+                        String translatedText = msg.getTranslations().stream()
+                                .filter(t -> t.getTargetLang().equalsIgnoreCase(userLang))
+                                .map(MessageTranslation::getTranslatedText)
+                                .findFirst()
+                                .orElse(null);
+                        
+                        // 번역본이 있으면 사용
+                        if (translatedText != null) {
+                            content = translatedText;
+                            isTranslated = true;
+                        }
+                    }
+
+                    return ChatMessageResponse.from(msg, content, isTranslated);
+                })
+                .collect(Collectors.toList());
+    }
 }
