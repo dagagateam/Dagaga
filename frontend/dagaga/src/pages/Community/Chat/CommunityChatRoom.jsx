@@ -4,7 +4,7 @@ import { Container } from 'react-bootstrap';
 import './CommunityChatRoom.css';
 import chattingTiger from '../../../assets/characters/chat_tiger.png';
 import EmojiPicker from 'emoji-picker-react';
-import ChatMessage from '../../../components/community/Chat/ChatMessage';
+import ChatMessage from '../../../components/community/chat/ChatMessage';
 import { fetchChatMessages, fetchJoinedChats, sendChatMessage } from '../../../api/communityApi';
 import { useUserStore } from '../../../store/userStore';
 
@@ -18,7 +18,7 @@ const CommunityChatRoom = () => {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [showMoreMenu, setShowMoreMenu] = useState(false);
     const [messages, setMessages] = useState([]);
-    
+
     // Get user data from store (or use test data for now)
     const { user } = useUserStore();
     // Test user data: userId: 27, locationId: 86, nickname: "오호라비비빅"
@@ -27,27 +27,27 @@ const CommunityChatRoom = () => {
 
     useEffect(() => {
         const loadMessages = async () => {
-             // Basic implementation: fetch messages when room ID changes
-             if (id) {
-                 try {
-                     const apiMessages = await fetchChatMessages(id, userLocationId);
-                     // Map API response to UI model if necessary
-                     // API returns: { messageId, senderId, originalText, sentAt, ... }
-                     // UI expects: { id, sender, text, time, isMe }
-                     // We need to fetch user info or infer 'isMe'. For now assume senderId 123 is 'me' (this needs real user ID later)
-                     const mappedMessages = apiMessages.map(msg => ({
-                         id: msg.messageId,
-                         sender: msg.senderId === currentUserId ? '나' : `User ${msg.senderId}`,
-                         text: msg.originalText,
-                         time: new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                         isMe: msg.senderId === currentUserId,
-                         type: 'text'
-                     }));
-                     setMessages(mappedMessages);
-                 } catch (error) {
-                     console.error("Failed to fetch chat messages:", error);
-                 }
-             }
+            // Basic implementation: fetch messages when room ID changes
+            if (id) {
+                try {
+                    const apiMessages = await fetchChatMessages(id, userLocationId);
+                    // Map API response to UI model if necessary
+                    // API returns: { messageId, senderId, originalText, sentAt, ... }
+                    // UI expects: { id, sender, text, time, isMe }
+                    // We need to fetch user info or infer 'isMe'. For now assume senderId 123 is 'me' (this needs real user ID later)
+                    const mappedMessages = apiMessages.map(msg => ({
+                        id: msg.messageId,
+                        sender: msg.senderId === currentUserId ? '나' : `User ${msg.senderId}`,
+                        text: msg.originalText,
+                        time: new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        isMe: msg.senderId === currentUserId,
+                        type: 'text'
+                    }));
+                    setMessages(mappedMessages);
+                } catch (error) {
+                    console.error("Failed to fetch chat messages:", error);
+                }
+            }
         };
         loadMessages();
     }, [id]);
@@ -70,7 +70,7 @@ const CommunityChatRoom = () => {
                 try {
                     const response = await fetchJoinedChats(user.userId);
                     const joinedData = Array.isArray(response) ? response : response.data;
-                    
+
                     if (joinedData && Array.isArray(joinedData)) {
                         const mappedChats = joinedData.map(chat => ({
                             id: chat.roomId,
@@ -81,7 +81,7 @@ const CommunityChatRoom = () => {
                             active: parseInt(id) === chat.roomId
                         }));
                         setJoinedChats(mappedChats);
-                        
+
                         // Set current room info
                         const currentRoom = joinedData.find(chat => parseInt(id) === chat.roomId);
                         if (currentRoom) {
@@ -107,7 +107,7 @@ const CommunityChatRoom = () => {
         try {
             // Send message to API
             await sendChatMessage(id, currentUserId, message.trim(), userLocationId);
-            
+
             // Add message to local state for immediate display
             const newMsg = {
                 id: Date.now(),
@@ -119,7 +119,7 @@ const CommunityChatRoom = () => {
             };
             setMessages([...messages, newMsg]);
             setMessage('');
-            
+
             // Optionally reload messages from API to get server-side data
             // const apiMessages = await fetchChatMessages(id, userLocationId);
             // ... map and setMessages
@@ -191,8 +191,8 @@ const CommunityChatRoom = () => {
                             {joinedChats
                                 .filter(chat => chat.title.toLowerCase().includes(searchTerm.toLowerCase()))
                                 .map(chat => (
-                                    <div 
-                                        key={chat.id} 
+                                    <div
+                                        key={chat.id}
                                         className={`sidebar-chat-item ${chat.active ? 'active' : ''}`}
                                         onClick={() => navigate(`/community/chat/room/${chat.id}`)}
                                         style={{ cursor: 'pointer' }}
