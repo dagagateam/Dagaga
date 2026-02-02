@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "../App";
-import ScenarioSelect from "../pages/scenario-select/ScenarioSelect";
-import ProblemSelect from "../pages/problem-select/ProblemSelect";
+import ScenarioSelect from "../pages/ScenarioSelect/ScenarioSelect";
+import ProblemSelect from "../pages/ProblemSelect/ProblemSelect";
 import Problem from "../pages/Problem/Problem";
 import Login from "../pages/Login/Login";
 import Signup from "../pages/Signup/Signup";
@@ -9,9 +9,9 @@ import CommunityInfo from "../pages/Community/Info/CommunityInfo";
 import CommunityInfoDetail from "../pages/Community/Info/CommunityInfoDetail";
 import CommunityChatList from "../pages/Community/Chat/CommunityChatList";
 import CommunityChatRoom from "../pages/Community/Chat/CommunityChatRoom";
-import ProblemNative from "../pages/problem-native/ProblemNative";
+import ProblemNative from "../pages/ProblemNative/ProblemNative";
 import MyPage from "../pages/my-page/MyPage";
-import MyPageEdit from "../pages/my-page-edit/MyPageEdit";
+import MyPageEdit from "../pages/MyPageEdit/MyPageEdit";
 
 const router = createBrowserRouter([
   {
@@ -38,7 +38,7 @@ const router = createBrowserRouter([
         element: <ProblemSelect />,
       },
       {
-        path: "problem/:problemId",
+        path: "problem/:categoryId/:questionId",
         element: <Problem />,
       },
       {

@@ -112,6 +112,8 @@ const ProblemSelect = () => {
                   rotation={rotation}
                   isActive={isActive}
                   onClick={() => handleCardClick(problem.id)}
+                  translations={problem.wordTranslations} // from API response map
+                  stages={problems} // Pass full list for progress bar
                 />
               );
             })

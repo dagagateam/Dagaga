@@ -32,6 +32,7 @@
   /* 부트스트랩 최소 넓이 오버라이딩 */
   width: auto;
   padding: 0.5rem 0;
+  z-index: 1050; /* Ensure dropdown is above other content */
 }
 
 

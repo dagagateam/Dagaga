@@ -20,47 +20,51 @@ export const useTts = () => {
     const playTts = useCallback(async (text, speed = 'normal') => {
         if (!text) return;
 
-        try {
-            // Stop any currently playing audio
-            if (audioRef.current) {
-                audioRef.current.pause();
-                // Do not revoke object URL if it's cached
-            }
+        // Return a promise that resolves when audio ends
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Stop any currently playing audio
+                if (audioRef.current) {
+                    audioRef.current.pause();
+                    audioRef.current.currentTime = 0; // Reset
+                }
 
-            let blob = ttsCache.get(text);
-            if (!blob) {
-                blob = await fetchTts(text);
-                ttsCache.set(text, blob);
-            }
+                let blob = ttsCache.get(text);
+                if (!blob) {
+                    blob = await fetchTts(text);
+                    ttsCache.set(text, blob);
+                }
 
-            const url = URL.createObjectURL(blob);
-            const audio = new Audio(url);
-            
-            // Set playback rate
-            audio.playbackRate = speed === 'slow' ? 0.7 : 1.0;
-            
-            audioRef.current = audio;
-            setIsPlaying(true);
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                
+                // Set playback rate
+                audio.playbackRate = speed === 'slow' ? 0.7 : 1.0;
+                
+                audioRef.current = audio;
+                setIsPlaying(true);
 
-            audio.onended = () => {
+                audio.onended = () => {
+                    setIsPlaying(false);
+                    URL.revokeObjectURL(url);
+                    resolve(); // Resolve promise when done
+                };
+
+                audio.onerror = (e) => {
+                    console.error("Audio playback error", e);
+                    setIsPlaying(false);
+                    URL.revokeObjectURL(url);
+                    // Decide if we want to reject or just resolve to continue flow
+                    resolve(); 
+                };
+
+                await audio.play();
+            } catch (error) {
+                console.error("Failed to play TTS:", error);
                 setIsPlaying(false);
-                // Don't revoke URL immediately if we want to reuse it, 
-                // but usually createObjectURL is cheap enough if blob is cached.
-                // To be safe against memory leaks, we can revoke.
-                URL.revokeObjectURL(url);
-            };
-
-            audio.onerror = (e) => {
-                console.error("Audio playback error", e);
-                setIsPlaying(false);
-                URL.revokeObjectURL(url);
-            };
-
-            await audio.play();
-        } catch (error) {
-            console.error("Failed to play TTS:", error);
-            setIsPlaying(false);
-        }
+                resolve(); // Resolve to not break the chain
+            }
+        });
     }, []);
 
     const preloadTts = useCallback(async (text) => {

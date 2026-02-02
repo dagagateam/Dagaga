@@ -9,24 +9,28 @@ const ProblemCard = ({
   pronunciations = [],
   rotation, 
   isActive, 
-  onClick 
+  onClick,
+  ...props // Capture other props like translations, stages
 }) => {
   const navigate = useNavigate();
 
+  // Pass translations in navigating state
   const handleExampleClick = (e) => {
-    e.stopPropagation(); // Prevent card click from triggering
-    navigate(`/problem/${problemNumber}`, { 
+    e.stopPropagation(); 
+    navigate(`/problem/${categoryId}/${problemNumber}`, { 
       state: { 
-        categoryId, // Pass for API calls if needed
+        categoryId, 
         problemText,
         words,
-        pronunciations
+        pronunciations,
+        translations: props.translations, // ProblemSelect passes this now? Check usage
+        stages: props.stages || [] // We need the list of stages for progress bar!
       } 
     });
   };
 
   const handleTranslateClick = (e) => {
-    e.stopPropagation(); // Prevent card click from triggering
+    e.stopPropagation(); 
     navigate(`/problem-translate/${categoryId}/${problemNumber}`, { 
       state: { 
         problemText,
