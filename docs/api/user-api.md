@@ -80,8 +80,11 @@ Access Token과 Refresh Token을 사용하는 JWT 기반 인증 시스템을 포
 
 **토큰 상세:**
 - `accessToken`: API 인증을 위한 단기 토큰 (30분)
+  - JWT 페이로드에 `userId`, `locationId`, `viewLangCode`, `nativeLangCode` 포함
 - `refreshToken`: 새로운 Access Token 발급을 위한 장기 토큰 (7일)
 - `expiresIn`: Access Token 만료 시간 (초 단위)
+- `viewLangCode`: 사용자의 화면 표시 언어 코드 (예: "ko", "en")
+- `nativeLangCode`: 사용자의 모국어 코드 (채팅/번역용)
 
 **오류 응답:**
 - `400 Bad Request` - 자격 증명 오류
@@ -243,13 +246,48 @@ curl -X GET http://localhost:8080/api/v1/posts \
 
 ---
 
-## 위치 기반 필터링 (Location-Based Filtering)
+## 위치/언어 자동 추출 (Automatic User Info Extraction)
 
-보호된 엔드포인트는 Access Token에 포함된 사용자의 `locationId`를 기반으로 데이터를 자동으로 필터링합니다. 사용자는 등록된 지역의 데이터만 볼 수 있습니다.
+보호된 엔드포인트는 Access Token의 JWT 페이로드에서 사용자 정보를 자동으로 추출합니다. 프론트엔드에서 이러한 값을 요청 파라미터로 전송할 필요가 없습니다.
 
-**예시:**
-- `locationId: 1`인 사용자는 1번 지역의 게시글만 볼 수 있습니다.
-- 사용자가 위치를 변경하면(프로필 업데이트), 새로운 `locationId`가 포함된 토큰을 받기 위해 다시 로그인해야 합니다.
+### JWT 페이로드 구조
+```json
+{
+  "sub": "123",
+  "userId": 123,
+  "locationId": 1,
+  "viewLangCode": "ko",
+  "nativeLangCode": "en",
+  "type": "access",
+  "jti": "unique-token-id",
+  "iat": 1738471200,
+  "exp": 1738474800
+}
+```
+
+### 자동 추출되는 정보
+- **`userId`**: 현재 인증된 사용자 ID
+- **`locationId`**: 사용자의 지역 ID (채팅방, 프로그램 필터링에 사용)
+- **`viewLangCode`**: 화면 표시 언어 코드 (TTS, 응답 메시지 등에 사용)
+- **`nativeLangCode`**: 모국어 코드 (채팅 번역, 학습 콘텐츠에 사용)
+
+### 위치 기반 필터링
+`locationId`는 데이터를 자동으로 필터링하는 데 사용됩니다:
+- `locationId: 1`인 사용자는 1번 지역의 게시글/채팅방만 볼 수 있습니다.
+- 사용자가 위치를 변경하면(프로필 업데이트), 새로운 `locationId`가 포함된 토큰을 받기 위해 다시 로그인하거나 토큰을 갱신해야 합니다.
+
+### 백엔드 구현 예시
+```java
+// 컨트롤러에서 JWT로부터 자동 추출
+@GetMapping("/programs")
+public ResponseEntity<?> getPrograms() {
+    // JWT에서 자동으로 추출 (파라미터 불필요)
+    Integer locationId = SecurityContextHelper.getCurrentLocationId();
+    String viewLang = SecurityContextHelper.getCurrentViewLangCode();
+    
+    return programService.getByLocation(locationId, viewLang);
+}
+```
 
 ---
 
