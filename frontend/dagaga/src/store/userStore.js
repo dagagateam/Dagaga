@@ -4,23 +4,48 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 export const useUserStore = create(
   persist(
     (set) => ({
-      user: null, // { nickname, email, region, nativeLang, preferredLang, entryDate, etc. }
+      user: null, // { userId, email, nickname, locationId, viewLangCode, nativeLangCode }
       isLoggedIn: false,
+      accessToken: null,
+      refreshToken: null,
       savedItems: [], // Array of community objects
       likedPostIds: [], // Array of IDs
       joinedChats: [], // Persisted chat rooms
 
-      login: (userData) => set({ 
-        user: userData, 
+      // Login with full AuthResponse
+      login: (authResponse) => set({ 
+        user: {
+          userId: authResponse.userId,
+          email: authResponse.email,
+          locationId: authResponse.locationId,
+          viewLangCode: authResponse.viewLangCode,
+          nativeLangCode: authResponse.nativeLangCode,
+        },
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
         isLoggedIn: true 
       }),
       
       logout: () => set({ 
         user: null, 
         isLoggedIn: false,
+        accessToken: null,
+        refreshToken: null,
         savedItems: [],
         likedPostIds: [],
         joinedChats: []
+      }),
+
+      // Set tokens (for refresh)
+      setTokens: (accessToken, refreshToken) => set({
+        accessToken,
+        refreshToken: refreshToken || undefined, // Only update if provided
+      }),
+
+      // Clear tokens only
+      clearTokens: () => set({
+        accessToken: null,
+        refreshToken: null,
       }),
       
       setJoinedChats: (chats) => set({ joinedChats: chats }),
