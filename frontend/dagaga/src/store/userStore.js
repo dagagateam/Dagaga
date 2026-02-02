@@ -20,6 +20,7 @@ export const useUserStore = create(
           locationId: authResponse.locationId,
           viewLangCode: authResponse.viewLangCode,
           nativeLangCode: authResponse.nativeLangCode,
+          nickname: authResponse.nickname,
         },
         accessToken: authResponse.accessToken,
         refreshToken: authResponse.refreshToken,
