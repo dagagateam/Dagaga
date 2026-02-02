@@ -17,7 +17,21 @@ public class SwaggerConfig {
         server.setUrl("/");
         server.setDescription("Default Server URL");
 
+        // JWT 보안 스키마 정의
+        String jwtSchemeName = "jwtAuth";
+        io.swagger.v3.oas.models.security.SecurityScheme securityScheme = new io.swagger.v3.oas.models.security.SecurityScheme()
+                .name(jwtSchemeName)
+                .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .bearerFormat("JWT");
+
+        // 모든 API에 대해 JWT 인증 적용
+        io.swagger.v3.oas.models.security.SecurityRequirement securityRequirement = new io.swagger.v3.oas.models.security.SecurityRequirement()
+                .addList(jwtSchemeName);
+
         return new OpenAPI()
-                .servers(List.of(server));
+                .servers(List.of(server))
+                .components(new io.swagger.v3.oas.models.Components().addSecuritySchemes(jwtSchemeName, securityScheme))
+                .addSecurityItem(securityRequirement);
     }
 }
