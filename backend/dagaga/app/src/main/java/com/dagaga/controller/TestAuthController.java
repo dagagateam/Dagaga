@@ -35,6 +35,7 @@ public class TestAuthController {
 
         String accessToken = jwtTokenProvider.generateAccessToken(
                 testUserId, testLocationId, testViewLangCode, testNativeLangCode,
+                null, // nickname argument added as null
                 10L * 365 * 24 * 60 * 60 * 1000, true); // 10년 만료, 테스트 토큰 플래그 포함
 
         Map<String, String> response = new HashMap<>();

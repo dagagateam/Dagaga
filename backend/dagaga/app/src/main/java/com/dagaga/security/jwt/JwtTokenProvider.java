@@ -32,15 +32,15 @@ public class JwtTokenProvider {
      * Access Token 생성 (userId, locationId 및 언어 설정 포함)
      */
     public String generateAccessToken(Integer userId, Integer locationId,
-            String viewLangCode, String nativeLangCode) {
-        return generateAccessToken(userId, locationId, viewLangCode, nativeLangCode, accessTokenExpiry, false);
+            String viewLangCode, String nativeLangCode, String nickname) {
+        return generateAccessToken(userId, locationId, viewLangCode, nativeLangCode, nickname, accessTokenExpiry, false);
     }
 
     /**
      * Access Token 생성 (커스텀 만료 시간 및 테스트 여부 포함)
      */
     public String generateAccessToken(Integer userId, Integer locationId,
-            String viewLangCode, String nativeLangCode, long expiryMillis, boolean isTest) {
+            String viewLangCode, String nativeLangCode, String nickname, long expiryMillis, boolean isTest) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiryMillis);
 
@@ -50,6 +50,7 @@ public class JwtTokenProvider {
                 .claim("locationId", locationId)
                 .claim("viewLangCode", viewLangCode)
                 .claim("nativeLangCode", nativeLangCode)
+                .claim("nickname", nickname)
                 .claim("isTest", isTest)
                 .claim("type", "access")
                 .id(UUID.randomUUID().toString())
@@ -168,6 +169,14 @@ public class JwtTokenProvider {
     public String getNativeLangCodeFromToken(String token) {
         Claims claims = getClaims(token);
         return claims.get("nativeLangCode", String.class);
+    }
+
+    /**
+     * 토큰에서 닉네임 추출
+     */
+    public String getNicknameFromToken(String token) {
+        Claims claims = getClaims(token);
+        return claims.get("nickname", String.class);
     }
 
     /**

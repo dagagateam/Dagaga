@@ -67,6 +67,18 @@ CREATE TABLE IF NOT EXISTS chat_rooms (
     CONSTRAINT fk_room_location FOREIGN KEY (location_id) REFERENCES locations(location_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS public.chat_room_users (
+	room_id int4 NOT NULL,
+	user_id int4 NOT NULL,
+	joined_at timestamptz(6) NOT NULL,
+	last_read_at timestamptz(6) NULL,
+	last_read_message_id int8 NULL,
+	left_at timestamptz(6) NULL,
+	"role" public."chat_room_user_role" NOT NULL,
+	status public."chat_room_user_status" NOT NULL,
+	CONSTRAINT chat_room_users_pkey PRIMARY KEY (room_id, user_id)
+);
+
 -- 6. 채팅 메시지 (최신 정의 병합: 다국어 지원 구조)
 CREATE TABLE IF NOT EXISTS chat_messages (
     message_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

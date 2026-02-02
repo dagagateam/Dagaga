@@ -73,7 +73,8 @@ public class UserController {
                 user.getUserId(),
                 user.getLocationId(),
                 user.getViewLangCode(),
-                user.getNativeLangCode());
+                user.getNativeLangCode(),
+                user.getNickname());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
 
         // 토큰 ID 추출
@@ -96,6 +97,7 @@ public class UserController {
                 .locationId(user.getLocationId())
                 .viewLangCode(user.getViewLangCode())
                 .nativeLangCode(user.getNativeLangCode())
+                .nickname(user.getNickname())
                 .build();
 
         return ResponseEntity.ok(response);
@@ -133,7 +135,8 @@ public class UserController {
                 userId,
                 user.getLocationId(),
                 user.getViewLangCode(),
-                user.getNativeLangCode());
+                user.getNativeLangCode(),
+                user.getNickname());
 
         // 응답 생성
         AuthResponse response = AuthResponse.builder()
@@ -146,6 +149,7 @@ public class UserController {
                 .locationId(user.getLocationId())
                 .viewLangCode(user.getViewLangCode())
                 .nativeLangCode(user.getNativeLangCode())
+                .nickname(user.getNickname())
                 .build();
 
         return ResponseEntity.ok(response);
