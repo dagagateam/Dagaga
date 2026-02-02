@@ -70,6 +70,10 @@
         "createdAt": "2024-01-01T10:00:00",
         "updatedAt": "2024-01-01T12:00:00",
         "capacity": "20명",
+        "regStartDate": "2024-02-01",
+        "regEndDate": "2024-02-15",
+        "progStartDate": "2024-03-01",
+        "progEndDate": "2024-03-31",
         "imageUrls": ["https://example.com/image.jpg"]
       }
     }
