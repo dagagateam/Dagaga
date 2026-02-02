@@ -1,14 +1,13 @@
 package com.dagaga.chat.controller;
 
+import com.dagaga.chat.dto.ChatMessageResponse;
 import com.dagaga.chat.dto.ChatRoomResponse;
 import com.dagaga.chat.dto.CreateChatRoomRequest;
+import com.dagaga.chat.service.ChatMessageService;
 import com.dagaga.chat.service.ChatRoomService;
-import com.dagaga.domain.chat.message.entity.ChatMessage;
-import com.dagaga.domain.chat.message.repository.ChatMessageRepository;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,7 +24,7 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
     private final UserRepository userRepository;
-    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageService chatMessageService;
 
     @Operation(summary = "사용자 커스텀 채팅방 생성", description = "사용자가 지역 기반으로 새로운 채팅방을 생성합니다.")
     @PostMapping
@@ -80,21 +79,13 @@ public class ChatRoomController {
     // 최신 메시지부터 {size}개 반환
     @Operation(summary = "채팅방별 메시지 조회", description = "채팅방의 메시지를 조회합니다. 기본적으로 30개의 메시지를 가져옵니다.")
     @GetMapping("/{roomId}/messages")
-    public List<ChatMessage> getMessages(
+    public List<ChatMessageResponse> getMessages(
             @Parameter(description = "채팅방 ID") @PathVariable int roomId,
+            @Parameter(description = "사용자 ID") @RequestParam int userId,
             @Parameter(description = "사용자 지역 ID") @RequestParam int userLocationId,
             @Parameter(description = "기준 메시지 ID, null이면 가장 최신 메시지부터 가져옴") @RequestParam(required = false) Long cursor,
             @Parameter(description = "가져올 메시지 개수") @RequestParam(defaultValue = "30") int size) {
-        // 지역 검증
-        chatRoomService.getRoomAndValidateLocation(roomId, userLocationId);
-
-        PageRequest page = PageRequest.of(0, Math.min(size, 100));
-
-        if (cursor == null) {
-            return chatMessageRepository.findByRoomIdOrderByMessageIdDesc(roomId, page);
-        }
-
-        // cursor가 있는 경우에는 messageId < cursor 조건으로 더 과거 메시지 반환
-        return chatMessageRepository.findByRoomIdAndMessageIdLessThanOrderByMessageIdDesc(roomId, cursor, page);
+        
+        return chatMessageService.getMessages(roomId, userLocationId, userId, cursor, size);
     }
 }

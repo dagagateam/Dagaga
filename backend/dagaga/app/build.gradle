@@ -14,8 +14,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
 
-    // JWT
-    // implementation 'org.springframework.boot:spring-boot-starter-security'
+    // JWT & Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -44,16 +50,28 @@ dependencies {
 }
 
 tasks.named('bootRun') {
-    if (file("../.env").exists()) {
-        file("../.env").readLines().each {
-            if (!it.isEmpty() && !it.startsWith("#")) {
-                def pos = it.indexOf("=")
-                if (pos > 0) {
-                    def key = it.substring(0, pos).trim()
-                    def value = it.substring(pos + 1).trim()
-                    environment key, value
+    doFirst {
+        // Priority: .env.local > .env
+        def envLocal = file('../.env.local')
+        def envProd = file('../.env')
+        
+        def targetEnv = envLocal.exists() ? envLocal : (envProd.exists() ? envProd : null)
+
+        if (targetEnv) {
+            println "Loading environment variables from: ${targetEnv.name}"
+            targetEnv.eachLine { line ->
+                if (line && !line.startsWith('#')) {
+                    def parts = line.split('=', 2)
+                    if (parts.length == 2) {
+                        def key = parts[0].trim()
+                        def value = parts[1].trim()
+                        // Use environment instead of systemProperty for better bootRun support
+                        environment key, value
+                    }
                 }
             }
+        } else {
+            println "No .env or .env.local file found. Relying on system environment variables."
         }
     }
 }

@@ -85,6 +85,20 @@ pipeline {
     }
 
     post {
+        success {
+            sh """
+                curl -X POST https://meeting.ssafy.com/hooks/7w6wbucw8pdoirpdfpras3xyja \
+                  -H 'Content-Type: application/json' \
+                  -d '{"text": "✅ Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}"}'
+            """
+        }
+        failure {
+            sh """
+                curl -X POST https://meeting.ssafy.com/hooks/7w6wbucw8pdoirpdfpras3xyja \
+                  -H 'Content-Type: application/json' \
+                  -d '{"text": "❌ Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}"}'
+            """
+        }
         always {
             // 빌드 이력 및 로그 관리 (Jenkins 전역 설정에서도 가능)
             cleanWs()

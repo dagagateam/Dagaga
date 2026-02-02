@@ -32,11 +32,11 @@ const Signup = () => {
     });
 
     const [errors, setErrors] = useState({});
-    
+
     // Email Verification State
     const [emailMessage, setEmailMessage] = useState('');
     const [isEmailAvailable, setIsEmailAvailable] = useState(null); // null, true, false
-    
+
     // Nickname Verification State
     const [nicknameMessage, setNicknameMessage] = useState('');
     const [isNicknameAvailable, setIsNicknameAvailable] = useState(null); // null, true, false
@@ -67,22 +67,22 @@ const Signup = () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!email) {
-            setErrors({...errors, email: "이메일을 입력해주세요."});
+            setErrors({ ...errors, email: "이메일을 입력해주세요." });
             return;
         }
 
         if (!emailRegex.test(email)) {
-            setErrors({...errors, email: "올바른 이메일 형식이 아닙니다."});
+            setErrors({ ...errors, email: "올바른 이메일 형식이 아닙니다." });
             return;
         }
 
         try {
             const isAvailable = await checkEmailAPI(email);
             setIsEmailAvailable(isAvailable);
-            
+
             if (isAvailable) {
                 setEmailMessage("사용 가능한 이메일입니다.");
-                setErrors({...errors, email: ''});
+                setErrors({ ...errors, email: '' });
             } else {
                 setEmailMessage("이미 사용 중인 이메일입니다.");
             }
@@ -98,21 +98,21 @@ const Signup = () => {
         const nicknameRegex = /^[가-힣a-zA-Z0-9]{2,10}$/;
 
         if (!nickname) {
-            setErrors({...errors, nickname: "닉네임을 입력해주세요."});
+            setErrors({ ...errors, nickname: "닉네임을 입력해주세요." });
             return;
         }
 
         if (!nicknameRegex.test(nickname)) {
-            setErrors({...errors, nickname: "닉네임은 특수문자 제외 2~10자여야 합니다."});
+            setErrors({ ...errors, nickname: "닉네임은 특수문자 제외 2~10자여야 합니다." });
             return;
         }
 
         const isAvailable = await checkNicknameAPI(nickname);
         setIsNicknameAvailable(isAvailable);
-        
+
         if (isAvailable) {
             setNicknameMessage("사용 가능한 닉네임입니다.");
-            setErrors({...errors, nickname: ''});
+            setErrors({ ...errors, nickname: '' });
         } else {
             setNicknameMessage("이미 사용 중인 닉네임입니다.");
             // setErrors({...errors, nickname: "이미 사용 중인 닉네임입니다."}); // Optional: Mirror as error
@@ -126,7 +126,7 @@ const Signup = () => {
             ...formData,
             [name]: value
         });
-        
+
         // Reset verification on change
         if (name === 'email') {
             setIsEmailAvailable(null);
@@ -183,9 +183,9 @@ const Signup = () => {
 
         // 2. Nickname Validation (Client-side format check only here, duplicates checked via button)
         if (isNicknameAvailable === false) {
-             newErrors.nickname = "이미 사용 중인 닉네임입니다.";
+            newErrors.nickname = "이미 사용 중인 닉네임입니다.";
         } else if (isNicknameAvailable === null && formData.nickname) {
-             newErrors.nickname = "닉네임 중복 확인을 해주세요.";
+            newErrors.nickname = "닉네임 중복 확인을 해주세요.";
         }
 
         // 3. Email Validation
@@ -215,7 +215,7 @@ const Signup = () => {
         try {
             // 선택된 지역을 location_id로 변환
             const locationId = getLocationId(formData.sido, formData.gugun);
-            
+
             // API Call Construction
             const requestData = {
                 email: formData.email,
@@ -233,7 +233,7 @@ const Signup = () => {
 
             console.log("✅ 회원가입 성공! 응답:", response);
             alert("회원가입에 성공했습니다!");
-            navigate('/login');
+            navigate('/Login');
 
         } catch (error) {
             console.error("Signup failed:", error);
@@ -242,7 +242,7 @@ const Signup = () => {
     };
 
     return (
-        <motion.div 
+        <motion.div
             className="signup-container"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -392,7 +392,7 @@ const Signup = () => {
                             </form>
 
                             <div className="login-link">
-                                계정이 있으신가요? <span onClick={() => navigate('/login')}>로그인</span>
+                                계정이 있으신가요? <span onClick={() => navigate('/Login')}>로그인</span>
                             </div>
                         </div>
 

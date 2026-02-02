@@ -125,7 +125,7 @@ const CommunityInfo = () => {
                             const isBookmarked = savedItems.some(item => item.id === info.id);
                             
                             return (
-                                <Card key={info.id} className="info-card" onClick={() => navigate(`/community/info/${info.id}`)} style={{ cursor: 'pointer' }}>
+                                <Card key={info.id} className="info-card" onClick={() => navigate(`/Community/Info/${info.id}`)} style={{ cursor: 'pointer' }}>
                                     <div className="info-card-inner">
                                         <div className="info-img-wrapper">
                                             <img src={info.image} alt={info.title} />

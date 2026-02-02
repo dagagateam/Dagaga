@@ -2,8 +2,11 @@ package com.dagaga.controller;
 
 import com.dagaga.common.constants.ApiConstants;
 import com.dagaga.common.response.ApiResponse;
+import com.dagaga.domain.post.dto.CommentCreateRequest;
+import com.dagaga.domain.post.dto.CommentResponse;
 import com.dagaga.domain.post.dto.ProgramPostDetailResponse;
 import com.dagaga.domain.post.dto.ProgramPostResponse;
+import com.dagaga.domain.post.service.CommentService;
 import com.dagaga.domain.post.service.ProgramPostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/community/programs")
@@ -27,7 +32,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProgramPostController {
 
         private final ProgramPostService programPostService;
-        private final com.dagaga.domain.post.service.CommentService commentService;
+        private final CommentService commentService;
 
         @Operation(summary = "프로그램 게시글 목록 조회", description = "크롤링된 행사 정보를 공지사항 형태로 조회합니다.")
         @ApiResponses(value = {
@@ -77,7 +82,7 @@ public class ProgramPostController {
         @PostMapping("/{postId}/comments")
         public ResponseEntity<ApiResponse<Void>> createComment(
                         @PathVariable Integer postId,
-                        @jakarta.validation.Valid @RequestBody com.dagaga.domain.post.dto.CommentCreateRequest request) {
+                        @jakarta.validation.Valid @RequestBody CommentCreateRequest request) {
                 commentService.createComment(postId, request);
                 return ResponseEntity.ok(ApiResponse.success("댓글이 작성되었습니다.", null));
         }
@@ -87,7 +92,7 @@ public class ProgramPostController {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = ApiConstants.SUCCESS_CODE, description = "조회 성공")
         })
         @GetMapping("/{postId}/comments")
-        public ResponseEntity<ApiResponse<java.util.List<com.dagaga.domain.post.dto.CommentResponse>>> getComments(
+        public ResponseEntity<ApiResponse<List<CommentResponse>>> getComments(
                         @PathVariable Integer postId) {
                 var response = commentService.getComments(postId);
                 return ResponseEntity.ok(ApiResponse.success("댓글 조회가 완료되었습니다.", response));

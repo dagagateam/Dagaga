@@ -2,6 +2,8 @@ package com.dagaga.domain.user.service;
 
 import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
+import com.dagaga.domain.user.dto.UserResponseDto;
+import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -10,12 +12,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -28,6 +33,9 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @Test
     @DisplayName("Register: Success with generated nickname")
     void register_success_with_generated_nickname() {
@@ -38,20 +46,22 @@ class UserServiceTest {
                 .build();
 
         User savedUser = User.builder().build();
-        // Use reflection to set private field userId for testing
+        // 리플렉션을 사용하여 private 필드인 userId 설정
         try {
             java.lang.reflect.Field field = User.class.getDeclaredField("userId");
             field.setAccessible(true);
             field.set(savedUser, 1);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         given(userRepository.existsByEmail(dto.getEmail())).willReturn(false);
         given(userRepository.existsByNickname("tester")).willReturn(false);
+        given(passwordEncoder.encode(dto.getPassword())).willReturn("encoded-password");
         given(userRepository.save(any(User.class))).willReturn(savedUser);
 
-        Integer userId = userService.register(dto);
+        User result = userService.register(dto);
 
-        assertThat(userId).isEqualTo(1);
+        assertThat(result.getUserId()).isEqualTo(1);
         verify(userRepository).existsByNickname("tester");
         verify(userRepository).save(any(User.class));
     }
@@ -69,8 +79,9 @@ class UserServiceTest {
             java.lang.reflect.Field field = User.class.getDeclaredField("userId");
             field.setAccessible(true);
             field.set(user, 1);
-        } catch (Exception e) {}
-        // Then set other fields if needed for the test logic, but login only uses ID
+        } catch (Exception e) {
+        }
+        // 테스트 로직을 위해 필요한 다른 필드 설정
         // Wait, login needs email and password too
         user = User.builder()
                 .email(dto.getEmail())
@@ -80,13 +91,15 @@ class UserServiceTest {
             java.lang.reflect.Field field = User.class.getDeclaredField("userId");
             field.setAccessible(true);
             field.set(user, 1);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         given(userRepository.findByEmail(dto.getEmail())).willReturn(Optional.of(user));
+        given(passwordEncoder.matches(dto.getPassword(), dto.getPassword())).willReturn(true);
 
-        Integer userId = userService.login(dto);
+        User result = userService.authenticate(dto.getEmail(), dto.getPassword());
 
-        assertThat(userId).isEqualTo(user.getUserId());
+        assertThat(result.getUserId()).isEqualTo(user.getUserId());
     }
 
     @Test
@@ -99,7 +112,7 @@ class UserServiceTest {
 
         given(userRepository.findByEmail(dto.getEmail())).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.login(dto))
+        assertThatThrownBy(() -> userService.authenticate(dto.getEmail(), dto.getPassword()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("이메일 또는 비밀번호가 올바르지 않습니다");
     }
@@ -118,9 +131,156 @@ class UserServiceTest {
                 .build();
 
         given(userRepository.findByEmail(dto.getEmail())).willReturn(Optional.of(user));
+        given(passwordEncoder.matches(dto.getPassword(), user.getPassword())).willReturn(false);
 
-        assertThatThrownBy(() -> userService.login(dto))
+        assertThatThrownBy(() -> userService.authenticate(dto.getEmail(), dto.getPassword()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("이메일 또는 비밀번호가 올바르지 않습니다");
+    }
+
+    @Test
+    @DisplayName("Get My Profile Response: Success")
+    void getUserResponse_success() {
+        Integer userId = 1;
+        User user = User.builder()
+                .email("test@example.com")
+                .nickname("tester")
+                .viewLangCode("ko")
+                .nativeLangCode("en")
+                .locationId(1)
+                .arrivalDate(LocalDate.of(2026, 2, 1))
+                .build();
+        setUserId(user, userId);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+        UserResponseDto result = userService.getUserResponse(userId);
+
+        assertThat(result.getUserId()).isEqualTo(userId);
+        assertThat(result.getEmail()).isEqualTo(user.getEmail());
+        assertThat(result.getNickname()).isEqualTo(user.getNickname());
+    }
+
+    @Test
+    @DisplayName("Update My Profile: Success")
+    void updateUser_success() {
+        Integer userId = 1;
+        User user = User.builder()
+                .email("test@example.com")
+                .nickname("oldNickname")
+                .build();
+        setUserId(user, userId);
+
+        UserUpdateDto updateDto = new UserUpdateDto();
+        updateDto.setNickname("newNickname");
+        updateDto.setPassword("newPassword123");
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.existsByNickname(updateDto.getNickname())).willReturn(false);
+        given(passwordEncoder.encode(updateDto.getPassword())).willReturn("encoded-new-password");
+
+        UserResponseDto result = userService.updateUser(userId, updateDto);
+
+        assertThat(result.getNickname()).isEqualTo("newNickname");
+        verify(passwordEncoder).encode("newPassword123");
+    }
+
+    @Test
+    @DisplayName("Update My Profile: Success - Auto-generate Unique Nickname when blank")
+    void updateUser_success_autoGenerateNickname() {
+        Integer userId = 1;
+        User user = User.builder()
+                .email("test@example.com")
+                .nickname("oldNickname")
+                .build();
+        setUserId(user, userId);
+
+        UserUpdateDto updateDto = new UserUpdateDto();
+        updateDto.setNickname(""); // 빈 문자열 전달 시 자동 생성
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        // Mockito stubbing: more specific match should be defined last or with care
+        given(userRepository.existsByNickname(anyString())).willReturn(false);
+        given(userRepository.existsByNickname("test")).willReturn(true);
+
+        UserResponseDto result = userService.updateUser(userId, updateDto);
+
+        assertThat(result.getNickname()).startsWith("test#");
+    }
+
+    @Test
+    @DisplayName("Update My Profile: Success - Clear Profile Image with blank string")
+    void updateUser_success_clearProfileImage() {
+        Integer userId = 1;
+        User user = User.builder()
+                .email("test@example.com")
+                .nickname("tester")
+                .profileImage("old_image.png")
+                .build();
+        setUserId(user, userId);
+
+        UserUpdateDto updateDto = new UserUpdateDto();
+        updateDto.setProfileImage(""); // 빈 문자열 전달 시 초기화
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+        UserResponseDto result = userService.updateUser(userId, updateDto);
+
+        assertThat(result.getProfileImage()).isEqualTo("default_avatar.png");
+    }
+
+    @Test
+    @DisplayName("Update My Profile: Success - No Change with null values")
+    void updateUser_success_noChangeWithNull() {
+        Integer userId = 1;
+        User user = User.builder()
+                .email("test@example.com")
+                .nickname("tester")
+                .profileImage("keep_this.png")
+                .viewLangCode("ko")
+                .build();
+        setUserId(user, userId);
+
+        UserUpdateDto updateDto = new UserUpdateDto();
+        // 모든 필드 null (기존 값 유지되어야 함)
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+        UserResponseDto result = userService.updateUser(userId, updateDto);
+
+        assertThat(result.getNickname()).isEqualTo("tester");
+        assertThat(result.getProfileImage()).isEqualTo("keep_this.png");
+        assertThat(result.getViewLangCode()).isEqualTo("ko");
+    }
+
+    @Test
+    @DisplayName("Update My Profile: Fail - Duplicate Nickname")
+    void updateUser_fail_duplicateNickname() {
+        Integer userId = 1;
+        User user = User.builder()
+                .email("test@example.com")
+                .nickname("oldNickname")
+                .build();
+        setUserId(user, userId);
+
+        UserUpdateDto updateDto = new UserUpdateDto();
+        updateDto.setNickname("existingNickname");
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.existsByNickname(updateDto.getNickname())).willReturn(true);
+
+        assertThatThrownBy(() -> userService.updateUser(userId, updateDto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("닉네임이 이미 존재합니다");
+    }
+
+    private void setUserId(User user, Integer userId) {
+        try {
+            java.lang.reflect.Field field = User.class.getDeclaredField("userId");
+            field.setAccessible(true);
+            field.set(user, userId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -38,10 +38,10 @@ const CommunityChatList = () => {
                 if (user?.userId) {
                     const joinedResponse = await fetchJoinedChats(user.userId);
                     console.log('Joined chats response:', joinedResponse);
-                    
+
                     // API returns array directly or wrapped in data
                     const joinedData = Array.isArray(joinedResponse) ? joinedResponse : joinedResponse.data;
-                    
+
                     if (joinedData && Array.isArray(joinedData)) {
                         // Map API response to UI format
                         const mappedJoinedChats = joinedData.map(chat => ({
@@ -58,7 +58,7 @@ const CommunityChatList = () => {
                 if (user?.userId && user?.locationId) {
                     const locationResponse = await fetchChatsByLocation(user.locationId);
                     const locationData = Array.isArray(locationResponse) ? locationResponse : locationResponse.data;
-                    
+
                     if (locationData && Array.isArray(locationData)) {
                         const mappedLocationChats = locationData.map(chat => ({
                             id: chat.roomId,
@@ -71,11 +71,11 @@ const CommunityChatList = () => {
                             description: chat.title
                         }));
                         setLocationChats(mappedLocationChats);
-                        
+
                         // Separate by roomType
                         const defaultChats = mappedLocationChats.filter(chat => chat.roomType === 'DEFAULT');
                         const customChatList = mappedLocationChats.filter(chat => chat.roomType === 'CUSTOM');
-                        
+
                         setRegionalChats(defaultChats);
                         setCustomChats(customChatList);
                     }
@@ -121,7 +121,7 @@ const CommunityChatList = () => {
             if (user?.userId) {
                 const joinedResponse = await fetchJoinedChats(user.userId);
                 const joinedData = Array.isArray(joinedResponse) ? joinedResponse : joinedResponse.data;
-                
+
                 if (joinedData && Array.isArray(joinedData)) {
                     const mappedJoinedChats = joinedData.map(chat => ({
                         id: chat.roomId,
@@ -165,7 +165,7 @@ const CommunityChatList = () => {
                                 <div className="regional-card-content">
                                     <h3 className="regional-card-title">{regionalChats[0].title}</h3>
                                     <div>
-                                        <Button className="join-btn" onClick={() => navigate(`/community/chat/room/${regionalChats[0].id}`)}>
+                                        <Button className="join-btn" onClick={() => navigate(`/Community/Chat/room/${regionalChats[0].id}`)}>
                                             참여하기
                                         </Button>
                                         <span className="participant-info">{regionalChats[0].participantCount}명 참여중</span>

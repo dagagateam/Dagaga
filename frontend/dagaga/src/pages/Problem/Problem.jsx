@@ -1,216 +1,284 @@
-import { useState, useEffect } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Container } from "react-bootstrap";
-import ProblemProgress from "../../components/problem/problem-progress/ProblemProgress";
-import ProblemAnswer from "../../components/problem/problem-answer/ProblemAnswer";
-import ProblemRecordButton from "../../components/problem/problem-record/ProblemRecordButton";
-import ProblemSoundwave from "../../components/problem/problem-soundwave/ProblemSoundwave";
-import ProblemMascot from "../../components/problem/problem-mascot/ProblemMascot";
-import ProblemDone from "../../components/problem/problem-done/ProblemDone";
-import { useSpeechApi } from "../../api/useSpeechApi";
+import ProblemProgress from "../../components/Problem/ProblemProgress/ProblemProgress";
+import ProblemAnswer from "../../components/Problem/ProblemAnswer/ProblemAnswer";
+import ProblemRecordButton from "../../components/Problem/ProblemRecord/ProblemRecordButton";
+import ProblemSoundwave from "../../components/Problem/ProblemSoundwave/ProblemSoundwave";
+import ProblemMascot from "../../components/Problem/ProblemMascot/ProblemMascot";
+import ProblemDone from "../../components/Problem/ProblemDone/ProblemDone";
+import ProblemRepeat from "../../components/Problem/ProblemRepeat/ProblemRepeat";
+import { fetchProblemDetail, fetchProblemNative, evaluatePronunciation } from "../../api/learningApi"; // Import API
 import { useTts } from "../../hooks/useTts";
 import "./Problem.css";
 
 const MAX_TRIES = 3;
 
 const Problem = () => {
-  const { problemId } = useParams();
-  const location = useLocation();
+  const { categoryId, questionId } = useParams();
   const navigate = useNavigate();
-  const problemText = location.state?.problemText || "문제를 불러오는 중...";
-  const { checkPronunciation } = useSpeechApi();
+  const location = useLocation();
+
+  // Navigation state passed from ScenarioSelect
+  const navState = location.state || {};
+  const scenarionStages = navState.stages || [];
+  const currentStageIndex = scenarionStages.findIndex(s => s.questionId === parseInt(questionId));
   
-  // Sample sentence broken into words
-  const words = ["저희", "아이는", "수학을", "어려워해요"];
+  // Audio hooks
+  const { playTts, isPlaying: isTtsPlaying } = useTts();
   
-  // Pronunciation breakdown for each word
-  const pronunciations = ["저 히", "아 이 는", "수 하 글", "어 려 워 해 요"];
-  
-  // Total steps = individual words + 1 for reading the full sentence
-  const totalSteps = words.length + 1;
-  
-  // Track which step the user is currently on (0-indexed, completed steps)
-  const [currentStep, setCurrentStep] = useState(0);
+  // State initialization
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentStep, setCurrentStep] = useState(0); 
+  const [wordResults, setWordResults] = useState({});
+  const [isRecording, setIsRecording] = useState(false);
+  const [showNative, setShowNative] = useState(false);
+  const [sentenceHighlightIndex, setSentenceHighlightIndex] = useState(-1);
+  const [currentTries, setCurrentTries] = useState(0);
   
   // Audio analyser for visualization
   const [audioAnalyser, setAudioAnalyser] = useState(null);
-  const [isRecording, setIsRecording] = useState(false);
-  
-  // For full sentence mode: track which word is currently highlighted (-1 = all words)
-  const [sentenceHighlightIndex, setSentenceHighlightIndex] = useState(0);
-  
-  // Pronunciation feedback state
-  const [wordResults, setWordResults] = useState(new Array(words.length).fill(null));
-  const [currentTries, setCurrentTries] = useState(0);
-  
-  // Check if we're on the full sentence step
-  const isFullSentenceStep = currentStep >= words.length;
-  const isProblemDone = currentStep >= totalSteps;
 
-  // Animate through words during full sentence step, then select all
+  // Track if initial audio has played to prevent re-playing on re-renders
+  const initialAudioPlayedRef = useRef(false);
+
+  // Fetch data if missing from navigation state
+  useEffect(() => {
+    const fetchData = async () => {
+      // If we have full data in state (from ScenarioSelect), use it
+      console.log("NavState:", navState);
+      if (navState.words && navState.words.length > 0) {
+          console.log("Using NavState Translations:", navState.translations);
+          
+          let nativeQ = navState.nativeQuestion;
+          
+          // If nativeQuestion is missing, try to fetch it separately
+          if (!nativeQ && categoryId && questionId) {
+             try {
+               const nativeRes = await fetchProblemNative(categoryId, questionId);
+               if (nativeRes.data && nativeRes.data.success) {
+                 nativeQ = nativeRes.data.data;
+               }
+             } catch (e) {
+               console.warn("Failed to fetch native question", e);
+             }
+          }
+
+          setData({
+              problemText: navState.problemText,
+              words: navState.words,
+              pronunciations: navState.pronunciations,
+              translations: navState.translations,
+              nativeQuestion: nativeQ || navState.problemText, // Fallback to problem text if fetch fails
+              exampleAnswer: navState.exampleAnswer,
+          });
+          setLoading(false);
+          return;
+      }
+
+      // We need categoryId to fetch.
+      if (categoryId && questionId) {
+        try {
+            console.log(`Fetching details for ${categoryId} problem ${questionId}...`);
+            const [detailRes, nativeRes] = await Promise.all([
+               fetchProblemDetail(categoryId, questionId),
+               fetchProblemNative(categoryId, questionId)
+            ]);
+
+            if (detailRes.data && detailRes.data.success) {
+                const apiData = detailRes.data.data;
+                const nativeQ = (nativeRes.data && nativeRes.data.success) ? nativeRes.data.data : apiData.questionText;
+
+                setData({
+                    problemText: apiData.questionText,
+                    words: apiData.words,
+                    pronunciations: apiData.pronunciation_guide || apiData.pronunciationGuide || [],
+                    translations: apiData.wordTranslations || [],
+                    nativeQuestion: nativeQ,
+                    exampleAnswer: apiData.exampleAnswer,
+                });
+            }
+        } catch (err) {
+            console.error("Failed to fetch problem details", err);
+        } finally {
+            setLoading(false);
+        }
+      } else {
+         console.warn("Cannot fetch details: Missing categoryId or questionId");
+         setLoading(false);
+      }
+    };
+    fetchData();
+  }, [categoryId, questionId, navState]);
+
+  // Auto-play TTS when data loads: Question then Word (once per page load)
+  useEffect(() => {
+    const playSeq = async () => {
+      if (!data) return;
+
+      if (!initialAudioPlayedRef.current) {
+        initialAudioPlayedRef.current = true;
+        
+        // Play question first
+        if (data.problemText) {
+            await playTts(data.problemText);
+        }
+        
+        // Wait a small beat
+        await new Promise(r => setTimeout(r, 500));
+        
+        // Then play the current word
+        const currentWord = data.words[0]; // Always start with first word on load
+        if (currentWord) {
+          await playTts(currentWord);
+        }
+      }
+    };
+    playSeq();
+  }, [data, playTts]); // Only depend on data and playTts to run once when data is ready
+
+  
+  const problemText = data?.problemText || "문제를 불러오는 중...";
+  
+  // Memoize words and pronunciations
+  const words = data?.words || [];
+  const pronunciations = data?.pronunciations || [];
+  const translations = data?.translations || [];
+  
+  // Total steps = individual words + 1 for reading the full sentence
+  const totalSteps = words.length + 1;
+  const isProblemDone = currentStep >= totalSteps;
+  const isFullSentenceStep = currentStep >= words.length;
+
+  // Animate through words during full sentence step
   useEffect(() => {
     if (isFullSentenceStep && !isProblemDone) {
-      // Reset to first word
       setSentenceHighlightIndex(0);
-      
       let currentIndex = 0;
-      
-      // Animate through words every 800ms
       const interval = setInterval(() => {
         currentIndex++;
         if (currentIndex < words.length) {
           setSentenceHighlightIndex(currentIndex);
         } else {
-          // After all words, highlight entire sentence (-1 = all)
           setSentenceHighlightIndex(-1);
           clearInterval(interval);
         }
-      }, 800);
-      
+      }, 100);
       return () => clearInterval(interval);
     }
   }, [isFullSentenceStep, isProblemDone, words.length]);
 
-  // Function to move to next step with result
+  // Handle step completion
   const handleStepComplete = (result) => {
-    // Update the result for the current word
+    // Update result
     if (currentStep < words.length && result) {
-      setWordResults(prev => {
-        const newResults = [...prev];
-        newResults[currentStep] = result;
-        return newResults;
-      });
+      setWordResults(prev => ({
+          ...prev,
+          [currentStep]: result
+      }));
     }
     
-    // Move to next step and reset tries
+    // Move to next
     if (currentStep < totalSteps) {
       setCurrentStep(prev => prev + 1);
       setCurrentTries(0);
     }
   };
 
-  // Handle return to list
-  const handleReturn = () => {
-    navigate(-1); // Go back to problem select
-  };
+  const handleReturn = () => navigate(-1);
 
-  // Handle retry problem
   const handleRetry = () => {
     setCurrentStep(0);
-    setWordResults(new Array(words.length).fill(null));
+    setWordResults({});
     setCurrentTries(0);
     setSentenceHighlightIndex(0);
+    // Reset auto-play ref? Probably not if we don't want to re-read question on retry
+    // If we DO want to re-read question on retry, reset:
+    // initialAudioPlayedRef.current = false; 
+  };
+  
+  // Mock checkPronunciation since useSpeechApi usage was inconsistent in snippets
+  const checkPronunciation = async (blob, pid, word, step) => {
+      // Logic from API/mock
+      return await evaluatePronunciation(blob, word);
   };
 
-  // Tts Hook
-  const { playTts } = useTts();
+  const handleRecordingComplete = async ({ audioBlob }) => {
+    const currentWord = currentStep < words.length ? words[currentStep] : words.join(" ");
+    console.log(`Recorded: "${currentWord}"`);
 
-  // Handle Recording Complete ...
-
-  // Auto-play TTS when step changes
-  useEffect(() => {
-    // Determine the text to play
-    let textToPlay = null;
-    if (currentStep < words.length) {
-      textToPlay = words[currentStep];
-    } else if (currentStep === words.length && !isProblemDone) {
-      // Full sentence step
-      textToPlay = words.join(" ");
-    }
-
-    if (textToPlay) {
-      playTts(textToPlay);
-    }
-  }, [currentStep, words, isProblemDone, playTts]);
-
-  // Handle replay at normal speed
-  const handleReplay = () => {
-    let textToPlay = null;
-    if (currentStep < words.length) {
-      textToPlay = words[currentStep];
-    } else if (currentStep === words.length) {
-      textToPlay = words.join(" ");
-    }
-
-    if (textToPlay) {
-      playTts(textToPlay, 'normal');
-    }
-  };
-
-  // Handle replay at slow speed
-  const handleSlowReplay = () => {
-     let textToPlay = null;
-    if (currentStep < words.length) {
-      textToPlay = words[currentStep];
-    } else if (currentStep === words.length) {
-      textToPlay = words.join(" ");
-    }
-
-    if (textToPlay) {
-      playTts(textToPlay, 'slow');
-    }
-  };
-
-  // Handle recording completion with pronunciation feedback
-  const handleRecordingComplete = async ({ audioBlob, audioUrl }) => {
-    // Get the current word being practiced
-    const currentWord = currentStep < words.length 
-      ? words[currentStep] 
-      : words.join(" "); // Full sentence for last step
-    
-    console.log(
-      `Recorded word: "${currentWord}" (Step ${currentStep + 1}/${totalSteps}, Try ${currentTries + 1}/${MAX_TRIES})`,
-    );
-
-    // Use the hook to check pronunciation
-    // Internally it mocks the response for now, but has the real API call commented out
-    const result = await checkPronunciation(audioBlob, problemId, currentWord, currentStep);
-    const isCorrect = result.isCorrect;
-    
-    if (isCorrect) {
-      console.log("✓ Pronunciation correct!");
-      handleStepComplete("correct");
-    } else {
-      console.log("✗ Pronunciation incorrect");
-      const newTries = currentTries + 1;
-      setCurrentTries(newTries);
-      
-      if (newTries >= MAX_TRIES) {
-        console.log(`Max tries (${MAX_TRIES}) reached, moving to next word`);
-        handleStepComplete("incorrect");
-      } else {
-        console.log(`Try again (${newTries}/${MAX_TRIES})`);
-        // Update result to show current attempt was wrong, but don't advance
-        if (currentStep < words.length) {
-          setWordResults(prev => {
-            const newResults = [...prev];
-            newResults[currentStep] = "incorrect";
-            return newResults;
-          });
+    try {
+        const result = await checkPronunciation(audioBlob, questionId, currentWord, currentStep);
+        if (result.success || result.data === true) { // Handle varied mock responses
+            handleStepComplete("correct");
+        } else {
+            console.log("Incorrect");
+            const newTries = currentTries + 1;
+            setCurrentTries(newTries);
+            if (newTries >= MAX_TRIES) {
+                handleStepComplete("incorrect");
+            } else {
+                if (currentStep < words.length) {
+                    setWordResults(prev => ({ ...prev, [currentStep]: "incorrect" }));
+                }
+            }
         }
-      }
+    } catch (e) {
+        console.error("Eval error", e);
+        handleStepComplete("incorrect"); // Fallback
     }
   };
 
-  // Handle analyser changes from record button
   const handleAnalyserChange = (analyser, recording) => {
     setAudioAnalyser(analyser);
     setIsRecording(recording);
   };
 
+  const handleReplay = useCallback(() => {
+     let text = null;
+     if (currentStep < words.length) text = words[currentStep];
+     else if (currentStep === words.length) text = words.join(" ");
+     if (text) playTts(text, 'normal');
+  }, [currentStep, words, playTts]);
+
+  const handleSlowReplay = useCallback(() => {
+     let text = null;
+     if (currentStep < words.length) text = words[currentStep];
+     else if (currentStep === words.length) text = words.join(" ");
+     if (text) playTts(text, 'slow');
+  }, [currentStep, words, playTts]);
+
+  const handleQuestionReplay = useCallback(() => {
+      if (data && data.problemText) {
+          playTts(data.problemText);
+      }
+  }, [data, playTts]);
+
   return (
     <Container fluid className="problem-container">
       <ProblemProgress 
-        currentWord={currentStep} 
-        totalWords={totalSteps} 
+        current={currentStageIndex + 1} 
+        total={scenarionStages.length} 
+        onExit={() => navigate('/ScenarioSelect')} 
       />
-      <h2 className="problem-question">{problemText}</h2>
+      
+      <div className="problem-question">
+        <div className="problem-header">
+           <h2 onClick={() => setShowNative(!showNative)} style={{cursor: 'pointer'}}>
+             {showNative ? data?.nativeQuestion : problemText}
+           </h2>
+           <ProblemRepeat onClick={handleQuestionReplay} />
+        </div>
+      </div>
+
       <div className="problem-answer-section">
         <ProblemMascot />
         <div className="problem-answer-content">
           <ProblemAnswer 
             words={words} 
             pronunciations={pronunciations} 
+            translations={translations}
             currentStep={currentStep}
             sentenceHighlightIndex={isFullSentenceStep ? sentenceHighlightIndex : null}
             wordResults={wordResults}

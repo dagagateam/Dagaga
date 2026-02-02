@@ -12,14 +12,17 @@ CREATE TABLE IF NOT EXISTS locations (
 CREATE TABLE IF NOT EXISTS users (
     user_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255), -- Nullable for OAuth users
     nickname VARCHAR(50) UNIQUE,
     view_lang_code VARCHAR(10) NOT NULL,
     native_lang_code VARCHAR(10) NOT NULL,
     location_id INT,
     arrival_date DATE,
-    profile_image VARCHAR(500) DEFAULT 'default_avatar.png', -- 미리 저장되어있던 디폴트 이미지
+    profile_image VARCHAR(500) DEFAULT 'default_avatar.png',
     social_provider VARCHAR(20),
+    social_id VARCHAR(255), -- Added for OAuth
+    role VARCHAR(50) NOT NULL DEFAULT 'ROLE_USER', -- Added for Authorization
+    is_active BOOLEAN NOT NULL DEFAULT TRUE, -- Added for Account Status
     modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -56,11 +59,24 @@ CREATE TABLE IF NOT EXISTS chat_rooms (
     location_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     max_participants INT DEFAULT 10,
-    room_type room_type NOT NULL, -- 사용자 정의 타입 사용
+    room_type room_type NOT NULL DEFAULT 'CUSTOM', -- 사용자 정의 타입 사용
     status VARCHAR(20) DEFAULT 'ACTIVE', -- ACTIVE, DELETED
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    thumbnail_url VARCHAR(500),
     CONSTRAINT fk_room_creator FOREIGN KEY (creator_id) REFERENCES users(user_id) ON DELETE SET NULL,
     CONSTRAINT fk_room_location FOREIGN KEY (location_id) REFERENCES locations(location_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS public.chat_room_users (
+	room_id int4 NOT NULL,
+	user_id int4 NOT NULL,
+	joined_at timestamptz(6) NOT NULL,
+	last_read_at timestamptz(6) NULL,
+	last_read_message_id int8 NULL,
+	left_at timestamptz(6) NULL,
+	"role" public."chat_room_user_role" NOT NULL,
+	status public."chat_room_user_status" NOT NULL,
+	CONSTRAINT chat_room_users_pkey PRIMARY KEY (room_id, user_id)
 );
 
 -- 6. 채팅 메시지 (최신 정의 병합: 다국어 지원 구조)
@@ -172,6 +188,10 @@ CREATE TABLE IF NOT EXISTS question_bank (
     question_text TEXT NOT NULL,          -- 질문 내용
     example_answer TEXT NOT NULL,         -- 예시 답변
     order_index INT DEFAULT 0,            -- 카테고리 내 순서
+    vi_questions TEXT, -- 베트남 번역 질문
+    vi_answers TEXT, -- 베트남 번역 답변
+    zh_questions TEXT, -- 중국 번역 질문
+    zh_answers TEXT, -- 중국 번역 답변
     -- 같은 카테고리 내에서 순서가 중복되지 않도록 제약
     UNIQUE(category, order_index)
 );
@@ -247,6 +267,10 @@ CREATE INDEX IF NOT EXISTS idx_messages_room_sent ON chat_messages(room_id, sent
 -- 좋아요 조회를 위한 인덱스
 CREATE INDEX IF NOT EXISTS idx_post_likes_user ON post_likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_post_likes_post ON post_likes(post_id);
+
+-- 4. 사용자 관련 인덱스 (JWT/OAuth 추가)
+CREATE INDEX IF NOT EXISTS idx_users_social_id ON users(social_id);
+CREATE INDEX IF NOT EXISTS idx_users_is_active ON users(is_active);
 
 ---
 -- 프로그램(다누리 크롤링 데이터) 관련 인덱스

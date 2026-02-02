@@ -26,34 +26,32 @@ const Login = () => {
         setLoginError('');
 
         try {
-            // 1. API 호출 (이제 userId 숫자만 반환됨)
-            const userId = await loginAPI(email, password);
+            // 1. API 호출 - AuthResponse 반환
+            const authResponse = await loginAPI(email, password);
 
-            if (userId) {
-                // 2. 백엔드 형식(userId)에 맞춰 Store 업데이트
-                // TODO: JWT 인증 완성 후 실제 사용자 정보로 교체
-                // 임시 테스트 데이터: userId: 27, nickname: "오호라비비빅", locationId: 86
-                login({
-                    userId: userId,
-                    email: email,
-                    nickname: userId === 27 ? "오호라비비빅" : "사용자", // 테스트용
-                    locationId: userId === 27 ? 86 : 1, // 테스트용
-                });
+            console.log('✅ Login successful:', authResponse);
 
-                // 3. 메인 페이지로 이동
-                navigate('/scenario-select');
-            } else {
-                console.log('Login failed: invalid userId received', userId);
-                setLoginError("이메일 또는 비밀번호가 잘못 되었습니다.");
-            }
+            // 2. Store에 AuthResponse 저장 (토큰 + 사용자 정보)
+            login(authResponse);
+
+            // 3. 메인 페이지로 이동
+            navigate('/ScenarioSelect');
         } catch (error) {
             console.error('Login failed:', error);
-            setLoginError("이메일 또는 비밀번호가 잘못 되었습니다.");
+            
+            // 에러 메시지 처리
+            if (error.response?.status === 401) {
+                setLoginError("이메일 또는 비밀번호가 잘못 되었습니다.");
+            } else if (error.response?.data?.message) {
+                setLoginError(error.response.data.message);
+            } else {
+                setLoginError("로그인 중 오류가 발생했습니다.");
+            }
         }
     };
 
     return (
-        <motion.div 
+        <motion.div
             className="login-container"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -115,7 +113,7 @@ const Login = () => {
                             </form>
 
                             <div className="signup-link">
-                                아직 계정이 없으신가요? <span onClick={() => navigate('/signup')} style={{ cursor: 'pointer', color: '#0066cc', fontWeight: 'bold' }}>회원가입</span>
+                                아직 계정이 없으신가요? <span onClick={() => navigate('/Signup')} style={{ cursor: 'pointer', color: '#0066cc', fontWeight: 'bold' }}>회원가입</span>
                             </div>
 
                             <div className="divider">

@@ -6,8 +6,8 @@ export const loginAPI = async (email, password) => {
         // [백엔드 연결] 실제 API 호출
         const response = await instance.post('/users/login', { email, password });
 
-        // 백엔드 응답: 현재 userId(Int)만 반환됨
-        // 프론트엔드에서 바로 이 값을 사용하도록 수정
+        // 백엔드 응답: AuthResponse 객체 반환
+        // { accessToken, refreshToken, tokenType, expiresIn, userId, email, locationId, viewLangCode, nativeLangCode }
         return response.data; 
     } catch (error) {
         console.error("Login API Error:", error);
@@ -49,17 +49,35 @@ export const checkEmailAPI = async (email) => {
 };
 
 export const checkNicknameAPI = async (nickname) => {
-    // [나중에 백엔드 연결 시]
-    // return await instance.get(`/users/check-nickname?nickname=${nickname}`);
+    try {
+        // [백엔드 연결] 닉네임 중복 확인 API 호출
+        await instance.post('/users/check-nickname', null, {
+            params: { nickname }
+        });
+        
+        // 200 OK 응답 = 사용 가능한 닉네임
+        return true;
+    } catch (error) {
+        // 400 에러 = 이미 존재하는 닉네임
+        if (error.response && error.response.status === 400) {
+            return false;
+        }
+        // 그 외 에러는 다시 throw
+        console.error("Check Nickname API Error:", error);
+        throw error;
+    }
+};
 
-    // Mocking: '중복닉네임'은 이미 존재한다고 가정
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            if (nickname === '중복닉네임') {
-                resolve(false);
-            } else {
-                resolve(true);
-            }
-        }, 300);
-    });
+// 로그아웃 API
+export const logoutAPI = async () => {
+    try {
+        // [백엔드 연결] 로그아웃 API 호출
+        // Authorization 헤더는 axios 인터셉터에서 자동으로 추가됨
+        await instance.post('/users/logout');
+        
+        return true;
+    } catch (error) {
+        console.error("Logout API Error:", error);
+        throw error;
+    }
 };

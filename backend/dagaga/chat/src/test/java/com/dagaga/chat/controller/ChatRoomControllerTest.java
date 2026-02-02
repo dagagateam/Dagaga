@@ -2,8 +2,9 @@ package com.dagaga.chat.controller;
 
 import com.dagaga.chat.dto.CreateChatRoomRequest;
 
+import com.dagaga.chat.dto.ChatMessageResponse;
+import com.dagaga.chat.service.ChatMessageService;
 import com.dagaga.chat.service.ChatRoomService;
-import com.dagaga.domain.chat.message.repository.ChatMessageRepository;
 import com.dagaga.domain.chat.room.repository.ChatRoomRepository;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
@@ -18,14 +19,18 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -53,7 +58,7 @@ class ChatRoomControllerTest {
     private ChatRoomRepository chatRoomRepository;
 
     @MockitoBean
-    private ChatMessageRepository chatMessageRepository;
+    private ChatMessageService chatMessageService;
 
     @Test
     @DisplayName("Success: 채팅방 생성 요청 시 roomId를 반환함")
@@ -70,7 +75,7 @@ class ChatRoomControllerTest {
         ReflectionTestUtils.setField(mockUser, "userId", 1);
         
         given(userRepository.findById(1)).willReturn(Optional.of(mockUser));
-        given(chatRoomService.createCustomRoom(anyInt(), anyInt(), anyString())).willReturn(123);
+        given(chatRoomService.createCustomRoom(anyInt(), anyInt(), anyString())).willReturn(100);
 
         // when & then
         mockMvc.perform(post("/api/v1/community/chats")
@@ -78,7 +83,7 @@ class ChatRoomControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string("123"));
+                .andExpect(content().string("100"));
     }
 
     @Test
@@ -130,5 +135,27 @@ class ChatRoomControllerTest {
             mockMvc.perform(delete("/api/v1/community/chats/{roomId}", roomId)
                             .param("requesterId", String.valueOf(requesterId)))
         ).hasCauseInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("Success: 채팅방 메시지 조회 시 Service를 통해 메시지를 반환함")
+    void getMessages_shouldReturnMessages() throws Exception {
+        // given
+        int roomId = 1;
+        int userId = 10;
+        int userLocationId = 100;
+        
+        ChatMessageResponse msg1 = ChatMessageResponse.builder().messageId(1L).content("Hello").build();
+        ChatMessageResponse msg2 = ChatMessageResponse.builder().messageId(2L).content("World").build();
+        
+        given(chatMessageService.getMessages(eq(roomId), eq(userLocationId), eq(userId), any(), anyInt()))
+                .willReturn(List.of(msg1, msg2));
+
+        // when & then
+        mockMvc.perform(get("/api/v1/community/chats/{roomId}/messages", roomId)
+                        .param("userId", String.valueOf(userId))
+                        .param("userLocationId", String.valueOf(userLocationId)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(List.of(msg1, msg2))));
     }
 }

@@ -18,6 +18,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'https://i14b110.p.ssafy.io',
+        // target: 'http://ec2-13-125-219-161.ap-northeast-2.compute.amazonaws.com/',
         changeOrigin: true,
         secure: false,
         // CORS 문제 해결을 위한 설정
