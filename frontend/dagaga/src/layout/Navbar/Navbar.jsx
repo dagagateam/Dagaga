@@ -69,8 +69,18 @@ const Navbar = () => {
               </Nav.Link>
             </Nav>
 
+            {/* 로그아웃 버튼 */}
+            <div className="ms-auto">
+              <button
+                className="logout-btn"
+                onClick={handleLogout}
+              >
+                로그아웃
+              </button>
+            </div>
+
             {/* 사용자 닉네임 */}
-            <div className="user-info ms-auto">
+            <div className="user-info">
               <span className="user-nickname">
                 {user?.nickname || '사용자'}님
               </span>
