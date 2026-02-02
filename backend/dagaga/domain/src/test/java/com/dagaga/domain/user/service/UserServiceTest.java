@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -28,6 +29,9 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @Test
     @DisplayName("Register: Success with generated nickname")
     void register_success_with_generated_nickname() {
@@ -43,15 +47,17 @@ class UserServiceTest {
             java.lang.reflect.Field field = User.class.getDeclaredField("userId");
             field.setAccessible(true);
             field.set(savedUser, 1);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         given(userRepository.existsByEmail(dto.getEmail())).willReturn(false);
         given(userRepository.existsByNickname("tester")).willReturn(false);
+        given(passwordEncoder.encode(dto.getPassword())).willReturn("encoded-password");
         given(userRepository.save(any(User.class))).willReturn(savedUser);
 
-        Integer userId = userService.register(dto);
+        User result = userService.register(dto);
 
-        assertThat(userId).isEqualTo(1);
+        assertThat(result.getUserId()).isEqualTo(1);
         verify(userRepository).existsByNickname("tester");
         verify(userRepository).save(any(User.class));
     }
@@ -69,7 +75,8 @@ class UserServiceTest {
             java.lang.reflect.Field field = User.class.getDeclaredField("userId");
             field.setAccessible(true);
             field.set(user, 1);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         // Then set other fields if needed for the test logic, but login only uses ID
         // Wait, login needs email and password too
         user = User.builder()
@@ -80,13 +87,15 @@ class UserServiceTest {
             java.lang.reflect.Field field = User.class.getDeclaredField("userId");
             field.setAccessible(true);
             field.set(user, 1);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         given(userRepository.findByEmail(dto.getEmail())).willReturn(Optional.of(user));
+        given(passwordEncoder.matches(dto.getPassword(), dto.getPassword())).willReturn(true);
 
-        Integer userId = userService.login(dto);
+        User result = userService.authenticate(dto.getEmail(), dto.getPassword());
 
-        assertThat(userId).isEqualTo(user.getUserId());
+        assertThat(result.getUserId()).isEqualTo(user.getUserId());
     }
 
     @Test
@@ -99,7 +108,7 @@ class UserServiceTest {
 
         given(userRepository.findByEmail(dto.getEmail())).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.login(dto))
+        assertThatThrownBy(() -> userService.authenticate(dto.getEmail(), dto.getPassword()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("이메일 또는 비밀번호가 올바르지 않습니다");
     }
@@ -118,8 +127,9 @@ class UserServiceTest {
                 .build();
 
         given(userRepository.findByEmail(dto.getEmail())).willReturn(Optional.of(user));
+        given(passwordEncoder.matches(dto.getPassword(), user.getPassword())).willReturn(false);
 
-        assertThatThrownBy(() -> userService.login(dto))
+        assertThatThrownBy(() -> userService.authenticate(dto.getEmail(), dto.getPassword()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("이메일 또는 비밀번호가 올바르지 않습니다");
     }
