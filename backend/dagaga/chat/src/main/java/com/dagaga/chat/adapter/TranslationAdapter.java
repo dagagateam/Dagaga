@@ -32,10 +32,19 @@ public class TranslationAdapter implements TranslationPort {
     @Value("${gemini.model:gemini-2.0-flash-lite}")
     private String model;
 
+    @Value("${dagaga.translation.enabled:true}")
+    private boolean isTranslationEnabled;
+
     @Override
     public Map<String, String> translate(String text, String sourceLang, List<String> targetLangs) {
         // 대상 언어가 없으면 번역하지 않음
         if (targetLangs == null || targetLangs.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        // 번역 기능 비활성화 시 빈 결과 반환
+        if (!isTranslationEnabled) {
+            log.debug("Translation is disabled. Skipping Gemini API call.");
             return Collections.emptyMap();
         }
 
