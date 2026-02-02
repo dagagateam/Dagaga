@@ -13,6 +13,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import com.dagaga.security.context.SecurityContextHelper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -50,11 +55,22 @@ class UserControllerTest {
     @MockitoBean
     private com.dagaga.security.jwt.JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
+    private MockedStatic<SecurityContextHelper> mockedSecurityContextHelper;
+
+    @BeforeEach
+    void setUp() {
+        mockedSecurityContextHelper = Mockito.mockStatic(SecurityContextHelper.class);
+    }
+
+    @AfterEach
+    void tearDown() {
+        mockedSecurityContextHelper.close();
+    }
+
     @Test
     @DisplayName("GET /api/v1/users/me - 성공")
     void getCurrentUser_Success() throws Exception {
         // given
-        String token = "valid-token";
         Integer userId = 1;
         UserResponseDto responseDto = UserResponseDto.builder()
                 .userId(userId)
@@ -63,12 +79,11 @@ class UserControllerTest {
                 .modifiedAt(java.time.LocalDateTime.now())
                 .build();
 
-        given(jwtTokenProvider.getUserIdFromToken(token)).willReturn(userId);
+        mockedSecurityContextHelper.when(SecurityContextHelper::getCurrentUserId).thenReturn(userId);
         given(userService.getUserResponse(userId)).willReturn(responseDto);
 
         // when & then
         mockMvc.perform(get("/api/v1/users/me")
-                .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(userId))
@@ -81,7 +96,6 @@ class UserControllerTest {
     @DisplayName("PATCH /api/v1/users/me - 성공")
     void updateCurrentUser_Success() throws Exception {
         // given
-        String token = "valid-token";
         Integer userId = 1;
         UserUpdateDto updateDto = new UserUpdateDto();
         updateDto.setNickname("newNickname");
@@ -93,12 +107,11 @@ class UserControllerTest {
                 .modifiedAt(java.time.LocalDateTime.now())
                 .build();
 
-        given(jwtTokenProvider.getUserIdFromToken(token)).willReturn(userId);
+        mockedSecurityContextHelper.when(SecurityContextHelper::getCurrentUserId).thenReturn(userId);
         given(userService.updateUser(eq(userId), any(UserUpdateDto.class))).willReturn(responseDto);
 
         // when & then
         mockMvc.perform(patch("/api/v1/users/me")
-                .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateDto)))
                 .andExpect(status().isOk())

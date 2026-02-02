@@ -7,6 +7,7 @@ import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.service.UserService;
 import com.dagaga.chat.service.ChatRoomService;
+import com.dagaga.security.context.SecurityContextHelper;
 import com.dagaga.security.dto.AuthResponse;
 import com.dagaga.security.dto.RefreshTokenRequest;
 import com.dagaga.security.jwt.JwtTokenProvider;
@@ -66,18 +67,14 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDto> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
-        Integer userId = jwtTokenProvider.getUserIdFromToken(token);
+    public ResponseEntity<UserResponseDto> getCurrentUser() {
+        Integer userId = SecurityContextHelper.getCurrentUserId();
         return ResponseEntity.ok(userService.getUserResponse(userId));
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<UserResponseDto> updateCurrentUser(
-            @RequestHeader("Authorization") String authHeader,
-            @RequestBody @Valid UserUpdateDto dto) {
-        String token = authHeader.substring(7);
-        Integer userId = jwtTokenProvider.getUserIdFromToken(token);
+    public ResponseEntity<UserResponseDto> updateCurrentUser(@RequestBody @Valid UserUpdateDto dto) {
+        Integer userId = SecurityContextHelper.getCurrentUserId();
         return ResponseEntity.ok(userService.updateUser(userId, dto));
     }
 
