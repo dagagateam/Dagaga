@@ -10,6 +10,10 @@ services:
     networks:
       - app-network
   frontend:
+    build:
+      context: ./frontend/dagaga
+      args:
+        - VITE_API_URL=/api/v1
     image: arinkkk/dagaga-frontend:latest
     container_name: dagaga-frontend
     restart: always
