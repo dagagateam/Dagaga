@@ -16,4 +16,8 @@ public class QuestionWithExampleResponse {
     private String exampleAnswer;
     private List<String> words;
     private List<String> pronunciationGuide;
+    private String viQuestions;
+    private String viAnswers;
+    private String zhQuestions;
+    private String zhAnswers;
 }

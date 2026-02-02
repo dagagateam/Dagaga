@@ -173,6 +173,10 @@ CREATE TABLE IF NOT EXISTS question_bank (
     question_text TEXT NOT NULL,          -- 질문 내용
     example_answer TEXT NOT NULL,         -- 예시 답변
     order_index INT DEFAULT 0,            -- 카테고리 내 순서
+    vi_questions TEXT, -- 베트남 번역 질문
+    vi_answers TEXT, -- 베트남 번역 답변
+    zh_questions TEXT, -- 중국 번역 질문
+    zh_answers TEXT, -- 중국 번역 답변
     -- 같은 카테고리 내에서 순서가 중복되지 않도록 제약
     UNIQUE(category, order_index)
 );
