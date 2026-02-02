@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -70,7 +71,7 @@ class ChatRoomControllerTest {
         ReflectionTestUtils.setField(mockUser, "userId", 1);
         
         given(userRepository.findById(1)).willReturn(Optional.of(mockUser));
-        given(chatRoomService.createCustomRoom(anyInt(), anyInt(), anyString())).willReturn(123);
+        given(chatRoomService.createCustomRoom(anyInt(), anyInt(), anyString())).willReturn(100);
 
         // when & then
         mockMvc.perform(post("/api/v1/community/chats")
@@ -78,7 +79,7 @@ class ChatRoomControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string("123"));
+                .andExpect(content().string("100"));
     }
 
     @Test

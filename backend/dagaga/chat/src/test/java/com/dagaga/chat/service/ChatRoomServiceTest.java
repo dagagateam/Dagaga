@@ -67,7 +67,7 @@ class ChatRoomServiceTest {
         given(chatRoomUserRepository.save(any(ChatRoomUser.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        int roomId = chatRoomService.createCustomRoom(creatorId, creatorLocationId, title);
+        int roomId = chatRoomService.createCustomRoom(creatorId, creatorLocationId, "서울 맛집 공유");
 
         // then
         assertThat(roomId).isEqualTo(10);
