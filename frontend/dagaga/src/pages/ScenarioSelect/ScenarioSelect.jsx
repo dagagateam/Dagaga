@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
-import ScenarioCard from "../../components/scenario-select/ScenarioCard";
+import ScenarioCard from "../../components/ScenarioSelect/ScenarioCard";
 import { scenarios } from "../../data/scenarios";
 import "./ScenarioSelect.css";
 import study_tiger from "../../assets/characters/study_tiger.png";

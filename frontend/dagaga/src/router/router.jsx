@@ -10,7 +10,7 @@ import CommunityInfoDetail from "../pages/Community/Info/CommunityInfoDetail";
 import CommunityChatList from "../pages/Community/Chat/CommunityChatList";
 import CommunityChatRoom from "../pages/Community/Chat/CommunityChatRoom";
 import ProblemNative from "../pages/ProblemNative/ProblemNative";
-import MyPage from "../pages/my-page/MyPage";
+import MyPage from "../pages/MyPage/MyPage";
 import MyPageEdit from "../pages/MyPageEdit/MyPageEdit";
 
 const router = createBrowserRouter([

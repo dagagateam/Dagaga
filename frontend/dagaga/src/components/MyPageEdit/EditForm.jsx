@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Row, Col, Form, InputGroup, Button } from "react-bootstrap";
-import RegionSelect from "../common/RegionSelect";
+import RegionSelect from "../Common/RegionSelect";
 import "../../pages/MyPageEdit/MyPageEdit.css";
 
 const EditForm = ({

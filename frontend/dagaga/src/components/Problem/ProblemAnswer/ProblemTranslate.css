@@ -25,16 +25,6 @@
 }
 
 .problem-translate-btn.active {
-  background: #e67e22; /* Darker orange when active */
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-  transform: translateY(2px); /* Keep pressed effect */
-}
-
-.problem-translate-btn svg path {
-  stroke: white;
-}
-
-.problem-translate-btn.active {
-  background-color: #D35400; /* Darker when active */
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+  background: #E69C4B; /* Just slightly different color to indicate state, but no pressed transform */
+  /* Remove transform and inset shadow to let it pop back up */
 }

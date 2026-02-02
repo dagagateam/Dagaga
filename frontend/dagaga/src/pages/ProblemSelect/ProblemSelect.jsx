@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { Container } from "react-bootstrap";
-import CategoryPanel from "../../components/problem-select/CategoryPanel";
-import ProblemCard from "../../components/problem-select/ProblemCard";
+import CategoryPanel from "../../components/ProblemSelect/CategoryPanel";
+import ProblemCard from "../../components/ProblemSelect/ProblemCard";
 import { scenarios } from "../../data/scenarios";
 import { fetchCategoryStages } from "../../api/learningApi";
 import "./ProblemSelect.css";

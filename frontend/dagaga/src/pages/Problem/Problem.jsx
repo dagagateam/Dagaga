@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Container } from "react-bootstrap";
-import ProblemProgress from "../../components/problem/problem-progress/ProblemProgress";
-import ProblemAnswer from "../../components/problem/problem-answer/ProblemAnswer";
-import ProblemRecordButton from "../../components/problem/problem-record/ProblemRecordButton";
-import ProblemSoundwave from "../../components/problem/problem-soundwave/ProblemSoundwave";
-import ProblemMascot from "../../components/problem/problem-mascot/ProblemMascot";
-import ProblemDone from "../../components/problem/problem-done/ProblemDone";
-import ProblemRepeat from "../../components/problem/problem-repeat/ProblemRepeat";
+import ProblemProgress from "../../components/problem/ProblemProgress/ProblemProgress";
+import ProblemAnswer from "../../components/problem/ProblemAnswer/ProblemAnswer";
+import ProblemRecordButton from "../../components/problem/ProblemRecord/ProblemRecordButton";
+import ProblemSoundwave from "../../components/problem/ProblemSoundwave/ProblemSoundwave";
+import ProblemMascot from "../../components/problem/ProblemMascot/ProblemMascot";
+import ProblemDone from "../../components/problem/ProblemDone/ProblemDone";
+import ProblemRepeat from "../../components/problem/ProblemRepeat/ProblemRepeat";
 import { fetchProblemDetail, fetchProblemNative, evaluatePronunciation } from "../../api/learningApi"; // Import API
 import { useTts } from "../../hooks/useTts";
 import "./Problem.css";

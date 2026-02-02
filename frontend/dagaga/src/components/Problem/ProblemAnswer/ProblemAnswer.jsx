@@ -1,6 +1,6 @@
 import { useState } from "react";
-import ProblemRepeat from "../problem-repeat/ProblemRepeat";
-import ProblemRepeatSlow from "../problem-repeat/ProblemRepeatSlow";
+import ProblemRepeat from "../ProblemRepeat/ProblemRepeat";
+import ProblemRepeatSlow from "../ProblemRepeat/ProblemRepeatSlow";
 import ProblemTranslate from "./ProblemTranslate";
 import "./ProblemAnswer.css";
 
