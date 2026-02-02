@@ -19,4 +19,5 @@ public class AuthResponse {
     private Integer locationId;
     private String viewLangCode;
     private String nativeLangCode;
+    private String nickname;
 }
