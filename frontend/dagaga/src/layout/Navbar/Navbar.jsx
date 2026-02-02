@@ -31,7 +31,7 @@ const Navbar = () => {
   };
 
   return (
-    <BootstrapNavbar className="navbar bg-white border-bottom px-3 position-relative">
+    <BootstrapNavbar className="navbar bg-white border-bottom position-relative">
       <Container fluid>
         {/* 로고 */}
         <BootstrapNavbar.Brand className="p-0">
@@ -41,10 +41,10 @@ const Navbar = () => {
         </BootstrapNavbar.Brand>
         {isLoggedIn && (
           <>
-            {/* 중앙 메뉴 */}
+            {/* navbar 메뉴 */}
             <Nav
-              className="position-absolute start-50 translate-middle-x d-none d-md-flex"
-              style={{ gap: "100px" }}
+              className="d-none d-md-flex ms-5"
+              style={{ gap: "var(--navbar-gap)" }}
             >
               <Nav.Link
                 as={Link}
@@ -53,35 +53,25 @@ const Navbar = () => {
               >
                 학습
               </Nav.Link>
-              <Dropdown as={Nav.Item}>
-                <Dropdown.Toggle
-                  as={Nav.Link}
-                  className="fw-medium text-dark p-0 border-0 bg-transparent no-caret"
-                >
-                  커뮤니티
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu className="custom-dropdown-menu">
-                  <Dropdown.Item as={Link} to="/Community/Chat">
-                    채팅
-                  </Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/Community/Info">
-                    정보
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
               <Nav.Link
                 as={Link}
-                to="/MyPage"
+                to="/Community/Info"
                 className="fw-medium text-dark p-0"
               >
-                마이페이지
+                정보
+              </Nav.Link>
+              <Nav.Link
+                as={Link}
+                to="/Community/Chat"
+                className="fw-medium text-dark p-0"
+              >
+                채팅
               </Nav.Link>
             </Nav>
 
             {/* 로그아웃 버튼 */}
             <div className="ms-auto">
-              <button 
+              <button
                 className="logout-btn"
                 onClick={handleLogout}
               >
