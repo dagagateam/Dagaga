@@ -155,8 +155,8 @@ public class ProgramPostService {
      * 프로그램 게시글 목록을 조회합니다.
      */
     @Transactional(readOnly = true)
-    public Page<ProgramPostResponse> getProgramPosts(Pageable pageable) {
-        Page<Post> posts = postRepository.findByCategory(DEFAULT_CATEGORY, pageable);
+    public Page<ProgramPostResponse> getProgramPosts(Integer locationId, Pageable pageable) {
+        Page<Post> posts = postRepository.findByCategoryAndLocationId(DEFAULT_CATEGORY, locationId, pageable);
 
         if (posts.isEmpty()) {
             return Page.empty(pageable);

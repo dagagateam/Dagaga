@@ -11,4 +11,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     Optional<Post> findByArticleSeq(Integer articleSeq);
 
     Page<Post> findByCategory(String category, Pageable pageable);
+
+    Page<Post> findByCategoryAndLocationId(String category, Integer locationId, Pageable pageable);
 }
