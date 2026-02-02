@@ -8,8 +8,10 @@ import ProblemSoundwave from "../../components/Problem/ProblemSoundwave/ProblemS
 import ProblemMascot from "../../components/Problem/ProblemMascot/ProblemMascot";
 import ProblemDone from "../../components/Problem/ProblemDone/ProblemDone";
 import ProblemRepeat from "../../components/Problem/ProblemRepeat/ProblemRepeatButton.jsx";
+import ProblemTranslate from "../../components/Problem/ProblemAnswer/ProblemTranslate"; // Use existing component
 import { fetchProblemDetail, fetchProblemNative, evaluatePronunciation } from "../../api/learningApi"; // Import API
 import { useTts } from "../../hooks/useTts";
+import { useUserStore } from "../../store/userStore"; // Import User Store
 import "./Problem.css";
 
 const MAX_TRIES = 3;
@@ -18,6 +20,7 @@ const Problem = () => {
   const { categoryId, questionId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const userLanguage = useUserStore((state) => state.language); // Get user language
 
   // Navigation state passed from ScenarioSelect
   const navState = location.state || {};
@@ -71,6 +74,7 @@ const Problem = () => {
               pronunciations: navState.pronunciations,
               translations: navState.translations,
               nativeQuestion: nativeQ || navState.problemText, // Fallback to problem text if fetch fails
+              nativeAnswer: null, // NavState might not have full details, default null
               exampleAnswer: navState.exampleAnswer,
           });
           setLoading(false);
@@ -88,7 +92,28 @@ const Problem = () => {
 
             if (detailRes.data && detailRes.data.success) {
                 const apiData = detailRes.data.data;
-                const nativeQ = (nativeRes.data && nativeRes.data.success) ? nativeRes.data.data : apiData.questionText;
+                console.log("[Problem Debug] Full API Data Object:", apiData); // LOG FULL OBJECT
+                
+                // Determine native question/answer based on user language
+                let nativeQ = null;
+                let nativeA = null;
+
+                if (userLanguage === 'vi') {
+                    nativeQ = apiData.viQuestions;
+                    nativeA = apiData.viAnswers;
+                } else if (userLanguage === 'zh') {
+                    nativeQ = apiData.zhQuestions;
+                    nativeA = apiData.zhAnswers;
+                }
+
+                // Fallback for question if specific language missing
+                if (!nativeQ) {
+                     nativeQ = (nativeRes.data && nativeRes.data.success) ? nativeRes.data.data : apiData.questionText;
+                }
+                
+                console.log("[Problem] User Language:", userLanguage);
+                console.log("[Problem] Native Question:", nativeQ);
+                console.log("[Problem] Native Answer:", nativeA);
 
                 setData({
                     problemText: apiData.questionText,
@@ -96,6 +121,7 @@ const Problem = () => {
                     pronunciations: apiData.pronunciation_guide || apiData.pronunciationGuide || [],
                     translations: apiData.wordTranslations || [],
                     nativeQuestion: nativeQ,
+                    nativeAnswer: nativeA,
                     exampleAnswer: apiData.exampleAnswer,
                 });
             }
@@ -110,11 +136,12 @@ const Problem = () => {
       }
     };
     fetchData();
-  }, [categoryId, questionId, navState]);
+  }, [categoryId, questionId, navState, userLanguage]);
 
   
   const problemText = data?.problemText || "문제를 불러오는 중...";
   const exampleAnswer = data?.exampleAnswer;
+  const nativeAnswer = data?.nativeAnswer; // Get native answer
   
   // Memoize words and pronunciations
   const words = data?.words || [];
@@ -165,7 +192,6 @@ const Problem = () => {
     }
   }, [currentStep, words, playTts, exampleAnswer]);
   
-
 
   // Animate through words during full sentence step
   useEffect(() => {
@@ -293,8 +319,11 @@ const Problem = () => {
       }
   }, [data, playTts]);
 
+  console.log("[Problem Render] showNative:", showNative, "nativeAnswer:", nativeAnswer);
+
   return (
     <Container fluid className="problem-container">
+      {/* ... (progress bar, etc) ... */}
       <ProblemProgress 
         current={currentStageIndex + 1} 
         total={scenarionStages.length} 
@@ -306,6 +335,7 @@ const Problem = () => {
            <h2 onClick={() => setShowNative(!showNative)} style={{cursor: 'pointer'}}>
              {showNative ? data?.nativeQuestion : problemText}
            </h2>
+           <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />
            <ProblemRepeat onClick={handleQuestionReplay} />
         </div>
       </div>
@@ -322,9 +352,12 @@ const Problem = () => {
             wordResults={wordResults}
             onReplay={handleReplay}
             onSlowReplay={handleSlowReplay}
+            showTranslations={showNative}
+            nativeAnswer={nativeAnswer}
           />
         </div>
       </div>
+      {/* ... (rest of the component) ... */}
       <div className="problem-spacer"></div>
       <div className="problem-bottom-controls">
         {isProblemDone ? (

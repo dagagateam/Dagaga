@@ -5,7 +5,8 @@ import { Container } from "react-bootstrap";
 import CategoryPanel from "../../components/ProblemSelect/CategoryPanel";
 import ProblemCard from "../../components/ProblemSelect/ProblemCard";
 import { scenarios } from "../../data/scenarios";
-import { fetchCategoryStages } from "../../api/learningApi";
+import { fetchCategoryStages, fetchProblemDetail } from "../../api/learningApi";
+import { useUserStore } from "../../store/userStore";
 import "./ProblemSelect.css";
 
 const ProblemSelect = () => {
@@ -16,6 +17,9 @@ const ProblemSelect = () => {
   const [problems, setProblems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const wheelRef = useRef(null);
+  
+  // Get user language preference
+  const userLang = useUserStore((state) => state.user?.viewLangCode || state.language);
 
   // Find the scenario based on categoryId
   const scenario = scenarios.find(s => s.id === categoryId);
@@ -30,18 +34,34 @@ const ProblemSelect = () => {
         const response = await fetchCategoryStages(categoryId);
         console.log("API Full Response:", response);
         if (response.data && response.data.success) {
-          // Map API data to component format if necessary
-          // API returns: { questionId, category, questionText, exampleAnswer, orderIndex }
-          // Component expects: { id, text }
-          setProblems(response.data.data.map(item => ({
-            id: item.questionId,
-            text: item.questionText,
-            // Map pronunciation_guide (docs) or pronunciationGuide (camelCase) to pronunciations
-            pronunciations: item.pronunciation_guide || item.pronunciationGuide || [],
-            ...item
-          })));
+          const basicProblems = response.data.data;
+
+          const detailPromises = basicProblems.map(p => 
+             fetchProblemDetail(categoryId, p.orderIndex || p.questionId)
+          );
+          
+          const detailsResponses = await Promise.all(detailPromises);
+          
+          console.log("DETAILS RESPONSES:", detailsResponses); // Debug Log
+
+          const problemsWithDetails = basicProblems.map((item, index) => {
+             const detailRes = detailsResponses[index];
+             const detailData = (detailRes?.data?.success) ? detailRes.data.data : {};
+             
+             console.log(`Problem ${item.questionId} Details Data:`, detailData); // Debug Log
+
+             return {
+                 id: item.questionId,
+                 ...item,
+                 viQuestion: detailData.viQuestions,
+                 zhQuestion: detailData.zhQuestions,
+                 pronunciations: item.pronunciation_guide || item.pronunciationGuide || [],
+             };
+          });
+
+          setProblems(problemsWithDetails);
         } else {
-          // Fallback to static data if API fails or returns empty
+          // Fallback
           console.warn("Failed to fetch problems, response unsuccessful:", response.data);
           const translatedProblems = t(`scenario_problems.${scenario.id}`, { returnObjects: true });
           const fallbackProblems = Array.isArray(translatedProblems) 
@@ -62,7 +82,7 @@ const ProblemSelect = () => {
     };
 
     loadProblems();
-  }, [categoryId, scenario]);
+  }, [categoryId, scenario, t]); // Added 't' to dept array to match standard practices
 
   // Handle wheel scroll with limits
   const handleWheel = useCallback((e) => {
@@ -110,12 +130,20 @@ const ProblemSelect = () => {
               // Cards spaced 15 degrees apart
               const rotation = index * 15 + scrollOffset;
               const isActive = selectedCardId === problem.id;
+              
+              // Determine display text based on language
+              let displayText = problem.questionText || problem.text; // Default
+              if (userLang === 'vi' && problem.viQuestion) {
+                  displayText = problem.viQuestion;
+              } else if (userLang === 'zh' && problem.zhQuestion) {
+                  displayText = problem.zhQuestion;
+              }
 
               return (
                 <ProblemCard
                   key={problem.id}
                   problemNumber={index + 1}
-                  problemText={problem.text}
+                  problemText={displayText}
                   categoryId={categoryId} // Pass categoryId for navigation
                   words={problem.words}
                   pronunciations={problem.pronunciations}
