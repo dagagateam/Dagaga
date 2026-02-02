@@ -17,4 +17,6 @@ public class AuthResponse {
     private Integer userId;
     private String email;
     private Integer locationId;
+    private String viewLangCode;
+    private String nativeLangCode;
 }
