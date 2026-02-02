@@ -1,6 +1,6 @@
 -- 자기소개
 INSERT INTO question_bank
-(category, question_text, example_answer, order_index,vite_questions, vite_answers,chz_questions, chz_answers)
+(category, question_text, example_answer, order_index, vi_questions, vi_answers, zh_questions, zh_answers)
 VALUES
     ('자기소개', '이름이 무엇인가요?', '저는 00입니다.', 1,
      'Tên bạn là gì?', 'Mình sinh năm 2000 ạ.',
@@ -22,7 +22,7 @@ VALUES
 
 -- 학업
 INSERT INTO question_bank
-(category, question_text, example_answer, order_index,vite_questions, vite_answers,chz_questions, chz_answers)
+(category, question_text, example_answer, order_index,vi_questions, vi_answers,zh_questions, zh_answers)
 VALUES
     ('학업', '어머니, 요즘 OO가 집에서 학교 이야기를 자주 들려주나요? 주로 어떤 주제인가요?', '00이는 집에 오면 매일 학교에서 무슨 일이 있었는지 이야기해줘요.', 1,
      'Mẹ ơi, dạo này OO có thường xuyên kể chuyện trường học ở nhà không? Chủ đề chủ yếu là gì?',
@@ -77,7 +77,7 @@ VALUES
 
 -- 의료
 INSERT INTO question_bank
-(category, question_text, example_answer, order_index,vite_questions, vite_answers,chz_questions, chz_answers)
+(category, question_text, example_answer, order_index,vi_questions, vi_answers,zh_questions, zh_answers)
 VALUES
     ('의료', '어디가 가장 불편해서 오셨나요?', '아이가 어제부터 배가 아프다고 해요. 설사도 세 번 했고 기침과 코막힘도 심해요.', 1,
      'Bạn thấy bất tiện ở đâu nhất?',

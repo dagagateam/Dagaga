@@ -30,15 +30,15 @@ public class QuestionBank {
     @Column(name = "order_index")
     private Integer orderIndex;
 
-    @Column(name = "vite_questions", columnDefinition = "TEXT")
-    private String viteQuestions;
+    @Column(name = "vi_questions", columnDefinition = "TEXT")
+    private String viQuestions;
 
-    @Column(name = "vite_answers", columnDefinition = "TEXT")
-    private String viteAnswers;
+    @Column(name = "vi_answers", columnDefinition = "TEXT")
+    private String viAnswers;
 
-    @Column(name = "chz_questions", columnDefinition = "TEXT")
-    private String chzQuestions;
+    @Column(name = "zh_questions", columnDefinition = "TEXT")
+    private String zhQuestions;
 
-    @Column(name = "chz_answers", columnDefinition = "TEXT")
-    private String chzAnswers;
+    @Column(name = "zh_answers", columnDefinition = "TEXT")
+    private String zhAnswers;
 }

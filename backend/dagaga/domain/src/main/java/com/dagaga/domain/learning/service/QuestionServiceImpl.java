@@ -66,12 +66,12 @@ public class QuestionServiceImpl implements QuestionService {
                 .exampleAnswer(question.getExampleAnswer());
         
         // countryCode에 따라 지역별 데이터 선택적으로 추가
-        if ("vite".equalsIgnoreCase(countryCode)) {
-            builder.viteQuestions(question.getViteQuestions())
-                   .viteAnswers(question.getViteAnswers());
-        } else if ("chz".equalsIgnoreCase(countryCode)) {
-            builder.chzQuestions(question.getChzQuestions())
-                   .chzAnswers(question.getChzAnswers());
+        if ("vi".equalsIgnoreCase(countryCode)) {
+            builder.viQuestions(question.getViQuestions())
+                   .viAnswers(question.getViAnswers());
+        } else if ("zh".equalsIgnoreCase(countryCode)) {
+            builder.zhQuestions(question.getZhQuestions())
+                   .zhAnswers(question.getZhAnswers());
         }
         
         return builder.build();

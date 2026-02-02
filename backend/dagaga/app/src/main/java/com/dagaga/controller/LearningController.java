@@ -278,7 +278,7 @@ public class LearningController {
             @PathVariable String categoryId,
             @Parameter(description = "질문 순서 (1부터 시작)", required = true)
             @PathVariable Integer orderIndex,
-            @Parameter(description = "국적 코드 (vite: 베트남, chz: 중국)", required = false)
+            @Parameter(description = "국적 코드 (vi: 베트남, zh: 중국)", required = false)
             @RequestParam(value = "countryCode", required = false) String countryCode
     ) {
         log.info("Fetching question with example for category: {}, order: {}, countryCode: {}", categoryId, orderIndex, countryCode);
@@ -298,10 +298,10 @@ public class LearningController {
                     .exampleAnswer(exampleAnswer)
                     .words(words)
                     .pronunciationGuide(pronunciationGuide)
-                    .viteQuestions(originalResponse.getViteQuestions())
-                    .viteAnswers(originalResponse.getViteAnswers())
-                    .chzQuestions(originalResponse.getChzQuestions())
-                    .chzAnswers(originalResponse.getChzAnswers())
+                    .viQuestions(originalResponse.getViQuestions())
+                    .viAnswers(originalResponse.getViAnswers())
+                    .zhQuestions(originalResponse.getZhQuestions())
+                    .zhAnswers(originalResponse.getZhAnswers())
                     .build();
         
         return ResponseEntity.ok(ApiResponse.success(
