@@ -11,6 +11,8 @@ import com.dagaga.domain.chat.user.repository.ChatRoomUserRepository;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
 import com.dagaga.chat.dto.ChatRoomResponse;
+import com.dagaga.domain.post.entity.Location;
+import com.dagaga.domain.post.repository.LocationRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +45,9 @@ class ChatRoomServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private LocationRepository locationRepository;
 
     @Test
     @DisplayName("Success: 사용자 custom 채팅방 생성 및 owner 설정")
@@ -277,5 +282,42 @@ class ChatRoomServiceTest {
         // then
         assertThat(responses).hasSize(1);
         assertThat(responses.get(0).getTitle()).isEqualTo("활동중");
+    }
+
+    @Test
+    @DisplayName("Success: 기본 채팅방이 없으면 지역 이름을 포함하여 생성하고 참여함")
+    void joinDefaultRoom_shouldCreateRoomWithLocationName_whenRoomDoesNotExist() {
+        // given
+        int userId = 1;
+        int locationId = 100;
+        String districtName = "강남구";
+
+        Location location = org.mockito.Mockito.mock(Location.class);
+        given(location.getDistrictName()).willReturn(districtName);
+
+        given(chatRoomRepository.findByLocationIdAndRoomType(locationId, RoomType.DEFAULT))
+                .willReturn(Optional.empty());
+        given(locationRepository.findById(locationId)).willReturn(Optional.of(location));
+        
+        // save 호출 시 인자 캡처를 위해 mock 설정
+        given(chatRoomRepository.save(any(ChatRoom.class))).willAnswer(invocation -> {
+            ChatRoom room = invocation.getArgument(0);
+            ReflectionTestUtils.setField(room, "roomId", 1); // ID 할당 시뮬레이션
+            return room;
+        });
+
+        // when
+        int roomId = chatRoomService.joinDefaultRoom(userId, locationId);
+
+        // then
+        assertThat(roomId).isEqualTo(1);
+        
+        verify(chatRoomRepository).save(org.mockito.ArgumentMatchers.argThat(room -> 
+            room.getTitle().equals("강남구 단체 채팅방") && 
+            room.getRoomType() == RoomType.DEFAULT &&
+            room.getLocationId() == locationId
+        ));
+        
+        verify(chatRoomUserRepository).save(any(ChatRoomUser.class));
     }
 }
