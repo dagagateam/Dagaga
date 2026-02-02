@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS chat_rooms (
     CONSTRAINT fk_room_location FOREIGN KEY (location_id) REFERENCES locations(location_id) ON DELETE CASCADE
 );
 
-CREATE TABLE public.chat_room_users (
+CREATE TABLE IF NOT EXISTS public.chat_room_users (
 	room_id int4 NOT NULL,
 	user_id int4 NOT NULL,
 	joined_at timestamptz(6) NOT NULL,
