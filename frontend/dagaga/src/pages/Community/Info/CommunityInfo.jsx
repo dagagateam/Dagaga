@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './CommunityInfo.css';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { fetchCommunityInfo } from '../../../api/communityApi';
+import { getLocationName } from '../../../data/regionData';
 
 import heartIcon from '../../../assets/icons/heart.png';
 import unheartIcon from '../../../assets/icons/unheart.png';
@@ -13,7 +14,7 @@ import { useUserStore } from '../../../store/userStore';
 
 const CommunityInfo = () => {
     const navigate = useNavigate();
-    const { savedItems, likedPostIds, toggleSave, toggleLike } = useUserStore();
+    const { user, savedItems, likedPostIds, toggleSave, toggleLike } = useUserStore();
     const [infos, setInfos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [userRegion, setUserRegion] = useState('');
@@ -38,8 +39,8 @@ const CommunityInfo = () => {
     };
 
     useEffect(() => {
-        const region = localStorage.getItem('regionName');
-        setUserRegion(region || '서울 종로구');
+                const regionName = user?.locationId ? getLocationName(user.locationId) : '지역 설정 필요';
+        setUserRegion(regionName);
 
         const loadData = async () => {
             try {
@@ -48,15 +49,14 @@ const CommunityInfo = () => {
                 // 백엔드 응답 구조: { success, message, data: { content: [...], totalElements, ... } }
                 const allPosts = response.data.content || [];
                 
-                // TODO: JWT 인증 완성 후 이 필터링 코드 제거 (백엔드가 자동 처리)
-                // 임시: 사용자 locationId로 프론트엔드 필터링
-                const userLocationId = useUserStore.getState().user?.locationId;
-                
+                // 백엔드에서 아직 필터링되지 않으므로 프론트엔드에서 필터링
                 let filteredPosts = allPosts;
-                if (userLocationId) {
-                    filteredPosts = allPosts.filter(post => post.locationId === userLocationId);
-                    console.log(`Filtered ${allPosts.length} posts to ${filteredPosts.length} for locationId: ${userLocationId}`);
+                if (user?.locationId) {
+                    filteredPosts = allPosts.filter(post => post.locationId === user.locationId);
+                    console.log(`Filtered ${allPosts.length} posts to ${filteredPosts.length} for locationId: ${user.locationId}`);
                 }
+                
+                console.log(`Loaded ${filteredPosts.length} posts for region: ${regionName}`);
                 
                 // 백엔드 응답 형식 → 프론트엔드 형식 변환
                 const items = filteredPosts.map(post => {

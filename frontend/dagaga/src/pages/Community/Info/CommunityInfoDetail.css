@@ -277,3 +277,59 @@
     filter: invert(76%) sepia(35%) saturate(996%) hue-rotate(328deg) brightness(101%) contrast(97%);
     /* Orange tint adjustment or use SVG directly */
 }
+
+/* 답글 (Nested Comments) & Reply Button */
+.comment-reply-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #888;
+    padding: 0;
+    margin-left: 5px;
+    font-weight: 500;
+}
+
+.comment-reply-btn:hover {
+    color: #F8B15E;
+    text-decoration: underline;
+}
+
+/* Nested Comment Structure */
+.comment-children {
+    margin-left: 40px; /* Indent children */
+    padding-left: 10px;
+    border-left: 2px solid #f0f0f0;
+}
+
+/* Replying To Indicator */
+.replying-indicator {
+    background-color: #f9f9f9;
+    padding: 8px 15px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #666;
+    border: 1px solid #eee;
+}
+
+.replying-to-text {
+    font-weight: 600;
+    color: #F8B15E;
+}
+
+.cancel-reply-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    color: #999;
+}
+
+.cancel-reply-btn:hover {
+    color: #ff4d4f;
+}

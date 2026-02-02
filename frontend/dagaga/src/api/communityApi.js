@@ -223,3 +223,39 @@ export const joinChatRoom = async (roomId, userId, userLocationId) => {
 
 
 
+/**
+ * Create a new comment for a program.
+ * @param {number} postId - The program post ID.
+ * @param {string} content - The comment content.
+ * @param {number} userId - The user's ID.
+ * @param {number|null} parentCommentId - The parent comment ID (optional).
+ * @returns {Promise<Object>} - Created comment data.
+ */
+export const createComment = async (postId, content, userId, parentCommentId = null) => {
+    try {
+        const response = await instance.post(`/community/programs/${postId}/comments`, {
+            content,
+            userId,
+            parentCommentId
+        });
+        return response.data; // ApiResponse 형식: { success, message, data }
+    } catch (error) {
+        console.error('Failed to create comment:', error);
+        throw error;
+    }
+};
+
+/**
+ * Fetch comments for a specific program.
+ * @param {number} postId - The program post ID.
+ * @returns {Promise<Array>} - List of comments.
+ */
+export const fetchComments = async (postId) => {
+    try {
+        const response = await instance.get(`/community/programs/${postId}/comments`);
+        return response.data; // ApiResponse 형식: { success, message, data: [...] }
+    } catch (error) {
+        console.error('Failed to fetch comments:', error);
+        throw error;
+    }
+};
