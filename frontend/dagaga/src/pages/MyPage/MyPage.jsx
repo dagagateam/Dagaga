@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import SavedNewsCard from '../../components/MyPage/SavedNewsCard';
 import MyInfo from '../../components/MyPage/MyInfo';
-import JoinedChatItem from '../../components/Community/Chat/JoinedChatItem';
+import JoinedChatItem from '../../components/community/chat/JoinedChatItem';
 import { fetchChatRooms } from '../../api/communityApi';
 import { useUserStore } from '../../store/userStore';
 import './MyPage.css';
 
 const MyPage = () => {
   const { user, savedItems, likedPostIds, joinedChats, setJoinedChats, toggleSave, toggleLike } = useUserStore();
-  
+
   useEffect(() => {
     // Fetch only if empty or background update needed. 
     // Here we fetch if empty to avoid layout shift, or could fetch in background to update staleness.
@@ -28,7 +28,7 @@ const MyPage = () => {
       loadChats();
     }
   }, [joinedChats.length, setJoinedChats]);
-  
+
   const userNickname = user?.nickname || "Guest";
 
   return (
@@ -37,11 +37,11 @@ const MyPage = () => {
       <Card className="greeting-card mb-3">
         <Card.Body className="greeting-body">
           <div className="profile-circle">
-            <img 
-              src={user?.profileImage || "/assets/profile-placeholder.jpg"} 
-              alt="Profile" 
-              className="profile-img" 
-              onError={(e) => {e.target.style.display='none'}} 
+            <img
+              src={user?.profileImage || "/assets/profile-placeholder.jpg"}
+              alt="Profile"
+              className="profile-img"
+              onError={(e) => { e.target.style.display = 'none' }}
             />
           </div>
           <h2 className="greeting-text">
@@ -59,7 +59,7 @@ const MyPage = () => {
           <div className="saved-news-scroll">
             {savedItems.length > 0 ? (
               savedItems.map(news => (
-                <SavedNewsCard 
+                <SavedNewsCard
                   key={news.id}
                   title={news.title}
                   orgName={news.orgName}
@@ -73,7 +73,7 @@ const MyPage = () => {
                 />
               ))
             ) : (
-               <div className="p-3 text-muted">저장한 정보가 없습니다.</div>
+              <div className="p-3 text-muted">저장한 정보가 없습니다.</div>
             )}
           </div>
         </div>
