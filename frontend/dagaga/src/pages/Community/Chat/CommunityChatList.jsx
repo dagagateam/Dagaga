@@ -4,8 +4,8 @@ import { Container, Modal } from 'react-bootstrap';
 import './CommunityChatList.css';
 import { fetchChatRooms, createChatRoom, fetchJoinedChats, fetchChatsByLocation } from '../../../api/communityApi';
 import { useUserStore } from '../../../store/userStore';
-import UserChatCard from '../../../components/community/Chat/UserChatCard';
-import JoinedChatItem from '../../../components/community/Chat/JoinedChatItem';
+import UserChatCard from '../../../components/community/chat/UserChatCard';
+import JoinedChatItem from '../../../components/community/chat/JoinedChatItem';
 import Button from '../../../components/common/Button';
 
 const CommunityChatList = () => {
