@@ -233,29 +233,23 @@ public class LearningController {
         @GetMapping("/categories/{categoryId}/stages/{orderIndex}/example")
         public ResponseEntity<ApiResponse<QuestionWithExampleResponse>> getQuestionWithExample(
                         @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true) @PathVariable String categoryId,
-                        @Parameter(description = "질문 순서 (1부터 시작)", required = true) @PathVariable Integer orderIndex,
-                        @Parameter(description = "국적 코드 (vi: 베트남, zh: 중국)", required = false) @RequestParam(value = "countryCode", required = false) String countryCode) {
-                log.info("Fetching question with example for category: {}, order: {}, countryCode: {}", categoryId,
-                                orderIndex, countryCode);
+                        @Parameter(description = "질문 순서 (1부터 시작)", required = true) @PathVariable Integer orderIndex) {
+                log.info("Fetching question with example for category: {}, order: {}", categoryId, orderIndex);
 
                 QuestionWithExampleResponse originalResponse = questionService.getQuestionWithExample(categoryId,
-                                orderIndex, countryCode);
+                                orderIndex);
 
                 // GMS API를 통해 단어 분리 및 발음 가이드 생성
                 String exampleAnswer = originalResponse.getExampleAnswer();
                 List<String> words = callGmsTokenizeApi(exampleAnswer);
                 List<String> pronunciationGuide = callGmsPronunciationGuideApi(words);
 
-                // 응답 객체 생성
+                // 새로운 응답 객체 생성 (빌더 패턴 사용)
                 QuestionWithExampleResponse enhancedResponse = QuestionWithExampleResponse.builder()
                                 .questionText(originalResponse.getQuestionText())
                                 .exampleAnswer(exampleAnswer)
                                 .words(words)
                                 .pronunciationGuide(pronunciationGuide)
-                                .viQuestions(originalResponse.getViQuestions())
-                                .viAnswers(originalResponse.getViAnswers())
-                                .zhQuestions(originalResponse.getZhQuestions())
-                                .zhAnswers(originalResponse.getZhAnswers())
                                 .build();
 
                 return ResponseEntity.ok(ApiResponse.success(
