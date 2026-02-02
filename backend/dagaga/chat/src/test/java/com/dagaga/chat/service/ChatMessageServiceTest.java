@@ -1,5 +1,12 @@
 package com.dagaga.chat.service;
 
+import com.dagaga.chat.dto.ChatMessageResponse;
+import com.dagaga.domain.chat.message.entity.MessageTranslation;
+import com.dagaga.domain.user.entity.User;
+import com.dagaga.domain.user.repository.UserRepository;
+import org.springframework.data.domain.Pageable;
+import java.util.Optional;
+
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageCommand;
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
 import com.dagaga.domain.chat.language.repository.LanguageRepository;
@@ -19,6 +26,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -37,8 +45,14 @@ class ChatMessageServiceTest {
         @Mock
         private TranslationPort translationPort;
 
+        @Mock
+        private ChatRoomService chatRoomService;
+
+        @Mock
+        private UserRepository userRepository;
+
         @Test
-        @DisplayName("성공 케이스: 모든 활성화된 언어(본인 제외)로 번역을 수행해야 한다")
+        @DisplayName("Success: 모든 활성화된 언어(본인 제외)로 번역을 수행해야 한다")
         void save_shouldTranslateToAllSupportedLanguages_exceptOriginal() {
                 // given
                 int roomId = 1;
@@ -86,7 +100,7 @@ class ChatMessageServiceTest {
         }
 
         @Test
-        @DisplayName("성공 케이스: 활성 언어가 본인 언어뿐이라면 번역을 수행하지 않는다")
+        @DisplayName("Success: 활성 언어가 본인 언어뿐이라면 번역을 수행하지 않는다")
         void save_shouldSkipTranslation_whenNoOtherLanguagesActive() {
                 // given
                 SaveMessageCommand cmd = new SaveMessageCommand(1, 100, "你好", "zh", null, null);
@@ -113,7 +127,7 @@ class ChatMessageServiceTest {
         }
 
         @Test
-        @DisplayName("실패 케이스: 번역 API 호출이 실패하더라도 메시지 저장은 성공해야 한다")
+        @DisplayName("Fail: 번역 API 호출이 실패하더라도 메시지 저장은 성공해야 한다")
         void save_shouldSucceedToSaveMessage_whenTranslationApiThrowsException() {
                 // given
                 SaveMessageCommand cmd = new SaveMessageCommand(1, 100, "你好", "zh", null, null);
@@ -136,5 +150,44 @@ class ChatMessageServiceTest {
                 verify(translationPort).translate(anyString(), anyString(), anyList());
                 verify(chatMessageRepository).save(any(ChatMessage.class));
                 assertThat(result.translations()).isEmpty();
+        }
+
+
+        @Test
+        @DisplayName("Success: 사용자의 모국어에 맞는 메시지가 반환되어야 한다")
+        void getMessages_shouldReturnLocalizedContent() {
+            // given
+            int roomId = 1;
+            int userLocationId = 10;
+            int userId = 100;
+            String nativeLang = "ko";
+
+            // User Mock
+            User user = User.builder().nativeLangCode(nativeLang).build();
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+            // 메시지 1: Original(zh), Translation(ko) -> 번역본 반환해야 함
+            ChatMessage msg1 = ChatMessage.create(roomId, 2, "你好", "zh");
+            MessageTranslation trans1 = MessageTranslation.create(msg1, "ko", "안녕하세요");
+            msg1.addTranslation(trans1);
+
+            // 메시지 2: Original(ko) -> 원본 반환해야 함
+            ChatMessage msg2 = ChatMessage.create(roomId, 2, "반갑습니다", "ko");
+
+            given(chatMessageRepository.findByRoomIdOrderByMessageIdDesc(eq(roomId), any(Pageable.class)))
+                    .willReturn(List.of(msg1, msg2));
+
+            // when
+            List<ChatMessageResponse> result = chatMessageService.getMessages(roomId, userLocationId, userId, null, 30);
+
+            // then
+            verify(chatRoomService).getRoomAndValidateLocation(roomId, userLocationId);
+            
+            assertThat(result).hasSize(2);
+            assertThat(result.get(0).content()).isEqualTo("안녕하세요");
+            assertThat(result.get(0).isTranslated()).isTrue();
+            
+            assertThat(result.get(1).content()).isEqualTo("반갑습니다");
+            assertThat(result.get(1).isTranslated()).isFalse();
         }
 }
