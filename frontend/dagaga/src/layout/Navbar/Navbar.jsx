@@ -41,10 +41,10 @@ const Navbar = () => {
         </BootstrapNavbar.Brand>
         {isLoggedIn && (
           <>
-            {/* 중앙 메뉴 */}
+            {/* navbar 메뉴 */}
             <Nav
               className="d-none d-md-flex ms-5"
-              style={{ gap: "24px" }}
+              style={{ gap: "var(--navbar-gap)" }}
             >
               <Nav.Link
                 as={Link}
@@ -55,32 +55,22 @@ const Navbar = () => {
               </Nav.Link>
               <Nav.Link
                 as={Link}
-                to="/Community/Chat"
+                to="/Community/Info"
                 className="fw-medium text-dark p-0"
               >
                 정보
               </Nav.Link>
               <Nav.Link
                 as={Link}
-                to="/Community/Info"
+                to="/Community/Chat"
                 className="fw-medium text-dark p-0"
               >
                 채팅
               </Nav.Link>
             </Nav>
 
-            {/* 로그아웃 버튼 */}
-            <div className="ms-auto">
-              <button 
-                className="logout-btn"
-                onClick={handleLogout}
-              >
-                로그아웃
-              </button>
-            </div>
-
             {/* 사용자 닉네임 */}
-            <div className="user-info">
+            <div className="user-info ms-auto">
               <span className="user-nickname">
                 {user?.nickname || '사용자'}님
               </span>
