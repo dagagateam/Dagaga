@@ -21,7 +21,7 @@ const MyInfo = () => {
     <Card className="my-info-card">
       <Card.Body>
         <div className="my-info-header">
-          <Button className="edit-info-btn" onClick={() => navigate('/my-page/edit')}>프로필 수정하기</Button>
+          <Button className="edit-info-btn" onClick={() => navigate('/MyPage/Edit')}>프로필 수정하기</Button>
         </div>
         
         <Row className="info-grid">
