@@ -239,6 +239,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
   "locationId": 1,
   "arrivalDate": "2026-02-01",
   "profileImage": "default_avatar.png",
+  "modifiedAt": "2026-02-02T12:00:00",
   "createdAt": "2026-02-01T12:00:00"
 }
 ```
@@ -281,6 +282,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
   "locationId": 2,
   "arrivalDate": "2026-02-02",
   "profileImage": "new_profile.png",
+  "modifiedAt": "2026-02-02T22:00:00",
   "createdAt": "2026-02-01T12:00:00"
 }
 ```
@@ -288,7 +290,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **규칙:**
 - `email`은 변경할 수 없으며 요청 본문에 포함되어도 무시됩니다.
 - `password`를 포함하면 인코딩되어 업데이트됩니다.
-- `nickname`이 빈 문자열일 경우 이메일 아이디를 기반으로 자동 생성됩니다.
+- **필드 처리 규칙 (Partial Update):**
+  - **`null`**: 해당 필드를 변경하지 않습니다. (기존 값 유지)
+  - **`""` (빈 문자열)**: 해당 필드를 초기화하거나 기본값으로 복구합니다.
+    - `profileImage`: `"default_avatar.png"`로 리셋됩니다.
+    - `nickname`: 빈 문자열로 보낼 경우 이메일 기반으로 유니크한 닉네임이 자동 생성됩니다.
+- **닉네임 자동 생성**: 닉네임이 중복될 경우 랜덤 4자리 숫자를 붙여(`user#1234`) 최대 5번까지 유니크한 닉네임 생성을 시도합니다.
 
 **오류 응답:**
 - `401 Unauthorized` - 토큰이 없거나 유효하지 않음
