@@ -61,9 +61,12 @@ tasks.named('bootRun') {
             println "Loading environment variables from: ${targetEnv.name}"
             targetEnv.eachLine { line ->
                 if (line && !line.startsWith('#')) {
-                    def (key, value) = line.split('=', 2)
-                    if (key && value) {
-                        systemProperty key.trim(), value.trim()
+                    def parts = line.split('=', 2)
+                    if (parts.length == 2) {
+                        def key = parts[0].trim()
+                        def value = parts[1].trim()
+                        // Use environment instead of systemProperty for better bootRun support
+                        environment key, value
                     }
                 }
             }

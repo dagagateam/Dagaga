@@ -31,6 +31,7 @@ subprojects {
     // 일반 JAR 파일(라이브러리 형태)로 빌드함
     jar {
         enabled = true
+        archiveClassifier = ''
     }
 
     dependencyManagement {
