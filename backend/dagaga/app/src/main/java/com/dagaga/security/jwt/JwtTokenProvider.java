@@ -22,17 +22,17 @@ public class JwtTokenProvider {
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-token-expiry}") long accessTokenExpiry,
-            @Value("${jwt.refresh-token-expiry}") long refreshTokenExpiry
-    ) {
+            @Value("${jwt.refresh-token-expiry}") long refreshTokenExpiry) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.accessTokenExpiry = accessTokenExpiry * 1000; // Convert to milliseconds
         this.refreshTokenExpiry = refreshTokenExpiry * 1000;
     }
 
     /**
-     * Access Token 생성 (userId 및 locationId 포함)
+     * Access Token 생성 (userId, locationId 및 언어 설정 포함)
      */
-    public String generateAccessToken(Integer userId, Integer locationId) {
+    public String generateAccessToken(Integer userId, Integer locationId,
+            String viewLangCode, String nativeLangCode) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + accessTokenExpiry);
 
@@ -40,6 +40,8 @@ public class JwtTokenProvider {
                 .subject(String.valueOf(userId))
                 .claim("userId", userId)
                 .claim("locationId", locationId)
+                .claim("viewLangCode", viewLangCode)
+                .claim("nativeLangCode", nativeLangCode)
                 .claim("type", "access")
                 .id(UUID.randomUUID().toString())
                 .issuedAt(now)
@@ -141,5 +143,21 @@ public class JwtTokenProvider {
     public String getTokenType(String token) {
         Claims claims = getClaims(token);
         return claims.get("type", String.class);
+    }
+
+    /**
+     * 토큰에서 화면 표시 언어 코드 추출
+     */
+    public String getViewLangCodeFromToken(String token) {
+        Claims claims = getClaims(token);
+        return claims.get("viewLangCode", String.class);
+    }
+
+    /**
+     * 토큰에서 모국어 코드 추출
+     */
+    public String getNativeLangCodeFromToken(String token) {
+        Claims claims = getClaims(token);
+        return claims.get("nativeLangCode", String.class);
     }
 }
