@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
-import SavedNewsCard from '../../components/my-page/SavedNewsCard';
-import MyInfo from '../../components/my-page/MyInfo';
-import JoinedChatItem from '../../components/community/chat/JoinedChatItem';
+import SavedNewsCard from '../../components/MyPage/SavedNewsCard';
+import MyInfo from '../../components/MyPage/MyInfo';
+import JoinedChatItem from '../../components/Community/Chat/JoinedChatItem';
 import { fetchChatRooms } from '../../api/communityApi';
 import { useUserStore } from '../../store/userStore';
 import './MyPage.css';

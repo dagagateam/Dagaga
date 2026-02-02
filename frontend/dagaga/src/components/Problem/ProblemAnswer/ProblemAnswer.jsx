@@ -1,13 +1,25 @@
-import ProblemRepeat from "../problem-repeat/ProblemRepeat";
-import ProblemRepeatSlow from "../problem-repeat/ProblemRepeatSlow";
+import { useState } from "react";
+import ProblemRepeat from "../ProblemRepeat/ProblemRepeat";
+import ProblemRepeatSlow from "../ProblemRepeat/ProblemRepeatSlow";
+import ProblemTranslate from "./ProblemTranslate";
 import "./ProblemAnswer.css";
 
-const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIndex, wordResults, onReplay, onSlowReplay }) => {
+const ProblemAnswer = ({ words, pronunciations, translations, currentStep, sentenceHighlightIndex, wordResults, onReplay, onSlowReplay }) => {
   // Check if we're on the full sentence step (last step)
   const isFullSentenceStep = currentStep >= words.length;
   
   // Check if all words should be highlighted (-1 = select all)
   const isAllSelected = isFullSentenceStep && sentenceHighlightIndex === -1;
+
+  // Track which words have translation visible
+  const [visibleTranslations, setVisibleTranslations] = useState({});
+
+  const toggleTranslation = (index) => {
+    setVisibleTranslations(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
   
   return (
     <div className="problem-answer-words">
@@ -42,10 +54,14 @@ const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIn
           result === 'incorrect' ? 'incorrect' : ''
         ].filter(Boolean).join(' ');
         
+        const showTranslation = visibleTranslations[index];
+
         return (
           <div key={index} className="word-group">
             <span className={wordClasses}>
-              {word}
+              {showTranslation && translations && translations[index] 
+                ? translations[index] 
+                : word}
             </span>
             <span className={pronunciationClasses}>
               [ {pronunciations[index] || word.split('').join(' ')} ]
@@ -54,6 +70,10 @@ const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIn
               <div className="word-buttons">
                 <ProblemRepeat onClick={onReplay} />
                 <ProblemRepeatSlow onClick={onSlowReplay} />
+                <ProblemTranslate 
+                  onClick={() => toggleTranslation(index)} 
+                  active={showTranslation}
+                />
               </div>
             )}
           </div>

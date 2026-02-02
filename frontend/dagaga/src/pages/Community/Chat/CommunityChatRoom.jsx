@@ -4,7 +4,7 @@ import { Container } from 'react-bootstrap';
 import './CommunityChatRoom.css';
 import chattingTiger from '../../../assets/characters/chat_tiger.png';
 import EmojiPicker from 'emoji-picker-react';
-import ChatMessage from '../../../components/community/chat/ChatMessage';
+import ChatMessage from '../../../components/community/Chat/ChatMessage';
 import { fetchChatMessages, fetchJoinedChats, sendChatMessage } from '../../../api/communityApi';
 import { useUserStore } from '../../../store/userStore';
 

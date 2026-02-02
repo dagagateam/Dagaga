@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Card } from 'react-bootstrap';
 import { useUserStore } from '../../store/userStore';
-import ProfileImageSection from '../../components/my-page-edit/ProfileImageSection';
-import EditForm from '../../components/my-page-edit/EditForm';
+import ProfileImageSection from '../../components/MyPageEdit/ProfileImageSection';
+import EditForm from '../../components/MyPageEdit/EditForm';
 import './MyPageEdit.css';
 
 const MyPageEdit = () => {

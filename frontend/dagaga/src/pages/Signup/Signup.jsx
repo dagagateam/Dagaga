@@ -6,12 +6,12 @@ import './Signup.css';
 import loginTiger from '../../assets/characters/login_tiger.png';
 import logo from '../../assets/icons/logo.png';
 import { area0, allAreas, getLocationId } from '../../data/regionData';
-import LanguageSelector from '../../components/auth/LanguageSelector';
-import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
-import RegionSelect from '../../components/common/RegionSelect';
-import Select from '../../components/common/Select';
-import ArrivalDateInput from '../../components/common/ArrivalDateInput';
+import LanguageSelector from '../../components/Auth/LanguageSelector';
+import Button from '../../components/Common/Button';
+import Input from '../../components/Common/Input';
+import RegionSelect from '../../components/Common/RegionSelect';
+import Select from '../../components/Common/Select';
+import ArrivalDateInput from '../../components/Common/ArrivalDateInput';
 
 import { motion } from 'framer-motion';
 
