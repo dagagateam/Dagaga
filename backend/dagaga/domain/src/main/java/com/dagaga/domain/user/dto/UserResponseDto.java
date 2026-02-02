@@ -18,6 +18,7 @@ public class UserResponseDto {
     private Integer locationId;
     private LocalDate arrivalDate;
     private String profileImage;
+    private LocalDateTime modifiedAt;
     private LocalDateTime createdAt;
 
     public static UserResponseDto from(User user) {
@@ -30,6 +31,7 @@ public class UserResponseDto {
                 .locationId(user.getLocationId())
                 .arrivalDate(user.getArrivalDate())
                 .profileImage(user.getProfileImage())
+                .modifiedAt(user.getModifiedAt())
                 .createdAt(user.getCreatedAt())
                 .build();
     }

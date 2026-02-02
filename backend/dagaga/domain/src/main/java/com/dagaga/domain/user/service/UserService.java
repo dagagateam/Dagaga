@@ -44,7 +44,7 @@ public class UserService {
             throw new IllegalArgumentException("닉네임이 이미 존재합니다: " + nickname);
         }
 
-        // Encode password
+        // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
 
         User user = User.builder()
@@ -85,24 +85,21 @@ public class UserService {
     public UserResponseDto updateUser(Integer userId, UserUpdateDto dto) {
         User user = getUserById(userId);
 
-        // Update password if provided
+        // 비밀번호가 제공된 경우 업데이트
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
             user.updatePassword(passwordEncoder.encode(dto.getPassword()));
         }
 
-        // Handle nickname
+        // 닉네임 처리
         String newNickname = dto.getNickname();
         if (newNickname != null && !newNickname.equals(user.getNickname())) {
             if (newNickname.isBlank()) {
-                newNickname = user.getEmail().split("@")[0];
-                // Generated nickname should also be checked for duplicates
-                if (userRepository.existsByNickname(newNickname)) {
-                    // If generated nickname exists, add some randomness or just fail
-                    // For now, let's keep it simple and throw if both original and generated exist
-                    // But typically register already handled this.
-                }
+                // 닉네임이 비어있으면 이메일 기반으로 자동 생성
+                newNickname = generateUniqueNickname(user.getEmail());
+            } else {
+                // 직접 입력한 닉네임은 중복 체크
+                checkNicknameDuplicate(newNickname);
             }
-            checkNicknameDuplicate(newNickname);
         }
 
         user.updateProfile(
@@ -115,5 +112,25 @@ public class UserService {
         );
 
         return UserResponseDto.from(user);
+    }
+
+    /**
+     * 유니크한 닉네임 생성 (이메일 아이디 기반 + 필요 시 4자리 랜덤 숫자)
+     */
+    private String generateUniqueNickname(String email) {
+        String baseNickname = email.split("@")[0];
+        String nickname = baseNickname;
+        
+        int attempts = 0;
+        java.util.Random random = new java.util.Random();
+        
+        while (userRepository.existsByNickname(nickname) && attempts < 5) {
+            nickname = baseNickname + "#" + String.format("%04d", random.nextInt(10000));
+            attempts++;
+        }
+        
+        // 5번 시도 후에도 중복이면 그냥 마지막 생성된 값 사용 (드문 케이스)
+        // 또는 명시적으로 예외 발생 가능
+        return nickname;
     }
 }
