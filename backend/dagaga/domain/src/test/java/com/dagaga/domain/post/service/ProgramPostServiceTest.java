@@ -81,7 +81,7 @@ class ProgramPostServiceTest {
                 .build();
 
         Page<Post> postPage = new PageImpl<>(List.of(post));
-        given(postRepository.findByCategory(eq("PROGRAM"), any())).willReturn(postPage);
+        given(postRepository.findByCategoryAndLocationId(eq("PROGRAM"), eq(10), any())).willReturn(postPage);
 
         Program program = mock(Program.class);
         given(program.getArticleSeq()).willReturn(12345);
@@ -92,7 +92,7 @@ class ProgramPostServiceTest {
         given(programImageRepository.findAllByArticleSeqIn(any())).willReturn(List.of());
 
         // when
-        Page<ProgramPostResponse> result = programPostService.getProgramPosts(PageRequest.of(0, 10));
+        Page<ProgramPostResponse> result = programPostService.getProgramPosts(10, PageRequest.of(0, 10));
 
         // then
         assertThat(result.getContent()).hasSize(1);

@@ -8,6 +8,7 @@ import com.dagaga.domain.post.dto.ProgramPostDetailResponse;
 import com.dagaga.domain.post.dto.ProgramPostResponse;
 import com.dagaga.domain.post.service.CommentService;
 import com.dagaga.domain.post.service.ProgramPostService;
+import com.dagaga.security.context.SecurityContextHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -44,8 +45,9 @@ public class ProgramPostController {
         public ResponseEntity<ApiResponse<Page<ProgramPostResponse>>> getProgramPosts(
                         @Parameter(description = "페이지 번호 (기본 0)") @RequestParam(defaultValue = "0") int page,
                         @Parameter(description = "페이지 크기 (기본 10)") @RequestParam(defaultValue = "10") int size) {
+                Integer locationId = SecurityContextHelper.getCurrentLocationId();
                 Pageable pageable = PageRequest.of(page, size);
-                Page<ProgramPostResponse> response = programPostService.getProgramPosts(pageable);
+                Page<ProgramPostResponse> response = programPostService.getProgramPosts(locationId, pageable);
                 return ResponseEntity.ok(ApiResponse.success("프로그램 게시글 조회가 완료되었습니다.", response));
         }
 
