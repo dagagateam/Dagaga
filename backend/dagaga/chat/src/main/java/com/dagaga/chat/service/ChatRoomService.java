@@ -9,6 +9,8 @@ import com.dagaga.domain.chat.user.entity.ChatRoomUserId;
 import com.dagaga.domain.chat.user.entity.Role;
 import com.dagaga.domain.chat.user.entity.UserStatus;
 import com.dagaga.domain.chat.user.repository.ChatRoomUserRepository;
+import com.dagaga.domain.post.entity.Location;
+import com.dagaga.domain.post.repository.LocationRepository;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
 import com.dagaga.chat.dto.ChatRoomResponse;
@@ -24,13 +26,16 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
     private final UserRepository userRepository;
+    private final LocationRepository locationRepository;
 
     public ChatRoomService(ChatRoomRepository chatRoomRepository,
             ChatRoomUserRepository chatRoomUserRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            LocationRepository locationRepository) {
         this.chatRoomRepository = chatRoomRepository;
         this.chatRoomUserRepository = chatRoomUserRepository;
         this.userRepository = userRepository;
+        this.locationRepository = locationRepository;
     }
 
     @Transactional(readOnly = true)
@@ -75,7 +80,14 @@ public class ChatRoomService {
     @Transactional
     public int joinDefaultRoom(int userId, int locationId) {
         ChatRoom room = chatRoomRepository.findByLocationIdAndRoomType(locationId, RoomType.DEFAULT)
-                .orElseThrow(() -> new IllegalStateException("해당 지역의 기본 채팅방이 존재하지 않습니다. locationId=" + locationId));
+                .orElseGet(() -> {
+                    Location location = locationRepository.findById(locationId)
+                            .orElseThrow(() -> new IllegalArgumentException("지역 정보를 찾을 수 없습니다. locationId=" + locationId));
+                    String title = location.getDistrictName() + " 단체 채팅방";
+                    
+                    ChatRoom newRoom = ChatRoom.createDefaultRoom(userId, locationId, title);
+                    return chatRoomRepository.save(newRoom);
+                });
 
         upsertActiveStatus(room.getRoomId(), userId, Role.MEMBER);
         return room.getRoomId();
