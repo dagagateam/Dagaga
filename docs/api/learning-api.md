@@ -133,11 +133,22 @@
 
 - **엔드포인트:** `POST /tts`
 - **요청 방식:** `POST`
+- **인증:** 필요 (Bearer token)
 - **쿼리 파라미터:**
   - `text` (String, 필수): 변환할 텍스트.
-  - `language` (String, 기본값: "ko"): 언어 코드.
+  - `language` (String): **더 이상 필요하지 않음** - JWT의 `viewLangCode`에서 자동으로 추출됩니다.
 - **응답 본문 (Response Body):**
   - **200 OK** (바이너리 데이터)
     - Content-Type: `audio/mpeg`
     - Content-Disposition: `attachment; filename="tts_ko.mp3"`
-    ```
+
+**참고:**
+- 사용자의 화면 표시 언어 코드(`viewLangCode`)가 JWT에서 자동으로 추출되어 TTS 언어로 사용됩니다.
+- 프론트엔드에서 별도로 언어 코드를 전송할 필요가 없습니다.
+
+**cURL 예시:**
+```bash
+curl -X POST "http://localhost:8080/api/v1/learning/tts?text=안녕하세요" \
+  -H "Authorization: Bearer {accessToken}" \
+  --output tts_output.mp3
+```
