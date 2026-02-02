@@ -60,7 +60,11 @@ export const useTts = () => {
 
                 await audio.play();
             } catch (error) {
-                console.error("Failed to play TTS:", error);
+                if (error.name === 'NotAllowedError') {
+                    console.warn("TTS Autoplay blocked by browser. User interaction required.");
+                } else {
+                    console.error("Failed to play TTS:", error);
+                }
                 setIsPlaying(false);
                 resolve(); // Resolve to not break the chain
             }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ProblemRepeat from "../ProblemRepeat/ProblemRepeat";
+import ProblemRepeat from "../ProblemRepeat/ProblemRepeatButton";
 import ProblemRepeatSlow from "../ProblemRepeat/ProblemRepeatSlow";
 import ProblemTranslate from "./ProblemTranslate";
 import "./ProblemAnswer.css";
@@ -70,10 +70,12 @@ const ProblemAnswer = ({ words, pronunciations, translations, currentStep, sente
               <div className="word-buttons">
                 <ProblemRepeat onClick={onReplay} />
                 <ProblemRepeatSlow onClick={onSlowReplay} />
-                <ProblemTranslate 
-                  onClick={() => toggleTranslation(index)} 
-                  active={showTranslation}
-                />
+                {translations && translations[index] && (
+                    <ProblemTranslate 
+                    onClick={() => toggleTranslation(index)} 
+                    active={showTranslation}
+                    />
+                )}
               </div>
             )}
           </div>

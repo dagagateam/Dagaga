@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Container } from "react-bootstrap";
 import CategoryPanel from "../../components/ProblemSelect/CategoryPanel";
 import ProblemCard from "../../components/ProblemSelect/ProblemCard";
@@ -9,6 +10,7 @@ import "./ProblemSelect.css";
 
 const ProblemSelect = () => {
   const { categoryId } = useParams();
+  const { t } = useTranslation();
   const [scrollOffset, setScrollOffset] = useState(0);
   const [selectedCardId, setSelectedCardId] = useState(null);
   const [problems, setProblems] = useState([]);
@@ -41,11 +43,19 @@ const ProblemSelect = () => {
         } else {
           // Fallback to static data if API fails or returns empty
           console.warn("Failed to fetch problems, response unsuccessful:", response.data);
-          setProblems(scenario?.problems || []);
+          const translatedProblems = t(`scenario_problems.${scenario.id}`, { returnObjects: true });
+          const fallbackProblems = Array.isArray(translatedProblems) 
+              ? translatedProblems.map((text, idx) => ({ id: idx + 1, text, wordTranslations: [] })) 
+              : (scenario?.problems || []);
+          setProblems(fallbackProblems);
         }
       } catch (error) {
         console.error("Error fetching problems:", error);
-        setProblems(scenario?.problems || []);
+        const translatedProblems = t(`scenario_problems.${scenario.id}`, { returnObjects: true });
+        const fallbackProblems = Array.isArray(translatedProblems) 
+            ? translatedProblems.map((text, idx) => ({ id: idx + 1, text, wordTranslations: [] })) 
+            : (scenario?.problems || []);
+        setProblems(fallbackProblems);
       } finally {
         setIsLoading(false);
       }
@@ -84,7 +94,7 @@ const ProblemSelect = () => {
   };
 
   if (!scenario) {
-    return <div>존재하지 않는 카테고리입니다.</div>;
+    return <div>{t('category_not_found')}</div>;
   }
 
   return (
@@ -94,7 +104,7 @@ const ProblemSelect = () => {
 
         <div className="problem-wheel" ref={wheelRef}>
           {isLoading ? (
-            <div className="loading-message">로딩 중...</div>
+            <div className="loading-message">{t('loading')}</div>
           ) : (
             problems.map((problem, index) => {
               // Cards spaced 15 degrees apart

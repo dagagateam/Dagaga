@@ -5,6 +5,7 @@ import {
   Dropdown,
 } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import logo from "../../assets/icons/logo.png";
 import alarm_bell from "../../assets/icons/alarm_bell.png";
 import bell from "../../assets/icons/bell.png";
@@ -14,6 +15,7 @@ import { useUserStore } from "../../store/userStore";
 import { logoutAPI } from "../../api/userApi";
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { isLoggedIn, user, logout } = useUserStore();
 
@@ -51,22 +53,22 @@ const Navbar = () => {
                 to="/ScenarioSelect"
                 className="fw-medium text-dark p-0"
               >
-                학습
+                {t('nav_learning')}
               </Nav.Link>
               <Dropdown as={Nav.Item}>
                 <Dropdown.Toggle
                   as={Nav.Link}
                   className="fw-medium text-dark p-0 border-0 bg-transparent no-caret"
                 >
-                  커뮤니티
+                  {t('nav_community')}
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu className="custom-dropdown-menu">
                   <Dropdown.Item as={Link} to="/Community/Chat">
-                    채팅
+                    {t('nav_chat')}
                   </Dropdown.Item>
                   <Dropdown.Item as={Link} to="/Community/Info">
-                    정보
+                    {t('nav_info')}
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
@@ -75,7 +77,7 @@ const Navbar = () => {
                 to="/MyPage"
                 className="fw-medium text-dark p-0"
               >
-                마이페이지
+                {t('nav_mypage')}
               </Nav.Link>
             </Nav>
 
@@ -92,7 +94,7 @@ const Navbar = () => {
             {/* 사용자 닉네임 */}
             <div className="user-info">
               <span className="user-nickname">
-                {user?.nickname || '사용자'}님
+                {user?.nickname || t('guest')}{t('user_suffix')}
               </span>
             </div>
           </>

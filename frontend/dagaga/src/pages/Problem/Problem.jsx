@@ -7,7 +7,7 @@ import ProblemRecordButton from "../../components/Problem/ProblemRecord/ProblemR
 import ProblemSoundwave from "../../components/Problem/ProblemSoundwave/ProblemSoundwave";
 import ProblemMascot from "../../components/Problem/ProblemMascot/ProblemMascot";
 import ProblemDone from "../../components/Problem/ProblemDone/ProblemDone";
-import ProblemRepeat from "../../components/Problem/ProblemRepeat/ProblemRepeat";
+import ProblemRepeat from "../../components/Problem/ProblemRepeat/ProblemRepeatButton.jsx";
 import { fetchProblemDetail, fetchProblemNative, evaluatePronunciation } from "../../api/learningApi"; // Import API
 import { useTts } from "../../hooks/useTts";
 import "./Problem.css";
@@ -112,6 +112,20 @@ const Problem = () => {
     fetchData();
   }, [categoryId, questionId, navState]);
 
+  
+  const problemText = data?.problemText || "문제를 불러오는 중...";
+  const exampleAnswer = data?.exampleAnswer;
+  
+  // Memoize words and pronunciations
+  const words = data?.words || [];
+  const pronunciations = data?.pronunciations || [];
+  const translations = data?.translations || [];
+  
+  // Total steps = individual words + 1 for reading the full sentence
+  const totalSteps = words.length + 1;
+  const isProblemDone = currentStep >= totalSteps;
+  const isFullSentenceStep = currentStep >= words.length;
+
   // Auto-play TTS when data loads: Question then Word (once per page load)
   useEffect(() => {
     const playSeq = async () => {
@@ -138,33 +152,36 @@ const Problem = () => {
     playSeq();
   }, [data, playTts]); // Only depend on data and playTts to run once when data is ready
 
+  // Auto-play TTS when moving to next word (skip step 0 as it's handled above)
+  useEffect(() => {
+    if (currentStep > 0) {
+        if (currentStep < words.length) {
+            playTts(words[currentStep]);
+        } else if (currentStep === words.length) {
+            // Play full sentence (Answer)
+            const sentenceToPlay = exampleAnswer || words.join(" ");
+            playTts(sentenceToPlay);
+        }
+    }
+  }, [currentStep, words, playTts, exampleAnswer]);
   
-  const problemText = data?.problemText || "문제를 불러오는 중...";
-  
-  // Memoize words and pronunciations
-  const words = data?.words || [];
-  const pronunciations = data?.pronunciations || [];
-  const translations = data?.translations || [];
-  
-  // Total steps = individual words + 1 for reading the full sentence
-  const totalSteps = words.length + 1;
-  const isProblemDone = currentStep >= totalSteps;
-  const isFullSentenceStep = currentStep >= words.length;
+
 
   // Animate through words during full sentence step
   useEffect(() => {
     if (isFullSentenceStep && !isProblemDone) {
       setSentenceHighlightIndex(0);
       let currentIndex = 0;
+      // Slower interval for karaoke effect (e.g., 500ms per word or based on sentence length)
       const interval = setInterval(() => {
         currentIndex++;
         if (currentIndex < words.length) {
           setSentenceHighlightIndex(currentIndex);
         } else {
-          setSentenceHighlightIndex(-1);
+          setSentenceHighlightIndex(-1); // Resets to all selected
           clearInterval(interval);
         }
-      }, 100);
+      }, 600);
       return () => clearInterval(interval);
     }
   }, [isFullSentenceStep, isProblemDone, words.length]);
@@ -204,21 +221,36 @@ const Problem = () => {
       return await evaluatePronunciation(blob, word);
   };
 
+  // Lock to prevent double submission
+  const isProcessingRef = useRef(false);
+
   const handleRecordingComplete = async ({ audioBlob }) => {
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
+
     const currentWord = currentStep < words.length ? words[currentStep] : words.join(" ");
-    console.log(`Recorded: "${currentWord}"`);
+    console.log(`[Problem] Recorded: "${currentWord}" (Step ${currentStep + 1}/${totalSteps}, Try ${currentTries + 1}/${MAX_TRIES})`);
 
     try {
         const result = await checkPronunciation(audioBlob, questionId, currentWord, currentStep);
-        if (result.success || result.data === true) { // Handle varied mock responses
+        
+        // Check if pronunciation was correct based on API response structure
+        // 'data' property holds the boolean correctness in our mock/API
+        const isCorrect = result.data === true;
+        
+        if (isCorrect) {
+            console.log("✓ Pronunciation correct!");
             handleStepComplete("correct");
         } else {
-            console.log("Incorrect");
+            console.log("✗ Pronunciation incorrect");
             const newTries = currentTries + 1;
             setCurrentTries(newTries);
+            
             if (newTries >= MAX_TRIES) {
+                console.log(`Max tries (${MAX_TRIES}) reached, marking as incorrect and moving on.`);
                 handleStepComplete("incorrect");
             } else {
+                console.log(`Try again (${newTries}/${MAX_TRIES})`);
                 if (currentStep < words.length) {
                     setWordResults(prev => ({ ...prev, [currentStep]: "incorrect" }));
                 }
@@ -226,7 +258,13 @@ const Problem = () => {
         }
     } catch (e) {
         console.error("Eval error", e);
-        handleStepComplete("incorrect"); // Fallback
+        // Fallback or just count as try? For now, fallback to incorrect to avoid stuck state
+        handleStepComplete("incorrect"); 
+    } finally {
+        // Small delay to allow state updates to settle before unlocking
+        setTimeout(() => {
+            isProcessingRef.current = false;
+        }, 500);
     }
   };
 
