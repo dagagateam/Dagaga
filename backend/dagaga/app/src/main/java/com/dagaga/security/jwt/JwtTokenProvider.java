@@ -33,8 +33,16 @@ public class JwtTokenProvider {
      */
     public String generateAccessToken(Integer userId, Integer locationId,
             String viewLangCode, String nativeLangCode) {
+        return generateAccessToken(userId, locationId, viewLangCode, nativeLangCode, accessTokenExpiry, false);
+    }
+
+    /**
+     * Access Token 생성 (커스텀 만료 시간 및 테스트 여부 포함)
+     */
+    public String generateAccessToken(Integer userId, Integer locationId,
+            String viewLangCode, String nativeLangCode, long expiryMillis, boolean isTest) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + accessTokenExpiry);
+        Date expiryDate = new Date(now.getTime() + expiryMillis);
 
         return Jwts.builder()
                 .subject(String.valueOf(userId))
@@ -42,6 +50,7 @@ public class JwtTokenProvider {
                 .claim("locationId", locationId)
                 .claim("viewLangCode", viewLangCode)
                 .claim("nativeLangCode", nativeLangCode)
+                .claim("isTest", isTest)
                 .claim("type", "access")
                 .id(UUID.randomUUID().toString())
                 .issuedAt(now)
@@ -159,5 +168,14 @@ public class JwtTokenProvider {
     public String getNativeLangCodeFromToken(String token) {
         Claims claims = getClaims(token);
         return claims.get("nativeLangCode", String.class);
+    }
+
+    /**
+     * 토큰에서 테스트 여부 추출
+     */
+    public boolean isTestToken(String token) {
+        Claims claims = getClaims(token);
+        Boolean isTest = claims.get("isTest", Boolean.class);
+        return isTest != null && isTest;
     }
 }
