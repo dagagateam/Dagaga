@@ -7,7 +7,7 @@ const ScenarioCard = ({ scenario, isSelected, onSelect }) => {
 
   const handleArrowClick = (e) => {
     e.stopPropagation();
-    navigate(`/problem-select/${scenario.id}`);
+    navigate(`/ProblemSelect/${scenario.id}`);
   };
 
   return (

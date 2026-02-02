@@ -20,7 +20,7 @@ const Navbar = () => {
       <Container fluid>
         {/* 로고 */}
         <BootstrapNavbar.Brand className="p-0">
-          <Link to={isLoggedIn ? "/scenario-select" : "/"}>
+          <Link to={isLoggedIn ? "/ScenarioSelect" : "/"}>
             <img src={logo} alt="Dagaga Logo" style={{ height: "40px" }} />
           </Link>
         </BootstrapNavbar.Brand>
@@ -33,7 +33,7 @@ const Navbar = () => {
             >
               <Nav.Link
                 as={Link}
-                to="/scenario-select"
+                to="/ScenarioSelect"
                 className="fw-medium text-dark p-0"
               >
                 학습
@@ -47,17 +47,17 @@ const Navbar = () => {
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu className="custom-dropdown-menu">
-                  <Dropdown.Item as={Link} to="/community/chat">
+                  <Dropdown.Item as={Link} to="/Community/Chat">
                     채팅
                   </Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/community/info">
+                  <Dropdown.Item as={Link} to="/Community/Info">
                     정보
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
               <Nav.Link
                 as={Link}
-                to="/my-page"
+                to="/MyPage"
                 className="fw-medium text-dark p-0"
               >
                 마이페이지

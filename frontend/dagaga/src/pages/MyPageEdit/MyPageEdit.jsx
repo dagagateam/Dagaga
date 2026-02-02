@@ -128,7 +128,7 @@ const MyPageEdit = () => {
         updates.profileImage = previewImage;
         
         updateUser(updates);
-        navigate('/my-page');
+        navigate('/MyPage');
     };
 
     return (

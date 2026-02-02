@@ -233,7 +233,7 @@ const Signup = () => {
 
             console.log("✅ 회원가입 성공! 응답:", response);
             alert("회원가입에 성공했습니다!");
-            navigate('/login');
+            navigate('/Login');
 
         } catch (error) {
             console.error("Signup failed:", error);
@@ -392,7 +392,7 @@ const Signup = () => {
                             </form>
 
                             <div className="login-link">
-                                계정이 있으신가요? <span onClick={() => navigate('/login')}>로그인</span>
+                                계정이 있으신가요? <span onClick={() => navigate('/Login')}>로그인</span>
                             </div>
                         </div>
 

@@ -165,7 +165,7 @@ const CommunityChatList = () => {
                                 <div className="regional-card-content">
                                     <h3 className="regional-card-title">{regionalChats[0].title}</h3>
                                     <div>
-                                        <Button className="join-btn" onClick={() => navigate(`/community/chat/room/${regionalChats[0].id}`)}>
+                                        <Button className="join-btn" onClick={() => navigate(`/Community/Chat/room/${regionalChats[0].id}`)}>
                                             참여하기
                                         </Button>
                                         <span className="participant-info">{regionalChats[0].participantCount}명 참여중</span>

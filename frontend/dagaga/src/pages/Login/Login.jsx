@@ -41,7 +41,7 @@ const Login = () => {
                 });
 
                 // 3. 메인 페이지로 이동
-                navigate('/scenario-select');
+                navigate('/ScenarioSelect');
             } else {
                 console.log('Login failed: invalid userId received', userId);
                 setLoginError("이메일 또는 비밀번호가 잘못 되었습니다.");
@@ -115,7 +115,7 @@ const Login = () => {
                             </form>
 
                             <div className="signup-link">
-                                아직 계정이 없으신가요? <span onClick={() => navigate('/signup')} style={{ cursor: 'pointer', color: '#0066cc', fontWeight: 'bold' }}>회원가입</span>
+                                아직 계정이 없으신가요? <span onClick={() => navigate('/Signup')} style={{ cursor: 'pointer', color: '#0066cc', fontWeight: 'bold' }}>회원가입</span>
                             </div>
 
                             <div className="divider">

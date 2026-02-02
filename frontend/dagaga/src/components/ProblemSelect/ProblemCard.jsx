@@ -17,7 +17,7 @@ const ProblemCard = ({
   // Pass translations in navigating state
   const handleExampleClick = (e) => {
     e.stopPropagation(); 
-    navigate(`/problem/${categoryId}/${problemNumber}`, { 
+    navigate(`/Problem/${categoryId}/${problemNumber}`, { 
       state: { 
         categoryId, 
         problemText,
@@ -31,7 +31,7 @@ const ProblemCard = ({
 
   const handleTranslateClick = (e) => {
     e.stopPropagation(); 
-    navigate(`/problem-translate/${categoryId}/${problemNumber}`, { 
+    navigate(`/ProblemTranslate/${categoryId}/${problemNumber}`, { 
       state: { 
         problemText,
         words,

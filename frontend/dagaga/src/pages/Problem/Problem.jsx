@@ -260,7 +260,7 @@ const Problem = () => {
       <ProblemProgress 
         current={currentStageIndex + 1} 
         total={scenarionStages.length} 
-        onExit={() => navigate('/scenario')} 
+        onExit={() => navigate('/ScenarioSelect')} 
       />
       
       <div className="problem-question">

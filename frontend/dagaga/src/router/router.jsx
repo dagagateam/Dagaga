@@ -16,65 +16,57 @@ import MyPageEdit from "../pages/MyPageEdit/MyPageEdit";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/login" replace />,
+    element: <Navigate to="/Login" replace />,
   },
   {
-    path: "/login",
+    path: "/Login",
     element: <Login />,
   },
   {
-    path: "/signup",
+    path: "/Signup",
     element: <Signup />,
   },
   {
     element: <App />,
     children: [
       {
-        path: "scenario-select",
+        path: "ScenarioSelect",
         element: <ScenarioSelect />,
       },
       {
-        path: "problem-select/:categoryId",
+        path: "ProblemSelect/:categoryId",
         element: <ProblemSelect />,
       },
       {
-        path: "problem/:categoryId/:questionId",
+        path: "Problem/:categoryId/:questionId",
         element: <Problem />,
       },
       {
-        path: "community/info",
+        path: "Community/Info",
         element: <CommunityInfo />,
       },
       {
-        path: "community/info/:id",
+        path: "Community/Info/:id",
         element: <CommunityInfoDetail />,
       },
       {
-        path: "problem-translate/:categoryId/:problemId",
+        path: "ProblemTranslate/:categoryId/:problemId",
         element: <ProblemNative />,
       },
       {
-        path: "community/chat",
+        path: "Community/Chat",
         element: <CommunityChatList />,
       },
       {
-        path: "community/chat/room/:id",
+        path: "Community/Chat/room/:id",
         element: <CommunityChatRoom />,
       },
       {
-        path: "my-page",
+        path: "MyPage",
         element: <MyPage />,
       },
       {
-        path: "my-page/edit",
-        element: <MyPageEdit />,
-      },
-      {
-        path: "my-page",
-        element: <MyPage />,
-      },
-      {
-        path: "my-page/edit",
+        path: "MyPage/Edit",
         element: <MyPageEdit />,
       },
     ],
