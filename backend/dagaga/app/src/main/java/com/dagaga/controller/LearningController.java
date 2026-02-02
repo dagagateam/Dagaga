@@ -234,10 +234,13 @@ public class LearningController {
         public ResponseEntity<ApiResponse<QuestionWithExampleResponse>> getQuestionWithExample(
                         @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true) @PathVariable String categoryId,
                         @Parameter(description = "질문 순서 (1부터 시작)", required = true) @PathVariable Integer orderIndex) {
-                log.info("Fetching question with example for category: {}, order: {}", categoryId, orderIndex);
+                // JWT에서 사용자의 모국어 코드 추출
+                String nativeLangCode = SecurityContextHelper.getCurrentNativeLangCode();
+                log.info("Fetching question with example for category: {}, order: {}, nativeLangCode: {} (from JWT)",
+                                categoryId, orderIndex, nativeLangCode);
 
                 QuestionWithExampleResponse originalResponse = questionService.getQuestionWithExample(categoryId,
-                                orderIndex);
+                                orderIndex, nativeLangCode);
 
                 // GMS API를 통해 단어 분리 및 발음 가이드 생성
                 String exampleAnswer = originalResponse.getExampleAnswer();
@@ -250,6 +253,10 @@ public class LearningController {
                                 .exampleAnswer(exampleAnswer)
                                 .words(words)
                                 .pronunciationGuide(pronunciationGuide)
+                                .viQuestions(originalResponse.getViQuestions())
+                                .viAnswers(originalResponse.getViAnswers())
+                                .zhQuestions(originalResponse.getZhQuestions())
+                                .zhAnswers(originalResponse.getZhAnswers())
                                 .build();
 
                 return ResponseEntity.ok(ApiResponse.success(

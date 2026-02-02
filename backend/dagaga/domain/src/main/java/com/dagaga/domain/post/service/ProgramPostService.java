@@ -5,8 +5,10 @@ import com.dagaga.domain.post.dto.ProgramPostResponse;
 import com.dagaga.domain.post.entity.Location;
 import com.dagaga.domain.post.entity.Post;
 import com.dagaga.domain.post.entity.Program;
+import com.dagaga.domain.post.entity.ProgramImage;
 import com.dagaga.domain.post.repository.LocationRepository;
 import com.dagaga.domain.post.repository.PostRepository;
+import com.dagaga.domain.post.repository.ProgramImageRepository;
 import com.dagaga.domain.post.repository.ProgramRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,7 +28,7 @@ public class ProgramPostService {
     private final PostRepository postRepository;
     private final ProgramRepository programRepository;
     private final LocationRepository locationRepository;
-    private final com.dagaga.domain.post.repository.ProgramImageRepository programImageRepository;
+    private final ProgramImageRepository programImageRepository;
 
     private static final String DEFAULT_CATEGORY = "PROGRAM";
     private static final Integer ADMIN_USER_ID = 1; // Assuming admin user ID is 1
@@ -55,7 +58,7 @@ public class ProgramPostService {
         if (post.getArticleSeq() != null) {
             imageUrls = programImageRepository.findAllByArticleSeqOrderByImageOrderAsc(post.getArticleSeq())
                     .stream()
-                    .map(com.dagaga.domain.post.entity.ProgramImage::getImageUrl)
+                    .map(ProgramImage::getImageUrl)
                     .toList();
         } else if (post.getContentImages() != null) {
             imageUrls = post.getContentImages();
@@ -102,7 +105,7 @@ public class ProgramPostService {
         List<String> imageUrls = programImageRepository
                 .findAllByArticleSeqOrderByImageOrderAsc(program.getArticleSeq())
                 .stream()
-                .map(com.dagaga.domain.post.entity.ProgramImage::getImageUrl)
+                .map(ProgramImage::getImageUrl)
                 .toList();
 
         Post post = Post.builder()
@@ -168,15 +171,15 @@ public class ProgramPostService {
         // Fetch programs ONLY for the matching article sequences to optimize
         // performance
         Map<Integer, Program> programMap = programRepository.findAllByArticleSeqIn(articleSeqs).stream()
-                .collect(java.util.stream.Collectors.toMap(Program::getArticleSeq, p -> p));
+                .collect(Collectors.toMap(Program::getArticleSeq, p -> p));
 
         // Fetch multiple images for each program
         Map<Integer, List<String>> imageMap = programImageRepository
                 .findAllByArticleSeqIn(articleSeqs).stream()
-                .collect(java.util.stream.Collectors.groupingBy(
-                        com.dagaga.domain.post.entity.ProgramImage::getArticleSeq,
-                        java.util.stream.Collectors.mapping(com.dagaga.domain.post.entity.ProgramImage::getImageUrl,
-                                java.util.stream.Collectors.toList())));
+                .collect(Collectors.groupingBy(
+                        ProgramImage::getArticleSeq,
+                        Collectors.mapping(ProgramImage::getImageUrl,
+                                Collectors.toList())));
 
         return posts.map(post -> {
             Program program = programMap.get(post.getArticleSeq());
