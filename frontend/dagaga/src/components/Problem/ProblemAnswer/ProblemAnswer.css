@@ -3,7 +3,7 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem; /* Reduced from 20px */
-  padding: 0.5rem 0; /* Reduced from 10px */
+  padding: 0.5rem 0; /* Reduced from 10p  x */
 }
 
 .problem-native-answer {
@@ -11,7 +11,7 @@
   text-align: center;
   font-family: var(--main-font);
   font-size: 1rem; /* Reduced from 1.2rem */
-  color: var(--main-orange, #F3AE5C);
+  color: #999;
   margin-bottom: 0.5rem; /* Reduced from 20px */
   min-height: 1.5em; /* Prevent layout jump */
   opacity: 0;
