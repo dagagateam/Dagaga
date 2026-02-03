@@ -2,14 +2,14 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 15px;
-  padding: 10px 40px;
+  gap: 0.5rem; /* Reduced from 15px */
+  padding: 0.5rem 1rem; /* Reduced from 10px 40px */
   width: 100%;
 }
 
 .pronunciation-word {
   font-family: var(--main-font);
-  font-size: 1.1rem;
+  font-size: 0.9rem; /* Reduced from 1.1rem */
   color: #888;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.2em; /* Reduced from 0.3rem */
 }

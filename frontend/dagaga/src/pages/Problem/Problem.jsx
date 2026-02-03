@@ -36,7 +36,7 @@ const Problem = () => {
   const [currentStep, setCurrentStep] = useState(0); 
   const [wordResults, setWordResults] = useState({});
   const [isRecording, setIsRecording] = useState(false);
-  const [showNative, setShowNative] = useState(false);
+  const [showNative, setShowNative] = useState(true); // Default to showing native (translated) text
   const [sentenceHighlightIndex, setSentenceHighlightIndex] = useState(-1);
   const [currentTries, setCurrentTries] = useState(0);
   
@@ -94,26 +94,30 @@ const Problem = () => {
                 const apiData = detailRes.data.data;
                 console.log("[Problem Debug] Full API Data Object:", apiData); // LOG FULL OBJECT
                 
-                // Determine native question/answer based on user language
+                // Determine native question/answer based on user language or fallback to available translation
                 let nativeQ = null;
                 let nativeA = null;
 
-                if (userLanguage === 'vi') {
+                // Priority: User's View Language -> Vietnamese (Mock Support) -> Chinese (Future)
+                if (userLanguage === 'vi' || apiData.viQuestions) {
                     nativeQ = apiData.viQuestions;
                     nativeA = apiData.viAnswers;
-                } else if (userLanguage === 'zh') {
+                } else if (userLanguage === 'zh' || apiData.zhQuestions) {
                     nativeQ = apiData.zhQuestions;
                     nativeA = apiData.zhAnswers;
                 }
 
-                // Fallback for question if specific language missing
+                // If translation exists, set showNative to true by default (if not already handled)
+                // Note: We initialized state to false, but we can update it here if meaningful
+                
+                // Fallback for question if translation is missing -> Use Original
                 if (!nativeQ) {
                      nativeQ = (nativeRes.data && nativeRes.data.success) ? nativeRes.data.data : apiData.questionText;
                 }
                 
                 console.log("[Problem] User Language:", userLanguage);
-                console.log("[Problem] Native Question:", nativeQ);
-                console.log("[Problem] Native Answer:", nativeA);
+                console.log("[Problem] Native Question (Translated):", nativeQ);
+                console.log("[Problem] Native Answer (Translated):", nativeA);
 
                 setData({
                     problemText: apiData.questionText,

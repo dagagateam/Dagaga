@@ -12,9 +12,6 @@ const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIn
   return (
     <>
       {/* Show full native answer above the words if toggle is active */}
-     <div className={`problem-native-answer ${showTranslations ? 'visible' : ''}`}>
-        {nativeAnswer || "\u00A0"}
-     </div>
 
     <div className="problem-answer-words">
       {words.map((word, index) => {
@@ -65,6 +62,9 @@ const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIn
           </div>
         );
       })}
+     <div className={`problem-native-answer ${showTranslations ? 'visible' : ''}`}>
+        {nativeAnswer || "\u00A0"}
+     </div>
       {/* Show repeat buttons for entire sentence during full sentence mode - visible only when all selected */}
       {isFullSentenceStep && (
         <div className={`sentence-buttons ${isAllSelected ? 'visible' : ''}`}>

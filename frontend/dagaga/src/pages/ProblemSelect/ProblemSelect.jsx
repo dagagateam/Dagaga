@@ -5,7 +5,7 @@ import { Container } from "react-bootstrap";
 import CategoryPanel from "../../components/ProblemSelect/CategoryPanel";
 import ProblemCard from "../../components/ProblemSelect/ProblemCard";
 import { scenarios } from "../../data/scenarios";
-import { fetchCategoryStages, fetchProblemDetail } from "../../api/learningApi";
+import { fetchCategoryStages } from "../../api/learningApi";
 import { useUserStore } from "../../store/userStore";
 import "./ProblemSelect.css";
 
@@ -35,31 +35,17 @@ const ProblemSelect = () => {
         console.log("API Full Response:", response);
         if (response.data && response.data.success) {
           const basicProblems = response.data.data;
-
-          const detailPromises = basicProblems.map(p => 
-             fetchProblemDetail(categoryId, p.orderIndex || p.questionId)
-          );
           
-          const detailsResponses = await Promise.all(detailPromises);
-          
-          console.log("DETAILS RESPONSES:", detailsResponses); // Debug Log
+          const formattedProblems = basicProblems.map((item) => ({
+            id: item.questionId,
+            ...item,
+            // Assuming viQuestion and zhQuestion now come directly from fetchCategoryStages
+            viQuestion: item.viQuestion || item.viQuestions, 
+            zhQuestion: item.zhQuestion || item.zhQuestions,
+            pronunciations: item.pronunciation_guide || item.pronunciationGuide || [],
+          }));
 
-          const problemsWithDetails = basicProblems.map((item, index) => {
-             const detailRes = detailsResponses[index];
-             const detailData = (detailRes?.data?.success) ? detailRes.data.data : {};
-             
-             console.log(`Problem ${item.questionId} Details Data:`, detailData); // Debug Log
-
-             return {
-                 id: item.questionId,
-                 ...item,
-                 viQuestion: detailData.viQuestions,
-                 zhQuestion: detailData.zhQuestions,
-                 pronunciations: item.pronunciation_guide || item.pronunciationGuide || [],
-             };
-          });
-
-          setProblems(problemsWithDetails);
+          setProblems(formattedProblems);
         } else {
           // Fallback
           console.warn("Failed to fetch problems, response unsuccessful:", response.data);
@@ -82,7 +68,7 @@ const ProblemSelect = () => {
     };
 
     loadProblems();
-  }, [categoryId, scenario, t]); // Added 't' to dept array to match standard practices
+  }, [categoryId, scenario, t]);
 
   // Handle wheel scroll with limits
   const handleWheel = useCallback((e) => {

@@ -2,17 +2,17 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 20px;
-  padding: 10px 0;
+  gap: 0.5rem; /* Reduced from 20px */
+  padding: 0.5rem 0; /* Reduced from 10p  x */
 }
 
 .problem-native-answer {
   width: 100%;
   text-align: center;
   font-family: var(--main-font);
-  font-size: 1.2rem;
-  color: var(--main-orange, #F3AE5C);
-  margin-bottom: 20px;
+  font-size: 1rem; /* Reduced from 1.2rem */
+  color: #999;
+  margin-bottom: 0.5rem; /* Reduced from 20px */
   min-height: 1.5em; /* Prevent layout jump */
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -27,11 +27,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 0.25rem; /* Reduced from 5px */
 }
 
 .word {
-  font-size: 2rem;
+  font-size: 1.5rem; /* Reduced from 2rem */
   font-weight: 600;
   font-family: var(--main-font);
   color: #999;
@@ -52,9 +52,9 @@
 
 .pronunciation {
   font-family: var(--main-font);
-  font-size: 0.95rem;
+  font-size: 0.8rem; /* Reduced from 0.95rem */
   color: #aaa;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.15em; /* Reduced from 0.2em */
   transition: color 0.3s ease;
 }
 
@@ -85,8 +85,8 @@
 
 .word-buttons {
   display: flex;
-  gap: 10px;
-  margin-top: 8px;
+  gap: 0.5rem; /* Reduced from 10px */
+  margin-top: 0.5rem; /* Reduced from 8px */
 }
 
 /* Highlight animation during full sentence mode */
@@ -102,10 +102,10 @@
 
 .sentence-buttons {
   display: flex;
-  gap: 10px;
+  gap: 0.5rem; /* Reduced from 10px */
   width: 100%;
   justify-content: center;
-  margin-top: 15px;
+  margin-top: 0.75rem; /* Reduced from 15px */
   visibility: hidden;
 }
 
