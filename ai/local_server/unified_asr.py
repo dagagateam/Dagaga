@@ -4,6 +4,10 @@ import logging
 from pathlib import Path
 from typing import Optional
 import torch
+from dotenv import load_dotenv
+
+# .env 파일 로드
+load_dotenv()
 
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -148,33 +152,183 @@ def get_asr_pipeline():
 
 
 
-"구글 번역"
+"Gemini 번역"
 async def translate_text(text: str, source_lang: str, target_lang: str = "ko") -> str:
     try:
-        # deep-translator 언어 코드 매핑
-        lang_map = {
-            "zh-cn": "zh-CN",
-            "zh": "zh-CN",
-            "cn": "zh-CN",
-            "vi": "vi",
-            "ko": "ko",
-            "en": "en",
-            "ja": "ja"
+        # 언어 코드를 한국어 이름으로 매핑
+        lang_name_map = {
+            "zh-cn": "중국어",
+            "zh": "중국어",
+            "cn": "중국어",
+            "vi": "베트남어",
+            "ko": "한국어",
+            "en": "영어",
+            "ja": "일본어"
         }
         
-        source = lang_map.get(source_lang.lower(), source_lang)
-        target = lang_map.get(target_lang.lower(), target_lang)
+        source_name = lang_name_map.get(source_lang.lower(), source_lang)
+        target_name = lang_name_map.get(target_lang.lower(), "한국어")
         
-        # deep-translator 사용 (동기 방식)
-        translator = GoogleTranslator(source=source, target=target)
-        result = translator.translate(text)
-        return result
-    except Exception as e:
-        logger.error(f"Translation error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Translation failed: {str(e)}"
+        # llm 사용해서 어구 자연스럽게 만들기
+        import requests
+        
+        translation_api_key = os.getenv("TRANSLATION_API_KEY")
+        translation_model = os.getenv("TRANSLATION_MODEL")
+        translation_api_url = os.getenv("TRANSLATION_API_URL")
+        
+        if not translation_api_key:
+            logger.warning("GMS API 키 값이 잘 못 설정되었습니다. 구글 번역 API 사용")
+            # Fallback to Google Translator
+            from deep_translator import GoogleTranslator
+            lang_map = {
+                "zh-cn": "zh-CN", "zh": "zh-CN", "cn": "zh-CN",
+                "vi": "vi", "ko": "ko", "en": "en", "ja": "ja"
+            }
+            source = lang_map.get(source_lang.lower(), source_lang)
+            target = lang_map.get(target_lang.lower(), target_lang)
+            translator = GoogleTranslator(source=source, target=target)
+            return translator.translate(text)
+        
+        # 번역 프롬프트 (자연스러운 구어체로 변환하기)
+        prompt = f"""다음 {source_name} 문장을 {target_name}로 번역하세요.
+
+중요한 규칙:
+1. 자연스러운 구어체로 번역 (예: "합니다" → "해요", "갑니다" → "가요")
+2. 외국인 학습자가 일상 대화에서 사용할 수 있는 표현 사용
+3. 의미는 정확하게 유지
+4. 설명 없이 번역된 문장만 출력
+
+예시:
+입력 (중국어): 我去学校
+출력: 저는 학교에 가요
+
+입력 (베트남어): Tôi đi học
+출력: 저는 학교에 가요
+
+입력 ({source_name}): {text}
+출력:"""
+
+        # OpenAI API 형식 (GPT-4.1-nano)
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {translation_api_key}"
+        }
+        
+        payload = {
+            "model": translation_model,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "너는 자연스러운 구어체로 번역하는 전문가다. 설명 없이 번역된 문장만 출력한다."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "max_completion_tokens": 256,
+            "temperature": 0
+        }
+        
+        logger.info(f"Translating with {translation_model}: '{text}' ({source_name} → {target_name})")
+        
+        # # Gemini API 형식 (flash-2.5)
+        # headers = {
+        #     "Content-Type": "application/json",
+        #     "x-goog-api-key": translation_api_key
+        # }
+        # 
+        # payload = {
+        #     "contents": [
+        #         {
+        #             "parts": [
+        #                 {
+        #                     "text": prompt
+        #                 }
+        #             ]
+        #         }
+        #     ]
+        # }
+        # 
+        # logger.info(f"Translating with Gemini 2.5 Flash: '{text}' ({source_name} → {target_name})")
+        
+        response = requests.post(
+            translation_api_url,
+            headers=headers,
+            json=payload,
+            timeout=15
         )
+        
+        if response.status_code >= 400:
+            logger.warning(f"Translation API error: {response.status_code}, falling back to Google Translator")
+            # Fallback
+            from deep_translator import GoogleTranslator
+            lang_map = {
+                "zh-cn": "zh-CN", "zh": "zh-CN", "cn": "zh-CN",
+                "vi": "vi", "ko": "ko", "en": "en", "ja": "ja"
+            }
+            source = lang_map.get(source_lang.lower(), source_lang)
+            target = lang_map.get(target_lang.lower(), target_lang)
+            translator = GoogleTranslator(source=source, target=target)
+            return translator.translate(text)
+        
+        result = response.json()
+        
+        # OpenAI 응답 파싱
+        if "choices" in result and len(result["choices"]) > 0:
+            translated = result["choices"][0]["message"]["content"].strip()
+            logger.info(f"✓ {translation_model} translation: '{text}' → '{translated}'")
+            return translated
+        else:
+            logger.warning(f"{translation_model} returned no choices, falling back to Google Translator")
+            # Fallback
+            from deep_translator import GoogleTranslator
+            lang_map = {
+                "zh-cn": "zh-CN", "zh": "zh-CN", "cn": "zh-CN",
+                "vi": "vi", "ko": "ko", "en": "en", "ja": "ja"
+            }
+            source = lang_map.get(source_lang.lower(), source_lang)
+            target = lang_map.get(target_lang.lower(), target_lang)
+            translator = GoogleTranslator(source=source, target=target)
+            return translator.translate(text)
+        
+        # # Gemini 응답 파싱
+        # if "candidates" in result and len(result["candidates"]) > 0:
+        #     translated = result["candidates"][0]["content"]["parts"][0]["text"].strip()
+        #     logger.info(f"✓ Gemini translation: '{text}' → '{translated}'")
+        #     return translated
+        # else:
+        #     logger.warning("Gemini returned no candidates, falling back to Google Translator")
+        #     # Fallback
+        #     from deep_translator import GoogleTranslator
+        #     lang_map = {
+        #         "zh-cn": "zh-CN", "zh": "zh-CN", "cn": "zh-CN",
+        #         "vi": "vi", "ko": "ko", "en": "en", "ja": "ja"
+        #     }
+        #     source = lang_map.get(source_lang.lower(), source_lang)
+        #     target = lang_map.get(target_lang.lower(), target_lang)
+        #     translator = GoogleTranslator(source=source, target=target)
+        #     return translator.translate(text)
+        
+    except Exception as e:
+        logger.error(f"Translation error: {e}, falling back to Google Translator")
+        # 구글 번역 FallBack
+        try:
+            from deep_translator import GoogleTranslator
+            lang_map = {
+                "zh-cn": "zh-CN", "zh": "zh-CN", "cn": "zh-CN",
+                "vi": "vi", "ko": "ko", "en": "en", "ja": "ja"
+            }
+            source = lang_map.get(source_lang.lower(), source_lang)
+            target = lang_map.get(target_lang.lower(), target_lang)
+            translator = GoogleTranslator(source=source, target=target)
+            return translator.translate(text)
+        except Exception as fallback_error:
+            logger.error(f"Fallback translation also failed: {fallback_error}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Translation failed: {str(e)}"
+            )
 
 
 # Startup
