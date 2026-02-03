@@ -98,13 +98,20 @@ public class TranslationAdapter implements TranslationPort {
                     .text();
 
             jsonText = jsonText.replaceAll("```json|```", "").trim();
+            log.debug("Raw Translation Response: {}", jsonText);
+
+            // 배열([])로 감싸져서 오는 경우 처리
+            if (jsonText.startsWith("[")) {
+                 List<Map<String, String>> list = objectMapper.readValue(jsonText, new TypeReference<>() {});
+                 return list.isEmpty() ? Collections.emptyMap() : list.get(0);
+            }
 
             // json 문자열을 Map으로 변환
             return objectMapper.readValue(jsonText, new TypeReference<>() {
             });
 
         } catch (Exception e) {
-            log.error("번역 결과 파싱 실패", e);
+            log.error("번역 결과 파싱 실패. Error: {}, Response: {}", e.getMessage(), response);
             return Collections.emptyMap();
         }
     }
