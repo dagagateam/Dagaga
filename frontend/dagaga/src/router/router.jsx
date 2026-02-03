@@ -14,6 +14,7 @@ import MyPage from "../pages/MyPage/MyPage";
 import MyPageEdit from "../pages/MyPageEdit/MyPageEdit";
 import AuthSuccess from "../pages/Login/AuthSuccess";
 import SocialSignup from "../pages/Signup/SocialSignup";
+import Homepage from "../pages/Homepage/Homepage";
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
       {
         path: "ScenarioSelect",
         element: <ScenarioSelect />,
+      },
+      {
+        path: "Homepage",
+        element: <Homepage />,
       },
       {
         path: "ProblemSelect/:categoryId",
