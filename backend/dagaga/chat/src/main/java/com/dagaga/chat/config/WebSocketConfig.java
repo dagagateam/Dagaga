@@ -11,15 +11,15 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final StompHandler stompHandler;
+    private final JwtStompInterceptor jwtStompInterceptor;
 
-    public WebSocketConfig(StompHandler stompHandler) {
-        this.stompHandler = stompHandler;
+    public WebSocketConfig(JwtStompInterceptor jwtStompInterceptor) {
+        this.jwtStompInterceptor = jwtStompInterceptor;
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws-chat")  // 연결될 엔드포인트
+        registry.addEndpoint("/ws-chat") // 연결될 엔드포인트
                 .setAllowedOriginPatterns("*");
     }
 
@@ -34,6 +34,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(stompHandler);
+        registration.interceptors(jwtStompInterceptor);
     }
 }
