@@ -5,8 +5,9 @@ import './CommunityChatRoom.css';
 import chattingTiger from '../../../assets/characters/chat_tiger.png';
 import EmojiPicker from 'emoji-picker-react';
 import ChatMessage from '../../../components/community/chat/ChatMessage';
-import { fetchChatMessages, fetchJoinedChats, sendChatMessage } from '../../../api/communityApi';
+import { fetchChatMessages, fetchJoinedChats } from '../../../api/communityApi';
 import { useUserStore } from '../../../store/userStore';
+import { Client } from '@stomp/stompjs';
 
 const CommunityChatRoom = () => {
     const { id } = useParams();
@@ -18,9 +19,10 @@ const CommunityChatRoom = () => {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [showMoreMenu, setShowMoreMenu] = useState(false);
     const [messages, setMessages] = useState([]);
+    const stompClient = React.useRef(null);
 
     // Get user data from store (or use test data for now)
-    const { user } = useUserStore();
+    const { user, accessToken } = useUserStore();
     // Test user data: userId: 27, locationId: 86, nickname: "오호라비비빅"
     const currentUserId = user?.userId || 27;
     const userLocationId = user?.locationId || 86;
@@ -59,6 +61,78 @@ const CommunityChatRoom = () => {
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    // WebSocket Connection
+    useEffect(() => {
+        if (!id || !user?.userId || !accessToken) return;
+
+        console.log('Initiating WebSocket connection...');
+        
+        // 백엔드 URL 결정 (환경 변수 또는 기본값)
+        // 로컬 테스트 시 .env에 VITE_BACKEND_URL=http://localhost:8080 추가 권장
+        const baseURL = import.meta.env.VITE_BACKEND_URL || 'https://i14b110.p.ssafy.io';
+        const wsURL = baseURL.replace(/^http/, 'ws') + '/ws-chat';
+        
+        console.log('Connecting to WebSocket URL:', wsURL);
+
+        const client = new Client({
+            // SockJS 대신 기본 WebSocket 사용
+            brokerURL: wsURL,
+            connectHeaders: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+            debug: function (str) {
+                console.log('STOMP: ' + str);
+            },
+            reconnectDelay: 5000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+            onConnect: (frame) => {
+                console.log('STOMP Connected: ' + frame);
+                
+                // Subscribe to room messages
+                client.subscribe(`/sub/chat/rooms/${id}`, (message) => {
+                    if (message.body) {
+                        try {
+                            const receivedMsg = JSON.parse(message.body);
+                            console.log('Received message:', receivedMsg);
+                            
+                            const newMsg = {
+                                id: receivedMsg.messageId,
+                                sender: receivedMsg.senderId === user.userId ? '나' : `User ${receivedMsg.senderId}`, // 닉네임 매핑 필요 시 추가 로직 필요
+                                text: receivedMsg.originalText,
+                                time: new Date(receivedMsg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                isMe: receivedMsg.senderId === user.userId,
+                                type: 'text'
+                            };
+
+                            setMessages((prev) => {
+                                // 중복 방지 (ID 기준)
+                                if (prev.some(m => m.id === newMsg.id)) return prev;
+                                return [...prev, newMsg];
+                            });
+                        } catch (e) {
+                            console.error('Failed to parse message body:', e);
+                        }
+                    }
+                });
+            },
+            onStompError: (frame) => {
+                console.error('Broker reported error: ' + frame.headers['message']);
+                console.error('Additional details: ' + frame.body);
+            },
+        });
+
+        client.activate();
+        stompClient.current = client;
+
+        return () => {
+            if (client) {
+                console.log('Deactivating STOMP client...');
+                client.deactivate();
+            }
+        };
+    }, [id, user?.userId, accessToken]);
 
     const [joinedChats, setJoinedChats] = useState([]);
     const [currentRoomInfo, setCurrentRoomInfo] = useState(null);
@@ -104,28 +178,25 @@ const CommunityChatRoom = () => {
         e.preventDefault();
         if (!message.trim()) return;
 
-        try {
-            // Send message to API
-            await sendChatMessage(id, message.trim());
-
-            // Add message to local state for immediate display
-            const newMsg = {
-                id: Date.now(),
-                sender: '나',
-                text: message,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                isMe: true,
-                type: 'text'
-            };
-            setMessages([...messages, newMsg]);
-            setMessage('');
-
-            // Optionally reload messages from API to get server-side data
-            // const apiMessages = await fetchChatMessages(id, userLocationId);
-            // ... map and setMessages
-        } catch (error) {
-            console.error('Failed to send message:', error);
-            alert('메시지 전송에 실패했습니다. 다시 시도해주세요.');
+        if (stompClient.current && stompClient.current.connected) {
+            try {
+                // STOMP를 통해 메시지 전송
+                stompClient.current.publish({
+                    destination: '/pub/chat/message',
+                    body: JSON.stringify({
+                        roomId: parseInt(id), // ID must be integer
+                        originalText: message.trim()
+                    })
+                });
+                setMessage('');
+                // 메시지는 구독 콜백을 통해 UI에 추가됨
+            } catch (error) {
+                console.error('Failed to send message via STOMP:', error);
+                alert('메시지 전송에 실패했습니다. (Socket Error)');
+            }
+        } else {
+            console.warn('STOMP client is not connected.');
+            alert('채팅 서버에 연결되어 있지 않습니다. 잠시 후 다시 시도해주세요.');
         }
     };
 
