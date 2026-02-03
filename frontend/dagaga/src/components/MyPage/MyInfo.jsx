@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, Row, Col, Button } from 'react-bootstrap';
 import { useUserStore } from '../../store/userStore';
+import { getLocationName } from '../../data/regionData';
 import './MyInfo.css';
 
 const MyInfo = () => {
@@ -10,14 +11,36 @@ const MyInfo = () => {
   const { t } = useTranslation();
   const { user } = useUserStore();
 
-  const userInfo = user || {
-    nickname: "Guest",
-    email: "-",
-    preferredLang: "-",
-    nativeLang: "-",
-    region: "-",
-    entryDate: "-"
-  };
+  const userInfo = (() => {
+    if (!user) return {
+      nickname: "Guest",
+      email: "-",
+      preferredLang: "-",
+      nativeLang: "-",
+      region: "-",
+      entryDate: "-"
+    };
+
+    // Helper to format date YYYY/MM/DD
+    const formatDate = (dateString) => {
+        if (!dateString) return "-";
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString; // fallback if invalid
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}/${month}/${day}`;
+    };
+
+    return {
+      nickname: user.nickname || "-",
+      email: user.email || "-",
+      preferredLang: user.viewLangCode === 'ko' ? '한국어' : user.viewLangCode === 'en' ? 'English' : user.viewLangCode || "-",
+      nativeLang: user.nativeLangCode === 'ko' ? '한국어' : user.nativeLangCode === 'en' ? 'English' : user.nativeLangCode || "-",
+      region: getLocationName(user.locationId) || "-",
+      entryDate: formatDate(user.arrivalDate)
+    };
+  })();
 
   return (
     <Card className="my-info-card">
@@ -37,7 +60,7 @@ const MyInfo = () => {
           </Col>
           <Col md={4} className="info-item">
             <label className="info-label">{t('region')}</label>
-            <div className="info-value">{userInfo.regionName || userInfo.region}</div>
+            <div className="info-value">{userInfo.region}</div>
           </Col>
           
           <Col md={4} className="info-item mt-3">
