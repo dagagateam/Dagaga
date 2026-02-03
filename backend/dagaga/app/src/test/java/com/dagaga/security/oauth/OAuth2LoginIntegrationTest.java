@@ -63,7 +63,7 @@ public class OAuth2LoginIntegrationTest {
 
                 successHandler.onAuthenticationSuccess(request, response, authentication);
 
-                assertThat(response.getRedirectedUrl()).contains("/social-signup");
+                assertThat(response.getRedirectedUrl()).contains("/Signup/Social");
                 assertThat(response.getRedirectedUrl()).contains("email=newuser@gmail.com");
         }
 
@@ -101,7 +101,7 @@ public class OAuth2LoginIntegrationTest {
 
                 successHandler.onAuthenticationSuccess(request, response, authentication);
 
-                assertThat(response.getRedirectedUrl()).contains("/auth-success");
+                assertThat(response.getRedirectedUrl()).contains("/Auth/Success");
                 assertThat(response.getRedirectedUrl()).contains("accessToken=");
                 assertThat(response.getRedirectedUrl()).contains("refreshToken=");
         }

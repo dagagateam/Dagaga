@@ -2,7 +2,7 @@ package com.dagaga.security.oauth;
 
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.service.UserService;
-import com.dagaga.security.jwt.JwtTokenProvider;
+import com.dagaga.domain.security.jwt.JwtTokenProvider;
 import com.dagaga.security.redis.RedisTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
