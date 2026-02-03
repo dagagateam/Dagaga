@@ -111,7 +111,7 @@ const CommunityChatRoom = () => {
                                 // 중복 방지 (ID 기준)
                                 if (prev.some(m => m.id === newMsg.id)) return prev;
                                 // 최신 메시지가 아래에 오도록 정렬 순서 유지 (기존 reverse()와 매칭)
-                                return [newMsg, ...prev]; 
+                                return [...prev, newMsg]; 
                             });
                         } catch (e) {
                             console.error('Failed to parse message body:', e);
