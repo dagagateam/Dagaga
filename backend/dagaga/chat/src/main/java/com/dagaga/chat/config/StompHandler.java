@@ -47,16 +47,15 @@ public class StompHandler implements ChannelInterceptor {
                         
                         accessor.setUser(auth);
                         SecurityContextHolder.getContext().setAuthentication(auth);
-                        log.info("STOMP Connected: userId={}, locationId={}", userId, locationId);
+                        log.info("STOMP 연결 성공: userId={}, locationId={}", userId, locationId);
                     }
                 } else {
-                    log.warn("Invalid JWT Token in STOMP connection");
-                    throw new IllegalArgumentException("Invalid Token");
+                    log.warn("STOMP 연결 실패: 유효하지 않은 JWT 토큰입니다.");
+                    throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
                 }
             } else {
-                log.warn("No Authorization header in STOMP connection");
-                // throw new IllegalArgumentException("No Authorization Header"); 
-                // Uncomment to strictly enforce auth (recommended)
+                log.warn("STOMP 연결 실패: Authorization 헤더가 필요합니다.");
+                throw new IllegalArgumentException("Authorization 헤더가 누락되었습니다."); 
             }
         }
         
