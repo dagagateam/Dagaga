@@ -69,22 +69,19 @@ Access Token과 Refresh Token을 사용하는 JWT 기반 인증 시스템을 포
 200 OK
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "tokenType": "Bearer",
   "expiresIn": 1800,
-  "userId": 123,
-  "email": "user@example.com",
-  "locationId": 1
+  "userId": 123
 }
 ```
 
 **토큰 상세:**
 - `accessToken`: API 인증을 위한 단기 토큰 (30분)
-  - JWT 페이로드에 `userId`, `locationId`, `viewLangCode`, `nativeLangCode` 포함
+  - JWT 페이로드에 `userId`, `locationId`, `viewLangCode`, `nativeLangCode`, `email`, `nickname` 포함
 - `refreshToken`: 새로운 Access Token 발급을 위한 장기 토큰 (7일)
+  - **보안**: `httpOnly` 쿠키(`refresh_token`)로 전송되며 클라이언트 스크립트에서 접근 불가
 - `expiresIn`: Access Token 만료 시간 (초 단위)
-- `viewLangCode`: 사용자의 화면 표시 언어 코드 (예: "ko", "en")
-- `nativeLangCode`: 사용자의 모국어 코드 (채팅/번역용)
+- `userId`: 로그인한 사용자의 고유 ID
 
 **오류 응답:**
 - `400 Bad Request` - 자격 증명 오류
@@ -103,26 +100,17 @@ Refresh Token을 사용하여 새로운 Access Token을 발급받습니다.
 
 **엔드포인트:** `POST /api/v1/users/refresh`
 
-**인증:** 불필요 (Body에 Refresh Token 포함)
+**인증:** 불필요 (Cookie에 Refresh Token 포함)
 
-**요청 본문 (Request Body):**
-```json
-{
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
+**요청 본문 (Request Body):** 없음 (빈 본문)
 
 **응답 (Response):**
 ```json
 200 OK
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "tokenType": "Bearer",
-  "expiresIn": 1800,
-  "userId": 123,
-  "email": "user@example.com",
-  "locationId": 1
+  "expiresIn": 1800
 }
 ```
 
@@ -342,6 +330,8 @@ curl -X GET http://localhost:8080/api/v1/posts \
   "locationId": 1,
   "viewLangCode": "ko",
   "nativeLangCode": "en",
+  "email": "user@example.com",
+  "nickname": "username",
   "type": "access",
   "jti": "unique-token-id",
   "iat": 1738471200,
@@ -428,11 +418,8 @@ curl -X GET http://localhost:8080/api/v1/posts \
   -H "Authorization: Bearer {accessToken}"
 
 # 4. Access Token 만료 시 토큰 갱신 (Refresh token)
-curl -X POST http://localhost:8080/api/v1/users/refresh \
-  -H "Content-Type: application/json" \
-  -d '{
-    "refreshToken": "{refreshToken}"
-  }'
+# 브라우저가 쿠키에 있는 refresh_token을 자동으로 전송합니다.
+curl -X POST http://localhost:8080/api/v1/users/refresh -b "refreshToken={refreshToken}"
 
 # 5. 로그아웃 (Logout)
 curl -X POST http://localhost:8080/api/v1/users/logout \

@@ -1,7 +1,8 @@
 package com.dagaga.chat.controller;
 
 import com.dagaga.chat.dto.ChatMessageResponse;
-import com.dagaga.domain.security.SecurityContextHelper;
+import com.dagaga.domain.security.CurrentUser;
+import com.dagaga.domain.user.value.UserId;
 import com.dagaga.chat.dto.ChatRoomResponse;
 import com.dagaga.chat.dto.CreateChatRoomRequest;
 import com.dagaga.chat.service.ChatMessageService;
@@ -26,11 +27,14 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
     private final UserRepository userRepository;
     private final ChatMessageService chatMessageService;
+    private final CurrentUser currentUser;
 
     @Operation(summary = "사용자 커스텀 채팅방 생성", description = "사용자가 지역 기반으로 새로운 채팅방을 생성합니다.")
     @PostMapping
     public ResponseEntity<Integer> createCustomChatRoom(@RequestBody CreateChatRoomRequest request) {
-        int userId = SecurityContextHelper.getCurrentUserId();
+        int userId = currentUser.getUserId()
+                .map(UserId::getValue)
+                .orElseThrow(() -> new IllegalArgumentException("인증된 사용자 정보를 찾을 수 없습니다."));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. id: " + userId));
 
@@ -46,7 +50,9 @@ public class ChatRoomController {
     @DeleteMapping("/{roomId}")
     public ResponseEntity<Void> deleteChatRoom(
             @Parameter(description = "채팅방 ID") @PathVariable int roomId) {
-        int requesterId = SecurityContextHelper.getCurrentUserId();
+        int requesterId = currentUser.getUserId()
+                .map(UserId::getValue)
+                .orElseThrow(() -> new IllegalArgumentException("인증된 사용자 정보를 찾을 수 없습니다."));
         chatRoomService.deleteRoom(roomId, requesterId);
         return ResponseEntity.ok().build();
     }
@@ -56,8 +62,10 @@ public class ChatRoomController {
     @PostMapping("/{roomId}/join")
     public ResponseEntity<Void> joinChatRoom(
             @Parameter(description = "채팅방 ID") @PathVariable int roomId) {
-        int userId = SecurityContextHelper.getCurrentUserId();
-        int userLocationId = SecurityContextHelper.getCurrentLocationId();
+        int userId = currentUser.getUserId()
+                .map(UserId::getValue)
+                .orElseThrow(() -> new IllegalArgumentException("인증된 사용자 정보를 찾을 수 없습니다."));
+        int userLocationId = currentUser.getLocationId();
         chatRoomService.joinRoom(userId, userLocationId, roomId);
         return ResponseEntity.ok().build();
     }
@@ -67,7 +75,7 @@ public class ChatRoomController {
     @GetMapping("/by-location")
     public List<ChatRoomResponse> listByLocation(
             @Parameter(description = "정렬 기준: 'popularity' 또는 'latest'") @RequestParam(required = false, defaultValue = "popularity") String sortBy) {
-        int userLocationId = SecurityContextHelper.getCurrentLocationId();
+        int userLocationId = currentUser.getLocationId();
         return chatRoomService.getRoomsByLocation(userLocationId, sortBy);
     }
 
@@ -75,7 +83,9 @@ public class ChatRoomController {
     @Operation(summary = "참여 중인 채팅방 목록 조회", description = "사용자가 참여하고 있는 채팅방 목록을 조회합니다.")
     @GetMapping("/joined")
     public List<ChatRoomResponse> listJoinedRooms() {
-        int userId = SecurityContextHelper.getCurrentUserId();
+        int userId = currentUser.getUserId()
+                .map(UserId::getValue)
+                .orElseThrow(() -> new IllegalArgumentException("인증된 사용자 정보를 찾을 수 없습니다."));
         return chatRoomService.getRoomsByUserId(userId);
     }
 
@@ -86,10 +96,10 @@ public class ChatRoomController {
             @Parameter(description = "채팅방 ID") @PathVariable int roomId,
             @Parameter(description = "기준 메시지 ID, null이면 가장 최신 메시지부터 가져옴") @RequestParam(required = false) Long cursor,
             @Parameter(description = "가져올 메시지 개수") @RequestParam(defaultValue = "30") int size) {
-        
-        int userLocationId = SecurityContextHelper.getCurrentLocationId();
-        String userNativeLangCode = SecurityContextHelper.getCurrentNativeLangCode();
-        
+
+        int userLocationId = currentUser.getLocationId();
+        String userNativeLangCode = currentUser.getNativeLangCode();
+
         return chatMessageService.getMessages(roomId, userLocationId, userNativeLangCode, cursor, size);
     }
 }

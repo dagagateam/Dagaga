@@ -4,6 +4,8 @@ import com.dagaga.domain.post.dto.CommentCreateRequest;
 import com.dagaga.domain.post.dto.CommentResponse;
 import com.dagaga.domain.post.entity.Comment;
 import com.dagaga.domain.post.repository.CommentRepository;
+import com.dagaga.domain.user.entity.User;
+import com.dagaga.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +26,9 @@ class CommentServiceTest {
     @Mock
     private CommentRepository commentRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
     @InjectMocks
     private CommentService commentService;
 
@@ -33,10 +38,8 @@ class CommentServiceTest {
         // given
         CommentCreateRequest request = new CommentCreateRequest();
         request.setContent("Test Comment");
-        request.setUserId(1);
-
         // when
-        commentService.createComment(1, request);
+        commentService.createComment(1, 1, request);
 
         // then
         verify(commentRepository).save(any(Comment.class));
@@ -76,6 +79,15 @@ class CommentServiceTest {
 
         given(commentRepository.findAllByPostIdOrderByCreatedAtAsc(postId))
                 .willReturn(List.of(parent, child1, child2));
+
+        User user1 = User.builder().nickname("작성자1").build();
+        setField(user1, "userId", 1);
+        User user2 = User.builder().nickname("작성자2").build();
+        setField(user2, "userId", 2);
+        User user3 = User.builder().nickname("작성자3").build();
+        setField(user3, "userId", 3);
+
+        given(userRepository.findAllById(any())).willReturn(List.of(user1, user2, user3));
 
         // when
         List<CommentResponse> result = commentService.getComments(postId);

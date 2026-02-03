@@ -37,10 +37,10 @@ export const useTts = () => {
 
                 const url = URL.createObjectURL(blob);
                 const audio = new Audio(url);
-                
+
                 // Set playback rate
                 audio.playbackRate = speed === 'slow' ? 0.7 : 1.0;
-                
+
                 audioRef.current = audio;
                 setIsPlaying(true);
 
@@ -55,7 +55,7 @@ export const useTts = () => {
                     setIsPlaying(false);
                     URL.revokeObjectURL(url);
                     // Decide if we want to reject or just resolve to continue flow
-                    resolve(); 
+                    resolve();
                 };
 
                 await audio.play();
@@ -76,7 +76,8 @@ export const useTts = () => {
         try {
             const blob = await fetchTts(text);
             ttsCache.set(text, blob);
-            console.log(`Preloaded TTS for: "${text}"`);
+            // DEBUG: Preloaded TTS info
+            // console.log(`Preloaded TTS for: "${text}"`);
         } catch (err) {
             console.warn(`Failed to preload TTS for "${text}"`, err);
         }

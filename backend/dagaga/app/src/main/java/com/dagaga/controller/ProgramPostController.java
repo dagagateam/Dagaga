@@ -8,7 +8,8 @@ import com.dagaga.domain.post.dto.ProgramPostDetailResponse;
 import com.dagaga.domain.post.dto.ProgramPostResponse;
 import com.dagaga.domain.post.service.CommentService;
 import com.dagaga.domain.post.service.ProgramPostService;
-import com.dagaga.domain.security.SecurityContextHelper;
+import com.dagaga.domain.security.CurrentUser;
+import com.dagaga.domain.user.value.UserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,6 +35,7 @@ public class ProgramPostController {
 
         private final ProgramPostService programPostService;
         private final CommentService commentService;
+        private final CurrentUser currentUser;
 
         @Operation(summary = "프로그램 게시글 목록 조회", description = "크롤링된 행사 정보를 공지사항 형태로 조회합니다.")
         @ApiResponses(value = {
@@ -45,7 +47,7 @@ public class ProgramPostController {
         public ResponseEntity<ApiResponse<Page<ProgramPostResponse>>> getProgramPosts(
                         @Parameter(description = "페이지 번호 (기본 0)") @RequestParam(defaultValue = "0") int page,
                         @Parameter(description = "페이지 크기 (기본 10)") @RequestParam(defaultValue = "10") int size) {
-                Integer locationId = SecurityContextHelper.getCurrentLocationId();
+                Integer locationId = currentUser.getLocationId();
                 Pageable pageable = PageRequest.of(page, size);
                 Page<ProgramPostResponse> response = programPostService.getProgramPosts(locationId, pageable);
                 return ResponseEntity.ok(ApiResponse.success("프로그램 게시글 조회가 완료되었습니다.", response));
@@ -85,7 +87,10 @@ public class ProgramPostController {
         public ResponseEntity<ApiResponse<Void>> createComment(
                         @PathVariable Integer postId,
                         @jakarta.validation.Valid @RequestBody CommentCreateRequest request) {
-                commentService.createComment(postId, request);
+                Integer userId = currentUser.getUserId()
+                                .map(UserId::getValue)
+                                .orElseThrow(() -> new IllegalArgumentException("인증된 사용자 정보를 찾을 수 없습니다."));
+                commentService.createComment(postId, userId, request);
                 return ResponseEntity.ok(ApiResponse.success("댓글이 작성되었습니다.", null));
         }
 
