@@ -12,6 +12,8 @@ import CommunityChatRoom from "../pages/Community/Chat/CommunityChatRoom";
 import ProblemNative from "../pages/ProblemNative/ProblemNative";
 import MyPage from "../pages/MyPage/MyPage";
 import MyPageEdit from "../pages/MyPageEdit/MyPageEdit";
+import AuthSuccess from "../pages/Login/AuthSuccess";
+import SocialSignup from "../pages/Signup/SocialSignup";
 
 const router = createBrowserRouter([
   {
@@ -23,8 +25,16 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
+    path: "/Auth/Success",
+    element: <AuthSuccess />,
+  },
+  {
     path: "/Signup",
     element: <Signup />,
+  },
+  {
+    path: "/Signup/Social",
+    element: <SocialSignup />,
   },
   {
     element: <App />,
