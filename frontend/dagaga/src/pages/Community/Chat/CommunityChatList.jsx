@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Modal } from 'react-bootstrap';
 import './CommunityChatList.css';
-import { fetchChatRooms, createChatRoom, fetchJoinedChats, fetchChatsByLocation } from '../../../api/communityApi';
+import { createChatRoom, fetchJoinedChats, fetchChatsByLocation } from '../../../api/communityApi';
 import { useUserStore } from '../../../store/userStore';
 import UserChatCard from '../../../components/community/chat/UserChatCard';
 import JoinedChatItem from '../../../components/community/chat/JoinedChatItem';
@@ -13,7 +13,7 @@ const CommunityChatList = () => {
     const { user } = useUserStore();
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [data, setData] = useState({ regionalChat: null, userChats: [] });
+    // const [data, setData] = useState({ regionalChat: null, userChats: [] }); // Unused
     const [locationChats, setLocationChats] = useState([]);
     const [regionalChats, setRegionalChats] = useState([]);
     const [customChats, setCustomChats] = useState([]);
@@ -29,14 +29,9 @@ const CommunityChatList = () => {
 
         const loadData = async () => {
             try {
-                const response = await fetchChatRooms();
-                if (response.data) {
-                    setData(response.data);
-                }
-
                 // Fetch joined chats if user is logged in
                 if (user?.userId) {
-                    const joinedResponse = await fetchJoinedChats(user.userId);
+                    const joinedResponse = await fetchJoinedChats();
                     console.log('Joined chats response:', joinedResponse);
 
                     // API returns array directly or wrapped in data
@@ -56,7 +51,7 @@ const CommunityChatList = () => {
 
                 // Fetch location-based chats if user is logged in
                 if (user?.userId && user?.locationId) {
-                    const locationResponse = await fetchChatsByLocation(user.locationId);
+                    const locationResponse = await fetchChatsByLocation();
                     const locationData = Array.isArray(locationResponse) ? locationResponse : locationResponse.data;
 
                     if (locationData && Array.isArray(locationData)) {
@@ -106,20 +101,51 @@ const CommunityChatList = () => {
         }
 
         setCreating(true);
+        setCreating(true);
         try {
-            await createChatRoom(user.userId, newChatTitle.trim());
-            // 성공 시 항상 실행
+            await createChatRoom(newChatTitle.trim());
+            // 성공 시 알림
             alert('채팅방이 생성되었습니다!');
             setShowCreateModal(false);
             setNewChatTitle('');
-            // 채팅방 목록 새로고침
-            const updatedRooms = await fetchChatRooms();
-            if (updatedRooms.data) {
-                setData(updatedRooms.data);
+        } catch (error) {
+            console.error('Failed to create chat room:', error);
+            alert('채팅방 생성에 실패했습니다. 다시 시도해주세요.');
+            // 생성 실패 시 여기서 종료
+            return;
+        } finally {
+            setCreating(false);
+        }
+
+        // 목록 새로고침 (생성 성공 후에만 실행됨)
+        try {
+            // 채팅방 목록 새로고침 (지역 기반 채팅방)
+            if (user?.userId && user?.locationId) {
+                const locationResponse = await fetchChatsByLocation();
+                const locationData = Array.isArray(locationResponse) ? locationResponse : locationResponse.data;
+                if (locationData && Array.isArray(locationData)) {
+                    const mappedLocationChats = locationData.map(chat => ({
+                        id: chat.roomId,
+                        title: chat.title,
+                        creator: chat.creatorNickname,
+                        participantCount: chat.participantCount,
+                        roomType: chat.roomType, // DEFAULT or CUSTOM
+                        avatar: `https://i.pravatar.cc/150?u=${chat.roomId}`,
+                        image: 'https://via.placeholder.com/150',
+                        description: chat.title
+                    }));
+                    setLocationChats(mappedLocationChats);
+
+                    const defaultChats = mappedLocationChats.filter(chat => chat.roomType === 'DEFAULT');
+                    const customChatList = mappedLocationChats.filter(chat => chat.roomType === 'CUSTOM');
+
+                    setRegionalChats(defaultChats);
+                    setCustomChats(customChatList);
+                }
             }
             // 참여중인 채팅방도 새로고침
             if (user?.userId) {
-                const joinedResponse = await fetchJoinedChats(user.userId);
+                const joinedResponse = await fetchJoinedChats();
                 const joinedData = Array.isArray(joinedResponse) ? joinedResponse : joinedResponse.data;
 
                 if (joinedData && Array.isArray(joinedData)) {
@@ -131,11 +157,9 @@ const CommunityChatList = () => {
                     setJoinedChats(mappedJoinedChats);
                 }
             }
-        } catch (error) {
-            console.error('Failed to create chat room:', error);
-            alert('채팅방 생성에 실패했습니다. 다시 시도해주세요.');
-        } finally {
-            setCreating(false);
+        } catch (refreshError) {
+            console.error('Failed to refresh chat lists after creation:', refreshError);
+            // 목록 갱신 실패는 사용자에게 알리지 않거나, 조용히 로그만 남김 (이미 생성은 성공했으므로)
         }
     };
 

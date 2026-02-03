@@ -30,7 +30,7 @@ const CommunityChatRoom = () => {
             // Basic implementation: fetch messages when room ID changes
             if (id) {
                 try {
-                    const apiMessages = await fetchChatMessages(id, userLocationId);
+                    const apiMessages = await fetchChatMessages(id);
                     // Map API response to UI model if necessary
                     // API returns: { messageId, senderId, originalText, sentAt, ... }
                     // UI expects: { id, sender, text, time, isMe }
@@ -68,7 +68,7 @@ const CommunityChatRoom = () => {
         const loadJoinedChats = async () => {
             if (user?.userId) {
                 try {
-                    const response = await fetchJoinedChats(user.userId);
+                    const response = await fetchJoinedChats();
                     const joinedData = Array.isArray(response) ? response : response.data;
 
                     if (joinedData && Array.isArray(joinedData)) {
@@ -106,7 +106,7 @@ const CommunityChatRoom = () => {
 
         try {
             // Send message to API
-            await sendChatMessage(id, currentUserId, message.trim(), userLocationId);
+            await sendChatMessage(id, message.trim());
 
             // Add message to local state for immediate display
             const newMsg = {
