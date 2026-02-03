@@ -6,6 +6,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import com.dagaga.security.stomp.JwtStompInterceptor;
 
 @Configuration
 @EnableWebSocketMessageBroker
