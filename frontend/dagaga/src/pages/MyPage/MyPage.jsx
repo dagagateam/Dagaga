@@ -4,7 +4,7 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import SavedNewsCard from '../../components/MyPage/SavedNewsCard';
 import MyInfo from '../../components/MyPage/MyInfo';
 import JoinedChatItem from '../../components/community/chat/JoinedChatItem';
-import { fetchChatRooms } from '../../api/communityApi';
+import { fetchJoinedChats } from '../../api/communityApi';
 import { useUserStore } from '../../store/userStore';
 import stockProfile from '../../assets/icons/stock_profile.jpg';
 import './MyPage.css';
@@ -17,9 +17,11 @@ const MyPage = () => {
     if (joinedChats.length === 0) {
       const loadChats = async () => {
         try {
-          const response = await fetchChatRooms();
-          if (response?.data?.joinedChats) {
-            setJoinedChats(response.data.joinedChats);
+          const response = await fetchJoinedChats();
+          const joinedData = Array.isArray(response) ? response : response.data;
+          
+          if (joinedData && Array.isArray(joinedData)) {
+            setJoinedChats(joinedData);
           }
         } catch (error) {
           console.error("Failed to fetch chat rooms:", error);

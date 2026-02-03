@@ -22,81 +22,17 @@ export const fetchCommunityInfoDetail = async (id) => {
     }
 };
 
-export const fetchChatRooms = async () => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                data: {
-                    regionalChat: {
-                        id: 1,
-                        title: "서울 종로구 단체 채팅방",
-                        participantCount: 36,
-                        image: "https://via.placeholder.com/600x300/F8B15E/FFFFFF?text=Group" // Placeholder or user provided example
-                    },
-                    userChats: [
-                        {
-                            id: 101,
-                            title: "한국어 공부 같이해요",
-                            creator: "배우는엄마",
-                            avatar: "https://i.pravatar.cc/150?u=mom",
-                            participantCount: 36,
-                            image: "https://via.placeholder.com/150", // Placeholder
-                            description: "한국어 공부 같이 하실 분 구해요"
-                        },
-                        {
-                            id: 102,
-                            title: "한국 음식 레시피",
-                            creator: "한나",
-                            avatar: "https://i.pravatar.cc/150?u=hanna",
-                            participantCount: 28,
-                            image: "https://via.placeholder.com/150",
-                            description: "맛있는 한국 음식 레시피 공유해요"
-                        },
-                        {
-                            id: 103,
-                            title: "정보 공유방",
-                            creator: "초보엄마",
-                            avatar: "https://i.pravatar.cc/150?u=newmom",
-                            participantCount: 14,
-                            image: "https://via.placeholder.com/150",
-                            description: "육아 정보 공유해요"
-                        },
-                        {
-                            id: 104,
-                            title: "한글 공부방",
-                            creator: "버터",
-                            avatar: "https://i.pravatar.cc/150?u=butter",
-                            participantCount: 5,
-                            image: "https://via.placeholder.com/150",
-                            description: "한글 같이 배워요"
-                        },
-                        {
-                            id: 105,
-                            title: "한글 공부방",
-                            creator: "버터",
-                            avatar: "https://i.pravatar.cc/150?u=butter",
-                            participantCount: 5,
-                            image: "https://via.placeholder.com/150",
-                            description: "한글 같이 배워요"
-                        }
-                    ]
-                }
-            });
-        }, 500);
-    });
-};
+
 
 /**
  * Fetch chat messages for a specific room.
  * @param {number} roomId - The chat room ID.
- * @param {number} userLocationId - The user's location ID (required).
  * @param {number|null} cursor - The message ID cursor for pagination (optional).
  * @param {number} size - Number of messages to fetch (default 30).
  * @returns {Promise<Array>} - List of chat messages.
  */
-export const fetchChatMessages = async (roomId, userLocationId, cursor = null, size = 30) => {
+export const fetchChatMessages = async (roomId, cursor = null, size = 30) => {
     const params = {
-        userLocationId,
         size
     };
     if (cursor) {
@@ -109,14 +45,12 @@ export const fetchChatMessages = async (roomId, userLocationId, cursor = null, s
 
 /**
  * Create a new chat room.
- * @param {number} userId - The user's ID.
  * @param {string} title - The chat room title.
  * @returns {Promise<Object>} - Created chat room data.
  */
-export const createChatRoom = async (userId, title) => {
+export const createChatRoom = async (title) => {
     try {
         const response = await instance.post('/community/chats', {
-            userId,
             title
         });
         return response.data; // ApiResponse 형식: { success, message, data }
@@ -128,14 +62,11 @@ export const createChatRoom = async (userId, title) => {
 
 /**
  * Fetch joined chat rooms for a user.
- * @param {number} userId - The user's ID.
  * @returns {Promise<Array>} - List of joined chat rooms.
  */
-export const fetchJoinedChats = async (userId) => {
+export const fetchJoinedChats = async () => {
     try {
-        const response = await instance.get('/community/chats/joined', {
-            params: { userId }
-        });
+        const response = await instance.get('/community/chats/joined');
         return response.data; // ApiResponse 형식: { success, message, data }
     } catch (error) {
         console.error('Failed to fetch joined chats:', error);
@@ -146,22 +77,14 @@ export const fetchJoinedChats = async (userId) => {
 /**
  * Send a chat message to a room.
  * @param {number} roomId - The chat room ID.
- * @param {number} userId - The sender's user ID.
  * @param {string} message - The message text.
- * @param {number} userLocationId - The user's location ID (optional).
  * @returns {Promise<Object>} - Sent message data.
  */
-export const sendChatMessage = async (roomId, userId, message, userLocationId = null) => {
+export const sendChatMessage = async (roomId, message) => {
     try {
         const payload = {
-            userId,
             message
         };
-        
-        // Add userLocationId if provided
-        if (userLocationId) {
-            payload.userLocationId = userLocationId;
-        }
         
         console.log('Sending message:', { roomId, payload });
         
@@ -178,15 +101,13 @@ export const sendChatMessage = async (roomId, userId, message, userLocationId = 
 
 /**
  * Fetch chat rooms by user location.
- * @param {number} userLocationId - The user's location ID.
  * @param {string} sortBy - Sort order: 'popularity' or 'latest' (default: 'popularity').
  * @returns {Promise<Array>} - List of chat rooms in the user's location.
  */
-export const fetchChatsByLocation = async (userLocationId, sortBy = 'popularity') => {
+export const fetchChatsByLocation = async (sortBy = 'popularity') => {
     try {
         const response = await instance.get('/community/chats/by-location', {
             params: {
-                userLocationId,
                 sortBy
             }
         });
@@ -200,18 +121,11 @@ export const fetchChatsByLocation = async (userLocationId, sortBy = 'popularity'
 /**
  * Join a chat room.
  * @param {number} roomId - The chat room ID.
- * @param {number} userId - The user's ID.
- * @param {number} userLocationId - The user's location ID.
  * @returns {Promise<Object>} - Join result.
  */
-export const joinChatRoom = async (roomId, userId, userLocationId) => {
+export const joinChatRoom = async (roomId) => {
     try {
-        const response = await instance.post(`/community/chats/${roomId}/join`, null, {
-            params: {
-                userId,
-                userLocationId
-            }
-        });
+        const response = await instance.post(`/community/chats/${roomId}/join`);
         return response.data; // ApiResponse 형식: { success, message, data }
     } catch (error) {
         console.error('Failed to join chat room:', error);
