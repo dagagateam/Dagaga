@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './CommunityInfo.css';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { fetchCommunityInfo } from '../../../api/communityApi';
+import { getLocationName } from '../../../data/regionData';
 
 import heartIcon from '../../../assets/icons/heart.png';
 import unheartIcon from '../../../assets/icons/unheart.png';
@@ -13,7 +14,7 @@ import { useUserStore } from '../../../store/userStore';
 
 const CommunityInfo = () => {
     const navigate = useNavigate();
-    const { savedItems, likedPostIds, toggleSave, toggleLike } = useUserStore();
+    const { user, savedItems, likedPostIds, toggleSave, toggleLike } = useUserStore();
     const [infos, setInfos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [userRegion, setUserRegion] = useState('');
@@ -38,28 +39,41 @@ const CommunityInfo = () => {
     };
 
     useEffect(() => {
-        const region = localStorage.getItem('regionName');
-        setUserRegion(region || '서울 종로구');
+                const regionName = user?.locationId ? getLocationName(user.locationId) : '지역 설정 필요';
+        setUserRegion(regionName);
 
         const loadData = async () => {
             try {
-                const response = await fetchCommunityInfo(0, 20);
-                const items = response.data.items.map(item => {
-                    const progressPeriod = parseDateFromContent(item.content, "프로그램기간");
+                const response = await fetchCommunityInfo(0, 100); // 더 많은 데이터 요청
+                
+                // 백엔드 응답 구조: { success, message, data: { content: [...], totalElements, ... } }
+                const allPosts = response.data.content || [];
+                
+                console.log(`Loaded ${allPosts.length} posts for region: ${regionName}`);
+                
+                // 백엔드 응답 형식 → 프론트엔드 형식 변환
+                const items = allPosts.map(post => {
+                    // content에서 날짜 파싱 (백엔드에 별도 필드가 없는 경우)
+                    const content = post.content || "";
+                    const progressPeriod = parseDateFromContent(content, "프로그램기간");
+                    
                     return {
-                        id: item.postId,
-                        title: item.title,
-                        orgName: item.organization,
-                        content: item.content,
-                        applicationPeriod: parseDateFromContent(item.content, "접수기간"),
+                        id: post.postId,
+                        title: post.title || "제목 없음",
+                        orgName: "다가가정보지원", // 고정값
+                        content: content,
+                        applicationPeriod: parseDateFromContent(content, "접수기간"),
                         progressPeriod: progressPeriod,
                         isExpired: checkIsExpired(progressPeriod),
-                        image: item.image || `https://via.placeholder.com/600x300/F8B15E/FFFFFF?text=${encodeURIComponent(item.organization)}`
+                        image: post.imageUrls?.[0] || `https://via.placeholder.com/600x300/F8B15E/FFFFFF?text=${encodeURIComponent(post.title || 'No Image')}`
                     };
                 });
+                
                 setInfos(items);
             } catch (error) {
                 console.error("Failed to fetch community info:", error);
+                // 에러 발생 시 빈 배열로 설정
+                setInfos([]);
             } finally {
                 setLoading(false);
             }

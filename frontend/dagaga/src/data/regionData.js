@@ -157,6 +157,33 @@ export function getLocationId(sido, gugun) {
         return gugunMap[gugun];
     }
     
-    // 매핑을 찾지 못한 경우 null 반환
+// 매핑을 찾지 못한 경우 null 반환
     return null;
+}
+
+/**
+ * location_id로 지역 이름 찾기 check
+ * @param {number} id - location_id
+ * @returns {string} 지역 이름 (예: "서울특별시 강남구")
+ */
+export function getLocationName(id) {
+    if (!id) return '';
+
+    // 1. 구/군에서 찾기 (Depth 2)
+    for (const [sido, guguns] of Object.entries(gugunToLocationId)) {
+        for (const [gugun, locationId] of Object.entries(guguns)) {
+            if (locationId === id) {
+                return `${sido} ${gugun}`;
+            }
+        }
+    }
+
+    // 2. 시/도에서 찾기 (Depth 1)
+    for (const [sido, locationId] of Object.entries(sidoToLocationId)) {
+        if (locationId === id) {
+            return sido;
+        }
+    }
+
+    return '알 수 없는 지역';
 }
