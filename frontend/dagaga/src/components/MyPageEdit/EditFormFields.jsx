@@ -1,20 +1,23 @@
 import React from 'react';
 import { Row, Col, Form } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 const EditFormFields = ({ formData, onChange }) => {
+    const { t } = useTranslation();
+
     return (
         <Row className="g-4">
             {/* Nickname */}
             <Col md={6}>
                 <Form.Group>
-                    <Form.Label className="fw-semibold text-muted">닉네임</Form.Label>
+                    <Form.Label className="fw-semibold text-muted">{t('nickname')}</Form.Label>
                     <Form.Control 
                         type="text" 
                         name="nickname" 
                         value={formData.nickname} 
                         onChange={onChange} 
                         className="rounded-3 bg-light border-0 py-2"
-                        placeholder="Your Nickname"
+                        placeholder={t('nickname_placeholder')}
                     />
                 </Form.Group>
             </Col>
@@ -22,14 +25,14 @@ const EditFormFields = ({ formData, onChange }) => {
             {/* Password */}
             <Col md={6}>
                 <Form.Group>
-                    <Form.Label className="fw-semibold text-muted">비밀번호</Form.Label>
+                    <Form.Label className="fw-semibold text-muted">{t('password')}</Form.Label>
                     <Form.Control 
                         type="password" 
                         name="password" 
                         value={formData.password} 
                         onChange={onChange}
                         className="rounded-3 bg-light border-0 py-2"
-                        placeholder="Min. 8 characters"
+                        placeholder={t('password_requirements')}
                     />
                 </Form.Group>
             </Col>
@@ -37,7 +40,7 @@ const EditFormFields = ({ formData, onChange }) => {
             {/* Region */}
             <Col md={6}>
                 <Form.Group>
-                    <Form.Label className="fw-semibold text-muted">지역</Form.Label>
+                    <Form.Label className="fw-semibold text-muted">{t('region')}</Form.Label>
                     <Form.Control 
                         type="text" 
                         name="region" 
@@ -52,16 +55,16 @@ const EditFormFields = ({ formData, onChange }) => {
             {/* Native Language */}
             <Col md={6}>
                 <Form.Group>
-                    <Form.Label className="fw-semibold text-muted">모국어</Form.Label>
+                    <Form.Label className="fw-semibold text-muted">{t('native_language')}</Form.Label>
                     <Form.Select 
                         name="nativeLang" 
                         value={formData.nativeLang} 
                         onChange={onChange}
                         className="rounded-3 bg-light border-0 py-2"
                     >
-                        <option value="한국어">한국어</option>
-                        <option value="중국어">중국어</option>
-                        <option value="베트남어">베트남어</option>
+                        <option value="한국어">{t('lang_ko')}</option>
+                        <option value="중국어">{t('lang_zh')}</option>
+                        <option value="베트남어">{t('lang_vi')}</option>
                     </Form.Select>
                 </Form.Group>
             </Col>
@@ -69,16 +72,16 @@ const EditFormFields = ({ formData, onChange }) => {
             {/* Preferred Language */}
             <Col md={6}>
                 <Form.Group>
-                    <Form.Label className="fw-semibold text-muted">선호하는 언어</Form.Label>
+                    <Form.Label className="fw-semibold text-muted">{t('preferred_language')}</Form.Label>
                     <Form.Select 
                         name="preferredLang" 
                         value={formData.preferredLang} 
                         onChange={onChange}
                         className="rounded-3 bg-light border-0 py-2"
                     >
-                        <option value="한국어">한국어</option>
-                        <option value="중국어">중국어</option>
-                        <option value="베트남어">베트남어</option>
+                        <option value="한국어">{t('lang_ko')}</option>
+                        <option value="중국어">{t('lang_zh')}</option>
+                        <option value="베트남어">{t('lang_vi')}</option>
                     </Form.Select>
                 </Form.Group>
             </Col>

@@ -6,6 +6,23 @@
   padding: 10px 0;
 }
 
+.problem-native-answer {
+  width: 100%;
+  text-align: center;
+  font-family: var(--main-font);
+  font-size: 1.2rem;
+  color: var(--main-orange, #F3AE5C);
+  margin-bottom: 20px;
+  min-height: 1.5em; /* Prevent layout jump */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-weight: 500;
+}
+
+.problem-native-answer.visible {
+  opacity: 1;
+}
+
 .word-group {
   display: flex;
   flex-direction: column;

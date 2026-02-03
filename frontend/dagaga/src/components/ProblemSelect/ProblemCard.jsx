@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./ProblemCard.css";
 
 const ProblemCard = ({ 
@@ -13,6 +14,7 @@ const ProblemCard = ({
   ...props // Capture other props like translations, stages
 }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Pass translations in navigating state
   const handleExampleClick = (e) => {
@@ -49,12 +51,12 @@ const ProblemCard = ({
       onClick={onClick}
     >
       <div className="problem-card-content">
-        <span className="problem-number">문제 {problemNumber}</span>
+        <span className="problem-number">{t('problem')} {problemNumber}</span>
         <p className="problem-text">{problemText}</p>
         {isActive && (
           <div className="problem-arrows">
-            <span onClick={handleExampleClick}>→ 예시</span>
-            <span onClick={handleTranslateClick}>→ 모국어</span>
+            <span onClick={handleExampleClick}>→ {t('example')}</span>
+            <span onClick={handleTranslateClick}>→ {t('native_view')}</span>
           </div>
         )}
       </div>

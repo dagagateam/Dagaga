@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Container, Form, Button, Card } from 'react-bootstrap';
 import { useUserStore } from '../../store/userStore';
 import ProfileImageSection from '../../components/MyPageEdit/ProfileImageSection';
 import EditForm from '../../components/MyPageEdit/EditForm';
+import stockProfile from '../../assets/icons/stock_profile.jpg';
 import './MyPageEdit.css';
 
 const MyPageEdit = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const { user, updateUser } = useUserStore();
 
     const [formData, setFormData] = useState({
@@ -16,14 +19,14 @@ const MyPageEdit = () => {
         sido: '시/도 선택',
         gugun: '구/군 선택',
         preferredLang: '한국어',
-        nativeLang: 'English',
+        nativeLang: '한국어',
         entryDate: '',
         password: '',
         confirmPassword: '',
     });
 
     const [errors, setErrors] = useState({});
-    const [previewImage, setPreviewImage] = useState("/assets/profile-placeholder.jpg");
+    const [previewImage, setPreviewImage] = useState(stockProfile);
 
     useEffect(() => {
         if (user) {
@@ -36,7 +39,7 @@ const MyPageEdit = () => {
                 sido: sido || '시/도 선택',
                 gugun: gugun || '구/군 선택',
                 preferredLang: user.preferredLang || '한국어',
-                nativeLang: user.nativeLang || 'English',
+                nativeLang: user.nativeLang || '한국어',
                 entryDate: user.entryDate ? user.entryDate.replaceAll('/', '-') : '',
                 password: '',
                 confirmPassword: '',
@@ -87,11 +90,11 @@ const MyPageEdit = () => {
             // Regex: At least one letter, one number, one special character (non-word), min 8 chars
             const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_]).{8,}$/;
             if (!passwordRegex.test(password)) {
-                newErrors.password = "비밀번호는 영문, 숫자, 특수문자를 포함하여 8자 이상이어야 합니다.";
+                newErrors.password = t('password_error_requirements');
             }
 
             if (password !== confirmPassword) {
-                newErrors.confirmPassword = "비밀번호가 일치하지 않습니다.";
+                newErrors.confirmPassword = t('password_error_match');
             }
         }
 
@@ -106,6 +109,14 @@ const MyPageEdit = () => {
 
         const regionStr = `${formData.sido} ${formData.gugun !== '구/군 선택' ? formData.gugun : ''}`.trim();
         
+        // Map preferredLang to viewLangCode
+        const langMap = {
+            '한국어': 'ko',
+            '중국어': 'zh',
+            '베트남어': 'vi'
+        };
+        const viewLangCode = langMap[formData.preferredLang] || 'ko';
+
         const updates = {
             nickname: formData.nickname,
             // region: user.region,
@@ -115,6 +126,7 @@ const MyPageEdit = () => {
             preferredLang: formData.preferredLang,
             nativeLang: formData.nativeLang,
             entryDate: formData.entryDate ? formData.entryDate.replaceAll('-', '/') : '',
+            viewLangCode: viewLangCode, // Add this to trigger store update
         };
 
         // Only include password if it was changed
@@ -135,7 +147,7 @@ const MyPageEdit = () => {
         <Container className="my-page-edit-container">
             <Card className="edit-card mx-auto">
                 <Card.Body className="p-5">
-                    <h3 className="mb-4 fw-bold">프로필 수정</h3>
+                    <h3 className="mb-4 fw-bold">{t('edit_profile_title')}</h3>
                     
                     <Form onSubmit={handleSubmit}>
                     <div className="edit-form-scroll">
@@ -154,11 +166,11 @@ const MyPageEdit = () => {
                     </div>
 
                         <div className="d-flex justify-content-end gap-3 mt-5">
-                            <Button variant="light" className="px-4 rounded-pill fw-semibold text-muted" onClick={() => navigate('/my-page')}>
-                                Cancel
+                            <Button variant="light" className="px-4 rounded-pill fw-semibold text-muted" onClick={() => navigate('/MyPage')}>
+                                {t('cancel')}
                             </Button>
                             <Button variant="primary" type="submit" className="px-4 rounded-pill fw-semibold btn-save">
-                                Save
+                                {t('save')}
                             </Button>
                         </div>
                     </Form>
