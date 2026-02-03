@@ -8,6 +8,7 @@ import ChatMessage from '../../../components/community/chat/ChatMessage';
 import { fetchChatMessages, fetchJoinedChats } from '../../../api/communityApi';
 import { useUserStore } from '../../../store/userStore';
 import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 const CommunityChatRoom = () => {
     const { id } = useParams();
@@ -76,8 +77,7 @@ const CommunityChatRoom = () => {
         console.log('Connecting to WebSocket URL:', wsURL);
 
         const client = new Client({
-            // SockJS 대신 기본 WebSocket 사용
-            brokerURL: wsURL,
+            webSocketFactory: () => new SockJS(baseURL + '/ws-chat'),
             connectHeaders: {
                 Authorization: `Bearer ${accessToken}`,
             },
