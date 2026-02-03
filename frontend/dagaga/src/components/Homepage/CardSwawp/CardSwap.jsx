@@ -1,4 +1,4 @@
-import React, { Children, cloneElement, forwardRef, isValidElement, useEffect, useMemo, useRef, useImperativeHandle } from 'react';
+import React, { Children, cloneElement, forwardRef, isValidElement, useEffect, useMemo, useRef, useImperativeHandle, useCallback } from 'react';
 import gsap from 'gsap';
 import './CardSwap.css';
 
@@ -37,6 +37,7 @@ const CardSwap = forwardRef(({
   onCardClick,
   skewAmount = 6,
   easing = 'elastic',
+  triggerIndex,
   children
 }, ref) => {
   const config =
@@ -71,7 +72,9 @@ const CardSwap = forwardRef(({
   const intervalRef = useRef();
   const container = useRef(null);
 
-  const swap = () => {
+  /* Removed useImperativeHandle and internal autoPlay logic */
+  
+  const swap = useCallback(() => {
     if (order.current.length < 2) return;
 
     const [front, ...rest] = order.current;
@@ -127,42 +130,19 @@ const CardSwap = forwardRef(({
     tl.call(() => {
       order.current = [...rest, front];
     });
-  };
+  }, [config.durDrop, config.ease, config.promoteOverlap, config.durMove, config.returnDelay, config.durReturn, cardDistance, verticalDistance, refs]);
 
-  useImperativeHandle(ref, () => ({
-    swap
-  }));
+  // Handle external trigger
+  useEffect(() => {
+    if (triggerIndex !== undefined && triggerIndex !== null && triggerIndex !== 0) {
+      swap();
+    }
+  }, [triggerIndex, swap]);
 
   useEffect(() => {
     const total = refs.length;
     refs.forEach((r, i) => placeNow(r.current, makeSlot(i, cardDistance, verticalDistance, total), skewAmount));
-
-    if (autoPlay) {
-      swap();
-      intervalRef.current = window.setInterval(swap, delay);
-    }
-
-    if (autoPlay && pauseOnHover) {
-      const node = container.current;
-      const pause = () => {
-        tlRef.current?.pause();
-        clearInterval(intervalRef.current);
-      };
-      const resume = () => {
-        tlRef.current?.play();
-        intervalRef.current = window.setInterval(swap, delay);
-      };
-      node.addEventListener('mouseenter', pause);
-      node.addEventListener('mouseleave', resume);
-      return () => {
-        node.removeEventListener('mouseenter', pause);
-        node.removeEventListener('mouseleave', resume);
-        clearInterval(intervalRef.current);
-      };
-    }
-    return () => clearInterval(intervalRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cardDistance, verticalDistance, delay, pauseOnHover, skewAmount, easing, autoPlay]);
+  }, [cardDistance, verticalDistance, skewAmount, refs]);
 
   const rendered = childArr.map((child, i) =>
     isValidElement(child)

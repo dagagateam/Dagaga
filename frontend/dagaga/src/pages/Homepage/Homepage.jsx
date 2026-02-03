@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import IntroRotateText from '../../components/Homepage/IntroRotateText/IntroRotateText';
@@ -7,9 +7,8 @@ import TargetCursor from '../../components/Homepage/TargetCursorCard/TargetCurso
 import './Homepage.css';
 
 const Homepage = () => {
-  const introTextRef = useRef(null);
-  const cardSwapRef = useRef(null);
   const navigate = useNavigate();
+  const [activeIndex, setActiveIndex] = useState(0);
 
   // Text rotation items for top left
   const textItems = [
@@ -18,41 +17,18 @@ const Homepage = () => {
     "정보 확인",
   ];
 
-  // Synchronization effect
+  // Synchronization effect - Single source of truth
   useEffect(() => {
     const interval = setInterval(() => {
-      introTextRef.current?.next();
-      cardSwapRef.current?.swap();
+      setActiveIndex((prev) => (prev + 1) % textItems.length);
     }, 3500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [textItems.length]);
 
   const handleNavClick = (path) => {
     navigate(path);
   };
-
-  // Screenshot placeholders for top right
-  const screenshots = [
-    <div className="screenshot-item">
-      <div className="screenshot-placeholder">
-        <h3>📚 학습</h3>
-        <p>Interactive Learning</p>
-      </div>
-    </div>,
-    <div className="screenshot-item">
-      <div className="screenshot-placeholder">
-        <h3>💬 커뮤니티</h3>
-        <p>Connect with Others</p>
-      </div>
-    </div>,
-    <div className="screenshot-item">
-      <div className="screenshot-placeholder">
-        <h3>📰 정보</h3>
-        <p>Latest Information</p>
-      </div>
-    </div>,
-  ];
 
   return (
     <div className="homepage-container">
@@ -68,8 +44,8 @@ const Homepage = () => {
           <div className="hero-left">
             <h1 className="hero-static-text">다가가와 함께</h1>
             <IntroRotateText
-              ref={introTextRef}
               texts={textItems}
+              activeIndex={activeIndex}
               mainClassName="hero-rotating-box"
               staggerFrom="last"
               initial={{ y: "100%" }}
@@ -79,18 +55,18 @@ const Homepage = () => {
               splitBy="words"
               splitLevelClassName="overflow-hidden"
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              auto={false}
             />
           </div>
           
-          <div className="hero-right" style={{ height: '350px', width: '100%', position: 'relative', display: 'flex', justifyContent: 'center' }}>
+          <div 
+            className="hero-right" 
+            style={{ height: '350px', width: '100%', position: 'relative', display: 'flex', justifyContent: 'center' }}
+          >
             <CardSwap
-              ref={cardSwapRef}
+              triggerIndex={activeIndex}
               cardDistance={40}
               verticalDistance={40}
-              delay={3500}
-              autoPlay={false}
-              pauseOnHover={true}
+              pauseOnHover={false}
               width={480}
               height={270}
             >

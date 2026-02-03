@@ -31,7 +31,10 @@ const RotatingText = forwardRef((props, ref) => {
     ...rest
   } = props;
 
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  /* Removed internal state and imperative handle in favor of props */
+  /* const [currentTextIndex, setCurrentTextIndex] = useState(0); <- handled by activeIndex prop now */
+  
+  const currentTextIndex = props.activeIndex !== undefined ? props.activeIndex : 0;
 
   const splitIntoCharacters = text => {
     if (typeof Intl !== 'undefined' && Intl.Segmenter) {
@@ -87,60 +90,7 @@ const RotatingText = forwardRef((props, ref) => {
     [staggerFrom, staggerDuration]
   );
 
-  const handleIndexChange = useCallback(
-    newIndex => {
-      setCurrentTextIndex(newIndex);
-      if (onNext) onNext(newIndex);
-    },
-    [onNext]
-  );
-
-  const next = useCallback(() => {
-    const nextIndex = currentTextIndex === texts.length - 1 ? (loop ? 0 : currentTextIndex) : currentTextIndex + 1;
-    if (nextIndex !== currentTextIndex) {
-      handleIndexChange(nextIndex);
-    }
-  }, [currentTextIndex, texts.length, loop, handleIndexChange]);
-
-  const previous = useCallback(() => {
-    const prevIndex = currentTextIndex === 0 ? (loop ? texts.length - 1 : currentTextIndex) : currentTextIndex - 1;
-    if (prevIndex !== currentTextIndex) {
-      handleIndexChange(prevIndex);
-    }
-  }, [currentTextIndex, texts.length, loop, handleIndexChange]);
-
-  const jumpTo = useCallback(
-    index => {
-      const validIndex = Math.max(0, Math.min(index, texts.length - 1));
-      if (validIndex !== currentTextIndex) {
-        handleIndexChange(validIndex);
-      }
-    },
-    [texts.length, currentTextIndex, handleIndexChange]
-  );
-
-  const reset = useCallback(() => {
-    if (currentTextIndex !== 0) {
-      handleIndexChange(0);
-    }
-  }, [currentTextIndex, handleIndexChange]);
-
-  useImperativeHandle(
-    ref,
-    () => ({
-      next,
-      previous,
-      jumpTo,
-      reset
-    }),
-    [next, previous, jumpTo, reset]
-  );
-
-  useEffect(() => {
-    if (!auto) return;
-    const intervalId = setInterval(next, rotationInterval);
-    return () => clearInterval(intervalId);
-  }, [next, rotationInterval, auto]);
+  /* Removed local formatting and imperative logic */
 
   return (
     <motion.span className={cn('text-rotate', mainClassName)} {...rest} layout transition={transition}>
