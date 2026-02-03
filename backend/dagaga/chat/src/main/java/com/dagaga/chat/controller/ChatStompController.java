@@ -5,7 +5,8 @@ import com.dagaga.chat.dto.MessageControllerDto.SendMessageResponse;
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
 import com.dagaga.chat.service.ChatMessageService;
 import com.dagaga.chat.service.ChatRoomService;
-import com.dagaga.domain.security.UserPrincipal;
+import com.dagaga.security.principal.UserPrincipal;
+import com.dagaga.domain.user.value.UserId;
 import jakarta.validation.Valid;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -20,8 +21,8 @@ public class ChatStompController {
     private final ChatRoomService chatRoomService;
 
     public ChatStompController(SimpMessagingTemplate messagingTemplate,
-                               ChatMessageService chatMessageService,
-                               ChatRoomService chatRoomService) {
+            ChatMessageService chatMessageService,
+            ChatRoomService chatRoomService) {
         this.messagingTemplate = messagingTemplate;
         this.chatMessageService = chatMessageService;
         this.chatRoomService = chatRoomService;
@@ -35,7 +36,7 @@ public class ChatStompController {
         if (principal == null) {
             throw new IllegalArgumentException("인증되지 않은 사용자입니다.");
         }
-        
+
         Authentication auth = (Authentication) principal;
         UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
 
@@ -43,7 +44,8 @@ public class ChatStompController {
         chatRoomService.getRoomAndValidateLocation(req.roomId(), userPrincipal.getLocationId());
 
         // 메시지 저장
-        SaveMessageResult savedResult = chatMessageService.save(req.toServiceDto(userPrincipal.getUserId(), userPrincipal.getNativeLangCode()));
+        SaveMessageResult savedResult = chatMessageService
+                .save(req.toServiceDto(userPrincipal.getUserId().getValue(), userPrincipal.getNativeLangCode()));
 
         // 브로드캐스트 payload
         SendMessageResponse payload = SendMessageResponse.from(savedResult);
