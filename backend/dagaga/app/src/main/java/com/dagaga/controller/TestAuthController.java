@@ -1,7 +1,6 @@
 package com.dagaga.controller;
 
 import com.dagaga.common.response.ApiResponse;
-import com.dagaga.domain.security.jwt.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +28,14 @@ public class TestAuthController {
 
         // 테스트용 계정 정보 (Mock: test1@dagaga.com)
         Integer testUserId = 1;
+        String testEmail = "test1@dagaga.com";
         Integer testLocationId = 229;
         String testViewLangCode = "ko";
         String testNativeLangCode = "vi"; // 베트남어 (테스트용)
 
         String accessToken = jwtTokenProvider.generateAccessToken(
-                testUserId, testLocationId, testViewLangCode, testNativeLangCode,
-                null, // nickname argument added as null
+                testUserId, testEmail, testLocationId, testViewLangCode, testNativeLangCode,
+                null, // nickname
                 10L * 365 * 24 * 60 * 60 * 1000, true); // 10년 만료, 테스트 토큰 플래그 포함
 
         Map<String, String> response = new HashMap<>();
