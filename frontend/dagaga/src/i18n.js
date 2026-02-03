@@ -7,6 +7,7 @@ const resources = {
   ko: {
     translation: {
       "login": "로그인",
+      "logout": "로그아웃",
       "signup": "회원가입",
       "language": "한국어",
       "email": "이메일",
@@ -115,6 +116,7 @@ const resources = {
   zh: {
     translation: {
       "login": "登录",
+      "logout": "注销",
       "signup": "注册",
       "language": "中文",
       "email": "电子邮件",
@@ -223,6 +225,7 @@ const resources = {
   vi: {
     translation: {
       "login": "Đăng nhập",
+      "logout": "Đăng xuất",
       "signup": "Đăng ký",
       "language": "Tiếng Việt",
       "email": "Email",
@@ -340,8 +343,8 @@ i18n
       escapeValue: false // react already safes from xss
     },
     detection: {
-        order: ['localStorage', 'navigator'],
-        caches: ['localStorage'],
+      order: ['localStorage', 'navigator'],
+      caches: ['localStorage'],
     }
   });
 
