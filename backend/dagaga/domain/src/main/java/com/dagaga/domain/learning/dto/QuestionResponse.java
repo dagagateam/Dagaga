@@ -13,10 +13,6 @@ public class QuestionResponse {
     private Integer questionId;
     private String category;
     private String questionText;
-    private String exampleAnswer;
     private Integer orderIndex;
-    private String viQuestions;
-    private String viAnswers;
-    private String zhQuestions;
-    private String zhAnswers;
+    private String viewQuestions;
 }

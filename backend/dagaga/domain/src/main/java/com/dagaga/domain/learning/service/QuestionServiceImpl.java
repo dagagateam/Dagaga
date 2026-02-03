@@ -32,23 +32,21 @@ public class QuestionServiceImpl implements QuestionService {
         }
 
         private QuestionResponse convertToDto(QuestionBank entity, String nativeLangCode) {
-                var builder = QuestionResponse.builder()
+                // nativeLangCode에 따라 viewQuestions 필드 설정
+                String viewQuestions = null;
+                if ("vi".equalsIgnoreCase(nativeLangCode)) {
+                        viewQuestions = entity.getViQuestions();
+                } else if ("zh".equalsIgnoreCase(nativeLangCode)) {
+                        viewQuestions = entity.getZhQuestions();
+                }
+
+                return QuestionResponse.builder()
                                 .questionId(entity.getQuestionId())
                                 .category(entity.getCategory())
                                 .questionText(entity.getQuestionText())
-                                .exampleAnswer(entity.getExampleAnswer())
-                                .orderIndex(entity.getOrderIndex());
-
-                // nativeLangCode에 따라 지역별 데이터 선택적으로 추가
-                if ("vi".equalsIgnoreCase(nativeLangCode)) {
-                        builder.viQuestions(entity.getViQuestions())
-                               .viAnswers(entity.getViAnswers());
-                } else if ("zh".equalsIgnoreCase(nativeLangCode)) {
-                        builder.zhQuestions(entity.getZhQuestions())
-                               .zhAnswers(entity.getZhAnswers());
-                }
-
-                return builder.build();
+                                .orderIndex(entity.getOrderIndex())
+                                .viewQuestions(viewQuestions)
+                                .build();
         }
 
         @Override
