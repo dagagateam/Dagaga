@@ -32,6 +32,10 @@ const Navbar = () => {
     }
   };
 
+  const handleMyPage = () => {
+    navigate('/MyPage');
+  };
+
   return (
     <BootstrapNavbar className="navbar bg-white border-bottom position-relative">
       <Container fluid>
@@ -45,7 +49,7 @@ const Navbar = () => {
           <>
             {/* navbar 메뉴 */}
             <Nav
-              className="d-none d-md-flex ms-5"
+              className="d-none d-md-flex ms-4"
               style={{ gap: "var(--navbar-gap)" }}
             >
               <Nav.Link
@@ -60,14 +64,14 @@ const Navbar = () => {
                 to="/Community/Info"
                 className="fw-medium text-dark p-0"
               >
-                정보
+                {t('nav_info')}
               </Nav.Link>
               <Nav.Link
                 as={Link}
                 to="/Community/Chat"
                 className="fw-medium text-dark p-0"
               >
-                채팅
+                {t('nav_chat')}
               </Nav.Link>
             </Nav>
 
@@ -77,15 +81,16 @@ const Navbar = () => {
                 className="logout-btn"
                 onClick={handleLogout}
               >
-                로그아웃
+                {t('logout')}
               </button>
             </div>
 
             {/* 사용자 닉네임 */}
             <div className="user-info">
-              <span className="user-nickname">
+              <button className="user-nickname"
+                onClick={handleMyPage}>
                 {user?.nickname || t('guest')}{t('user_suffix')}
-              </span>
+              </button>
             </div>
           </>
         )}

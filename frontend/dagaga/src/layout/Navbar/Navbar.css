@@ -1,7 +1,7 @@
 .navbar {
   display: flex;
   align-items: center;
-  padding: 20px 100px;
+  padding: 20px 2rem !important;
   background-color: transparent !important;
   font-family: var(--main-font);
   position: relative;
@@ -32,7 +32,8 @@
   /* 부트스트랩 최소 넓이 오버라이딩 */
   width: auto;
   padding: 0.5rem 0;
-  z-index: 1050; /* Ensure dropdown is above other content */
+  z-index: 1050;
+  /* Ensure dropdown is above other content */
 }
 
 
@@ -56,6 +57,23 @@
   background-color: #FFF5E6;
   border-radius: 20px;
   border: 2px solid #F8B15E;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.user-nickname:hover {
+  background-color: #F8B15E;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.user-nickname:active {
+  transform: translateY(0);
+}
+
+.user-nickname:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(248, 177, 94, 0.3);
 }
 
 .logout-btn {
