@@ -2,6 +2,7 @@ package com.dagaga.security.config;
 
 import com.dagaga.security.jwt.JwtAuthenticationEntryPoint;
 import com.dagaga.security.jwt.JwtAuthenticationFilter;
+import com.dagaga.security.oauth.CustomOAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,7 @@ public class SecurityConfig {
 
         private final JwtAuthenticationFilter jwtAuthenticationFilter;
         private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+        private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -45,6 +47,7 @@ public class SecurityConfig {
                                                 // 공개 엔드포인트
                                                 .requestMatchers(
                                                                 "/api/v1/users/signup",
+                                                                "/api/v1/users/social-signup",
                                                                 "/api/v1/users/login",
                                                                 "/api/v1/users/refresh",
                                                                 "/api/v1/users/check-email",
@@ -62,6 +65,10 @@ public class SecurityConfig {
                                                 // 그 외 모든 요청은 인증 필요
                                                 .anyRequest().authenticated())
 
+                                // OAuth2 로그인 설정 추가
+                                .oauth2Login(oauth2 -> oauth2
+                                                .successHandler(customOAuth2SuccessHandler))
+
                                 // 예외 처리
                                 .exceptionHandling(exception -> exception
                                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint))
@@ -70,11 +77,6 @@ public class SecurityConfig {
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
-        }
-
-        @Bean
-        public PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder();
         }
 
         @Bean

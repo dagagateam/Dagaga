@@ -1,5 +1,6 @@
 package com.dagaga.domain.user.service;
 
+import com.dagaga.domain.user.dto.SocialSignupDto;
 import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.dto.UserResponseDto;
@@ -10,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -37,11 +41,9 @@ public class UserService {
 
         String nickname = dto.getNickname();
         if (nickname == null || nickname.isBlank()) {
-            nickname = dto.getEmail().split("@")[0];
-        }
-
-        if (userRepository.existsByNickname(nickname)) {
-            throw new IllegalArgumentException("닉네임이 이미 존재합니다: " + nickname);
+            nickname = generateUniqueNickname(dto.getEmail());
+        } else {
+            checkNicknameDuplicate(nickname);
         }
 
         // 비밀번호 암호화
@@ -58,6 +60,30 @@ public class UserService {
                 .build();
 
         return userRepository.save(user);
+    }
+
+    @Transactional
+    public User registerSocialUser(SocialSignupDto dto) {
+        checkEmailDuplicate(dto.getEmail());
+        checkNicknameDuplicate(dto.getNickname());
+
+        User user = User.builder()
+                .email(dto.getEmail())
+                .password(null) // 소셜 로그인은 비밀번호 없음
+                .nickname(dto.getNickname())
+                .viewLangCode(dto.getViewLangCode())
+                .nativeLangCode(dto.getNativeLangCode())
+                .locationId(dto.getLocationId())
+                .arrivalDate(dto.getArrivalDate())
+                .socialProvider("google")
+                .isActive(true)
+                .build();
+
+        return userRepository.save(user);
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public User authenticate(String email, String password) {
@@ -108,8 +134,7 @@ public class UserService {
                 dto.getNativeLangCode(),
                 dto.getLocationId(),
                 dto.getArrivalDate(),
-                dto.getProfileImage()
-        );
+                dto.getProfileImage());
 
         return UserResponseDto.from(user);
     }
@@ -120,15 +145,15 @@ public class UserService {
     private String generateUniqueNickname(String email) {
         String baseNickname = email.split("@")[0];
         String nickname = baseNickname;
-        
+
         int attempts = 0;
-        java.util.Random random = new java.util.Random();
-        
+        Random random = new Random();
+
         while (userRepository.existsByNickname(nickname) && attempts < 5) {
             nickname = baseNickname + "#" + String.format("%04d", random.nextInt(10000));
             attempts++;
         }
-        
+
         // 5번 시도 후에도 중복이면 그냥 마지막 생성된 값 사용 (드문 케이스)
         // 또는 명시적으로 예외 발생 가능
         return nickname;

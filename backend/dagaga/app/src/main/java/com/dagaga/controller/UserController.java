@@ -1,5 +1,6 @@
 package com.dagaga.controller;
 
+import com.dagaga.domain.user.dto.SocialSignupDto;
 import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.dto.UserResponseDto;
@@ -64,6 +65,47 @@ public class UserController {
         }
 
         return ResponseEntity.ok(user.getUserId());
+    }
+
+    @PostMapping("/social-signup")
+    public ResponseEntity<AuthResponse> socialSignup(
+            @RequestBody @Valid SocialSignupDto dto) {
+        User user = userService.registerSocialUser(dto);
+
+        // 회원가입 후 해당 지역의 기본 채팅방 자동 참여
+        try {
+            chatRoomService.joinDefaultRoom(user.getUserId(), dto.getLocationId());
+        } catch (Exception e) {
+            System.err.println("기본 채팅방 참여 실패: " + e.getMessage());
+        }
+
+        // 토큰 생성 및 응답 (로그인 로직과 동일)
+        String accessToken = jwtTokenProvider.generateAccessToken(
+                user.getUserId(),
+                user.getLocationId(),
+                user.getViewLangCode(),
+                user.getNativeLangCode(),
+                user.getNickname());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
+        String refreshTokenId = jwtTokenProvider.getTokenIdFromToken(refreshToken);
+
+        redisTokenService.saveRefreshToken(user.getUserId(), refreshTokenId, refreshToken, refreshTokenExpiry);
+        redisTokenService.addUserSession(user.getUserId(), refreshTokenId);
+
+        AuthResponse response = AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .tokenType("Bearer")
+                .expiresIn(accessTokenExpiry)
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .locationId(user.getLocationId())
+                .viewLangCode(user.getViewLangCode())
+                .nativeLangCode(user.getNativeLangCode())
+                .nickname(user.getNickname())
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/me")
