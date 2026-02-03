@@ -37,7 +37,7 @@ const Navbar = () => {
   };
 
   return (
-    <BootstrapNavbar className="navbar bg-white border-bottom position-relative">
+    <BootstrapNavbar className="navbar border-bottom position-relative">
       <Container fluid>
         {/* 로고 */}
         <BootstrapNavbar.Brand className="p-0">
