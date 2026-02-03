@@ -2,9 +2,12 @@ package com.dagaga.controller;
 
 import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
+import com.dagaga.domain.user.dto.UserResponseDto;
+import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.service.UserService;
 import com.dagaga.chat.service.ChatRoomService;
+import com.dagaga.security.context.SecurityContextHelper;
 import com.dagaga.security.dto.AuthResponse;
 import com.dagaga.security.dto.RefreshTokenRequest;
 import com.dagaga.security.jwt.JwtTokenProvider;
@@ -57,10 +60,22 @@ public class UserController {
             // 채팅방 참여 실패가 회원가입 전체 실패로 이어지지 않도록 로그만 남김
             // 예: 기본 채팅방이 아직 생성되지 않은 경우 등
             // TODO: 기본 채팅방 없을 때 자동 생성
-            System.err.println("Failed to join default chat room: " + e.getMessage());
+            System.err.println("기본 채팅방 참여 실패: " + e.getMessage());
         }
 
         return ResponseEntity.ok(user.getUserId());
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> getCurrentUser() {
+        Integer userId = SecurityContextHelper.getCurrentUserId();
+        return ResponseEntity.ok(userService.getUserResponse(userId));
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<UserResponseDto> updateCurrentUser(@RequestBody @Valid UserUpdateDto dto) {
+        Integer userId = SecurityContextHelper.getCurrentUserId();
+        return ResponseEntity.ok(userService.updateUser(userId, dto));
     }
 
     @PostMapping("/login")

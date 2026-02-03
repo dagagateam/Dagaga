@@ -29,7 +29,7 @@ public class TestAuthController {
 
         // 테스트용 계정 정보 (Mock: test1@dagaga.com)
         Integer testUserId = 1;
-        Integer testLocationId = 1;
+        Integer testLocationId = 229;
         String testViewLangCode = "ko";
         String testNativeLangCode = "vi"; // 베트남어 (테스트용)
 

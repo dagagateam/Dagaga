@@ -23,7 +23,7 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password") // Nullable for OAuth users
+    @Column(name = "password") // OAuth 사용자의 경우 Null 허용
     private String password;
 
     @Column(name = "nickname", unique = true)
@@ -47,7 +47,7 @@ public class User {
     @Column(name = "social_provider")
     private String socialProvider;
 
-    @Column(name = "social_id") // External OAuth provider ID
+    @Column(name = "social_id") // 외부 OAuth 제공자 ID
     private String socialId;
 
     @Column(name = "role", nullable = false)
@@ -100,6 +100,42 @@ public class User {
 
     public void updateLocationId(Integer locationId) {
         this.locationId = locationId;
+        this.modifiedAt = LocalDateTime.now();
+    }
+
+    public void updateProfile(String nickname, String viewLangCode, String nativeLangCode,
+                              Integer locationId, LocalDate arrivalDate, String profileImage) {
+        // null은 "변경 없음", 빈 문자열("")은 "초기화/기본값"을 의미함
+        if (nickname != null) {
+            this.nickname = nickname;
+        }
+        
+        if (viewLangCode != null) {
+            this.viewLangCode = viewLangCode;
+        }
+        
+        if (nativeLangCode != null) {
+            this.nativeLangCode = nativeLangCode;
+        }
+        
+        if (locationId != null) {
+            this.locationId = locationId;
+        }
+        
+        if (arrivalDate != null) {
+            this.arrivalDate = arrivalDate;
+        }
+        
+        if (profileImage != null) {
+            // 프로필 이미지가 빈 문자열이면 기본 이미지로 초기화
+            this.profileImage = profileImage.isBlank() ? "default_avatar.png" : profileImage;
+        }
+        
+        this.modifiedAt = LocalDateTime.now();
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
         this.modifiedAt = LocalDateTime.now();
     }
 }
