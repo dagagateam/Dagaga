@@ -9,8 +9,9 @@ from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from deep_translator import GoogleTranslator
-from gtts import gTTS
 import io
+import edge_tts
+from langdetect import detect, LangDetectException
 
 # PEFT 및 Transformers
 from transformers import (
@@ -144,6 +145,8 @@ def get_asr_pipeline():
             )
 
     return asr_pipeline
+
+
 
 "구글 번역"
 async def translate_text(text: str, source_lang: str, target_lang: str = "ko") -> str:
@@ -461,37 +464,91 @@ async def evaluate_pronunciation(
             except Exception as e:
                 logger.warning(f"Failed to delete temporary file: {e}")
 
-
+# tts
 @app.post("/api/v1/tts/synthesize")
 async def synthesize_speech(
-    text: str = Form(...),
-    language: str = Form("ko")
+    text: str = Form(...)
 ):
-    """
-    텍스트를 음성으로 변환 (TTS)
-    """
     if not text:
         raise HTTPException(status_code=400, detail="text is required")
 
     try:
-        logger.info(f"TTS request - text: '{text}', language: {language}")
+        # 문자 기반 언어 감지
+        def detect_language_by_chars(text):
+            has_chinese = any('\u4e00' <= char <= '\u9fff' for char in text)
+            has_korean = any('\uac00' <= char <= '\ud7af' or '\u1100' <= char <= '\u11ff' for char in text)
+            has_japanese_hiragana = any('\u3040' <= char <= '\u309f' for char in text)
+            has_japanese_katakana = any('\u30a0' <= char <= '\u30ff' for char in text)
+            
+            if has_korean:
+                return "ko"
+            elif has_japanese_hiragana or has_japanese_katakana:
+                return "ja"
+            elif has_chinese:
+                return "zh"
+            return None
+        
+        # 먼저 문자 기반 감지 시도
+        detected_lang = detect_language_by_chars(text)
+        if detected_lang:
+            logger.info(f"Character-based detection: {detected_lang}")
+        else:
+            # langdetect 사용 (일관성을 위해 seed 고정)
+            try:
+                from langdetect import DetectorFactory
+                DetectorFactory.seed = 0
+                detected_lang = detect(text)
+                logger.info(f"Auto-detected language: {detected_lang}")
+            except LangDetectException:
+                detected_lang = "ko"  # 기본값: 한국어
+                logger.warning(f"Language detection failed, using default: {detected_lang}")
+        
+        logger.info(f"TTS request - text: '{text}', detected_language: {detected_lang}")
 
-        # gTTS를 사용하여 텍스트를 음성으로 변환
-        tts = gTTS(text=text, lang=language, slow=False)
-
+        # 언어별 여성 목소리 매핑 (Edge TTS)
+        voice_map = {
+            "ko": "ko-KR-SunHiNeural",      # 한국어 여성 (선희)
+            "vi": "vi-VN-HoaiMyNeural",     # 베트남어 여성 (호아이미)
+            "zh": "zh-CN-XiaoxiaoNeural",  # 중국어 여성 (샤오샤오)
+            "zh-cn": "zh-CN-XiaoxiaoNeural",
+            "zh-tw": "zh-TW-HsiaoChenNeural",  # 대만 중국어 여성
+            "en": "en-US-JennyNeural",     # 영어 여성 (제니)
+            "ja": "ja-JP-NanamiNeural",    # 일본어 여성 (나나미)
+            "es": "es-ES-ElviraNeural",    # 스페인어 여성
+            "fr": "fr-FR-DeniseNeural",    # 프랑스어 여성
+            "de": "de-DE-KatjaNeural",     # 독일어 여성
+            "it": "it-IT-ElsaNeural",      # 이탈리아어 여성
+            "pt": "pt-BR-FranciscaNeural", # 포르투갈어 여성
+            "ru": "ru-RU-SvetlanaNeural",  # 러시아어 여성
+            "ar": "ar-SA-ZariyahNeural",   # 아랍어 여성
+            "hi": "hi-IN-SwaraNeural",     # 힌디어 여성
+            "th": "th-TH-PremwadeeNeural", # 태국어 여성
+            "id": "id-ID-GadisNeural"      # 인도네시아어 여성
+        }
+        
+        voice = voice_map.get(detected_lang.lower(), "ko-KR-SunHiNeural")
+        
+        logger.info(f"Using Edge TTS voice: {voice}")
+        
+        # Edge TTS로 음성 생성
+        communicate = edge_tts.Communicate(text, voice)
+        
         # 메모리 버퍼에 저장
         audio_buffer = io.BytesIO()
-        tts.write_to_fp(audio_buffer)
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                audio_buffer.write(chunk["data"])
+        
         audio_buffer.seek(0)
 
-        logger.info(f"✓ TTS synthesis completed for: '{text}'")
+        logger.info(f"✓ TTS synthesis completed for: '{text}' (voice: {voice}, detected_lang: {detected_lang})")
 
-        # 음성 파일 스트리밍 응답
+        # 음성 파일 스트리밍 응답 (MP3 형식)
         return StreamingResponse(
             audio_buffer,
             media_type="audio/mpeg",
             headers={
-                "Content-Disposition": f"attachment; filename=tts_{language}.mp3"
+                "Content-Disposition": f"attachment; filename=tts_{detected_lang}.mp3"
             }
         )
 
