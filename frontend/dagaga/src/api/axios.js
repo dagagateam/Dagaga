@@ -6,18 +6,18 @@ const instance = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true, // 쿠키 전송 허용
 });
 
 // Request Interceptor: 자동으로 JWT 토큰 첨부
 instance.interceptors.request.use(
     (config) => {
-        // Zustand store에서 accessToken 가져오기
         const { accessToken } = useUserStore.getState();
-        
+
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
-        
+
         return config;
     },
     (error) => {
@@ -33,30 +33,23 @@ instance.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        // 401 Unauthorized 에러이고, 재시도하지 않은 요청인 경우
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
             try {
-                const { refreshToken, setTokens, logout } = useUserStore.getState();
+                const { setAccessToken, logout } = useUserStore.getState();
 
-                if (!refreshToken) {
-                    // Refresh token이 없으면 로그아웃
-                    logout();
-                    window.location.href = '/login';
-                    return Promise.reject(error);
-                }
-
-                // Refresh token으로 새 access token 발급
+                // Refresh token은 쿠키로 전송됨
                 const response = await axios.post(
                     `${import.meta.env.VITE_API_URL || '/api/v1'}/users/refresh`,
-                    { refreshToken }
+                    null,
+                    { withCredentials: true }
                 );
 
-                const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
+                const { accessToken: newAccessToken } = response.data;
 
                 // 새 토큰 저장
-                setTokens(newAccessToken, newRefreshToken);
+                setAccessToken(newAccessToken);
 
                 // 원래 요청에 새 토큰 적용
                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -64,7 +57,6 @@ instance.interceptors.response.use(
                 // 원래 요청 재시도
                 return instance(originalRequest);
             } catch (refreshError) {
-                // Refresh token도 만료되었으면 로그아웃
                 const { logout } = useUserStore.getState();
                 logout();
                 window.location.href = '/login';
