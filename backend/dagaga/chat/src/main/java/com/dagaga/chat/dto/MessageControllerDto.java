@@ -4,9 +4,7 @@ import com.dagaga.domain.chat.message.entity.ChatMessage;
 import com.dagaga.domain.chat.message.entity.MessageTranslation;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.dagaga.chat.dto.MessageServiceDto.SaveMessageCommand;
 import static com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
@@ -35,19 +33,24 @@ public class MessageControllerDto {
             Long messageId,
             Integer roomId,
             Integer senderId,
-            String originalText,
+            String content, // 원문 또는 번역문
             String originalLang,
-            Map<String, String> translations,
             String sentAt) {
-        // Service Result -> Response 변환
-        public static SendMessageResponse from(SaveMessageResult result) {
-            ChatMessage message = result.message();
-            List<MessageTranslation> translationList = result.translations();
 
-            Map<String, String> translationsMap = new HashMap<>();
-            if (translationList != null) {
-                for (MessageTranslation mt : translationList) {
-                    translationsMap.put(mt.getTargetLang(), mt.getTranslatedText());
+        // Service Result -> Response 변환 (언어별)
+        public static SendMessageResponse from(SaveMessageResult result, String targetLang) {
+            ChatMessage message = result.message();
+            String content = message.getOriginalText();
+
+            // 타겟 언어와 원문 언어가 다르면 번역본 찾기
+            if (!message.getOriginalLang().equalsIgnoreCase(targetLang)) {
+                List<MessageTranslation> translationList = result.translations();
+                if (translationList != null) {
+                    content = translationList.stream()
+                            .filter(t -> t.getTargetLang().equalsIgnoreCase(targetLang))
+                            .map(MessageTranslation::getTranslatedText)
+                            .findFirst()
+                            .orElse(message.getOriginalText()); // 번역 없으면 원문
                 }
             }
 
@@ -55,9 +58,8 @@ public class MessageControllerDto {
                     message.getMessageId(),
                     message.getRoomId(),
                     message.getSenderId(),
-                    message.getOriginalText(),
+                    content,
                     message.getOriginalLang(),
-                    translationsMap,
                     message.getSentAt().toString());
         }
     }
