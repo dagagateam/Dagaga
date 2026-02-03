@@ -1,4 +1,4 @@
-package com.dagaga.domain.security.jwt;
+package com.dagaga.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -11,6 +11,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * JWT 토큰 생성 및 검증을 담당하는 컴포넌트
+ */
 @Slf4j
 @Component
 public class JwtTokenProvider {
@@ -24,22 +27,23 @@ public class JwtTokenProvider {
             @Value("${jwt.access-token-expiry}") long accessTokenExpiry,
             @Value("${jwt.refresh-token-expiry}") long refreshTokenExpiry) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.accessTokenExpiry = accessTokenExpiry * 1000; // Convert to milliseconds
+        this.accessTokenExpiry = accessTokenExpiry * 1000; // 초 단위를 밀리초로 변환
         this.refreshTokenExpiry = refreshTokenExpiry * 1000;
     }
 
     /**
      * Access Token 생성 (userId, locationId 및 언어 설정 포함)
      */
-    public String generateAccessToken(Integer userId, Integer locationId,
+    public String generateAccessToken(Integer userId, String email, Integer locationId,
             String viewLangCode, String nativeLangCode, String nickname) {
-        return generateAccessToken(userId, locationId, viewLangCode, nativeLangCode, nickname, accessTokenExpiry, false);
+        return generateAccessToken(userId, email, locationId, viewLangCode, nativeLangCode, nickname, accessTokenExpiry,
+                false);
     }
 
     /**
      * Access Token 생성 (커스텀 만료 시간 및 테스트 여부 포함)
      */
-    public String generateAccessToken(Integer userId, Integer locationId,
+    public String generateAccessToken(Integer userId, String email, Integer locationId,
             String viewLangCode, String nativeLangCode, String nickname, long expiryMillis, boolean isTest) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiryMillis);
@@ -47,6 +51,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .claim("userId", userId)
+                .claim("email", email)
                 .claim("locationId", locationId)
                 .claim("viewLangCode", viewLangCode)
                 .claim("nativeLangCode", nativeLangCode)
@@ -84,9 +89,9 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-            .verifyWith(secretKey)
-            .build()
-            .parseSignedClaims(token);
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
             log.warn("만료된 JWT 토큰입니다: {}", e.getMessage());
