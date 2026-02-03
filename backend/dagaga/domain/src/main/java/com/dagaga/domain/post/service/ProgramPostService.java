@@ -196,6 +196,10 @@ public class ProgramPostService {
                     .createdAt(post.getCreatedAt())
                     .updatedAt(program != null ? program.getUpdatedAt() : post.getCreatedAt())
                     .capacity(program != null ? program.getCapacity() : null)
+                    .regStartDate(program != null ? program.getRegStartDate() : null)
+                    .regEndDate(program != null ? program.getRegEndDate() : null)
+                    .progStartDate(program != null ? program.getProgStartDate() : null)
+                    .progEndDate(program != null ? program.getProgEndDate() : null)
                     .imageUrls(imageUrls)
                     .build();
         });
