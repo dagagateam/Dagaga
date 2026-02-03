@@ -3,12 +3,19 @@ package com.dagaga.chat.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final StompHandler stompHandler;
+
+    public WebSocketConfig(StompHandler stompHandler) {
+        this.stompHandler = stompHandler;
+    }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -23,5 +30,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
         // 메시지를 발행(송신)하는 엔드포인트
         registry.setApplicationDestinationPrefixes("/pub");
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(stompHandler);
     }
 }
