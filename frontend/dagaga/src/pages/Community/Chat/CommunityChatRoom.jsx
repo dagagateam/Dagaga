@@ -41,11 +41,11 @@ const CommunityChatRoom = () => {
                     const mappedMessages = apiMessages.map(msg => ({
                         id: msg.messageId,
                         sender: msg.senderId === currentUserId ? '나' : `User ${msg.senderId}`,
-                        text: msg.originalText,
+                        text: msg.content,
                         time: new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                         isMe: msg.senderId === currentUserId,
                         type: 'text'
-                    }));
+                    })).reverse(); // 최신 메시지가 아래에 오도록 정렬 순서 반전
                     setMessages(mappedMessages);
                 } catch (error) {
                     console.error("Failed to fetch chat messages:", error);
@@ -90,8 +90,9 @@ const CommunityChatRoom = () => {
             onConnect: (frame) => {
                 console.log('STOMP Connected: ' + frame);
                 
-                // Subscribe to room messages
-                client.subscribe(`/sub/chat/rooms/${id}`, (message) => {
+                // Subscribe to room messages (언어별 채널 구독)
+                const userNativeLang = user?.nativeLangCode || 'ko';
+                client.subscribe(`/sub/chat/rooms/${id}/${userNativeLang}`, (message) => {
                     if (message.body) {
                         try {
                             const receivedMsg = JSON.parse(message.body);
@@ -100,7 +101,7 @@ const CommunityChatRoom = () => {
                             const newMsg = {
                                 id: receivedMsg.messageId,
                                 sender: receivedMsg.senderId === user.userId ? '나' : `User ${receivedMsg.senderId}`, // 닉네임 매핑 필요 시 추가 로직 필요
-                                text: receivedMsg.originalText,
+                                text: receivedMsg.content, // 백엔드에서 이미 적절한 언어로 필터링되어 옴
                                 time: new Date(receivedMsg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                                 isMe: receivedMsg.senderId === user.userId,
                                 type: 'text'
@@ -109,7 +110,8 @@ const CommunityChatRoom = () => {
                             setMessages((prev) => {
                                 // 중복 방지 (ID 기준)
                                 if (prev.some(m => m.id === newMsg.id)) return prev;
-                                return [...prev, newMsg];
+                                // 최신 메시지가 아래에 오도록 정렬 순서 유지 (기존 reverse()와 매칭)
+                                return [...prev, newMsg]; 
                             });
                         } catch (e) {
                             console.error('Failed to parse message body:', e);
