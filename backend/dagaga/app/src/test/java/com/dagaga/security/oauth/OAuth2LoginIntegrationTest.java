@@ -103,6 +103,7 @@ public class OAuth2LoginIntegrationTest {
 
                 assertThat(response.getRedirectedUrl()).contains("/Auth/Success");
                 assertThat(response.getRedirectedUrl()).contains("accessToken=");
-                assertThat(response.getRedirectedUrl()).contains("refreshToken=");
+                assertThat(response.getCookie("refreshToken")).isNotNull();
+                assertThat(response.getCookie("refreshToken").isHttpOnly()).isTrue();
         }
 }

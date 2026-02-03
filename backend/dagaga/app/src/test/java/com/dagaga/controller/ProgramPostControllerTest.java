@@ -4,12 +4,11 @@ import com.dagaga.domain.post.dto.ProgramPostDetailResponse;
 import com.dagaga.domain.post.dto.ProgramPostResponse;
 import com.dagaga.domain.post.service.ProgramPostService;
 import com.dagaga.domain.post.service.CommentService;
-import com.dagaga.security.jwt.JwtAuthenticationFilter;
-import com.dagaga.security.jwt.JwtAuthenticationEntryPoint;
-import com.dagaga.domain.security.SecurityContextHelper;
+import com.dagaga.domain.security.CurrentUser;
+import com.dagaga.security.jwt.JwtTokenProvider;
+import com.dagaga.security.redis.RedisTokenService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.mockito.Mockito;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -28,7 +26,6 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import org.mockito.MockedStatic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,30 +44,24 @@ class ProgramPostControllerTest {
     private CommentService commentService;
 
     @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private CurrentUser currentUser;
 
     @MockitoBean
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private JwtTokenProvider jwtTokenProvider;
 
-    private MockedStatic<SecurityContextHelper> mockedSecurityContextHelper;
+    @MockitoBean
+    private RedisTokenService redisTokenService;
 
-    @BeforeEach
-    void setUp() {
-        mockedSecurityContextHelper = Mockito.mockStatic(SecurityContextHelper.class);
-    }
-
-    @AfterEach
-    void tearDown() {
-        mockedSecurityContextHelper.close();
-    }
+    @MockitoBean
+    private PasswordEncoder passwordEncoder;
 
     @Test
     @DisplayName("프로그램 게시글 목록 조회 API가 지역 필터링과 함께 정상적으로 동작한다")
     void getProgramPosts_Success() throws Exception {
         // given
         Integer locationId = 1;
-        mockedSecurityContextHelper.when(SecurityContextHelper::getCurrentLocationId).thenReturn(locationId);
-        
+        given(currentUser.getLocationId()).willReturn(locationId);
+
         Page<ProgramPostResponse> responsePage = Page.empty();
         given(programPostService.getProgramPosts(eq(locationId), any(Pageable.class))).willReturn(responsePage);
 
