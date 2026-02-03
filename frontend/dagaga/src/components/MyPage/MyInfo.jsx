@@ -32,11 +32,22 @@ const MyInfo = () => {
         return `${year}/${month}/${day}`;
     };
 
+    // Helper to get translated language name from language code
+    const getLangName = (langCode) => {
+        if (!langCode) return "-";
+        switch(langCode) {
+            case 'ko': return t('lang_ko');
+            case 'zh': return t('lang_zh');
+            case 'vi': return t('lang_vi');
+            default: return langCode;
+        }
+    };
+
     return {
       nickname: user.nickname || "-",
       email: user.email || "-",
-      preferredLang: user.viewLangCode === 'ko' ? '한국어' : user.viewLangCode === 'en' ? 'English' : user.viewLangCode || "-",
-      nativeLang: user.nativeLangCode === 'ko' ? '한국어' : user.nativeLangCode === 'en' ? 'English' : user.nativeLangCode || "-",
+      preferredLang: getLangName(user.viewLangCode),
+      nativeLang: getLangName(user.nativeLangCode),
       region: getLocationName(user.locationId) || "-",
       entryDate: formatDate(user.arrivalDate)
     };

@@ -172,8 +172,8 @@ const EditForm = ({
             className="rounded-3 bg-light border-0 py-2"
           >
             <option value="한국어">{t('lang_ko')}</option>
-            <option value="중국어">{t('lang_zh')}</option>
-            <option value="베트남어">{t('lang_vi')}</option>
+            <option value="中文">{t('lang_zh')}</option>
+            <option value="Việt Nam">{t('lang_vi')}</option>
           </Form.Select>
         </Form.Group>
       </Col>
@@ -191,8 +191,8 @@ const EditForm = ({
             className="rounded-3 bg-light border-0 py-2"
           >
             <option value="한국어">{t('lang_ko')}</option>
-            <option value="중국어">{t('lang_zh')}</option>
-            <option value="베트남어">{t('lang_vi')}</option>
+            <option value="中文">{t('lang_zh')}</option>
+            <option value="Việt Nam">{t('lang_vi')}</option>
           </Form.Select>
         </Form.Group>
       </Col>

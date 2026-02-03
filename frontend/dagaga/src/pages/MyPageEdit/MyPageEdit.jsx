@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Container, Form, Button, Card } from 'react-bootstrap';
 import { useUserStore } from '../../store/userStore';
+import { getLocationId } from '../../data/regionData';
 import ProfileImageSection from '../../components/MyPageEdit/ProfileImageSection';
 import EditForm from '../../components/MyPageEdit/EditForm';
 import stockProfile from '../../assets/icons/stock_profile.jpg';
@@ -11,7 +12,7 @@ import './MyPageEdit.css';
 const MyPageEdit = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const { user, updateUser } = useUserStore();
+    const { user, updateUserProfile } = useUserStore();
 
     const [formData, setFormData] = useState({
         nickname: '',
@@ -30,25 +31,35 @@ const MyPageEdit = () => {
 
     useEffect(() => {
         if (user) {
-            // Use regionName if available (e.g., "서울 종로구"), otherwise fall back to region (though region might be a code)
-            const regionSource = user.regionName || String(user.region || '');
-            const [sido, gugun] = regionSource.split(' ');
-            setFormData({
-                nickname: user.nickname || '',
-                email: user.email || '',
-                sido: sido || '시/도 선택',
-                gugun: gugun || '구/군 선택',
-                preferredLang: user.preferredLang || '한국어',
-                nativeLang: user.nativeLang || '한국어',
-                entryDate: user.entryDate ? user.entryDate.replaceAll('/', '-') : '',
-                password: '',
-                confirmPassword: '',
+            // Import getLocationName to convert locationId to region name
+            import('../../data/regionData').then(({ getLocationName }) => {
+                const regionName = getLocationName(user.locationId) || '';
+                const [sido, gugun] = regionName.split(' ');
+                
+                // Map language codes back to display values for dropdowns
+                const langCodeToDisplay = {
+                    'ko': '한국어',
+                    'zh': '中文',
+                    'vi': 'Việt Nam'
+                };
+                
+                setFormData({
+                    nickname: user.nickname || '',
+                    email: user.email || '',
+                    sido: sido || '시/도 선택',
+                    gugun: gugun || '구/군 선택',
+                    preferredLang: langCodeToDisplay[user.viewLangCode] || '한국어',
+                    nativeLang: langCodeToDisplay[user.nativeLangCode] || '한국어',
+                    entryDate: user.arrivalDate || '', // Use arrivalDate, keeps YYYY-MM-DD from API
+                    password: '', // Always empty
+                    confirmPassword: '', // Always empty
+                });
+                
+                // Load profile image if exists
+                if (user.profileImage) {
+                    setPreviewImage(user.profileImage);
+                }
             });
-            
-            // Load profile image if exists
-            if (user.profileImage) {
-                setPreviewImage(user.profileImage);
-            }
         }
     }, [user]);
 
@@ -102,45 +113,64 @@ const MyPageEdit = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!validate()) return;
 
-        const regionStr = `${formData.sido} ${formData.gugun !== '구/군 선택' ? formData.gugun : ''}`.trim();
-        
+        // Calculate locationId using the selected sido/gugun
+        let locationId = null;
+        if (formData.sido && formData.sido !== '시/도 선택') {
+             locationId = getLocationId(formData.sido, formData.gugun === '구/군 선택' ? null : formData.gugun);
+             
+             if (!locationId) {
+                // Silently ignore if it's just invalid/default, but warn if it looks like a real value
+                // Since we already checked !== '시/도 선택', this implies a mapping failure for a "real" name
+                // console.warn("Could not find locationId for", formData.sido, formData.gugun);
+             }
+        }
+
         // Map preferredLang to viewLangCode
         const langMap = {
             '한국어': 'ko',
-            '중국어': 'zh',
-            '베트남어': 'vi'
+            '中文': 'zh',
+            'Việt Nam': 'vi'
         };
+        // Fallback to 'ko' or keep existing if not mapped? 
+        // It's safer to map correctly. 
+        // In the dropdown (not shown in this file but assumed based on other code), the values are likely Korean names.
         const viewLangCode = langMap[formData.preferredLang] || 'ko';
+        
+        // Map nativeLang to nativeLangCode if needed, or assume same map
+        const nativeLangCode = langMap[formData.nativeLang] || 'ko';
 
         const updates = {
             nickname: formData.nickname,
-            // region: user.region,
-            // The logic below constructs regionStr from names and sends it.
-            region: regionStr,
-            regionName: regionStr, // Update regionName as well just in case
-            preferredLang: formData.preferredLang,
-            nativeLang: formData.nativeLang,
-            entryDate: formData.entryDate ? formData.entryDate.replaceAll('-', '/') : '',
-            viewLangCode: viewLangCode, // Add this to trigger store update
+            locationId: locationId, // Send ID, not string
+            viewLangCode: viewLangCode,
+            nativeLangCode: nativeLangCode,
+            arrivalDate: formData.entryDate || null, // Send YYYY-MM-DD (as is from input type=date)
         };
 
-        // Only include password if it was changed
+        // Only include password if it was checked/changed
         if (formData.password) {
             updates.password = formData.password;
         }
 
-        // Include profile image in updates (using the data URL from previewImage)
-        // Note: In a real app, you'd upload the file to a server and save the URL.
-        // Here we are saving the base64 string directly to localStorage via zustand.
-        updates.profileImage = previewImage;
+        // Include profile image
+        if (previewImage && previewImage !== stockProfile) {
+             updates.profileImage = previewImage;
+        }
         
-        updateUser(updates);
-        navigate('/MyPage');
+        try {
+            // Use the async action
+            await updateUserProfile(updates);
+            navigate('/MyPage');
+        } catch (error) {
+            console.error("Update failed:", error);
+            // Optionally set error state to show to user
+            setErrors(prev => ({ ...prev, submit: t('update_failed') || "Update failed" }));
+        }
     };
 
     return (

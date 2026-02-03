@@ -101,3 +101,13 @@ export const socialSignupAPI = async (userData) => {
         throw error;
     }
 };
+// 유저 프로필 변경 API
+export const updateUserMeAPI = async (userData) => {
+    try {
+        const response = await instance.patch('/users/me', userData);
+        return response.data;
+    } catch (error) {
+        console.error("Update User Me API Error:", error);
+        throw error;
+    }
+};
