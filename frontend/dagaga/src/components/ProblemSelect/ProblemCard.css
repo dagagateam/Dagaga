@@ -2,11 +2,11 @@
   position: absolute;
   width: fit-content;
   max-width: 60dvw;
-  min-width: 300px;
-  min-height: 80px; /* Changed from fixed height */
+  min-width: 18.75rem;
+  min-height: 5rem; /* Changed from fixed height */
   background-color: #d1d5db;
-  border-radius: 15px;
-  padding: 15px 25px;
+  border-radius: 0.9375rem;
+  padding: 0.9375rem 1.5625rem;
   /* Transition when collapsing (active -> default): Height first, then Width */
   transition: 
     background-color 0.3s ease, 
@@ -18,8 +18,8 @@
   display: flex;
   align-items: center; /* Vertically center content */
 
-  transform-origin: calc(-55vh - 50px) center; 
-  left: 50px; 
+  transform-origin: calc(-55vh - 3.125rem) center; 
+  left: 3.125rem; 
   top: 50%;
   transform: translateY(-50%); /* Center based on its own dynamic height */
   margin-top: 0; /* Remove fixed margin offset */
@@ -30,9 +30,9 @@
   background-color: #e8a549;
   /* width: auto;  Let fit-content from base class handle it, or specify if different */
   max-width: 70dvw; /* Allow slightly more space if needed */
-  min-height: 120px; /* Changed from fixed height */
+  min-height: 7.5rem; /* Changed from fixed height */
   height: auto;
-  padding: 30px 40px; /* Increased padding for bigger feel */
+  padding: 1.875rem 2.5rem; /* Increased padding for bigger feel */
   z-index: 10; /* Ensure active card is on top if overlap */
   
   /* Transition when expanding (default -> active): Width first, then Height */
@@ -45,26 +45,26 @@
 }
 
 .problem-card.active .problem-text {
-  font-size: 18px; /* Slightly bigger text when active */
+  font-size: 1.125rem; /* Slightly bigger text when active */
   transition: font-size 0.3s ease;
 }
 
 .problem-card-content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
   width: 100%;
   color: white;
 }
 
 .problem-number {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .problem-text {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 500;
   margin: 0;
   line-height: 1.4;
@@ -75,8 +75,8 @@
 
 .problem-arrows {
   display: flex;
-  gap: 20px;
-  font-size: 14px;
+  gap: 1.25rem;
+  font-size: 0.875rem;
   font-weight: 600;
   justify-content: flex-end;
 }

@@ -2,11 +2,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 1rem; /* Reduced from 20px */
 }
 
 .problem-mascot-image {
   width: auto;
-  height: 400px; /* Half the size of scenario mascot */
+  height: 25vh; /* Drastically reduced from 400px to avoid scrolling */
   object-fit: contain;
 }

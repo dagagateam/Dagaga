@@ -3,7 +3,7 @@
   cursor: pointer;
   transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
   /* height removed, handled by state classes relative to wrapper */
   display: flex;
   flex-direction: column;
@@ -14,20 +14,20 @@
 
 /* Collapsed button state */
 .scenario-card.collapsed {
-  width: 140px;
-  height: 75%; /* Relative to wrapper height (700px * 0.75 = 525px) */
-  border-radius: 20px;
+  width: 7rem; /* Reduced width */
+  height: 66.66%; /* 2/3 of 75vh ~= 50vh */
+  border-radius: 1.25rem;
   background-color: #d1d5db;
-  padding: 30px 10px;
+  padding: 1.5rem 0.625rem; /* Reduced padding */
   justify-content: flex-start;
 }
 
 .scenario-card.collapsed:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0.375rem 1rem rgba(0, 0, 0, 0.15);
 }
 
 .scenario-card.collapsed .scenario-card-icon {
-  margin-bottom: 20px;
+  margin-bottom: 1rem; /* Reduced margin */
   opacity: 1;
   transition: opacity 0.3s ease;
 }
@@ -35,10 +35,10 @@
 .scenario-card-text {
   writing-mode: vertical-rl;
   text-orientation: upright;
-  font-size: 28px;
+  font-size: 1.4rem; /* Reduced font */
   font-weight: 600;
   color: white;
-  letter-spacing: 12px;
+  letter-spacing: 0.625rem; /* Reduced spacing */
   opacity: 1;
   transition: opacity 0.3s ease;
 }
@@ -46,16 +46,17 @@
 /* Expanded card state */
 .scenario-card.expanded {
   background: linear-gradient(135deg, #e8a549 0%, #d4924a 100%);
-  border-radius: 30px;
-  padding: 50px;
-  width: 500px;
-  height: 100%; /* Full height of wrapper (700px) */
+  border-radius: 1.875rem;
+  padding: 2.5rem; /* Reduced padding */
+  width: 25rem; /* Reduced width */
+  height: 100%; /* Full height of wrapper (75vh) */
   color: white;
   align-items: flex-start;
+  overflow-y: auto; /* Allow scrolling if content overflows */
 }
 
 .scenario-card-icon {
-  margin-bottom: 24px;
+  margin-bottom: 1.25rem; /* Reduced margin */
   /* transition: margin-bottom 0.3s ease; */
 }
 
@@ -66,21 +67,21 @@
 }
 
 .scenario-card-title {
-  font-size: 42px;
+  font-size: 2.1rem; /* Reduced font */
   font-weight: 700;
-  margin-bottom: 20px;
+  margin-bottom: 1rem; /* Reduced margin */
   /* opacity: 0; */
   /* animation: fadeIn 0.4s ease 0.3s forwards; */
 }
 
 .scenario-card-tag {
   display: inline-block;
-  border: 2px solid white;
-  border-radius: 20px;
-  padding: 8px 24px;
-  font-size: 16px;
+  border: 0.125rem solid white;
+  border-radius: 1.25rem;
+  padding: 0.375rem 1.25rem; /* Reduced padding */
+  font-size: 0.875rem; /* Reduced font */
   font-weight: 600;
-  margin-bottom: 30px;
+  margin-bottom: 1.5rem; /* Reduced margin */
   width: fit-content;
   /* opacity: 0; */
   /* animation: fadeIn 0.4s ease 0.4s forwards; */
@@ -95,17 +96,17 @@
 }
 
 .scenario-card-list li {
-  font-size: 20px;
-  line-height: 1.8;
-  margin-bottom: 12px;
+  font-size: 1rem; /* Reduced font */
+  line-height: 1.6; /* Reduced line-height */
+  margin-bottom: 0.625rem; /* Reduced margin */
   /* opacity: 0; */
   /* animation: fadeIn 0.4s ease 0.5s forwards; */
 }
 
 .scenario-card-arrow {
   position: absolute;
-  bottom: 30px;
-  right: 30px;
+  bottom: 1.875rem;
+  right: 1.875rem;
   background: transparent;
   border: none;
   color: white;
@@ -116,13 +117,13 @@
 }
 
 .scenario-card-arrow:hover {
-  transform: translateX(5px);
+  transform: translateX(0.3125rem);
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(0.625rem);
   }
 
   to {
