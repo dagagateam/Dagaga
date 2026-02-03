@@ -5,15 +5,20 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 인증 성공 시 반환되는 응답 DTO
+ * (Refresh Token은 httpOnly 쿠키로 전달되므로 제외됨)
+ */
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthResponse {
     private String accessToken;
-    private String refreshToken;
     private String tokenType;
     private Integer expiresIn;
+
+    // JWT에 포함되어 있지만, 즉각적인 UI 처리를 위해 남겨둠 (추후 제거 가능)
     private Integer userId;
     private String email;
     private Integer locationId;

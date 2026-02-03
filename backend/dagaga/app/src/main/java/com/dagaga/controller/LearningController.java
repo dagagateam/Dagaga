@@ -8,6 +8,7 @@ import com.dagaga.domain.learning.service.QuestionService;
 import com.dagaga.domain.learning.dto.QuestionResponse;
 import com.dagaga.domain.learning.dto.QuestionWithExampleResponse;
 import com.dagaga.domain.translate.dto.TranslateFileData;
+import com.dagaga.domain.security.CurrentUser;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,8 +31,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.dagaga.domain.security.SecurityContextHelper;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,6 +46,7 @@ public class LearningController {
 
         private final TranslateService translateService;
         private final QuestionService questionService;
+        private final CurrentUser currentUser;
 
         @Value("${gms.api.url}")
         private String gmsApiUrl;
@@ -196,9 +196,7 @@ public class LearningController {
                         @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true) @PathVariable String categoryId) {
                 log.info("Fetching questions for category: {}", categoryId);
                 // JWT에서 사용자의 모국어 코드 추출
-                String nativeLangCode = SecurityContextHelper.getCurrentNativeLangCode();
-
-
+                String nativeLangCode = currentUser.getNativeLangCode();
 
                 List<QuestionResponse> questions = questionService.getQuestionsByCategory(categoryId, nativeLangCode);
 
@@ -239,7 +237,7 @@ public class LearningController {
                         @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true) @PathVariable String categoryId,
                         @Parameter(description = "질문 순서 (1부터 시작)", required = true) @PathVariable Integer orderIndex) {
                 // JWT에서 사용자의 모국어 코드 추출
-                String nativeLangCode = SecurityContextHelper.getCurrentNativeLangCode();
+                String nativeLangCode = currentUser.getNativeLangCode();
                 log.info("Fetching question with example for category: {}, order: {}, nativeLangCode: {} (from JWT)",
                                 categoryId, orderIndex, nativeLangCode);
 
@@ -367,7 +365,7 @@ public class LearningController {
         public ResponseEntity<byte[]> synthesizeSpeech(
                         @Parameter(description = "음성으로 변환할 텍스트", required = true) @RequestParam("text") String text) {
                 // JWT에서 사용자의 화면 표시 언어 코드 추출
-                String language = SecurityContextHelper.getCurrentViewLangCode();
+                String language = currentUser.getViewLangCode();
                 log.info("TTS request - text: {}, language: {} (from JWT)", text, language);
 
                 try {
