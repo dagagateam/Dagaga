@@ -17,6 +17,31 @@ ssh -i <your-key-pair>.pem ubuntu@i14b110.p.ssafy.io
 
 ---
 
+## 1.1. 메모리 스왑(Swap) 설정 (권장)
+EC2 인스턴스(특히 프리티어)의 RAM 부족으로 인한 서버 다운(OOM Killed)을 방지하기 위해 스왑 메모리를 설정합니다.
+
+### 스왑 파일 생성 및 활성화
+```bash
+# 2GB 스왑 파일 생성
+sudo fallocate -l 2G /swapfile
+
+# 권한 설정 (root만 접근 가능)
+sudo chmod 600 /swapfile
+
+# 스왑 공간으로 설정
+sudo mkswap /swapfile
+
+# 스왑 활성화
+sudo swapon /swapfile
+```
+
+### 재부팅 후에도 유지되도록 설정
+```bash
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+---
+
 ## 2. Nginx 설치 및 라우팅 설정
 Nginx를 사용하여 외부에서 들어오는 80(HTTP)/443(HTTPS) 요청을 백엔드 서버(8080 포트)로 전달합니다.
 
