@@ -162,9 +162,8 @@ class ChatMessageServiceTest {
             int userId = 100;
             String nativeLang = "ko";
 
-            // User Mock
-            User user = User.builder().nativeLangCode(nativeLang).build();
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            // User Mock (Removed as userId is no longer used)
+            // given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
             // 메시지 1: Original(zh), Translation(ko) -> 번역본 반환해야 함
             ChatMessage msg1 = ChatMessage.create(roomId, 2, "你好", "zh");
@@ -178,7 +177,7 @@ class ChatMessageServiceTest {
                     .willReturn(List.of(msg1, msg2));
 
             // when
-            List<ChatMessageResponse> result = chatMessageService.getMessages(roomId, userLocationId, userId, null, 30);
+            List<ChatMessageResponse> result = chatMessageService.getMessages(roomId, userLocationId, nativeLang, null, 30);
 
             // then
             verify(chatRoomService).getRoomAndValidateLocation(roomId, userLocationId);
