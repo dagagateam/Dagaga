@@ -402,37 +402,50 @@ async def evaluate_pronunciation(
         from difflib import SequenceMatcher
         accuracy = SequenceMatcher(None, expected_normalized, transcribed_normalized).ratio() * 100
 
-        # 발음 점수: 정확도와 동일하게 설정 (간소화)
-        pronunciation = accuracy
+        # PER (Phoneme Error Rate) 계산
+        # Levenshtein distance를 사용하여 문자 단위 오류율 계산
+        def levenshtein_distance(s1, s2):
+            if len(s1) < len(s2):
+                return levenshtein_distance(s2, s1)
+            if len(s2) == 0:
+                return len(s1)
+            
+            previous_row = range(len(s2) + 1)
+            for i, c1 in enumerate(s1):
+                current_row = [i + 1]
+                for j, c2 in enumerate(s2):
+                    insertions = previous_row[j + 1] + 1
+                    deletions = current_row[j] + 1
+                    substitutions = previous_row[j] + (c1 != c2)
+                    current_row.append(min(insertions, deletions, substitutions))
+                previous_row = current_row
+            
+            return previous_row[-1]
+        
+        # PER = (편집 거리 / 기대 텍스트 길이) * 100
+        edit_distance = levenshtein_distance(expected_normalized, transcribed_normalized)
+        per = (edit_distance / max(len(expected_normalized), 1)) * 100
+        
+        # 발음 점수 = 100 - PER (높을수록 좋음)
+        pronunciation = max(0, 100 - per)
+        
+        # Fluency와 Overall은 accuracy 기반
         fluency = accuracy
-        overall = accuracy
+        overall = (accuracy + pronunciation) / 2
 
         
         # 5. Pass/Fail 판정
         if retry_count >= 5:
             is_pass = True
-            pass_reason = "retry_limit"
-        elif accuracy >= 60.0:
+        elif accuracy >= 20.0:
             is_pass = True
-            pass_reason = "accuracy"
         else:
             is_pass = False
-            pass_reason = None
         
-        # 6. 피드백 생성
-        if retry_count >= 5:
-            feedback = "5번 이상 시도하셨습니다. 다음 단계로 넘어갑니다. 계속 연습하세요!"
-        elif accuracy >= 90:
-            feedback = "훌륭합니다! 발음이 매우 정확합니다."
-        elif accuracy >= 80:
-            feedback = "좋습니다! 발음이 정확하여 합격입니다."
-        else:
-            feedback = f"발음을 조금 더 명확하게 해보세요. (정확도: {accuracy:.1f}%)"
+        # 6. 간단한 피드백
+        feedback = ""
         
-        if expected_normalized != transcribed_normalized and accuracy < 80:
-            feedback += f" 인식: '{full_text}' / 예상: '{expected_text}'"
-        
-        logger.info(f"Evaluation complete - Accuracy: {accuracy:.1f}%, Retry: {retry_count}, Pass: {is_pass}")
+        logger.info(f"Evaluation complete - Accuracy: {accuracy:.1f}%, PER: {per:.1f}%, Pronunciation: {pronunciation:.1f}%, Retry: {retry_count}, Pass: {is_pass}")
 
         scores = PronunciationScores(
             accuracy=round(accuracy, 2),
