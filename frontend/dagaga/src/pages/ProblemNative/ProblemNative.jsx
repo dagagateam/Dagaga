@@ -66,7 +66,8 @@ const ProblemNative = () => {
 
   // Handle recording completion in pre-translate state
   const handlePreTranslateRecordingComplete = async ({ audioBlob, audioUrl }) => {
-    console.log("Native recording completed!", { audioBlob, audioUrl });
+    // DEBUG: Native recording complete
+    // console.log("Native recording completed!", { audioBlob, audioUrl });
 
     // Switch to translating state
     setPageState("translating");
@@ -207,27 +208,34 @@ const ProblemNative = () => {
     const currentWord =
       currentStep < words.length ? words[currentStep] : words.join(" ");
 
+    // DEBUG: Recorded word info
+    /*
     console.log(
       `Recorded word: "${currentWord}" (Step ${currentStep + 1}/${totalSteps}, Try ${currentTries + 1}/${MAX_TRIES})`,
     );
+    */
 
     // Use the hook to check pronunciation
     const result = await checkPronunciation(audioBlob, problemId, currentWord, currentStep);
     const isCorrect = result.isCorrect;
 
     if (isCorrect) {
-      console.log("✓ Pronunciation correct!");
+      // DEBUG: Pronunciation correct
+      // console.log("✓ Pronunciation correct!");
       handleStepComplete("correct");
     } else {
-      console.log("✗ Pronunciation incorrect");
+      // DEBUG: Pronunciation incorrect
+      // console.log("✗ Pronunciation incorrect");
       const newTries = currentTries + 1;
       setCurrentTries(newTries);
 
       if (newTries >= MAX_TRIES) {
-        console.log(`Max tries (${MAX_TRIES}) reached, moving to next word`);
+        // DEBUG: Max tries reached
+        // console.log(`Max tries (${MAX_TRIES}) reached, moving to next word`);
         handleStepComplete("incorrect");
       } else {
-        console.log(`Try again (${newTries}/${MAX_TRIES})`);
+        // DEBUG: Try again
+        // console.log(`Try again (${newTries}/${MAX_TRIES})`);
         // Update result to show current attempt was wrong, but don't advance
         if (currentStep < words.length) {
           setWordResults(prev => {

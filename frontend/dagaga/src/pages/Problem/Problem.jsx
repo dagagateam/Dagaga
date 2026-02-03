@@ -26,20 +26,20 @@ const Problem = () => {
   const navState = location.state || {};
   const scenarionStages = navState.stages || [];
   const currentStageIndex = scenarionStages.findIndex(s => s.questionId === parseInt(questionId));
-  
+
   // Audio hooks
   const { playTts, isPlaying: isTtsPlaying } = useTts();
-  
+
   // State initialization
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currentStep, setCurrentStep] = useState(0); 
+  const [currentStep, setCurrentStep] = useState(0);
   const [wordResults, setWordResults] = useState({});
   const [isRecording, setIsRecording] = useState(false);
   const [showNative, setShowNative] = useState(false);
   const [sentenceHighlightIndex, setSentenceHighlightIndex] = useState(-1);
   const [currentTries, setCurrentTries] = useState(0);
-  
+
   // Audio analyser for visualization
   const [audioAnalyser, setAudioAnalyser] = useState(null);
 
@@ -50,104 +50,109 @@ const Problem = () => {
   useEffect(() => {
     const fetchData = async () => {
       // If we have full data in state (from ScenarioSelect), use it
-      console.log("NavState:", navState);
+      // DEBUG: NavState
+      // console.log("NavState:", navState);
       if (navState.words && navState.words.length > 0) {
-          console.log("Using NavState Translations:", navState.translations);
-          
-          let nativeQ = navState.nativeQuestion;
-          
-          // If nativeQuestion is missing, try to fetch it separately
-          if (!nativeQ && categoryId && questionId) {
-             try {
-               const nativeRes = await fetchProblemNative(categoryId, questionId);
-               if (nativeRes.data && nativeRes.data.success) {
-                 nativeQ = nativeRes.data.data;
-               }
-             } catch (e) {
-               console.warn("Failed to fetch native question", e);
-             }
-          }
+        // DEBUG: NavState Translations
+        // console.log("Using NavState Translations:", navState.translations);
 
-          setData({
-              problemText: navState.problemText,
-              words: navState.words,
-              pronunciations: navState.pronunciations,
-              translations: navState.translations,
-              nativeQuestion: nativeQ || navState.problemText, // Fallback to problem text if fetch fails
-              nativeAnswer: null, // NavState might not have full details, default null
-              exampleAnswer: navState.exampleAnswer,
-          });
-          setLoading(false);
-          return;
+        let nativeQ = navState.nativeQuestion;
+
+        // If nativeQuestion is missing, try to fetch it separately
+        if (!nativeQ && categoryId && questionId) {
+          try {
+            const nativeRes = await fetchProblemNative(categoryId, questionId);
+            if (nativeRes.data && nativeRes.data.success) {
+              nativeQ = nativeRes.data.data;
+            }
+          } catch (e) {
+            console.warn("Failed to fetch native question", e);
+          }
+        }
+
+        setData({
+          problemText: navState.problemText,
+          words: navState.words,
+          pronunciations: navState.pronunciations,
+          translations: navState.translations,
+          nativeQuestion: nativeQ || navState.problemText, // Fallback to problem text if fetch fails
+          nativeAnswer: null, // NavState might not have full details, default null
+          exampleAnswer: navState.exampleAnswer,
+        });
+        setLoading(false);
+        return;
       }
 
       // We need categoryId to fetch.
       if (categoryId && questionId) {
         try {
-            console.log(`Fetching details for ${categoryId} problem ${questionId}...`);
-            const [detailRes, nativeRes] = await Promise.all([
-               fetchProblemDetail(categoryId, questionId),
-               fetchProblemNative(categoryId, questionId)
-            ]);
+          // DEBUG: Fetch Detail
+          // console.log(`Fetching details for ${categoryId} problem ${questionId}...`);
+          const [detailRes, nativeRes] = await Promise.all([
+            fetchProblemDetail(categoryId, questionId),
+            fetchProblemNative(categoryId, questionId)
+          ]);
 
-            if (detailRes.data && detailRes.data.success) {
-                const apiData = detailRes.data.data;
-                console.log("[Problem Debug] Full API Data Object:", apiData); // LOG FULL OBJECT
-                
-                // Determine native question/answer based on user language
-                let nativeQ = null;
-                let nativeA = null;
+          if (detailRes.data && detailRes.data.success) {
+            const apiData = detailRes.data.data;
+            // DEBUG: Full API Data Object
+            // console.log("[Problem Debug] Full API Data Object:", apiData); // LOG FULL OBJECT
 
-                if (userLanguage === 'vi') {
-                    nativeQ = apiData.viQuestions;
-                    nativeA = apiData.viAnswers;
-                } else if (userLanguage === 'zh') {
-                    nativeQ = apiData.zhQuestions;
-                    nativeA = apiData.zhAnswers;
-                }
+            // Determine native question/answer based on user language
+            let nativeQ = null;
+            let nativeA = null;
 
-                // Fallback for question if specific language missing
-                if (!nativeQ) {
-                     nativeQ = (nativeRes.data && nativeRes.data.success) ? nativeRes.data.data : apiData.questionText;
-                }
-                
-                console.log("[Problem] User Language:", userLanguage);
-                console.log("[Problem] Native Question:", nativeQ);
-                console.log("[Problem] Native Answer:", nativeA);
-
-                setData({
-                    problemText: apiData.questionText,
-                    words: apiData.words,
-                    pronunciations: apiData.pronunciation_guide || apiData.pronunciationGuide || [],
-                    translations: apiData.wordTranslations || [],
-                    nativeQuestion: nativeQ,
-                    nativeAnswer: nativeA,
-                    exampleAnswer: apiData.exampleAnswer,
-                });
+            if (userLanguage === 'vi') {
+              nativeQ = apiData.viQuestions;
+              nativeA = apiData.viAnswers;
+            } else if (userLanguage === 'zh') {
+              nativeQ = apiData.zhQuestions;
+              nativeA = apiData.zhAnswers;
             }
+
+            // Fallback for question if specific language missing
+            if (!nativeQ) {
+              nativeQ = (nativeRes.data && nativeRes.data.success) ? nativeRes.data.data : apiData.questionText;
+            }
+
+            // DEBUG: Language info
+            // console.log("[Problem] User Language:", userLanguage);
+            // console.log("[Problem] Native Question:", nativeQ);
+            // console.log("[Problem] Native Answer:", nativeA);
+
+            setData({
+              problemText: apiData.questionText,
+              words: apiData.words,
+              pronunciations: apiData.pronunciation_guide || apiData.pronunciationGuide || [],
+              translations: apiData.wordTranslations || [],
+              nativeQuestion: nativeQ,
+              nativeAnswer: nativeA,
+              exampleAnswer: apiData.exampleAnswer,
+            });
+          }
         } catch (err) {
-            console.error("Failed to fetch problem details", err);
+          console.error("Failed to fetch problem details", err);
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
       } else {
-         console.warn("Cannot fetch details: Missing categoryId or questionId");
-         setLoading(false);
+        console.warn("Cannot fetch details: Missing categoryId or questionId");
+        setLoading(false);
       }
     };
     fetchData();
   }, [categoryId, questionId, navState, userLanguage]);
 
-  
+
   const problemText = data?.problemText || "문제를 불러오는 중...";
   const exampleAnswer = data?.exampleAnswer;
   const nativeAnswer = data?.nativeAnswer; // Get native answer
-  
+
   // Memoize words and pronunciations
   const words = data?.words || [];
   const pronunciations = data?.pronunciations || [];
   const translations = data?.translations || [];
-  
+
   // Total steps = individual words + 1 for reading the full sentence
   const totalSteps = words.length + 1;
   const isProblemDone = currentStep >= totalSteps;
@@ -160,15 +165,15 @@ const Problem = () => {
 
       if (!initialAudioPlayedRef.current) {
         initialAudioPlayedRef.current = true;
-        
+
         // Play question first
         if (data.problemText) {
-            await playTts(data.problemText);
+          await playTts(data.problemText);
         }
-        
+
         // Wait a small beat
         await new Promise(r => setTimeout(r, 500));
-        
+
         // Then play the current word
         const currentWord = data.words[0]; // Always start with first word on load
         if (currentWord) {
@@ -182,16 +187,16 @@ const Problem = () => {
   // Auto-play TTS when moving to next word (skip step 0 as it's handled above)
   useEffect(() => {
     if (currentStep > 0) {
-        if (currentStep < words.length) {
-            playTts(words[currentStep]);
-        } else if (currentStep === words.length) {
-            // Play full sentence (Answer)
-            const sentenceToPlay = exampleAnswer || words.join(" ");
-            playTts(sentenceToPlay);
-        }
+      if (currentStep < words.length) {
+        playTts(words[currentStep]);
+      } else if (currentStep === words.length) {
+        // Play full sentence (Answer)
+        const sentenceToPlay = exampleAnswer || words.join(" ");
+        playTts(sentenceToPlay);
+      }
     }
   }, [currentStep, words, playTts, exampleAnswer]);
-  
+
 
   // Animate through words during full sentence step
   useEffect(() => {
@@ -217,11 +222,11 @@ const Problem = () => {
     // Update result
     if (currentStep < words.length && result) {
       setWordResults(prev => ({
-          ...prev,
-          [currentStep]: result
+        ...prev,
+        [currentStep]: result
       }));
     }
-    
+
     // Move to next
     if (currentStep < totalSteps) {
       setCurrentStep(prev => prev + 1);
@@ -240,11 +245,11 @@ const Problem = () => {
     // If we DO want to re-read question on retry, reset:
     // initialAudioPlayedRef.current = false; 
   };
-  
+
   // Mock checkPronunciation since useSpeechApi usage was inconsistent in snippets
   const checkPronunciation = async (blob, pid, word, step) => {
-      // Logic from API/mock
-      return await evaluatePronunciation(blob, word);
+    // Logic from API/mock
+    return await evaluatePronunciation(blob, word);
   };
 
   // Lock to prevent double submission
@@ -255,42 +260,47 @@ const Problem = () => {
     isProcessingRef.current = true;
 
     const currentWord = currentStep < words.length ? words[currentStep] : words.join(" ");
-    console.log(`[Problem] Recorded: "${currentWord}" (Step ${currentStep + 1}/${totalSteps}, Try ${currentTries + 1}/${MAX_TRIES})`);
+    // DEBUG: Recorded word info
+    // console.log(`[Problem] Recorded: "${currentWord}" (Step ${currentStep + 1}/${totalSteps}, Try ${currentTries + 1}/${MAX_TRIES})`);
 
     try {
-        const result = await checkPronunciation(audioBlob, questionId, currentWord, currentStep);
-        
-        // Check if pronunciation was correct based on API response structure
-        // 'data' property holds the boolean correctness in our mock/API
-        const isCorrect = result.data === true;
-        
-        if (isCorrect) {
-            console.log("✓ Pronunciation correct!");
-            handleStepComplete("correct");
+      const result = await checkPronunciation(audioBlob, questionId, currentWord, currentStep);
+
+      // Check if pronunciation was correct based on API response structure
+      // 'data' property holds the boolean correctness in our mock/API
+      const isCorrect = result.data === true;
+
+      if (isCorrect) {
+        // DEBUG: Pronunciation correct
+        // console.log("✓ Pronunciation correct!");
+        handleStepComplete("correct");
+      } else {
+        // DEBUG: Pronunciation incorrect
+        // console.log("✗ Pronunciation incorrect");
+        const newTries = currentTries + 1;
+        setCurrentTries(newTries);
+
+        if (newTries >= MAX_TRIES) {
+          // DEBUG: Max tries reached
+          // console.log(`Max tries (${MAX_TRIES}) reached, marking as incorrect and moving on.`);
+          handleStepComplete("incorrect");
         } else {
-            console.log("✗ Pronunciation incorrect");
-            const newTries = currentTries + 1;
-            setCurrentTries(newTries);
-            
-            if (newTries >= MAX_TRIES) {
-                console.log(`Max tries (${MAX_TRIES}) reached, marking as incorrect and moving on.`);
-                handleStepComplete("incorrect");
-            } else {
-                console.log(`Try again (${newTries}/${MAX_TRIES})`);
-                if (currentStep < words.length) {
-                    setWordResults(prev => ({ ...prev, [currentStep]: "incorrect" }));
-                }
-            }
+          // DEBUG: Try again
+          // console.log(`Try again (${newTries}/${MAX_TRIES})`);
+          if (currentStep < words.length) {
+            setWordResults(prev => ({ ...prev, [currentStep]: "incorrect" }));
+          }
         }
+      }
     } catch (e) {
-        console.error("Eval error", e);
-        // Fallback or just count as try? For now, fallback to incorrect to avoid stuck state
-        handleStepComplete("incorrect"); 
+      console.error("Eval error", e);
+      // Fallback or just count as try? For now, fallback to incorrect to avoid stuck state
+      handleStepComplete("incorrect");
     } finally {
-        // Small delay to allow state updates to settle before unlocking
-        setTimeout(() => {
-            isProcessingRef.current = false;
-        }, 500);
+      // Small delay to allow state updates to settle before unlocking
+      setTimeout(() => {
+        isProcessingRef.current = false;
+      }, 500);
     }
   };
 
@@ -300,52 +310,53 @@ const Problem = () => {
   };
 
   const handleReplay = useCallback(() => {
-     let text = null;
-     if (currentStep < words.length) text = words[currentStep];
-     else if (currentStep === words.length) text = words.join(" ");
-     if (text) playTts(text, 'normal');
+    let text = null;
+    if (currentStep < words.length) text = words[currentStep];
+    else if (currentStep === words.length) text = words.join(" ");
+    if (text) playTts(text, 'normal');
   }, [currentStep, words, playTts]);
 
   const handleSlowReplay = useCallback(() => {
-     let text = null;
-     if (currentStep < words.length) text = words[currentStep];
-     else if (currentStep === words.length) text = words.join(" ");
-     if (text) playTts(text, 'slow');
+    let text = null;
+    if (currentStep < words.length) text = words[currentStep];
+    else if (currentStep === words.length) text = words.join(" ");
+    if (text) playTts(text, 'slow');
   }, [currentStep, words, playTts]);
 
   const handleQuestionReplay = useCallback(() => {
-      if (data && data.problemText) {
-          playTts(data.problemText);
-      }
+    if (data && data.problemText) {
+      playTts(data.problemText);
+    }
   }, [data, playTts]);
 
-  console.log("[Problem Render] showNative:", showNative, "nativeAnswer:", nativeAnswer);
+  // DEBUG: Show native state
+  // console.log("[Problem Render] showNative:", showNative, "nativeAnswer:", nativeAnswer);
 
   return (
     <Container fluid className="problem-container">
       {/* ... (progress bar, etc) ... */}
-      <ProblemProgress 
-        current={currentStageIndex + 1} 
-        total={scenarionStages.length} 
-        onExit={() => navigate('/ScenarioSelect')} 
+      <ProblemProgress
+        current={currentStageIndex + 1}
+        total={scenarionStages.length}
+        onExit={() => navigate('/ScenarioSelect')}
       />
-      
+
       <div className="problem-question">
         <div className="problem-header">
-           <h2 onClick={() => setShowNative(!showNative)} style={{cursor: 'pointer'}}>
-             {showNative ? data?.nativeQuestion : problemText}
-           </h2>
-           <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />
-           <ProblemRepeat onClick={handleQuestionReplay} />
+          <h2 onClick={() => setShowNative(!showNative)} style={{ cursor: 'pointer' }}>
+            {showNative ? data?.nativeQuestion : problemText}
+          </h2>
+          <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />
+          <ProblemRepeat onClick={handleQuestionReplay} />
         </div>
       </div>
 
       <div className="problem-answer-section">
         <ProblemMascot />
         <div className="problem-answer-content">
-          <ProblemAnswer 
-            words={words} 
-            pronunciations={pronunciations} 
+          <ProblemAnswer
+            words={words}
+            pronunciations={pronunciations}
             translations={translations}
             currentStep={currentStep}
             sentenceHighlightIndex={isFullSentenceStep ? sentenceHighlightIndex : null}
@@ -364,7 +375,7 @@ const Problem = () => {
           <ProblemDone onRetry={handleRetry} onReturn={handleReturn} />
         ) : (
           <>
-            <ProblemRecordButton 
+            <ProblemRecordButton
               onRecordingComplete={handleRecordingComplete}
               onAnalyserChange={handleAnalyserChange}
             />

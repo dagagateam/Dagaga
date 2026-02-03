@@ -17,7 +17,7 @@ const ProblemSelect = () => {
   const [problems, setProblems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const wheelRef = useRef(null);
-  
+
   // Get user language preference
   const userLang = useUserStore((state) => state.user?.viewLangCode || state.language);
 
@@ -28,35 +28,38 @@ const ProblemSelect = () => {
   useEffect(() => {
     const loadProblems = async () => {
       if (!categoryId) return;
-      
+
       setIsLoading(true);
       try {
         const response = await fetchCategoryStages(categoryId);
-        console.log("API Full Response:", response);
+        // DEBUG: API Full Response
+        // console.log("API Full Response:", response);
         if (response.data && response.data.success) {
           const basicProblems = response.data.data;
 
-          const detailPromises = basicProblems.map(p => 
-             fetchProblemDetail(categoryId, p.orderIndex || p.questionId)
+          const detailPromises = basicProblems.map(p =>
+            fetchProblemDetail(categoryId, p.orderIndex || p.questionId)
           );
-          
+
           const detailsResponses = await Promise.all(detailPromises);
-          
-          console.log("DETAILS RESPONSES:", detailsResponses); // Debug Log
+
+          // DEBUG: DETAILS RESPONSES
+          // console.log("DETAILS RESPONSES:", detailsResponses); // Debug Log
 
           const problemsWithDetails = basicProblems.map((item, index) => {
-             const detailRes = detailsResponses[index];
-             const detailData = (detailRes?.data?.success) ? detailRes.data.data : {};
-             
-             console.log(`Problem ${item.questionId} Details Data:`, detailData); // Debug Log
+            const detailRes = detailsResponses[index];
+            const detailData = (detailRes?.data?.success) ? detailRes.data.data : {};
 
-             return {
-                 id: item.questionId,
-                 ...item,
-                 viQuestion: detailData.viQuestions,
-                 zhQuestion: detailData.zhQuestions,
-                 pronunciations: item.pronunciation_guide || item.pronunciationGuide || [],
-             };
+            // DEBUG: Problem Details Data
+            // console.log(`Problem ${item.questionId} Details Data:`, detailData); // Debug Log
+
+            return {
+              id: item.questionId,
+              ...item,
+              viQuestion: detailData.viQuestions,
+              zhQuestion: detailData.zhQuestions,
+              pronunciations: item.pronunciation_guide || item.pronunciationGuide || [],
+            };
           });
 
           setProblems(problemsWithDetails);
@@ -64,17 +67,17 @@ const ProblemSelect = () => {
           // Fallback
           console.warn("Failed to fetch problems, response unsuccessful:", response.data);
           const translatedProblems = t(`scenario_problems.${scenario.id}`, { returnObjects: true });
-          const fallbackProblems = Array.isArray(translatedProblems) 
-              ? translatedProblems.map((text, idx) => ({ id: idx + 1, text, wordTranslations: [] })) 
-              : (scenario?.problems || []);
+          const fallbackProblems = Array.isArray(translatedProblems)
+            ? translatedProblems.map((text, idx) => ({ id: idx + 1, text, wordTranslations: [] }))
+            : (scenario?.problems || []);
           setProblems(fallbackProblems);
         }
       } catch (error) {
         console.error("Error fetching problems:", error);
         const translatedProblems = t(`scenario_problems.${scenario.id}`, { returnObjects: true });
-        const fallbackProblems = Array.isArray(translatedProblems) 
-            ? translatedProblems.map((text, idx) => ({ id: idx + 1, text, wordTranslations: [] })) 
-            : (scenario?.problems || []);
+        const fallbackProblems = Array.isArray(translatedProblems)
+          ? translatedProblems.map((text, idx) => ({ id: idx + 1, text, wordTranslations: [] }))
+          : (scenario?.problems || []);
         setProblems(fallbackProblems);
       } finally {
         setIsLoading(false);
@@ -130,13 +133,13 @@ const ProblemSelect = () => {
               // Cards spaced 15 degrees apart
               const rotation = index * 15 + scrollOffset;
               const isActive = selectedCardId === problem.id;
-              
+
               // Determine display text based on language
               let displayText = problem.questionText || problem.text; // Default
               if (userLang === 'vi' && problem.viQuestion) {
-                  displayText = problem.viQuestion;
+                displayText = problem.viQuestion;
               } else if (userLang === 'zh' && problem.zhQuestion) {
-                  displayText = problem.zhQuestion;
+                displayText = problem.zhQuestion;
               }
 
               return (

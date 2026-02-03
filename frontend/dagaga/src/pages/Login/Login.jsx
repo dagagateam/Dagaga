@@ -30,7 +30,8 @@ const Login = () => {
             // 1. API 호출 - AuthResponse 반환
             const authResponse = await loginAPI(email, password);
 
-            console.log('✅ Login successful:', authResponse);
+            // DEBUG: 콘솔 로그
+            // console.log('✅ Login successful:', authResponse);
 
             // 2. Store에 AuthResponse 저장 (토큰 + 사용자 정보)
             login(authResponse);

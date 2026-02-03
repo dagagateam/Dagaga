@@ -54,37 +54,37 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      
+
       // Set up Web Audio API
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       audioContextRef.current = audioContext;
-      
+
       const source = audioContext.createMediaStreamSource(stream);
-      
+
       // Create analyser for visualization
       const analyser = audioContext.createAnalyser();
       analyser.fftSize = 256;
       source.connect(analyser);
       analyserRef.current = analyser;
-      
+
       // Share the analyser with parent component for visualization
       if (onAnalyserChange) {
         onAnalyserChange(analyser, true);
       }
-      
+
       // Initialize AudioWorklet
       const blob = new Blob([workletCode], { type: "application/javascript" });
       const workletUrl = URL.createObjectURL(blob);
-      
+
       await audioContext.audioWorklet.addModule(workletUrl);
-      
+
       const workletNode = new AudioWorkletNode(audioContext, 'recorder-processor');
       processorRef.current = workletNode; // Store worklet node in ref instead of ScriptProcessor
       audioBufferRef.current = [];
-      
+
       workletNode.port.onmessage = (e) => {
         const inputData = e.data; // Float32Array from worklet
-        
+
         // Convert Float32 to Int16 for MP3 encoding
         const samples = new Int16Array(inputData.length);
         for (let i = 0; i < inputData.length; i++) {
@@ -93,10 +93,10 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
         }
         audioBufferRef.current.push(samples);
       };
-      
+
       source.connect(workletNode);
       workletNode.connect(audioContext.destination);
-      
+
       setIsRecording(true);
     } catch (err) {
       console.error("Error accessing microphone:", err);
@@ -106,18 +106,18 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
 
   const stopRecording = () => {
     if (!isRecording) return;
-    
+
     // Stop worklet/processor
     if (processorRef.current) {
       processorRef.current.disconnect();
       processorRef.current.port.close(); // Close port if it's a WorkletNode
     }
-    
+
     // Stop all tracks to release microphone
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
     }
-    
+
     // Combine all audio buffers
     const sampleRate = audioContextRef.current?.sampleRate || 44100;
     const totalLength = audioBufferRef.current.reduce((acc, buf) => acc + buf.length, 0);
@@ -127,32 +127,34 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
       combined.set(buffer, offset);
       offset += buffer.length;
     }
-    
+
     // Encode to MP3
     const mp3Blob = encodeToMp3(combined, sampleRate);
     const audioUrl = URL.createObjectURL(mp3Blob);
-    console.log("Recorded Audio URL:", audioUrl);
-    
+    // DEBUG: Recorded Audio URL
+    // console.log("Recorded Audio URL:", audioUrl);
+
     // Close audio context
     if (audioContextRef.current) {
       audioContextRef.current.close();
     }
-    
+
     // Notify parent that recording stopped
     if (onAnalyserChange) {
       onAnalyserChange(null, false);
     }
-    
+
     // Create output object
     const recordingData = { audioBlob: mp3Blob, audioUrl };
 
-    console.log("Recording Complete:", recordingData);
-    
+    // DEBUG: Recording Complete
+    // console.log("Recording Complete:", recordingData);
+
     // Call callback with object
     if (onRecordingComplete) {
       onRecordingComplete(recordingData);
     }
-    
+
     setIsRecording(false);
   };
 
@@ -180,9 +182,9 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
   }, []);
 
   return (
-    <button 
-      className={`record-button ${isRecording ? 'recording' : ''}`} 
-      onClick={handleClick} 
+    <button
+      className={`record-button ${isRecording ? 'recording' : ''}`}
+      onClick={handleClick}
       title={isRecording ? "녹음 중지" : "녹음하기"}
     >
       {isRecording ? (

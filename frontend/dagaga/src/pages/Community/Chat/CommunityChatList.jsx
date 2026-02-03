@@ -37,7 +37,8 @@ const CommunityChatList = () => {
                 // Fetch joined chats if user is logged in
                 if (user?.userId) {
                     const joinedResponse = await fetchJoinedChats(user.userId);
-                    console.log('Joined chats response:', joinedResponse);
+                    // DEBUG: Joined chats response
+                    // console.log('Joined chats response:', joinedResponse);
 
                     // API returns array directly or wrapped in data
                     const joinedData = Array.isArray(joinedResponse) ? joinedResponse : joinedResponse.data;
@@ -49,7 +50,8 @@ const CommunityChatList = () => {
                             title: chat.title,
                             count: chat.participantCount
                         }));
-                        console.log('Mapped joined chats:', mappedJoinedChats);
+                        // DEBUG: Mapped joined chats
+                        // console.log('Mapped joined chats:', mappedJoinedChats);
                         setJoinedChats(mappedJoinedChats);
                     }
                 }
