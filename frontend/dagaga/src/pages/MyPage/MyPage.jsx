@@ -11,9 +11,11 @@ import './MyPage.css';
 
 const MyPage = () => {
   const { t } = useTranslation();
-  const { user, savedItems, likedPostIds, joinedChats, setJoinedChats, toggleSave, toggleLike } = useUserStore();
+  const { user, savedItems, likedPostIds, joinedChats, setJoinedChats, toggleSave, toggleLike, fetchUser } = useUserStore();
 
   useEffect(() => {
+    fetchUser(); // Fetch latest user data when MyPage mounts
+    
     if (joinedChats.length === 0) {
       const loadChats = async () => {
         try {
@@ -29,7 +31,7 @@ const MyPage = () => {
       };
       loadChats();
     }
-  }, [joinedChats.length, setJoinedChats]);
+  }, [joinedChats.length, setJoinedChats, fetchUser]);
 
   const userNickname = user?.nickname || "Guest";
 

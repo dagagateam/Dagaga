@@ -94,6 +94,55 @@ export const useUserStore = create(
            language: updates.viewLangCode || state.language
         };
       }),
+
+      fetchUser: async () => {
+        try {
+          const { getUserMeAPI } = await import('../api/userApi');
+          const userData = await getUserMeAPI();
+          set((state) => ({
+            user: {
+              ...state.user,
+              ...userData,
+              profileImage: userData.profileImage || stockProfile,
+            },
+            // Assuming the API returns viewLangCode, we might want to update the language too
+            language: userData.viewLangCode || state.language
+          }));
+          if (userData.viewLangCode) {
+             i18n.changeLanguage(userData.viewLangCode);
+          }
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+        }
+      },
+
+      updateUserProfile: async (updates) => {
+        try {
+            const { updateUserMeAPI } = await import('../api/userApi');
+            const updatedUser = await updateUserMeAPI(updates);
+            
+            // Check if language changed
+            if (updatedUser.viewLangCode) {
+                // Ensure we use the exact code that matches resources keys in i18n
+                // e.g., 'ko', 'zh', 'vi'
+                await i18n.changeLanguage(updatedUser.viewLangCode);
+            }
+
+            set((state) => ({
+                user: {
+                    ...state.user,
+                    ...updatedUser,
+                    profileImage: updatedUser.profileImage || stockProfile,
+                },
+                language: updatedUser.viewLangCode || state.language
+            }));
+
+            return true;
+        } catch (error) {
+            console.error("Failed to update user profile:", error);
+            throw error;
+        }
+      },
     }),
     {
       name: 'dagaga-user-storage', // name of the item in the storage (must be unique)
