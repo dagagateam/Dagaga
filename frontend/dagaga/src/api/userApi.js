@@ -8,7 +8,7 @@ export const loginAPI = async (email, password) => {
 
         // 백엔드 응답: AuthResponse 객체 반환
         // { accessToken, refreshToken, tokenType, expiresIn, userId, email, locationId, viewLangCode, nativeLangCode }
-        return response.data; 
+        return response.data;
     } catch (error) {
         console.error("Login API Error:", error);
         throw error;
@@ -19,7 +19,7 @@ export const signupAPI = async (userData) => {
     try {
         // [백엔드 연결] 실제 회원가입 API 호출
         const response = await instance.post('/users/signup', userData);
-        
+
         // 백엔드 응답: userId(Int)만 반환됨
         return response.data;
     } catch (error) {
@@ -34,7 +34,7 @@ export const checkEmailAPI = async (email) => {
         await instance.post('/users/check-email', null, {
             params: { email }
         });
-        
+
         // 200 OK 응답 = 사용 가능한 이메일
         return true;
     } catch (error) {
@@ -54,7 +54,7 @@ export const checkNicknameAPI = async (nickname) => {
         await instance.post('/users/check-nickname', null, {
             params: { nickname }
         });
-        
+
         // 200 OK 응답 = 사용 가능한 닉네임
         return true;
     } catch (error) {
@@ -74,10 +74,30 @@ export const logoutAPI = async () => {
         // [백엔드 연결] 로그아웃 API 호출
         // Authorization 헤더는 axios 인터셉터에서 자동으로 추가됨
         await instance.post('/users/logout');
-        
+
         return true;
     } catch (error) {
         console.error("Logout API Error:", error);
+        throw error;
+    }
+};
+
+export const getUserMeAPI = async () => {
+    try {
+        const response = await instance.get('/users/me');
+        return response.data;
+    } catch (error) {
+        console.error("Get User Me API Error:", error);
+        throw error;
+    }
+};
+
+export const socialSignupAPI = async (userData) => {
+    try {
+        const response = await instance.post('/users/social-signup', userData);
+        return response.data; // AuthResponse 반환
+    } catch (error) {
+        console.error("Social Signup API Error:", error);
         throw error;
     }
 };

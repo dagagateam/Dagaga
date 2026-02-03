@@ -39,7 +39,7 @@ const Login = () => {
             navigate('/ScenarioSelect');
         } catch (error) {
             console.error('Login failed:', error);
-            
+
             // 에러 메시지 처리
             if (error.response?.status === 401) {
                 setLoginError("이메일 또는 비밀번호가 잘못 되었습니다.");
@@ -122,12 +122,15 @@ const Login = () => {
                             </div>
 
                             <div className="social-login">
-                                <SocialButton provider="google">
+                                <SocialButton
+                                    provider="google"
+                                    onClick={() => window.location.href = `${import.meta.env.VITE_BACKEND_URL}/oauth2/authorization/google`}
+                                >
                                     {t('google_login')}
                                 </SocialButton>
-                                <SocialButton provider="line">
+                                {/* <SocialButton provider="line">
                                     {t('line_login')}
-                                </SocialButton>
+                                </SocialButton> */}
                             </div>
                         </div>
 
