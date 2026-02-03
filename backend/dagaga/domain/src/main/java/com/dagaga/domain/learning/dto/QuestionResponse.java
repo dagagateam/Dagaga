@@ -15,4 +15,8 @@ public class QuestionResponse {
     private String questionText;
     private String exampleAnswer;
     private Integer orderIndex;
+    private String viQuestions;
+    private String viAnswers;
+    private String zhQuestions;
+    private String zhAnswers;
 }
