@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.dagaga.security.context.SecurityContextHelper;
+import com.dagaga.domain.security.SecurityContextHelper;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -195,8 +195,12 @@ public class LearningController {
         public ResponseEntity<ApiResponse<List<QuestionResponse>>> getQuestionsByCategory(
                         @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true) @PathVariable String categoryId) {
                 log.info("Fetching questions for category: {}", categoryId);
+                // JWT에서 사용자의 모국어 코드 추출
+                String nativeLangCode = SecurityContextHelper.getCurrentNativeLangCode();
 
-                List<QuestionResponse> questions = questionService.getQuestionsByCategory(categoryId);
+
+
+                List<QuestionResponse> questions = questionService.getQuestionsByCategory(categoryId, nativeLangCode);
 
                 return ResponseEntity.ok(ApiResponse.success(
                                 String.format("'%s' 카테고리 질문 조회 성공", categoryId),

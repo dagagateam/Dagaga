@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
-import { fetchCommunityInfo, fetchCommunityInfoDetail } from '../../../api/communityApi'; // Make sure to add fetchDetail if available, or fetch list and find
+import { fetchCommunityInfo, fetchCommunityInfoDetail, createComment, fetchComments } from '../../../api/communityApi';
+import { useUserStore } from '../../../store/userStore';
 import './CommunityInfoDetail.css';
 
 import heartIcon from '../../../assets/icons/heart.png';
@@ -13,37 +14,69 @@ import unbookmarkIcon from '../../../assets/icons/unbookmark.png';
 const CommunityInfoDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user, isLoggedIn } = useUserStore();
     const [info, setInfo] = useState(null);
     const [loading, setLoading] = useState(true);
     const [comment, setComment] = useState('');
 
     const [comments, setComments] = useState([]);
+    const [replyingTo, setReplyingTo] = useState(null); // { id, user }
+
+    const loadComments = async () => {
+        try {
+            const commentsResponse = await fetchComments(id);
+            const commentsData = commentsResponse.data || [];
+
+            const mappedComments = commentsData.map(c => ({
+                id: c.commentId,
+                user: c.nickname || `User ${c.userId}`,
+                text: c.content,
+                avatar: `https://i.pravatar.cc/150?u=${c.userId}`,
+                createdAt: c.createdAt,
+                children: c.replies ? c.replies.map(child => ({
+                    id: child.commentId,
+                    user: child.nickname || `User ${child.userId}`,
+                    text: child.content,
+                    avatar: `https://i.pravatar.cc/150?u=${child.userId}`,
+                    createdAt: child.createdAt,
+                    children: [] 
+                })) : []
+            }));
+            setComments(mappedComments);
+        } catch (err) {
+            console.error("Failed to load comments:", err);
+            setComments([]);
+        }
+    };
 
     useEffect(() => {
         const loadDetail = async () => {
             try {
-                // Fetch detail using the new API function
+                // Fetch detail using the API function
                 const response = await fetchCommunityInfoDetail(id);
                 const data = response.data;
 
                 if (data) {
                     setInfo({
                         id: data.postId,
-                        title: data.title,
-                        orgName: data.organization,
-                        content: data.content,
-                        image: data.image || `https://via.placeholder.com/600x800/F8B15E/FFFFFF?text=${encodeURIComponent(data.organization)}`,
-                        startDate: data.startDate,
-                        endDate: data.endDate,
-                        isLiked: data.isLiked,
-                        isBookmarked: data.isBookmarked
+                        title: data.title || "제목 없음",
+                        orgName: "다가가정보지원", // 고정값
+                        content: data.content || "내용이 없습니다.",
+                        image: data.imageUrls?.[0] || 'https://via.placeholder.com/600x800/F8B15E/FFFFFF?text=No+Image',
+                        contact: data.contact || "",
+                        capacity: data.capacity || "",
+                        startDate: "미정", // TODO: 백엔드에서 날짜 필드 추가 필요
+                        endDate: "미정",
+                        isLiked: false, // TODO: 좋아요 기능 구현 시 수정
+                        isBookmarked: false // TODO: 북마크 기능 구현 시 수정
                     });
-                    if (data.comments) {
-                        setComments(data.comments);
-                    }
+                    
+                    // 댓글 목록 가져오기
+                    await loadComments();
                 }
             } catch (error) {
                 console.error("Failed to load detail:", error);
+                setInfo(null);
             } finally {
                 setLoading(false);
             }
@@ -52,17 +85,67 @@ const CommunityInfoDetail = () => {
         loadDetail();
     }, [id]);
 
-    const handleCommentSubmit = (e) => {
+    const handleCommentSubmit = async (e) => {
         e.preventDefault();
         if (!comment.trim()) return;
-        const newComment = {
-            id: Date.now(),
-            user: "나", // Current user
-            text: comment,
-            avatar: "https://i.pravatar.cc/150?u=me"
-        };
-        setComments([...comments, newComment]);
+        
+        if (!isLoggedIn || !user) {
+            alert("로그인이 필요한 서비스입니다.");
+            navigate('/login');
+            return;
+        }
+
+        try {
+            // Reply인 경우 parentCommentId 전달
+            const parentId = replyingTo ? replyingTo.id : null;
+            await createComment(Number(id), comment, user.userId, parentId);
+            
+            // Re-fetch comments from server to ensure data consistency
+            await loadComments();
+            
+            setComment('');
+            setReplyingTo(null); // 답글 모드 종료
+        } catch (error) {
+            console.error("댓글 작성 실패:", error);
+            alert("댓글 작성에 실패했습니다.");
+        }
+    };
+
+    const handleReply = (commentItem) => {
+        setReplyingTo({ id: commentItem.id, user: commentItem.user });
+        // 스크롤 등 input으로 포커스 이동 로직이 필요할 수 있음
+        const inputElement = document.querySelector('.comment-input');
+        if (inputElement) inputElement.focus();
+    };
+
+    const handleCancelReply = () => {
+        setReplyingTo(null);
         setComment('');
+    };
+
+    // 재귀적으로 댓글 렌더링
+    const renderComments = (list) => {
+        return list.map(cmt => (
+            <div key={cmt.id}>
+                <div className="comment-item">
+                    <img src={cmt.avatar} alt={cmt.user} className="comment-avatar" />
+                    <div className="comment-text-wrapper">
+                        <span className="comment-author">
+                            {cmt.user}
+                            {/* 답글 버튼 */}
+                            <button className="comment-reply-btn" onClick={() => handleReply(cmt)}>답글 달기</button>
+                        </span>
+                        <span className="comment-body">{cmt.text}</span>
+                    </div>
+                </div>
+                {/* 대댓글 렌더링 (재귀) */}
+                {cmt.children && cmt.children.length > 0 && (
+                    <div className="comment-children">
+                        {renderComments(cmt.children)}
+                    </div>
+                )}
+            </div>
+        ));
     };
 
     if (loading) return <div>Loading...</div>;
@@ -113,22 +196,24 @@ const CommunityInfoDetail = () => {
 
                         <div className="detail-comments-section">
                             <div className="comment-list">
-                                {comments.map(cmt => (
-                                    <div key={cmt.id} className="comment-item">
-                                        <img src={cmt.avatar} alt={cmt.user} className="comment-avatar" />
-                                        <div className="comment-text-wrapper">
-                                            <span className="comment-author">{cmt.user}</span>
-                                            <span className="comment-body">{cmt.text}</span>
-                                        </div>
-                                    </div>
-                                ))}
+                                {renderComments(comments)}
                             </div>
+
+                            {/* 답글 작성 중 알림 표시 */}
+                            {replyingTo && (
+                                <div className="replying-indicator">
+                                    <span>
+                                        <span className="replying-to-text">@{replyingTo.user}</span> 님에게 답글 작성 중
+                                    </span>
+                                    <button className="cancel-reply-btn" onClick={handleCancelReply}>&times;</button>
+                                </div>
+                            )}
 
                             <form className="comment-input-area" onSubmit={handleCommentSubmit}>
                                 <input
                                     type="text"
                                     className="comment-input"
-                                    placeholder="참여를 원하시면 댓글 남겨주세요"
+                                    placeholder={replyingTo ? "답글을 입력하세요" : "궁금한 점이 있으시면 댓글 남겨주세요"}
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
                                 />

@@ -21,24 +21,34 @@ public class QuestionServiceImpl implements QuestionService {
         private final QuestionBankRepository questionBankRepository;
 
         @Override
-        public List<QuestionResponse> getQuestionsByCategory(String category) {
-                log.info("Fetching questions for category: {}", category);
+        public List<QuestionResponse> getQuestionsByCategory(String category, String nativeLangCode) {
+                log.info("Fetching questions for category: {} with nativeLangcode: {}", category, nativeLangCode);
 
                 List<QuestionBank> questions = questionBankRepository.findByCategoryOrderByOrderIndex(category);
 
                 return questions.stream()
-                                .map(this::convertToDto)
+                                .map(question -> convertToDto(question, nativeLangCode))
                                 .collect(Collectors.toList());
         }
 
-        private QuestionResponse convertToDto(QuestionBank entity) {
-                return QuestionResponse.builder()
+        private QuestionResponse convertToDto(QuestionBank entity, String nativeLangCode) {
+                var builder = QuestionResponse.builder()
                                 .questionId(entity.getQuestionId())
                                 .category(entity.getCategory())
                                 .questionText(entity.getQuestionText())
                                 .exampleAnswer(entity.getExampleAnswer())
-                                .orderIndex(entity.getOrderIndex())
-                                .build();
+                                .orderIndex(entity.getOrderIndex());
+
+                // nativeLangCode에 따라 지역별 데이터 선택적으로 추가
+                if ("vi".equalsIgnoreCase(nativeLangCode)) {
+                        builder.viQuestions(entity.getViQuestions())
+                               .viAnswers(entity.getViAnswers());
+                } else if ("zh".equalsIgnoreCase(nativeLangCode)) {
+                        builder.zhQuestions(entity.getZhQuestions())
+                               .zhAnswers(entity.getZhAnswers());
+                }
+
+                return builder.build();
         }
 
         @Override

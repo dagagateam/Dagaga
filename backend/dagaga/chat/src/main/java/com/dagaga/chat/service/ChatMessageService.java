@@ -80,14 +80,9 @@ public class ChatMessageService {
     }
 
     @Transactional(readOnly = true)
-    public List<ChatMessageResponse> getMessages(int roomId, int userLocationId, int userId, Long cursor, int size) {
+    public List<ChatMessageResponse> getMessages(int roomId, int userLocationId, String userNativeLangCode, Long cursor, int size) {
         // 지역 검증
         chatRoomService.getRoomAndValidateLocation(roomId, userLocationId);
-
-        // 사용자 모국어 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userId=" + userId));
-        String userLang = user.getNativeLangCode();
 
         // 메시지 조회
         PageRequest page = PageRequest.of(0, Math.min(size, 100));
@@ -106,9 +101,9 @@ public class ChatMessageService {
                     String content = msg.getOriginalText();
 
                     // 원문 언어가 사용자의 모국어와 다르면 번역본 찾기
-                    if (!msg.getOriginalLang().equalsIgnoreCase(userLang)) {
+                    if (!msg.getOriginalLang().equalsIgnoreCase(userNativeLangCode)) {
                         String translatedText = msg.getTranslations().stream()
-                                .filter(t -> t.getTargetLang().equalsIgnoreCase(userLang))
+                                .filter(t -> t.getTargetLang().equalsIgnoreCase(userNativeLangCode))
                                 .map(MessageTranslation::getTranslatedText)
                                 .findFirst()
                                 .orElse(null);

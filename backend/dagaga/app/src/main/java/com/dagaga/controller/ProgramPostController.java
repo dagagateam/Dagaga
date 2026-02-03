@@ -8,7 +8,7 @@ import com.dagaga.domain.post.dto.ProgramPostDetailResponse;
 import com.dagaga.domain.post.dto.ProgramPostResponse;
 import com.dagaga.domain.post.service.CommentService;
 import com.dagaga.domain.post.service.ProgramPostService;
-import com.dagaga.security.context.SecurityContextHelper;
+import com.dagaga.domain.security.SecurityContextHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

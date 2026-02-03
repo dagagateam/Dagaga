@@ -15,6 +15,7 @@ public class ChatDocsController {
     @Operation(summary = "소켓 연결 (Connect)", 
                description = "WebSocket 연결 엔드포인트입니다.<br>" + 
                              "<b>URL:</b> <code>ws://{domain}/ws-chat</code><br>" + 
+                             "<b>Authentication:</b> <code>Authorization: Bearer {token}</code> header required during STOMP CONNECT interaction.<br>" +
                              "SockJS 사용 시: <code>http://{domain}/ws-chat</code>")
     @GetMapping("/connect")
     public void connect() {
@@ -29,7 +30,9 @@ public class ChatDocsController {
 
     @Operation(summary = "메시지 전송 (Publish)", 
                description = "채팅방에 메시지를 전송합니다.<br>" + 
-                             "<b>Destination:</b> <code>/pub/chat/message</code>")
+                             "<b>Destination:</b> <code>/pub/chat/message</code><br>" +
+                             "<b>Authentication:</b> Requires valid JWT token.<br>" +
+                             "Note: <code>senderId</code> and <code>originalLang</code> are extracted from the token.")
     @PostMapping("/send")
     public void sendMessage(@RequestBody(description = "메시지 전송 json") SendMessageRequest request) {
     }

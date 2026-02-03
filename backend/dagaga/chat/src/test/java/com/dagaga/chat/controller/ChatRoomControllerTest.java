@@ -8,6 +8,7 @@ import com.dagaga.chat.service.ChatRoomService;
 import com.dagaga.domain.chat.room.repository.ChatRoomRepository;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
+import com.dagaga.domain.security.SecurityContextHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Optional;
 
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -40,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @WebMvcTest(ChatRoomController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class ChatRoomControllerTest {
+public class ChatRoomControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -60,13 +63,27 @@ class ChatRoomControllerTest {
     @MockitoBean
     private ChatMessageService chatMessageService;
 
+    private MockedStatic<SecurityContextHelper> mockedSecurityContextHelper;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        mockedSecurityContextHelper = Mockito.mockStatic(SecurityContextHelper.class);
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        mockedSecurityContextHelper.close();
+    }
+
     @Test
     @DisplayName("Success: 채팅방 생성 요청 시 roomId를 반환함")
     void createCustomChatRoom_shouldReturnRoomId() throws Exception {
         // given
         CreateChatRoomRequest request = new CreateChatRoomRequest();
-        request.setUserId(1);
         request.setTitle("테스트 채팅방");
+
+        // mock Security Context
+        mockedSecurityContextHelper.when(SecurityContextHelper::getCurrentUserId).thenReturn(1);
 
         // User
         User mockUser = User.builder()
@@ -91,14 +108,15 @@ class ChatRoomControllerTest {
     void createCustomChatRoom_shouldThrowException_whenUserNotFound() throws Exception {
         // given
         CreateChatRoomRequest request = new CreateChatRoomRequest();
-        request.setUserId(999);
         request.setTitle("없는 유저");
+        
+        mockedSecurityContextHelper.when(SecurityContextHelper::getCurrentUserId).thenReturn(999);
 
         given(userRepository.findById(999)).willReturn(Optional.empty());
 
         // when & then
         // GlobalExceptionHandler가 없으므로 Exception이 밖으로 던져짐
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> 
+        assertThatThrownBy(() -> 
             mockMvc.perform(post("/api/v1/community/chats")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -113,8 +131,10 @@ class ChatRoomControllerTest {
         int requesterId = 1;
 
         // when & then
-        mockMvc.perform(delete("/api/v1/community/chats/{roomId}", roomId)
-                        .param("requesterId", String.valueOf(requesterId)))
+        mockedSecurityContextHelper.when(SecurityContextHelper::getCurrentUserId).thenReturn(requesterId);
+
+        // when & then
+        mockMvc.perform(delete("/api/v1/community/chats/{roomId}", roomId))
                 .andExpect(status().isOk());
                 
         verify(chatRoomService).deleteRoom(roomId, requesterId);
@@ -127,13 +147,14 @@ class ChatRoomControllerTest {
         int roomId = 10;
         int requesterId = 1;
 
+        mockedSecurityContextHelper.when(SecurityContextHelper::getCurrentUserId).thenReturn(requesterId);
+
         doThrow(new IllegalArgumentException("Only the owner can delete the room."))
                 .when(chatRoomService).deleteRoom(roomId, requesterId);
 
         // when & then
         assertThatThrownBy(() ->
-            mockMvc.perform(delete("/api/v1/community/chats/{roomId}", roomId)
-                            .param("requesterId", String.valueOf(requesterId)))
+            mockMvc.perform(delete("/api/v1/community/chats/{roomId}", roomId))
         ).hasCauseInstanceOf(IllegalArgumentException.class);
     }
 
@@ -145,16 +166,20 @@ class ChatRoomControllerTest {
         int userId = 10;
         int userLocationId = 100;
         
+        String nativeLang = "ko";
+        
         ChatMessageResponse msg1 = ChatMessageResponse.builder().messageId(1L).content("Hello").build();
         ChatMessageResponse msg2 = ChatMessageResponse.builder().messageId(2L).content("World").build();
         
-        given(chatMessageService.getMessages(eq(roomId), eq(userLocationId), eq(userId), any(), anyInt()))
+        given(chatMessageService.getMessages(eq(roomId), eq(userLocationId), eq(nativeLang), any(), anyInt()))
                 .willReturn(List.of(msg1, msg2));
 
         // when & then
-        mockMvc.perform(get("/api/v1/community/chats/{roomId}/messages", roomId)
-                        .param("userId", String.valueOf(userId))
-                        .param("userLocationId", String.valueOf(userLocationId)))
+        mockedSecurityContextHelper.when(SecurityContextHelper::getCurrentLocationId).thenReturn(userLocationId);
+        mockedSecurityContextHelper.when(SecurityContextHelper::getCurrentNativeLangCode).thenReturn(nativeLang);
+
+        // when & then
+        mockMvc.perform(get("/api/v1/community/chats/{roomId}/messages", roomId))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(List.of(msg1, msg2))));
     }
