@@ -77,13 +77,21 @@ public class TranslationAdapter implements TranslationPort {
     }
 
     private String createPrompt(String text, String sourceLang, List<String> targetLangs) {
+        String targets = String.join(", ", targetLangs);
         return String.format("""
-                Translate the following text from %s to %s.
-                Text: "%s"
-                Output ONLY a JSON object where keys are language codes and values are translated text.
-                Do not include the source language in the output.
-                Example: {"ko": "안녕하세요", "en": "Hello"}
-                """, sourceLang, String.join(", ", targetLangs), text);
+                You are a professional translator.
+                Translate the text "%s" from %s into the following target languages: [%s].
+                
+                Requirements:
+                1. Output ONLY a valid JSON object.
+                2. keys must be the language codes from the target list (%s).
+                3. values must be the translated text.
+                4. Do NOT include the source language in the output.
+                5. Ensure ALL requested target languages are included in the JSON.
+                
+                Example Output format:
+                {"ko": "안녕하세요", "vi": "Xin chào"}
+                """, text, sourceLang, targets, targets);
     }
 
     // api 응답으로 받은 json을 map으로 변환

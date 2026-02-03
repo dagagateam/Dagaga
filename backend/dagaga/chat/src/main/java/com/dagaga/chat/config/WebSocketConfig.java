@@ -22,6 +22,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-chat") // 연결될 엔드포인트
                 .setAllowedOriginPatterns("*");
+
+        registry.addEndpoint("/ws-sock") // SockJS Fallback 엔드포인트
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     @Override
