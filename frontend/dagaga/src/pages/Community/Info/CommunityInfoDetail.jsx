@@ -47,15 +47,15 @@ const CommunityInfoDetail = () => {
                     // 댓글 목록 가져오기
                     try {
                         const commentsResponse = await fetchComments(id);
-                        const commentsData = commentsResponse.data || [];
-                        
-                        const mappedComments = commentsData.map(c => ({
+            const commentsData = commentsResponse.data || [];
+            
+            const mappedComments = commentsData.map(c => ({
                             id: c.commentId,
                             user: c.nickname || `User ${c.userId}`,
                             text: c.content,
                             avatar: `https://i.pravatar.cc/150?u=${c.userId}`,
                             createdAt: c.createdAt,
-                            children: c.children ? c.children.map(child => ({
+                            children: c.replies ? c.replies.map(child => ({
                                 id: child.commentId,
                                 user: child.nickname || `User ${child.userId}`,
                                 text: child.content,
