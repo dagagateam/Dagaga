@@ -36,7 +36,7 @@ const Problem = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [wordResults, setWordResults] = useState({});
   const [isRecording, setIsRecording] = useState(false);
-  const [showNative, setShowNative] = useState(true); // Default to showing native (translated) text
+  const [showNative, setShowNative] = useState(false); // Default to NOT showing native (translated) text
   const [sentenceHighlightIndex, setSentenceHighlightIndex] = useState(-1);
   const [currentTries, setCurrentTries] = useState(0);
 

@@ -117,14 +117,10 @@ const ProblemSelect = () => {
               // Cards spaced 15 degrees apart
               const rotation = index * 15 + scrollOffset;
               const isActive = selectedCardId === problem.id;
-
-              // Determine display text based on language
-              let displayText = problem.questionText || problem.text; // Default
-              if (userLang === 'vi' && problem.viQuestion) {
-                displayText = problem.viQuestion;
-              } else if (userLang === 'zh' && problem.zhQuestion) {
-                displayText = problem.zhQuestion;
-              }
+              
+              // Determine display text based on API's viewQuestions field
+              // viewQuestions contains the question in the user's native language
+              let displayText = problem.viewQuestions || problem.questionText || problem.text;
 
               return (
                 <ProblemCard
