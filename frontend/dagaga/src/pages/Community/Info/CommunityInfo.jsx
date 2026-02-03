@@ -49,17 +49,10 @@ const CommunityInfo = () => {
                 // 백엔드 응답 구조: { success, message, data: { content: [...], totalElements, ... } }
                 const allPosts = response.data.content || [];
                 
-                // 백엔드에서 아직 필터링되지 않으므로 프론트엔드에서 필터링
-                let filteredPosts = allPosts;
-                if (user?.locationId) {
-                    filteredPosts = allPosts.filter(post => post.locationId === user.locationId);
-                    console.log(`Filtered ${allPosts.length} posts to ${filteredPosts.length} for locationId: ${user.locationId}`);
-                }
-                
-                console.log(`Loaded ${filteredPosts.length} posts for region: ${regionName}`);
+                console.log(`Loaded ${allPosts.length} posts for region: ${regionName}`);
                 
                 // 백엔드 응답 형식 → 프론트엔드 형식 변환
-                const items = filteredPosts.map(post => {
+                const items = allPosts.map(post => {
                     // content에서 날짜 파싱 (백엔드에 별도 필드가 없는 경우)
                     const content = post.content || "";
                     const progressPeriod = parseDateFromContent(content, "프로그램기간");

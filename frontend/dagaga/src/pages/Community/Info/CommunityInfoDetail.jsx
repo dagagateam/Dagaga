@@ -22,6 +22,33 @@ const CommunityInfoDetail = () => {
     const [comments, setComments] = useState([]);
     const [replyingTo, setReplyingTo] = useState(null); // { id, user }
 
+    const loadComments = async () => {
+        try {
+            const commentsResponse = await fetchComments(id);
+            const commentsData = commentsResponse.data || [];
+
+            const mappedComments = commentsData.map(c => ({
+                id: c.commentId,
+                user: c.nickname || `User ${c.userId}`,
+                text: c.content,
+                avatar: `https://i.pravatar.cc/150?u=${c.userId}`,
+                createdAt: c.createdAt,
+                children: c.replies ? c.replies.map(child => ({
+                    id: child.commentId,
+                    user: child.nickname || `User ${child.userId}`,
+                    text: child.content,
+                    avatar: `https://i.pravatar.cc/150?u=${child.userId}`,
+                    createdAt: child.createdAt,
+                    children: [] 
+                })) : []
+            }));
+            setComments(mappedComments);
+        } catch (err) {
+            console.error("Failed to load comments:", err);
+            setComments([]);
+        }
+    };
+
     useEffect(() => {
         const loadDetail = async () => {
             try {
@@ -45,30 +72,7 @@ const CommunityInfoDetail = () => {
                     });
                     
                     // 댓글 목록 가져오기
-                    try {
-                        const commentsResponse = await fetchComments(id);
-            const commentsData = commentsResponse.data || [];
-            
-            const mappedComments = commentsData.map(c => ({
-                            id: c.commentId,
-                            user: c.nickname || `User ${c.userId}`,
-                            text: c.content,
-                            avatar: `https://i.pravatar.cc/150?u=${c.userId}`,
-                            createdAt: c.createdAt,
-                            children: c.replies ? c.replies.map(child => ({
-                                id: child.commentId,
-                                user: child.nickname || `User ${child.userId}`,
-                                text: child.content,
-                                avatar: `https://i.pravatar.cc/150?u=${child.userId}`,
-                                createdAt: child.createdAt,
-                                children: [] // Assuming max depth 2 for now, or recursive
-                            })) : []
-                        }));
-                        setComments(mappedComments);
-                    } catch (err) {
-                        console.error("Failed to load comments:", err);
-                        setComments([]);
-                    }
+                    await loadComments();
                 }
             } catch (error) {
                 console.error("Failed to load detail:", error);
@@ -96,26 +100,8 @@ const CommunityInfoDetail = () => {
             const parentId = replyingTo ? replyingTo.id : null;
             await createComment(Number(id), comment, user.userId, parentId);
             
-            // Optimistic update
-            const newComment = {
-                id: Date.now(),
-                user: user.nickname || "나",
-                text: comment,
-                avatar: "https://i.pravatar.cc/150?u=" + user.userId,
-                children: []
-            };
-
-            if (parentId) {
-                // 부모 댓글 찾아서 자식으로 추가 (Optimistic)
-                setComments(prev => prev.map(c => {
-                    if (c.id === parentId) {
-                        return { ...c, children: [...(c.children || []), newComment] };
-                    }
-                    return c;
-                }));
-            } else {
-                setComments(prev => [...prev, newComment]);
-            }
+            // Re-fetch comments from server to ensure data consistency
+            await loadComments();
             
             setComment('');
             setReplyingTo(null); // 답글 모드 종료
