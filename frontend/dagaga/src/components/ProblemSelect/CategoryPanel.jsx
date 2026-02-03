@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import "./CategoryPanel.css";
 
 const CategoryPanel = ({ scenario }) => {
+  const { t } = useTranslation();
+
   if (!scenario) return null;
 
   return (
@@ -12,10 +15,10 @@ const CategoryPanel = ({ scenario }) => {
       <div className="category-icon">
         <img src={scenario.icon} alt={scenario.title} />
       </div>
-      <h2 className="category-title">{scenario.title}</h2>
-      <span className="category-tag">{scenario.tag}</span>
+      <h2 className="category-title">{t(scenario.id)}</h2>
+      <span className="category-tag">{t('scenario_tag')}</span>
       <ul className="category-items">
-        {scenario.items.map((item, index) => (
+        {(t(`scenario_items.${scenario.id}`, { returnObjects: true }) || scenario.items).map((item, index) => (
           <li key={index}>-{item}</li>
         ))}
       </ul>

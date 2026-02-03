@@ -6,7 +6,7 @@ export const scenarios = [
   {
     id: "학업",
     label: "학업",
-    title: "학교에서",
+    title: "학업",
     tag: "학습내용",
     icon: book,
     items: [
@@ -29,7 +29,7 @@ export const scenarios = [
     id: "자기소개",
     label: "자기소개",
     title: "자기소개",
-    tag: "자기소개",
+    tag: "학습내용",
     icon: conversation_bubble,
     items: [
       "이름과 나이",
@@ -48,8 +48,8 @@ export const scenarios = [
   {
     id: "의료",
     label: "의료",
-    title: "병원에서",
-    tag: "병원내용",
+    title: "의료",
+    tag: "학습내용",
     icon: hospital_cross,
     items: [
       "증상 설명하기",

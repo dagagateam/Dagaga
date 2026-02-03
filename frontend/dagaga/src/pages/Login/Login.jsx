@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { loginAPI } from '../../api/userApi';
 import './Login.css';
 import loginTiger from '../../assets/characters/login_tiger.png';
@@ -14,9 +15,9 @@ import { useUserStore } from '../../store/userStore';
 import { motion } from 'framer-motion';
 
 const Login = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const login = useUserStore((state) => state.login);
-    const [language, setLanguage] = useState('한국어');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState('');
@@ -63,21 +64,21 @@ const Login = () => {
                     <img src={logo} alt="Dagaga Logo" style={{ height: '40px' }} />
                 </div>
 
-                <LanguageSelector language={language} setLanguage={setLanguage} />
+                <LanguageSelector />
             </header>
 
             <main className="login-content">
                 <div className="login-wrapper">
                     <div className="login-card">
                         <div className="login-left-section">
-                            <h2>로그인</h2>
+                            <h2>{t('login')}</h2>
 
                             <form onSubmit={handleLogin}>
                                 <div className="custom-input-group">
-                                    <label>이메일</label>
+                                    <label>{t('email')}</label>
                                     <Input
                                         type="text"
-                                        placeholder="이메일을 입력하세요"
+                                        placeholder={t('email_placeholder')}
                                         value={email}
                                         onChange={(e) => {
                                             setEmail(e.target.value);
@@ -87,10 +88,10 @@ const Login = () => {
                                 </div>
 
                                 <div className="custom-input-group">
-                                    <label>비밀번호</label>
+                                    <label>{t('password')}</label>
                                     <Input
                                         type="password"
-                                        placeholder="비밀번호를 입력하세요"
+                                        placeholder={t('password_placeholder')}
                                         value={password}
                                         onChange={(e) => {
                                             setPassword(e.target.value);
@@ -106,26 +107,26 @@ const Login = () => {
                                 )}
 
                                 <div className="forgot-password">
-                                    <a href="#">아이디, 비밀번호를 잊으셨나요?</a>
+                                    <a href="#">{t('forgot_password')}</a>
                                 </div>
 
-                                <Button type="submit" className="login-btn">로그인</Button>
+                                <Button type="submit" className="login-btn">{t('login')}</Button>
                             </form>
 
                             <div className="signup-link">
-                                아직 계정이 없으신가요? <span onClick={() => navigate('/Signup')} style={{ cursor: 'pointer', color: '#0066cc', fontWeight: 'bold' }}>회원가입</span>
+                                {t('no_account')} <span onClick={() => navigate('/Signup')} style={{ cursor: 'pointer', color: '#0066cc', fontWeight: 'bold' }}>{t('signup')}</span>
                             </div>
 
                             <div className="divider">
-                                <span>또는</span>
+                                <span>{t('or_divider')}</span>
                             </div>
 
                             <div className="social-login">
                                 <SocialButton provider="google">
-                                    Google로 계속하기
+                                    {t('google_login')}
                                 </SocialButton>
                                 <SocialButton provider="line">
-                                    Line으로 계속하기
+                                    {t('line_login')}
                                 </SocialButton>
                             </div>
                         </div>
@@ -133,8 +134,8 @@ const Login = () => {
                         <div className="login-right-section">
                             <img src={loginTiger} alt="Welcome Tiger" className="login-tiger-image" />
                             <div className="welcome-text">
-                                <h1>한국 생활이<br /> 많이 어려우신가요?</h1>
-                                <p>다가가와 함께라면 더 쉽게!</p>
+                                <h1 style={{ whiteSpace: 'pre-line' }}>{t('welcome_title')}</h1>
+                                <p>{t('welcome_subtitle')}</p>
                             </div>
                         </div>
                     </div>

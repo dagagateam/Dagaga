@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Row, Col, Form, InputGroup, Button } from "react-bootstrap";
 import RegionSelect from "../common/RegionSelect.jsx";
+import { useTranslation } from "react-i18next";
 import "../../pages/MyPageEdit/MyPageEdit.css";
 
 const EditForm = ({
@@ -10,6 +11,7 @@ const EditForm = ({
   handleGugunChange,
   errors,
 }) => {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -18,14 +20,14 @@ const EditForm = ({
       {/* Nickname */}
       <Col md={6}>
         <Form.Group>
-          <Form.Label className="fw-semibold text-muted">닉네임</Form.Label>
+          <Form.Label className="fw-semibold text-muted">{t('nickname')}</Form.Label>
           <Form.Control
             type="text"
             name="nickname"
             value={formData.nickname}
             onChange={handleChange}
             className="rounded-3 bg-light border-0 py-2"
-            placeholder="Your Nickname"
+            placeholder={t('nickname_placeholder')}
           />
         </Form.Group>
       </Col>
@@ -33,7 +35,7 @@ const EditForm = ({
       {/* Password */}
       <Col md={6}>
         <Form.Group>
-          <Form.Label className="fw-semibold text-muted">비밀번호</Form.Label>
+          <Form.Label className="fw-semibold text-muted">{t('password')}</Form.Label>
           <InputGroup>
             <Form.Control
               type={showPassword ? "text" : "password"}
@@ -41,7 +43,7 @@ const EditForm = ({
               value={formData.password}
               onChange={handleChange}
               className={`rounded-start-3 bg-light border-0 py-2 ${errors?.password ? "is-invalid" : ""}`}
-              placeholder="영문, 숫자, 특수문자 포함 8자 이상"
+              placeholder={t('password_requirements')}
             />
             <Button
               variant="light"
@@ -90,7 +92,7 @@ const EditForm = ({
       <Col md={6}>
         <Form.Group>
           <Form.Label className="fw-semibold text-muted">
-            비밀번호 확인
+            {t('password_confirm')}
           </Form.Label>
           <InputGroup>
             <Form.Control
@@ -99,7 +101,7 @@ const EditForm = ({
               value={formData.confirmPassword}
               onChange={handleChange}
               className={`rounded-start-3 bg-light border-0 py-2 ${errors?.confirmPassword ? "is-invalid" : ""}`}
-              placeholder="비밀번호를 다시 입력하세요"
+              placeholder={t('password_confirm_placeholder')}
             />
             <Button
               variant="light"
@@ -149,7 +151,7 @@ const EditForm = ({
       {/* Region */}
       <Col md={6}>
         <Form.Group>
-          <Form.Label className="fw-semibold text-muted">지역</Form.Label>
+          <Form.Label className="fw-semibold text-muted">{t('region')}</Form.Label>
           <RegionSelect
             sido={formData.sido}
             gugun={formData.gugun}
@@ -162,16 +164,16 @@ const EditForm = ({
       {/* Native Language */}
       <Col md={6}>
         <Form.Group>
-          <Form.Label className="fw-semibold text-muted">모국어</Form.Label>
+          <Form.Label className="fw-semibold text-muted">{t('native_language')}</Form.Label>
           <Form.Select
             name="nativeLang"
             value={formData.nativeLang}
             onChange={handleChange}
             className="rounded-3 bg-light border-0 py-2"
           >
-            <option value="한국어">한국어</option>
-            <option value="중국어">중국어</option>
-            <option value="베트남어">베트남어</option>
+            <option value="한국어">{t('lang_ko')}</option>
+            <option value="중국어">{t('lang_zh')}</option>
+            <option value="베트남어">{t('lang_vi')}</option>
           </Form.Select>
         </Form.Group>
       </Col>
@@ -180,7 +182,7 @@ const EditForm = ({
       <Col md={6}>
         <Form.Group>
           <Form.Label className="fw-semibold text-muted">
-            선호하는 언어
+            {t('preferred_language')}
           </Form.Label>
           <Form.Select
             name="preferredLang"
@@ -188,9 +190,9 @@ const EditForm = ({
             onChange={handleChange}
             className="rounded-3 bg-light border-0 py-2"
           >
-            <option value="한국어">한국어</option>
-            <option value="중국어">중국어</option>
-            <option value="베트남어">베트남어</option>
+            <option value="한국어">{t('lang_ko')}</option>
+            <option value="중국어">{t('lang_zh')}</option>
+            <option value="베트남어">{t('lang_vi')}</option>
           </Form.Select>
         </Form.Group>
       </Col>
@@ -199,7 +201,7 @@ const EditForm = ({
       <Col md={6}>
         <Form.Group>
           <Form.Label className="fw-semibold text-muted">
-            한국에 온 날짜
+            {t('entry_date')}
           </Form.Label>
           <Form.Control
             type="date"

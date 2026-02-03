@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import i18n from '../i18n';
+import stockProfile from '../assets/icons/stock_profile.jpg';
 
 export const useUserStore = create(
   persist(
@@ -11,21 +13,35 @@ export const useUserStore = create(
       savedItems: [], // Array of community objects
       likedPostIds: [], // Array of IDs
       joinedChats: [], // Persisted chat rooms
+      language: 'ko', // Default language
+
+      setLanguage: (lang) => {
+        i18n.changeLanguage(lang);
+        set({ language: lang });
+      },
 
       // Login with full AuthResponse
-      login: (authResponse) => set({ 
-        user: {
-          userId: authResponse.userId,
-          email: authResponse.email,
-          locationId: authResponse.locationId,
-          viewLangCode: authResponse.viewLangCode,
-          nativeLangCode: authResponse.nativeLangCode,
-          nickname: authResponse.nickname,
-        },
-        accessToken: authResponse.accessToken,
-        refreshToken: authResponse.refreshToken,
-        isLoggedIn: true 
-      }),
+      login: (authResponse) => {
+        if (authResponse.viewLangCode) {
+           i18n.changeLanguage(authResponse.viewLangCode);
+        }
+        
+        set((state) => ({ 
+          user: {
+            userId: authResponse.userId,
+            email: authResponse.email,
+            locationId: authResponse.locationId,
+            viewLangCode: authResponse.viewLangCode,
+            nativeLangCode: authResponse.nativeLangCode,
+            nickname: authResponse.nickname,
+            profileImage: authResponse.profileImage || stockProfile,
+          },
+          language: authResponse.viewLangCode || state.language,
+          accessToken: authResponse.accessToken,
+          refreshToken: authResponse.refreshToken,
+          isLoggedIn: true 
+        }));
+      },
       
       logout: () => set({ 
         user: null, 
@@ -69,9 +85,15 @@ export const useUserStore = create(
         }
       }),
       
-      updateUser: (updates) => set((state) => ({
-        user: { ...state.user, ...updates }
-      })),
+      updateUser: (updates) => set((state) => {
+        if (updates.viewLangCode) {
+            i18n.changeLanguage(updates.viewLangCode);
+        }
+        return {
+           user: { ...state.user, ...updates },
+           language: updates.viewLangCode || state.language
+        };
+      }),
     }),
     {
       name: 'dagaga-user-storage', // name of the item in the storage (must be unique)

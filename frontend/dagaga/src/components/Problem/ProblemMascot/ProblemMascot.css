@@ -5,8 +5,8 @@
   padding: 20px;
 }
 
-.mascot-image {
-  width: 150px;
-  height: auto;
+.problem-mascot-image {
+  width: auto;
+  height: 400px; /* Half the size of scenario mascot */
   object-fit: contain;
 }

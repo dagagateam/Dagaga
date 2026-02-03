@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Dropdown } from 'react-bootstrap';
 import { signupAPI, checkEmailAPI, checkNicknameAPI } from '../../api/userApi';
 import './Signup.css';
@@ -16,6 +17,7 @@ import ArrivalDateInput from '../../components/common/ArrivalDateInput';
 import { motion } from 'framer-motion';
 
 const Signup = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [language, setLanguage] = useState('한국어');
 
@@ -262,24 +264,24 @@ const Signup = () => {
                 <div className="signup-wrapper">
                     <div className="signup-card">
                         <div className="signup-left-section">
-                            <h2>회원가입</h2>
+                            <h2>{t('signup')}</h2>
 
                             <form onSubmit={handleSignup} className="signup-form">
                                 <div className="form-row">
                                     <div className="custom-input-group half">
-                                        <label>이메일 <span>*</span></label>
+                                        <label>{t('email')} <span>*</span></label>
                                         <div className="nickname-group">
                                             <Input
                                                 type="email"
                                                 name="email"
-                                                placeholder="example@email.com"
+                                                placeholder={t('email_placeholder')}
                                                 value={formData.email}
                                                 onChange={handleChange}
                                                 required
                                                 className={errors.email ? 'error-input' : ''}
                                             />
                                             <button type="button" className="check-btn" onClick={handleCheckEmail}>
-                                                중복 확인
+                                                {t('check_duplicate')}
                                             </button>
                                         </div>
                                         {/* 우선순위: 에러 메시지 > 성공/실패 메시지 */}
@@ -290,7 +292,7 @@ const Signup = () => {
                                         )}
                                     </div>
                                     <div className="custom-input-group half">
-                                        <label>화면 표시 언어 <span>*</span></label>
+                                        <label>{t('display_language')} <span>*</span></label>
                                         <Select
                                             value={language}
                                             options={['한국어', '중국어', '베트남어']}
@@ -301,18 +303,18 @@ const Signup = () => {
 
                                 <div className="form-row">
                                     <div className="custom-input-group half">
-                                        <label>닉네임</label>
+                                        <label>{t('nickname')}</label>
                                         <div className="nickname-group">
                                             <Input
                                                 type="text"
                                                 name="nickname"
-                                                placeholder="닉네임을 입력하세요"
+                                                placeholder={t('nickname_placeholder')}
                                                 value={formData.nickname}
                                                 onChange={handleChange}
                                                 className={errors.nickname ? 'error-input' : ''}
                                             />
                                             <button type="button" className="check-btn" onClick={handleCheckNickname}>
-                                                중복 확인
+                                                {t('check_duplicate')}
                                             </button>
                                         </div>
                                         {/* 우선순위: 에러 메시지 > 성공/실패 메시지 */}
@@ -323,7 +325,7 @@ const Signup = () => {
                                         )}
                                     </div>
                                     <div className="custom-input-group half">
-                                        <label>모국어 <span>*</span></label>
+                                        <label>{t('native_language')} <span>*</span></label>
                                         <Select
                                             value={formData.nativeLanguage}
                                             options={['한국어', '중국어', '베트남어']}
@@ -334,11 +336,11 @@ const Signup = () => {
 
                                 <div className="form-row">
                                     <div className="custom-input-group half">
-                                        <label>비밀번호 <span>*</span></label>
+                                        <label>{t('password')} <span>*</span></label>
                                         <Input
                                             type="password"
                                             name="password"
-                                            placeholder="비밀번호를 입력하세요"
+                                            placeholder={t('password_placeholder')}
                                             value={formData.password}
                                             onChange={handleChange}
                                             required
@@ -347,7 +349,7 @@ const Signup = () => {
                                         {errors.password && <span className="error-msg">{errors.password}</span>}
                                     </div>
                                     <div className="custom-input-group half">
-                                        <label>지역 <span>*</span></label>
+                                        <label>{t('region')} <span>*</span></label>
                                         <div className="region-selects">
                                             <RegionSelect
                                                 sido={formData.sido}
@@ -361,11 +363,11 @@ const Signup = () => {
 
                                 <div className="form-row">
                                     <div className="custom-input-group half">
-                                        <label>비밀번호 확인 <span>*</span></label>
+                                        <label>{t('password_confirm')} <span>*</span></label>
                                         <Input
                                             type="password"
                                             name="confirmPassword"
-                                            placeholder="비밀번호를 입력하세요"
+                                            placeholder={t('password_placeholder')}
                                             value={formData.confirmPassword}
                                             onChange={handleChange}
                                             required
@@ -387,12 +389,12 @@ const Signup = () => {
                                 </div>
 
                                 <div className="signup-action">
-                                    <Button type="submit" className="signup-btn">가입하기</Button>
+                                    <Button type="submit" className="signup-btn">{t('signup_action')}</Button>
                                 </div>
                             </form>
 
                             <div className="login-link">
-                                계정이 있으신가요? <span onClick={() => navigate('/Login')}>로그인</span>
+                                {t('have_account')} <span onClick={() => navigate('/Login')}>{t('login')}</span>
                             </div>
                         </div>
 

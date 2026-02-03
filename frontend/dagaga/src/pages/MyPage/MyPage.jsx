@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from "react-i18next";
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import SavedNewsCard from '../../components/MyPage/SavedNewsCard';
 import MyInfo from '../../components/MyPage/MyInfo';
 import JoinedChatItem from '../../components/community/chat/JoinedChatItem';
 import { fetchChatRooms } from '../../api/communityApi';
 import { useUserStore } from '../../store/userStore';
+import stockProfile from '../../assets/icons/stock_profile.jpg';
 import './MyPage.css';
 
 const MyPage = () => {
+  const { t } = useTranslation();
   const { user, savedItems, likedPostIds, joinedChats, setJoinedChats, toggleSave, toggleLike } = useUserStore();
 
   useEffect(() => {
-    // Fetch only if empty or background update needed. 
-    // Here we fetch if empty to avoid layout shift, or could fetch in background to update staleness.
-    // Given the user request "doesn't have to load for a while", checking length > 0 is good.
     if (joinedChats.length === 0) {
       const loadChats = async () => {
         try {
@@ -37,15 +37,15 @@ const MyPage = () => {
       <Card className="greeting-card mb-3">
         <Card.Body className="greeting-body">
           <div className="profile-circle">
-            <img
-              src={user?.profileImage || "/assets/profile-placeholder.jpg"}
-              alt="Profile"
-              className="profile-img"
-              onError={(e) => { e.target.style.display = 'none' }}
+            <img 
+              src={user?.profileImage || stockProfile} 
+              alt="Profile" 
+              className="profile-img" 
+              onError={(e) => {e.target.style.display='none'}} 
             />
           </div>
           <h2 className="greeting-text">
-            <strong>{userNickname}</strong>님, 안녕하세요
+            <strong>{t('hello_user', { name: userNickname })}</strong>
           </h2>
         </Card.Body>
       </Card>
@@ -53,7 +53,7 @@ const MyPage = () => {
       {/* Saved News Section */}
       <div className="section-container mb-3">
         <div className="section-title-wrapper mb-2">
-          <span className="section-badge">저장한 정보글</span>
+          <span className="section-badge">{t('saved_info_title')}</span>
         </div>
         <div className="saved-news-list-container">
           <div className="saved-news-scroll">
@@ -73,7 +73,7 @@ const MyPage = () => {
                 />
               ))
             ) : (
-              <div className="p-3 text-muted">저장한 정보가 없습니다.</div>
+               <div className="p-3 text-muted">{t('no_saved_info')}</div>
             )}
           </div>
         </div>
@@ -83,7 +83,7 @@ const MyPage = () => {
       <Row className="bottom-sections g-4">
         <Col lg={4} md={12}>
           <div className="section-title-wrapper mb-3">
-            <span className="section-badge">내 채팅방</span>
+            <span className="section-badge">{t('my_chat_rooms')}</span>
           </div>
           <Card className="joined-chat-card">
             <Card.Body className="joined-chat-body">
@@ -93,7 +93,7 @@ const MyPage = () => {
                 ))
               ) : (
                 <div className="p-3 text-muted text-center">
-                  참여 중인 채팅방이 없습니다.
+                  {t('no_joined_chats')}
                 </div>
               )}
             </Card.Body>
@@ -101,7 +101,7 @@ const MyPage = () => {
         </Col>
         <Col lg={8} md={12}>
           <div className="section-title-wrapper mb-3">
-            <span className="section-badge">내 정보</span>
+            <span className="section-badge">{t('my_info_title')}</span>
           </div>
           <MyInfo />
         </Col>

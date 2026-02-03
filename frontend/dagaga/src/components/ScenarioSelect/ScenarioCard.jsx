@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import "./ScenarioCard.css";
 
 const ScenarioCard = ({ scenario, isSelected, onSelect }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleArrowClick = (e) => {
@@ -29,11 +31,11 @@ const ScenarioCard = ({ scenario, isSelected, onSelect }) => {
 
       {isSelected ? (
         <>
-          <h2 className="scenario-card-title">{scenario.title}</h2>
-          <span className="scenario-card-tag">{scenario.tag}</span>
+          <h2 className="scenario-card-title">{t(scenario.id)}</h2>
+          <span className="scenario-card-tag">{t('scenario_tag')}</span>
 
           <ul className="scenario-card-list">
-            {scenario.items.map((item, index) => (
+            {(t(`scenario_items.${scenario.id}`, { returnObjects: true }) || scenario.items).map((item, index) => (
               <li key={index}>-{item}</li>
             ))}
           </ul>
@@ -45,7 +47,8 @@ const ScenarioCard = ({ scenario, isSelected, onSelect }) => {
           </button>
         </>
       ) : (
-        <span className="scenario-card-text">{scenario.label}</span>
+
+        <span className="scenario-card-text">{t(scenario.id)}</span>
       )}
     </motion.div>
   );
