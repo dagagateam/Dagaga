@@ -33,16 +33,7 @@
     margin: 0;
 }
 
-.location-badge {
-    display: flex;
-    align-items: center;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #555;
-    background-color: white; /* Optional: background for badge */
-    padding: 5px 10px;
-    border-radius: 20px;
-}
+
 
 .search-wrapper {
     flex-grow: 1;
@@ -66,10 +57,7 @@
     box-shadow: 0 0 0 3px rgba(248, 177, 94, 0.2);
 }
 
-.pin-icon {
-    margin-right: 5px;
-    color: #F8B15E;
-}
+
 
 /* Info List & Card */
 .info-list {

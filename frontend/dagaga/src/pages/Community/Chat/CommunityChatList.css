@@ -25,15 +25,7 @@
     gap: 10px;
 }
 
-.chat-location-badge {
-    color: #F8B15E;
-    /* Theme color */
-    font-size: 1rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
+
 
 .create-chat-btn {
     font-size: 1rem;

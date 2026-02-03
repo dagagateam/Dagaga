@@ -4,9 +4,11 @@ import { Container, Modal } from 'react-bootstrap';
 import './CommunityChatList.css';
 import { createChatRoom, fetchJoinedChats, fetchChatsByLocation } from '../../../api/communityApi';
 import { useUserStore } from '../../../store/userStore';
+import { getLocationName } from '../../../data/regionData';
 import UserChatCard from '../../../components/community/chat/UserChatCard';
 import JoinedChatItem from '../../../components/community/chat/JoinedChatItem';
 import Button from '../../../components/common/Button';
+import LocationBadge from '../../../components/common/LocationBadge';
 
 const CommunityChatList = () => {
     const navigate = useNavigate();
@@ -24,8 +26,8 @@ const CommunityChatList = () => {
     const [creating, setCreating] = useState(false);
 
     useEffect(() => {
-        const region = localStorage.getItem('regionName');
-        setUserRegion(region || '서울 종로구');
+        const regionName = user?.locationId ? getLocationName(user.locationId) : '지역 설정 필요';
+        setUserRegion(regionName);
 
         const loadData = async () => {
             try {
@@ -172,7 +174,7 @@ const CommunityChatList = () => {
                 <div className="chat-header">
                     <h2>
                         채팅방
-                        <span className="chat-location-badge">📍 {userRegion}</span>
+                        <LocationBadge region={userRegion} />
                     </h2>
                     <Button className="create-chat-btn" onClick={() => setShowCreateModal(true)}>
                         채팅방 생성하기 +
