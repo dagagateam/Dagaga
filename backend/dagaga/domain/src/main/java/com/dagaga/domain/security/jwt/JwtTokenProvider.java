@@ -1,4 +1,4 @@
-package com.dagaga.security.jwt;
+package com.dagaga.domain.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -84,9 +84,9 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token);
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
             log.warn("만료된 JWT 토큰입니다: {}", e.getMessage());

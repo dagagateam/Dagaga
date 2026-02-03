@@ -1,6 +1,5 @@
-package com.dagaga.security.context;
+package com.dagaga.domain.security;
 
-import com.dagaga.security.jwt.JwtAuthenticationFilter.UserPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -21,7 +20,7 @@ public class SecurityContextHelper {
             return ((UserPrincipal) principal).getUserId();
         }
 
-        throw new IllegalStateException("유효하지 않은 인증 정보 타입입니다");
+        throw new IllegalStateException("유효하지 않은 인증 정보 타입입니다. Found: " + principal.getClass().getName());
     }
 
     /**

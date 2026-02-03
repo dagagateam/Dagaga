@@ -3,8 +3,12 @@ package com.dagaga.controller;
 import com.dagaga.domain.user.dto.UserResponseDto;
 import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.service.UserService;
-import com.dagaga.security.jwt.JwtTokenProvider;
+import com.dagaga.security.jwt.JwtAuthenticationEntryPoint;
+import com.dagaga.security.jwt.JwtAuthenticationFilter;
+import com.dagaga.security.redis.RedisTokenService;
+import com.dagaga.domain.security.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.dagaga.chat.service.ChatRoomService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +19,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import com.dagaga.security.context.SecurityContextHelper;
+import com.dagaga.domain.security.SecurityContextHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -41,19 +45,19 @@ class UserControllerTest {
     private UserService userService;
 
     @MockitoBean
-    private com.dagaga.chat.service.ChatRoomService chatRoomService;
+    private ChatRoomService chatRoomService;
 
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
 
     @MockitoBean
-    private com.dagaga.security.redis.RedisTokenService redisTokenService;
+    private RedisTokenService redisTokenService;
 
     @MockitoBean
-    private com.dagaga.security.jwt.JwtAuthenticationFilter jwtAuthenticationFilter;
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @MockitoBean
-    private com.dagaga.security.jwt.JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     private MockedStatic<SecurityContextHelper> mockedSecurityContextHelper;
 

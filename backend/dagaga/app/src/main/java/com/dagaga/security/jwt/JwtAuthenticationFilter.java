@@ -1,5 +1,6 @@
 package com.dagaga.security.jwt;
 
+import com.dagaga.domain.security.UserPrincipal;
 import com.dagaga.security.redis.RedisTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,6 +15,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import com.dagaga.domain.security.jwt.JwtTokenProvider;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -110,38 +112,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         return null;
-    }
-
-    /**
-     * SecurityContext에 저장할 사용자 정보
-     */
-    public static class UserPrincipal {
-        private final Integer userId;
-        private final Integer locationId;
-        private final String viewLangCode;
-        private final String nativeLangCode;
-
-        public UserPrincipal(Integer userId, Integer locationId, String viewLangCode, String nativeLangCode) {
-            this.userId = userId;
-            this.locationId = locationId;
-            this.viewLangCode = viewLangCode;
-            this.nativeLangCode = nativeLangCode;
-        }
-
-        public Integer getUserId() {
-            return userId;
-        }
-
-        public Integer getLocationId() {
-            return locationId;
-        }
-
-        public String getViewLangCode() {
-            return viewLangCode;
-        }
-
-        public String getNativeLangCode() {
-            return nativeLangCode;
-        }
     }
 }

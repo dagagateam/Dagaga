@@ -15,20 +15,17 @@ public class MessageControllerDto {
 
     public record SendMessageRequest(
             @NotNull Integer roomId,
-            @NotNull Integer senderId,
             @NotBlank String originalText,
-            String originalLang,
             String translatedLang,
-            String translatedText,
-            @NotNull Integer senderLocationId // TODO: 지역 검증용 -> JWT로 수정 필요
+            String translatedText
     ) {
         // Controller DTO -> Service DTO 변환
-        public SaveMessageCommand toServiceDto() {
+        public SaveMessageCommand toServiceDto(Integer senderId, String senderLang) {
             return new SaveMessageCommand(
                     roomId,
                     senderId,
                     originalText,
-                    originalLang,
+                    senderLang,
                     translatedLang,
                     translatedText);
         }

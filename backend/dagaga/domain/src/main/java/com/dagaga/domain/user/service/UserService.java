@@ -1,6 +1,5 @@
 package com.dagaga.domain.user.service;
 
-import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.dto.UserResponseDto;
 import com.dagaga.domain.user.dto.UserUpdateDto;

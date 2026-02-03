@@ -1,7 +1,7 @@
 package com.dagaga.controller;
 
 import com.dagaga.common.response.ApiResponse;
-import com.dagaga.security.jwt.JwtTokenProvider;
+import com.dagaga.domain.security.jwt.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
