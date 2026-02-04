@@ -9,6 +9,7 @@ import ProblemMascot from "../../components/Problem/ProblemMascot/ProblemMascot"
 import ProblemDone from "../../components/Problem/ProblemDone/ProblemDone";
 import ProblemRepeat from "../../components/Problem/ProblemRepeat/ProblemRepeatButton.jsx";
 import ProblemTranslate from "../../components/Problem/ProblemAnswer/ProblemTranslate"; // Use existing component
+import ProblemLoading from "../../components/Problem/ProblemLoading/ProblemLoading";
 import { fetchProblemDetail, fetchProblemNative, evaluatePronunciation } from "../../api/learningApi"; // Import API
 import { useTts } from "../../hooks/useTts";
 import { useUserStore } from "../../store/userStore"; // Import User Store
@@ -347,7 +348,11 @@ const Problem = () => {
         total={scenarionStages.length}
         onExit={() => navigate('/ScenarioSelect')}
       />
-
+      
+      {loading ? (
+        <ProblemLoading text="문제를 불러오는 중..." />
+      ) : (
+        <>
       <div className="problem-question">
         <div className="problem-header">
           <h2 onClick={() => setShowNative(!showNative)} style={{ cursor: 'pointer' }}>
@@ -391,6 +396,8 @@ const Problem = () => {
           </>
         )}
       </div>
+      </>
+      )}
     </Container>
   );
 };

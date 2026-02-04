@@ -12,6 +12,7 @@ import ProblemRepeat from "../../components/Problem/ProblemRepeat/ProblemRepeatB
 import { useSpeechApi } from "../../api/useSpeechApi";
 import { useTts } from "../../hooks/useTts";
 import { fetchProblemNative } from "../../api/learningApi";
+import ProblemLoading from "../../components/Problem/ProblemLoading/ProblemLoading";
 import "./ProblemNative.css";
 
 const MAX_TRIES = 3;
@@ -358,10 +359,14 @@ const ProblemNative = () => {
   );
 
   // Render based on current page state
+  if (pageState === "translating") {
+    return <ProblemLoading text="번역 중..." />;
+  }
+
   return (
     <>
       {pageState === "pre-translate" && renderPreTranslate()}
-      {pageState === "translating" && renderTranslating()}
+      {/* Translating state is now handled above */}
       {pageState === "post-translate" && renderPostTranslate()}
     </>
   );
