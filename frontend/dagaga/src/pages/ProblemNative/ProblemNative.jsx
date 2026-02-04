@@ -24,7 +24,9 @@ const ProblemNative = () => {
   const [fetchedProblemText, setFetchedProblemText] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const problemText = location.state?.problemText || fetchedProblemText || "문제를 불러오는 중...";
+  // Prioritize fetched text (native) over passed state (view lang)
+  // We strictly wait for fetched text to ensure we don't show/play the wrong language from the card
+  const problemText = fetchedProblemText || "문제를 불러오는 중...";
   const { translateAudio, checkPronunciation, isUploading } = useSpeechApi();
 
   // Page state: "pre-translate" | "translating" | "post-translate"
@@ -45,13 +47,23 @@ const ProblemNative = () => {
   const [wordResults, setWordResults] = useState([]); // "correct" | "incorrect" | null for each word
   const [currentTries, setCurrentTries] = useState(0);
 
-  // Fetch problem text if missing
+  // DEBUG: Log initial navigation state (User Requested)
   useEffect(() => {
-    if (!location.state?.problemText && categoryId && problemId) {
+    if (location.state) {
+      console.log("[ProblemNative Debug] Navigation State:", location.state);
+    }
+  }, [location.state]);
+
+  // Fetch problem text ALWAYS to ensure native language (ignoring state for text)
+  useEffect(() => {
+    if (categoryId && problemId) {
       setIsLoading(true);
+      // Pass nativeLangCode to API
       fetchProblemNative(categoryId, problemId)
         .then((response) => {
           if (response && response.data && response.data.success) {
+            console.log("[ProblemNative] Fetched Problem:", response.data.data); // DEBUG
+            console.log("[ProblemNative] Full Response Data:", response.data); // DEBUG
             setFetchedProblemText(response.data.data);
           } else {
             setFetchedProblemText("문제 정보를 불러올 수 없습니다.");
@@ -63,7 +75,7 @@ const ProblemNative = () => {
         })
         .finally(() => setIsLoading(false));
     }
-  }, [categoryId, problemId, location.state]);
+  }, [categoryId, problemId]);
 
   // Handle recording completion in pre-translate state
   const handlePreTranslateRecordingComplete = async ({ audioBlob, audioUrl }) => {
@@ -77,6 +89,7 @@ const ProblemNative = () => {
     const result = await translateAudio(audioBlob, problemId);
 
     if (result) {
+      console.log("[ProblemNative] Translation Result:", result); // DEBUG
       setTranslatedData({
         words: result.words,
         pronunciations: result.pronunciations
