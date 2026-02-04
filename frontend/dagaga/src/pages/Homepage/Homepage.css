@@ -1,6 +1,5 @@
 .homepage-container {
   min-height: 100vh;
-  padding: 2rem;
   display: flex;
   flex-direction: column;
   /* Remove fixed gap to allow flexibility */
@@ -24,7 +23,7 @@
   width: 100%;
   max-width: 1200px;
   margin: auto; /* Center vertically in the remaining space */
-  padding: 0 1rem;
+  padding: 0 0.5rem;
 }
 
 .hero-content {
@@ -83,40 +82,7 @@
   overflow: hidden;
 }
 
-.nav-card {
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  text-align: left; /* Left align for row layout */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-  cursor: pointer;
-  display: flex; /* Flex row */
-  align-items: center;
-  gap: 1.5rem;
-  height: 100%; /* Ensure uniform height */
-}
-
-.nav-card:hover {
-  transform: translateY(-5px);
-}
-
-.nav-card-icon {
-  font-size: 3rem;
-  margin-bottom: 0; /* Remove bottom margin */
-  flex-shrink: 0; /* Prevent icon from shrinking */
-}
-
-.nav-card h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  color: #333;
-}
-
-.nav-card p {
-  color: #666;
-  line-height: 1.5;
-}
+/* Ensure cursor targets work with new cursor */
 
 /* Ensure cursor targets work with new cursor */
 

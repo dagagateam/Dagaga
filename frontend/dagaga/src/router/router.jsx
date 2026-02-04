@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import App from "../App";
 import ScenarioSelect from "../pages/ScenarioSelect/ScenarioSelect";
 import ProblemSelect from "../pages/ProblemSelect/ProblemSelect";
@@ -15,6 +15,7 @@ import MyPageEdit from "../pages/MyPageEdit/MyPageEdit";
 import AuthSuccess from "../pages/Login/AuthSuccess";
 import SocialSignup from "../pages/Signup/SocialSignup";
 import Homepage from "../pages/Homepage/Homepage";
+import ProtectedRoute from "../components/common/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -41,48 +42,58 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path: "ScenarioSelect",
-        element: <ScenarioSelect />,
-      },
-      {
         path: "Homepage",
         element: <Homepage />,
       },
+      // Protected Routes
       {
-        path: "ProblemSelect/:categoryId",
-        element: <ProblemSelect />,
-      },
-      {
-        path: "Problem/:categoryId/:questionId",
-        element: <Problem />,
-      },
-      {
-        path: "Community/Info",
-        element: <CommunityInfo />,
-      },
-      {
-        path: "Community/Info/:id",
-        element: <CommunityInfoDetail />,
-      },
-      {
-        path: "ProblemTranslate/:categoryId/:problemId",
-        element: <ProblemNative />,
-      },
-      {
-        path: "Community/Chat",
-        element: <CommunityChatList />,
-      },
-      {
-        path: "Community/Chat/room/:id",
-        element: <CommunityChatRoom />,
-      },
-      {
-        path: "MyPage",
-        element: <MyPage />,
-      },
-      {
-        path: "MyPage/Edit",
-        element: <MyPageEdit />,
+        element: (
+          <ProtectedRoute>
+            <Outlet />
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            path: "ScenarioSelect",
+            element: <ScenarioSelect />,
+          },
+          {
+            path: "ProblemSelect/:categoryId",
+            element: <ProblemSelect />,
+          },
+          {
+            path: "Problem/:categoryId/:questionId",
+            element: <Problem />,
+          },
+          {
+            path: "Community/Info",
+            element: <CommunityInfo />,
+          },
+          {
+            path: "Community/Info/:id",
+            element: <CommunityInfoDetail />,
+          },
+          {
+            path: "ProblemTranslate/:categoryId/:problemId",
+            element: <ProblemNative />,
+          },
+          {
+            path: "Community/Chat",
+            element: <CommunityChatList />,
+          },
+          {
+            path: "Community/Chat/room/:id",
+            element: <CommunityChatRoom />,
+          },
+          {
+            path: "MyPage",
+            element: <MyPage />,
+          },
+          {
+            path: "MyPage/Edit",
+            element: <MyPageEdit />,
+          },
+        ],
       },
     ],
   },

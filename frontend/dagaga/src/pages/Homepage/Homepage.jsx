@@ -4,6 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import IntroRotateText from '../../components/Homepage/IntroRotateText/IntroRotateText';
 import CardSwap, { Card } from '../../components/Homepage/CardSwawp/CardSwap';
+import RouteCard from '../../components/Homepage/RouteCard/RouteCard';
+
+import learningImg from '../../assets/screenshots/scenario_select_screenshot_1.png';
+import chatImg from '../../assets/screenshots/chat_screenshot_1.png';
+import infoImg from '../../assets/screenshots/Info_screen_screenshot_1.png';
 
 import './Homepage.css';
 
@@ -86,21 +91,24 @@ const Homepage = () => {
 
       {/* Bottom Section: Navigation Cards */}
       <div className="homepage-navigation">
-        <div className="nav-card" onClick={() => handleNavClick('/ScenarioSelect')}>
-          <div className="nav-card-icon">📚</div>
-          <h3>{t('learning_navcard')}</h3>
-          <p>{t('learning_comment_navcard')}</p>
-        </div>
-        <div className="nav-card" onClick={() => handleNavClick('/Community/Chat')}>
-          <div className="nav-card-icon">💬</div>
-          <h3>{t('nav_community')}</h3>
-          <p>{t('community_comment_navcard')}</p>
-        </div>
-        <div className="nav-card" onClick={() => handleNavClick('/Community/Info')}>
-          <div className="nav-card-icon">📰</div>
-          <h3>{t('info_navcard')}</h3>
-          <p>{t('info_comment_navcard')}</p>
-        </div>
+        <RouteCard 
+          title={t('learning_navcard')} 
+          body={t('learning_comment_navcard')}
+          onClick={() => handleNavClick('/ScenarioSelect')} 
+          image={learningImg}
+        />
+        <RouteCard 
+          title={t('nav_community')}
+          body={t('community_comment_navcard')}
+          onClick={() => handleNavClick('/Community/Chat')} 
+          image={chatImg}
+        />
+        <RouteCard 
+          title={t('info_navcard')}
+          body={t('info_comment_navcard')}
+          onClick={() => handleNavClick('/Community/Info')} 
+          image={infoImg}
+        />
       </div>
     </div>
   );

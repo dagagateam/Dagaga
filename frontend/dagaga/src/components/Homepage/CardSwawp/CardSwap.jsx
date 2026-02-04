@@ -83,7 +83,7 @@ const CardSwap = forwardRef(({
     tlRef.current = tl;
 
     tl.to(elFront, {
-      y: '+=250',
+      y: '+=100',
       duration: config.durDrop,
       ease: config.ease
     });
