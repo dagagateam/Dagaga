@@ -155,6 +155,22 @@ public class ChatRoomService {
                 .orElseThrow(() -> new IllegalArgumentException("채팅방에 참여 중인 유저가 아닙니다."));
 
         user.leave();
+
+        // 방장이 나간 경우 위임 처리
+        if (user.getRole() == Role.OWNER) {
+            chatRoomUserRepository.findFirstByIdRoomIdAndStatusOrderByJoinedAtAsc(roomId, UserStatus.ACTIVE)
+                    .ifPresent(nextOwner -> {
+                        nextOwner.setRole(Role.OWNER);
+                        room.setCreatorId(nextOwner.getId().getUserId());
+                    });
+            user.setRole(Role.MEMBER);
+        }
+
+        // 남은 인원이 0명이고 커스텀 채팅방이면 삭제 처리
+        long activeCount = chatRoomUserRepository.countByIdRoomIdAndStatus(roomId, UserStatus.ACTIVE);
+        if (activeCount == 0 && room.getRoomType() == RoomType.CUSTOM) {
+            room.setStatus(RoomStatus.DELETED);
+        }
     }
 
     @Transactional

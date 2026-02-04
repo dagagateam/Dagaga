@@ -35,7 +35,8 @@ public class MessageControllerDto {
             Integer senderId,
             String content, // 원문 또는 번역문
             String originalLang,
-            String sentAt) {
+            String sentAt,
+            String type) { // TALK, LEAVE
 
         // Service Result -> Response 변환 (언어별)
         public static SendMessageResponse from(SaveMessageResult result, String targetLang) {
@@ -60,7 +61,8 @@ public class MessageControllerDto {
                     message.getSenderId(),
                     content,
                     message.getOriginalLang(),
-                    message.getSentAt().toString());
+                    message.getSentAt().toString(),
+                    "TALK");
         }
     }
 }
