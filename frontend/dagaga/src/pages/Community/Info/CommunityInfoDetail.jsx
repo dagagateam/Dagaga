@@ -5,10 +5,10 @@ import { fetchCommunityInfo, fetchCommunityInfoDetail, createComment, fetchComme
 import { useUserStore } from '../../../store/userStore';
 import './CommunityInfoDetail.css';
 
-import heartIcon from '../../../assets/icons/heart.png';
-import unheartIcon from '../../../assets/icons/unheart.png';
+
 import bookmarkedIcon from '../../../assets/icons/bookmark.png';
 import unbookmarkIcon from '../../../assets/icons/unbookmark.png';
+import stockProfile from '../../../assets/icons/stock_profile.jpg';
 
 
 const CommunityInfoDetail = () => {
@@ -31,13 +31,17 @@ const CommunityInfoDetail = () => {
                 id: c.commentId,
                 user: c.nickname || `User ${c.userId}`,
                 text: c.content,
-                avatar: `https://i.pravatar.cc/150?u=${c.userId}`,
+                avatar: (!c.profileImage || c.profileImage.includes('default_avatar')) 
+                    ? stockProfile 
+                    : c.profileImage,
                 createdAt: c.createdAt,
                 children: c.replies ? c.replies.map(child => ({
                     id: child.commentId,
                     user: child.nickname || `User ${child.userId}`,
                     text: child.content,
-                    avatar: `https://i.pravatar.cc/150?u=${child.userId}`,
+                    avatar: (!child.profileImage || child.profileImage.includes('default_avatar')) 
+                        ? stockProfile 
+                        : child.profileImage,
                     createdAt: child.createdAt,
                     children: [] 
                 })) : []
@@ -57,16 +61,23 @@ const CommunityInfoDetail = () => {
                 const data = response.data;
 
                 if (data) {
+                    // 날짜 포맷팅 함수
+                    const formatDate = (start, end) => {
+                        if (!start && !end) return "미정";
+                        return `${start || ''} ~ ${end || ''}`;
+                    };
+
                     setInfo({
                         id: data.postId,
                         title: data.title || "제목 없음",
                         orgName: "다가가정보지원", // 고정값
-                        content: data.content || "내용이 없습니다.",
+                        content: data.content,
                         image: data.imageUrls?.[0] || 'https://via.placeholder.com/600x800/F8B15E/FFFFFF?text=No+Image',
                         contact: data.contact || "",
                         capacity: data.capacity || "",
-                        startDate: "미정", // TODO: 백엔드에서 날짜 필드 추가 필요
-                        endDate: "미정",
+                        // Format dates using helper
+                        applicationPeriod: formatDate(data.regStartDate, data.regEndDate),
+                        progressPeriod: formatDate(data.progStartDate, data.progEndDate),
                         isLiked: false, // TODO: 좋아요 기능 구현 시 수정
                         isBookmarked: false // TODO: 북마크 기능 구현 시 수정
                     });
@@ -128,7 +139,12 @@ const CommunityInfoDetail = () => {
         return list.map(cmt => (
             <div key={cmt.id}>
                 <div className="comment-item">
-                    <img src={cmt.avatar} alt={cmt.user} className="comment-avatar" />
+                    <img 
+                        src={cmt.avatar} 
+                        alt={cmt.user} 
+                        className="comment-avatar" 
+                        onError={(e) => {e.target.src = stockProfile}} 
+                    />
                     <div className="comment-text-wrapper">
                         <span className="comment-author">
                             {cmt.user}
@@ -154,6 +170,11 @@ const CommunityInfoDetail = () => {
     return (
         <div className="community-detail-container">
             <Container>
+                <div className="detail-header-nav">
+                    <button className="detail-back-btn" onClick={() => navigate(-1)}>
+                        <span>←</span> 목록으로 돌아가기
+                    </button>
+                </div>
                 <div className="detail-card">
                     {/* Left Side: Image */}
                     <div className="detail-left">
@@ -169,9 +190,6 @@ const CommunityInfoDetail = () => {
                             </div>
                             <div className="detail-actions">
                                 <button className="detail-icon-btn">
-                                    <img src={info.isLiked ? heartIcon : unheartIcon} alt="Like" />
-                                </button>
-                                <button className="detail-icon-btn">
                                     <img src={info.isBookmarked ? bookmarkedIcon : unbookmarkIcon} alt="Bookmark" />
                                 </button>
                             </div>
@@ -182,17 +200,19 @@ const CommunityInfoDetail = () => {
                         <div className="detail-periods">
                             <div className="detail-period-row">
                                 <span className="period-label">접수 기간</span>
-                                <span className="period-value">| {info.startDate} ~ {info.endDate}</span>
+                                <span className="period-value">| {info.applicationPeriod}</span>
                             </div>
                             <div className="detail-period-row">
                                 <span className="period-label">진행 기간</span>
-                                <span className="period-value">| {info.startDate} ~ {info.endDate}</span>
+                                <span className="period-value">| {info.progressPeriod}</span>
                             </div>
                         </div>
 
-                        <div className="detail-description">
-                            {info.content}
-                        </div>
+                        {info.content && (
+                            <div className="detail-description">
+                                {info.content}
+                            </div>
+                        )}
 
                         <div className="detail-comments-section">
                             <div className="comment-list">
