@@ -7,6 +7,7 @@ import com.dagaga.domain.translate.service.TranslateService;
 import com.dagaga.domain.learning.service.QuestionService;
 import com.dagaga.domain.learning.dto.QuestionResponse;
 import com.dagaga.domain.learning.dto.QuestionWithExampleResponse;
+import com.dagaga.domain.learning.dto.NativeQuestionResponse;
 import com.dagaga.domain.translate.dto.TranslateFileData;
 import com.dagaga.domain.security.CurrentUser;
 
@@ -213,16 +214,17 @@ public class LearningController {
                         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = ApiConstants.BAD_REQUEST_CODE, description = "잘못된 카테고리 또는 순서")
         })
         @GetMapping("/categories/{categoryId}/stages/{orderIndex}/native")
-        public ResponseEntity<ApiResponse<String>> getQuestionTextForNativeMode(
+        public ResponseEntity<ApiResponse<NativeQuestionResponse>> getQuestionTextForNativeMode(
                         @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true) @PathVariable String categoryId,
                         @Parameter(description = "질문 순서 (1부터 시작)", required = true) @PathVariable Integer orderIndex) {
-                log.info("Fetching native question text for category: {}, order: {}", categoryId, orderIndex);
+                String nativeLangCode = currentUser.getNativeLangCode();
+                log.info("Fetching native question text for category: {}, order: {}, NativeCode: {}", categoryId, orderIndex, nativeLangCode);
 
-                String questionText = questionService.getQuestionText(categoryId, orderIndex);
+                NativeQuestionResponse response = questionService.getQuestionForNativeMode(categoryId, orderIndex, nativeLangCode);
 
                 return ResponseEntity.ok(ApiResponse.success(
                                 "질문 조회 성공",
-                                questionText));
+                                response));
         }
 
         /**

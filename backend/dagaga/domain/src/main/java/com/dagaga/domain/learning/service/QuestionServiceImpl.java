@@ -2,6 +2,7 @@ package com.dagaga.domain.learning.service;
 
 import com.dagaga.domain.learning.dto.QuestionResponse;
 import com.dagaga.domain.learning.dto.QuestionWithExampleResponse;
+import com.dagaga.domain.learning.dto.NativeQuestionResponse;
 import com.dagaga.domain.learning.entity.QuestionBank;
 import com.dagaga.domain.learning.repository.QuestionBankRepository;
 import lombok.RequiredArgsConstructor;
@@ -52,17 +53,6 @@ public class QuestionServiceImpl implements QuestionService {
         }
 
         @Override
-        public String getQuestionText(String category, Integer orderIndex) {
-                log.info("Fetching question text for category: {}, orderIndex: {}", category, orderIndex);
-
-                return questionBankRepository.findByCategoryAndOrderIndex(category, orderIndex)
-                                .map(QuestionBank::getQuestionText)
-                                .orElseThrow(() -> new IllegalArgumentException(
-                                                String.format("질문을 찾을 수 없습니다. (카테고리: %s, 순서: %d)", category,
-                                                                orderIndex)));
-        }
-
-        @Override
         public QuestionWithExampleResponse getQuestionWithExample(String category,
                         Integer orderIndex, String nativeLangCode) {
                 log.info("Fetching question with example for category: {}, orderIndex: {}, nativeLangCode: {}",
@@ -88,5 +78,36 @@ public class QuestionServiceImpl implements QuestionService {
                 }
 
                 return builder.build();
+        }
+
+        @Override
+        public NativeQuestionResponse getQuestionForNativeMode(String category,
+                        Integer orderIndex, String nativeLangCode) {
+                log.info("Fetching question for native mode - category: {}, orderIndex: {}, nativeLangCode: {}",
+                                category, orderIndex, nativeLangCode);
+
+                QuestionBank question = questionBankRepository.findByCategoryAndOrderIndex(category, orderIndex)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                String.format("질문을 찾을 수 없습니다. (카테고리: %s, 순서: %d)", category,
+                                                                orderIndex)));
+
+                // 한국어 질문
+                String koreanQuestion = question.getQuestionText();
+
+                // 모국어 질문 (nativeLangCode에 따라)
+                String nativeQuestion;
+                if ("vi".equalsIgnoreCase(nativeLangCode)) {
+                        nativeQuestion = question.getViQuestions();
+                } else if ("zh".equalsIgnoreCase(nativeLangCode)) {
+                        nativeQuestion = question.getZhQuestions();
+                } else {
+                        // 기본값으로 한국어 질문 사용
+                        nativeQuestion = koreanQuestion;
+                }
+
+                return NativeQuestionResponse.builder()
+                                .koreanQuestion(koreanQuestion)
+                                .nativeQuestion(nativeQuestion)
+                                .build();
         }
 }
