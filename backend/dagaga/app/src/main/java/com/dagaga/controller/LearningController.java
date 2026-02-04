@@ -195,10 +195,10 @@ public class LearningController {
         public ResponseEntity<ApiResponse<List<QuestionResponse>>> getQuestionsByCategory(
                         @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true) @PathVariable String categoryId) {
                 log.info("Fetching questions for category: {}", categoryId);
-                // JWT에서 사용자의 모국어 코드 추출
-                String nativeLangCode = currentUser.getNativeLangCode();
+                // JWT에서 사용자의 뷰 코드 추출
+                String viewLangCode = currentUser.getViewLangCode();
 
-                List<QuestionResponse> questions = questionService.getQuestionsByCategory(categoryId, nativeLangCode);
+                List<QuestionResponse> questions = questionService.getQuestionsByCategory(categoryId, viewLangCode);
 
                 return ResponseEntity.ok(ApiResponse.success(
                                 String.format("'%s' 카테고리 질문 조회 성공", categoryId),
