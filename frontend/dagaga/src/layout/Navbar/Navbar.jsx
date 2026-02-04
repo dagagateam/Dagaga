@@ -2,13 +2,10 @@ import {
   Navbar as BootstrapNavbar,
   Nav,
   Container,
-  Dropdown,
 } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import logo from "../../assets/icons/logo.png";
-import alarm_bell from "../../assets/icons/alarm_bell.png";
-import bell from "../../assets/icons/bell.png";
 import "./Navbar.css";
 
 import { useUserStore } from "../../store/userStore";
@@ -41,7 +38,7 @@ const Navbar = () => {
       <Container fluid>
         {/* 로고 */}
         <BootstrapNavbar.Brand className="p-0">
-          <Link to={isLoggedIn ? "/Homepage" : "/"}>
+          <Link to="/Homepage">
             <img src={logo} alt="Dagaga Logo" style={{ height: "40px" }} />
           </Link>
         </BootstrapNavbar.Brand>
@@ -93,6 +90,16 @@ const Navbar = () => {
               </button>
             </div>
           </>
+        )}
+        {!isLoggedIn && (
+          <div className="ms-auto">
+            <button
+              className="logout-btn"
+              onClick={() => navigate('/Login')}
+            >
+              {t('login')}
+            </button>
+          </div>
         )}
       </Container>
     </BootstrapNavbar>

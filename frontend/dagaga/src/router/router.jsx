@@ -15,6 +15,7 @@ import MyPageEdit from "../pages/MyPageEdit/MyPageEdit";
 import AuthSuccess from "../pages/Login/AuthSuccess";
 import SocialSignup from "../pages/Signup/SocialSignup";
 import Homepage from "../pages/Homepage/Homepage";
+import ProtectedRoute from "../components/common/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -42,7 +43,11 @@ const router = createBrowserRouter([
     children: [
       {
         path: "ScenarioSelect",
-        element: <ScenarioSelect />,
+        element: (
+          <ProtectedRoute>
+            <ScenarioSelect />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "Homepage",
@@ -50,39 +55,75 @@ const router = createBrowserRouter([
       },
       {
         path: "ProblemSelect/:categoryId",
-        element: <ProblemSelect />,
+        element: (
+          <ProtectedRoute>
+            <ProblemSelect />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "Problem/:categoryId/:questionId",
-        element: <Problem />,
+        element: (
+          <ProtectedRoute>
+            <Problem />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "Community/Info",
-        element: <CommunityInfo />,
+        element: (
+          <ProtectedRoute>
+            <CommunityInfo />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "Community/Info/:id",
-        element: <CommunityInfoDetail />,
+        element: (
+          <ProtectedRoute>
+            <CommunityInfoDetail />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "ProblemTranslate/:categoryId/:problemId",
-        element: <ProblemNative />,
+        element: (
+          <ProtectedRoute>
+            <ProblemNative />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "Community/Chat",
-        element: <CommunityChatList />,
+        element: (
+          <ProtectedRoute>
+            <CommunityChatList />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "Community/Chat/room/:id",
-        element: <CommunityChatRoom />,
+        element: (
+          <ProtectedRoute>
+            <CommunityChatRoom />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "MyPage",
-        element: <MyPage />,
+        element: (
+          <ProtectedRoute>
+            <MyPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "MyPage/Edit",
-        element: <MyPageEdit />,
+        element: (
+          <ProtectedRoute>
+            <MyPageEdit />
+          </ProtectedRoute>
+        ),
       },
     ],
   },
