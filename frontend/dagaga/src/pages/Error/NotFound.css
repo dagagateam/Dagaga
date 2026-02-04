@@ -19,7 +19,7 @@
     max-width: 1000px;
     width: 100%;
     padding: 2rem;
-    transform: translateX(-40px);
+    padding-right: 5rem; /* Visually shifts content to left */
 }
 
 .not-found-text-content {
@@ -61,7 +61,7 @@
     max-width: 200px; /* Reduced from 300px */
     width: 100%;
     flex-shrink: 0;
-    transform: translateY(-30px);
+    margin-bottom: 60px; /* Visually shifts image up relative to centered vertical alignment */
 }
 
 .not-found-image img {
