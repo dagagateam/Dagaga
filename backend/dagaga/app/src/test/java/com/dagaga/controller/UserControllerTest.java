@@ -4,7 +4,7 @@ import com.dagaga.domain.user.dto.UserResponseDto;
 import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.dto.PasswordVerifyRequest;
 import com.dagaga.domain.user.service.UserService;
-import com.dagaga.chat.service.ChatRoomService;
+
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.security.jwt.JwtTokenProvider;
 import com.dagaga.security.redis.RedisTokenService;
@@ -53,8 +53,6 @@ class UserControllerTest {
         @MockitoBean
         private PasswordEncoder passwordEncoder;
 
-        @MockitoBean
-        private ChatRoomService chatRoomService;
 
         @MockitoBean
         private CurrentUser currentUser;
@@ -160,8 +158,7 @@ class UserControllerTest {
                                 .andExpect(status().isOk());
 
                 // then
-                // Verify that handleUserLocationChange is called
-                org.mockito.Mockito.verify(chatRoomService).handleUserLocationChange(userIdValue, oldLocationId, newLocationId);
+                org.mockito.Mockito.verify(userService).updateUser(eq(userIdValue), any(UserUpdateDto.class));
         }
 
         @Test
@@ -212,7 +209,6 @@ class UserControllerTest {
             request.setPassword("anyPassword"); // 소셜 유저는 어떤 값을 보내도 통과
 
             given(currentUser.getUserId()).willReturn(Optional.of(UserId.of(userIdValue)));
-            // userService.verifyPassword returns void on success (including social user skip)
 
             // when & then
             mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/users/verify-password")
