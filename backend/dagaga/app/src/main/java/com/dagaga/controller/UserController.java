@@ -137,7 +137,42 @@ public class UserController {
         Integer userId = currentUser.getUserId()
                 .map(UserId::getValue)
                 .orElseThrow(() -> new IllegalArgumentException("인증된 사용자 정보를 찾을 수 없습니다."));
-        return ResponseEntity.ok(userService.updateUser(userId, dto));
+
+        // 기존 유저 정보 조회 (지역 변경 확인용)
+        User currentUserInfo = userService.getUserById(userId);
+        Integer oldLocationId = currentUserInfo.getLocationId();
+
+        UserResponseDto updatedUser = userService.updateUser(userId, dto);
+
+        // 지역이 변경된 경우 채팅방 처리
+        if (dto.getLocationId() != null && !dto.getLocationId().equals(oldLocationId)) {
+            int maxRetries = 3;
+            int attempt = 0;
+            boolean success = false;
+
+            while (attempt < maxRetries && !success) {
+                try {
+                    attempt++;
+                    chatRoomService.handleUserLocationChange(userId, oldLocationId, dto.getLocationId());
+                    success = true;
+                } catch (Exception e) {
+                    log.error("지역 변경에 따른 채팅방 처리 실패 (시도 {}/{})", attempt, maxRetries, e);
+                    if (attempt == maxRetries) {
+                        log.error("지역 변경 채팅방 처리 최종 실패: userId={}, oldLoc={}, newLoc={}", userId, oldLocationId, dto.getLocationId());
+                        // 최종 실패 시에도 유저 정보 업데이트는 유지 (비즈니스 요구사항에 따라 달라질 수 있음)
+                    } else {
+                        try {
+                            Thread.sleep(100); // 잠시 대기 후 재시도
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return ResponseEntity.ok(updatedUser);
     }
 
     @PostMapping("/login")
