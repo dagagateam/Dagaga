@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Container, Modal } from 'react-bootstrap';
 import './CommunityChatList.css';
@@ -12,6 +13,7 @@ import LocationBadge from '../../../components/common/LocationBadge';
 import regionChatImage from '../../../assets/images/region_chat.png'; // Added import
 
 const CommunityChatList = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { user } = useUserStore();
     const [loading, setLoading] = useState(true);

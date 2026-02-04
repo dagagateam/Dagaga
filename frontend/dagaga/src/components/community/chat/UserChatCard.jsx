@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import './UserChatCard.css';
 import { joinChatRoom } from '../../../api/communityApi';
@@ -7,6 +8,7 @@ import { useUserStore } from '../../../store/userStore';
 import stockProfile from '../../../assets/icons/stock_profile.jpg';
 
 const UserChatCard = ({ chat }) => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { user } = useUserStore();
     const [joining, setJoining] = useState(false);
