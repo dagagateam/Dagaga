@@ -6,8 +6,7 @@ import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Pageable;
 
-import com.dagaga.chat.dto.MessageControllerDto.SendMessageRequest;
-import com.dagaga.chat.dto.MessageControllerDto.TargetedMessage;
+import com.dagaga.chat.dto.MessageServiceDto.TargetedMessageResult;
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageCommand;
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
 import com.dagaga.domain.chat.language.repository.LanguageRepository;
@@ -270,13 +269,13 @@ public class ChatMessageServiceTest {
             String originalText = "你好";
             String nativeLang = "en"; // User's native lang (sender)
 
-            SendMessageRequest req = new SendMessageRequest(roomId, originalText, null, null);
+            SaveMessageCommand cmd = new SaveMessageCommand(roomId, userId, originalText, nativeLang, null, null);
 
             // Mock User
             User mockUser = mock(User.class);
             given(mockUser.getNickname()).willReturn("User1");
             given(mockUser.getProfileImage()).willReturn("img.png");
-            given(mockUser.getNativeLangCode()).willReturn(nativeLang);
+
             given(userRepository.findById(userId)).willReturn(java.util.Optional.of(mockUser));
 
             // Mock dependencies for save()
@@ -306,17 +305,14 @@ public class ChatMessageServiceTest {
                     .willAnswer(invocation -> java.util.Optional.ofNullable(capturedMsg[0]));
 
             // when
-            List<TargetedMessage> results = chatMessageService.processAndReturnResponses(req, userId, locationId);
+            List<TargetedMessageResult> results = chatMessageService.processAndReturnResponses(cmd, locationId);
 
             // then
-            // 1. Validate Service calls
             verify(chatRoomService).getRoomAndValidateLocation(roomId, locationId);
 
-            // 2. Validate Results
-            // Expected: 1 original (zh) + 2 translations (en, vi) = 3 messages
             assertThat(results).hasSize(3);
 
-            List<String> targetLangs = results.stream().map(TargetedMessage::targetLang).toList();
+            List<String> targetLangs = results.stream().map(TargetedMessageResult::targetLang).toList();
             assertThat(targetLangs).containsExactlyInAnyOrder("zh", "en", "vi");
         }
 }
