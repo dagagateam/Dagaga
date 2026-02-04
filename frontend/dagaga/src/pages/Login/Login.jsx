@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { loginAPI } from '../../api/userApi';
 import './Login.css';
 import loginTiger from '../../assets/characters/login_tiger2.png';
-import logo from '../../assets/icons/logo2.png';
+import logo from '../../assets/icons/logo3.png';
 import LanguageSelector from '../../components/auth/LanguageSelector';
 import SocialButton from '../../components/auth/SocialButton';
 import Button from '../../components/common/Button';

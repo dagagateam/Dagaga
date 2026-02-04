@@ -5,7 +5,7 @@ import { Dropdown } from 'react-bootstrap';
 import { signupAPI, checkEmailAPI, checkNicknameAPI, requestVerificationAPI, confirmVerificationAPI } from '../../api/userApi';
 import './Signup.css';
 import loginTiger from '../../assets/characters/login_tiger2.png';
-import logo from '../../assets/icons/logo2.png';
+import logo from '../../assets/icons/logo3.png';
 import { area0, allAreas, getLocationId } from '../../data/regionData';
 import LanguageSelector from '../../components/auth/LanguageSelector';
 import Button from '../../components/common/Button';
