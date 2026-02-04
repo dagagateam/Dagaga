@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dagaga.chat.dto.ChatMessageResponse;
-import com.dagaga.domain.user.entity.User;
-import com.dagaga.domain.user.repository.UserRepository;
 import org.springframework.data.domain.PageRequest;
 import java.util.stream.Collectors;
 import java.util.List;
+
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Slf4j
 @Service
@@ -27,56 +27,84 @@ public class ChatMessageService {
     private final LanguageRepository languageRepository;
     private final TranslationPort translationPort;
     private final ChatRoomService chatRoomService;
-    private final UserRepository userRepository;
+    private final TransactionTemplate transactionTemplate;
 
     public ChatMessageService(ChatMessageRepository chatMessageRepository,
             LanguageRepository languageRepository,
             TranslationPort translationPort,
             ChatRoomService chatRoomService,
-            UserRepository userRepository) {
+            TransactionTemplate transactionTemplate) {
         this.chatMessageRepository = chatMessageRepository;
         this.languageRepository = languageRepository;
         this.translationPort = translationPort;
         this.chatRoomService = chatRoomService;
-        this.userRepository = userRepository;
+        this.transactionTemplate = transactionTemplate;
     }
 
-    @Transactional
     public SaveMessageResult save(SaveMessageCommand cmd) {
 
         // 순서: 메시지 생성 -> 번역 -> 번역본 추가 -> 원본+번역본 저장
 
-        // 원문 메시지 저장
-        ChatMessage msg = ChatMessage.create(
-                cmd.roomId(),
-                cmd.senderId(),
-                cmd.originalText(),
-                cmd.originalLang());
+        // 원본 메시지 저장 (트랜잭션)
+        ChatMessage msg = transactionTemplate.execute(status -> {
+            ChatMessage newMsg = ChatMessage.create(
+                    cmd.roomId(),
+                    cmd.senderId(),
+                    cmd.originalText(),
+                    cmd.originalLang());
+            return chatMessageRepository.save(newMsg);
+        });
 
-        // 타겟 언어 조회 (전체 지원 언어 중 원문 언어 제외)
-        List<String> targetLangs = languageRepository.findAllActiveLangCodes()
-                .stream()
-                .filter(lang -> !lang.equalsIgnoreCase(cmd.originalLang())) // 원문 언어 제외
-                .toList();
+        if (msg == null) {
+            throw new RuntimeException("메시지 저장 실패");
+        }
 
-        // 번역
+        // 번역 및 언어 감지
+        List<String> targetLangs = languageRepository.findAllActiveLangCodes();
         if (!targetLangs.isEmpty()) {
             try {
-                var translationMap = translationPort.translate(cmd.originalText(), cmd.originalLang(), targetLangs);
+                log.info("Detecting and translating text: {}", cmd.originalText());
+                var translationResult = translationPort.detectAndTranslate(cmd.originalText(), targetLangs);
 
-                translationMap.forEach((lang, translatedText) -> {
-                    MessageTranslation translation = MessageTranslation.create(msg, lang, translatedText);
-                    msg.addTranslation(translation);
-                });
+                // 번역 결과 업데이트
+                transactionTemplate.executeWithoutResult(status -> saveTranslations(msg.getMessageId(), translationResult));
+                
             } catch (Exception e) {
                 log.error("메시지 번역 처리 중 오류가 발생했습니다.", e);
             }
         }
+        
+        // 최종 상태 조회를 위해 다시 로드 (번역이 추가되었을 수 있으므로)
+        // 트랜잭션 내에서 조회하여 지연 로딩 문제 방지
+        return transactionTemplate.execute(status -> {
+            ChatMessage finalMsg = chatMessageRepository.findById(msg.getMessageId()).orElse(msg);
+            // 지연 로딩 초기화
+            finalMsg.getTranslations().size(); 
+            return new SaveMessageResult(finalMsg, finalMsg.getTranslations());
+        });
+    }
 
-        // 저장
-        ChatMessage savedMsg = chatMessageRepository.save(msg);
+    private void saveTranslations(Long messageId, com.dagaga.domain.chat.translate.port.TranslationResult result) {
+        ChatMessage msg = chatMessageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
 
-        return new SaveMessageResult(savedMsg, savedMsg.getTranslations());
+        String detectedLang = result.getDetectedLanguage();
+        log.info("Detected language: {}", detectedLang);
+
+        // 감지된 언어로 원본 언어 설정
+        if (detectedLang != null && !detectedLang.equals("unknown")) {
+            msg.setOriginalLang(detectedLang);
+        }
+
+        // 번역본 추가
+        result.getTranslations().forEach((lang, translatedText) -> {
+            // 원본 언어와 같은 번역본은 제외
+            if (!lang.equalsIgnoreCase(msg.getOriginalLang())) {
+                MessageTranslation translation = MessageTranslation.create(msg, lang, translatedText);
+                msg.addTranslation(translation);
+            }
+        });
+
     }
 
     @Transactional(readOnly = true)
