@@ -3,6 +3,7 @@ package com.dagaga.controller;
 import com.dagaga.domain.user.dto.UserResponseDto;
 import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.dto.PasswordVerifyRequest;
+import com.dagaga.domain.user.dto.PasswordFindRequest;
 import com.dagaga.domain.user.service.UserService;
 
 import com.dagaga.domain.user.entity.User;
@@ -217,5 +218,61 @@ class UserControllerTest {
                             .andExpect(status().isOk());
 
             org.mockito.Mockito.verify(userService).verifyPassword(userIdValue, "anyPassword");
+        }
+
+        @Test
+        @DisplayName("POST /api/v1/users/find-password - 성공")
+        void findPassword_Success() throws Exception {
+            // given
+            String email = "test@example.com";
+            PasswordFindRequest request = new PasswordFindRequest();
+            // Reflection to set email since no setter? 
+            // Wait, DTO has NoArgsConstructor but fields are private. 
+            // Usually RequestBody mapping uses setters or reflection. 
+            // Let's use reflection/ObjectMapper or just add a constructor or setter in test if needed.
+            // PasswordFindRequest uses @Getter @NoArgsConstructor. 
+            // Jackson can handle private fields.
+            // But for creating the object here manually? 
+            // We need to check PasswordFindRequest definition again.
+            // It has no setters. It has NoArgsConstructor.
+            // Jackson can deserialize JSON into it. 
+            // But here we need to create Java object to pass to objectMapper.writeValueAsString?
+            // Actually, we can just pass a Map or create the object via reflection.
+            
+            // Let's use reflection to set email
+            java.lang.reflect.Field emailField = PasswordFindRequest.class.getDeclaredField("email");
+            emailField.setAccessible(true);
+            emailField.set(request, email);
+
+            String tempPassword = "temporaryPassword123";
+            
+            given(userService.findPassword(email)).willReturn(tempPassword);
+
+            // when & then
+            mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/users/find-password")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                            .andExpect(status().isOk())
+                            .andExpect(jsonPath("$.email").value(email))
+                            .andExpect(jsonPath("$.tempPassword").value(tempPassword));
+        }
+
+        @Test
+        @DisplayName("POST /api/v1/users/find-password - 실패 (가입되지 않음)")
+        void findPassword_Fail_NotFound() throws Exception {
+            // given
+            String email = "unknown@example.com";
+            PasswordFindRequest request = new PasswordFindRequest();
+            java.lang.reflect.Field emailField = PasswordFindRequest.class.getDeclaredField("email");
+            emailField.setAccessible(true);
+            emailField.set(request, email);
+
+            given(userService.findPassword(email)).willThrow(new IllegalArgumentException("가입되지 않았습니다"));
+
+            // when & then
+            mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/users/find-password")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                            .andExpect(status().is4xxClientError()); // Assuming GlobalExceptionHandler maps IllegalArgumentException to 400 or similar
         }
 }
