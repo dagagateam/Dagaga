@@ -39,7 +39,7 @@
 }
 
 .word.current {
-  color: var(--main-orange, #F3AE5C);
+  color: var(--main-orange);
 }
 
 .word.completed {
@@ -91,7 +91,7 @@
 
 /* Highlight animation during full sentence mode */
 .word.sentence-highlight {
-  color: var(--main-orange, #F3AE5C) !important;
+  color: var(--main-orange) !important;
   transform: scale(1.05);
   transition: all 0.3s ease;
 }
