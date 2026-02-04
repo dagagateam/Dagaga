@@ -9,7 +9,8 @@ const ProblemCard = ({
   words = [], 
   pronunciations = [],
   rotation, 
-  isActive, 
+  isActive,
+  isSemiActive, 
   onClick,
   onMouseEnter,
   onMouseLeave,
@@ -46,7 +47,7 @@ const ProblemCard = ({
 
   return (
     <div
-      className={`problem-card ${isActive ? "active" : ""}`}
+      className={`problem-card ${isActive ? "active" : isSemiActive ? "semi-active" : ""}`}
       style={{
         transform: `translateY(-50%) rotate(${rotation}deg)`,
       }}
