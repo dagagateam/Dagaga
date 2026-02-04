@@ -3,7 +3,7 @@
   height: 80px;
   border: none;
   border-radius: 50%;
-  background: #F3AE5C;
+  background: var(--main-orange);
   box-shadow: 0 6px 0 #C9954A;
   cursor: not-allowed;
   display: flex;

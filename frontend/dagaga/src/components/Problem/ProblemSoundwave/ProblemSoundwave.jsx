@@ -41,7 +41,8 @@ const ProblemSoundwave = ({ analyser, isRecording }) => {
         const x = i * (barWidth + gap);
         
         // Draw bar
-        ctx.fillStyle = '#F3AE5C';
+        const mainOrange = getComputedStyle(document.documentElement).getPropertyValue('--main-orange').trim();
+        ctx.fillStyle = mainOrange || '#F3AE5C';
         ctx.beginPath();
         ctx.roundRect(x, centerY - barHeight, barWidth, barHeight * 2, 3);
         ctx.fill();
