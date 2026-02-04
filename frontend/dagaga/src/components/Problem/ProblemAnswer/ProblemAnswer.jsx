@@ -67,7 +67,7 @@ const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIn
      </div>
       {/* Show repeat buttons for entire sentence during full sentence mode - visible only when all selected */}
       {isFullSentenceStep && (
-        <div className={`sentence-buttons ${isAllSelected ? 'visible' : ''}`}>
+        <div className="sentence-buttons visible">
           <ProblemRepeat onClick={onReplay} />
           <ProblemRepeatSlow onClick={onSlowReplay} />
         </div>

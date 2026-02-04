@@ -28,7 +28,8 @@ const Problem = () => {
   const currentStageIndex = scenarionStages.findIndex(s => s.questionId === parseInt(questionId));
 
   // Audio hooks
-  const { playTts, isPlaying: isTtsPlaying } = useTts();
+  /* Audio hooks: expose stopTts for cleanup */
+  const { playTts, isPlaying: isTtsPlaying, stopTts } = useTts();
 
   // State initialization
   const [data, setData] = useState(null);
@@ -174,15 +175,6 @@ const Problem = () => {
         if (data.problemText) {
           await playTts(data.problemText);
         }
-
-        // Wait a small beat
-        await new Promise(r => setTimeout(r, 500));
-
-        // Then play the current word
-        const currentWord = data.words[0]; // Always start with first word on load
-        if (currentWord) {
-          await playTts(currentWord);
-        }
       }
     };
     playSeq();
@@ -202,24 +194,7 @@ const Problem = () => {
   }, [currentStep, words, playTts, exampleAnswer]);
 
 
-  // Animate through words during full sentence step
-  useEffect(() => {
-    if (isFullSentenceStep && !isProblemDone) {
-      setSentenceHighlightIndex(0);
-      let currentIndex = 0;
-      // Slower interval for karaoke effect (e.g., 500ms per word or based on sentence length)
-      const interval = setInterval(() => {
-        currentIndex++;
-        if (currentIndex < words.length) {
-          setSentenceHighlightIndex(currentIndex);
-        } else {
-          setSentenceHighlightIndex(-1); // Resets to all selected
-          clearInterval(interval);
-        }
-      }, 600);
-      return () => clearInterval(interval);
-    }
-  }, [isFullSentenceStep, isProblemDone, words.length]);
+
 
   // Handle step completion
   const handleStepComplete = (result) => {
@@ -238,16 +213,29 @@ const Problem = () => {
     }
   };
 
+  // Cleanup TTS on unmount
+  useEffect(() => {
+    return () => {
+      stopTts();
+    };
+  }, [stopTts]);
+
   const handleReturn = () => navigate(-1);
 
   const handleRetry = () => {
+    stopTts();
     setCurrentStep(0);
     setWordResults({});
     setCurrentTries(0);
-    setSentenceHighlightIndex(0);
-    // Reset auto-play ref? Probably not if we don't want to re-read question on retry
-    // If we DO want to re-read question on retry, reset:
-    // initialAudioPlayedRef.current = false; 
+    setSentenceHighlightIndex(-1); // Ensure it's reset to -1 (default)
+    initialAudioPlayedRef.current = true; // Mark as played since we manual play below
+    
+    // Manually replay the header question
+    if (data && data.problemText) {
+      setTimeout(() => {
+        playTts(data.problemText);
+      }, 100); // Small delay to ensure state settles
+    }
   };
 
   // Mock checkPronunciation since useSpeechApi usage was inconsistent in snippets
@@ -276,11 +264,11 @@ const Problem = () => {
 
       if (isCorrect) {
         // DEBUG: Pronunciation correct
-        // console.log("✓ Pronunciation correct!");
+        console.log("✓ Pronunciation correct!");
         handleStepComplete("correct");
       } else {
         // DEBUG: Pronunciation incorrect
-        // console.log("✗ Pronunciation incorrect");
+        console.log("✗ Pronunciation incorrect");
         const newTries = currentTries + 1;
         setCurrentTries(newTries);
 
