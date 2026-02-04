@@ -3,7 +3,7 @@ import { Container } from "react-bootstrap";
 import ScenarioCard from "../../components/ScenarioSelect/ScenarioCard";
 import { scenarios } from "../../data/scenarios";
 import "./ScenarioSelect.css";
-import study_tiger from "../../assets/characters/study_tiger.png";
+import study_tiger from "../../assets/characters/study_tiger2.png";
 
 const ScenarioSelect = () => {
   const [selectedScenario, setSelectedScenario] = useState(() => {

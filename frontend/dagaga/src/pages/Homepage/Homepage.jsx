@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import IntroRotateText from '../../components/Homepage/IntroRotateText/IntroRotateText';
@@ -9,6 +9,7 @@ import RouteCard from '../../components/Homepage/RouteCard/RouteCard';
 import learningImg from '../../assets/screenshots/scenario_select_screenshot_1.png';
 import chatImg from '../../assets/screenshots/chat_screenshot_1.png';
 import infoImg from '../../assets/screenshots/Info_screen_screenshot_1.png';
+import logo from '../../assets/icons/logo2.png';
 
 import './Homepage.css';
 
@@ -44,7 +45,11 @@ const Homepage = () => {
       <div className="homepage-hero-section">
         <div className="hero-content">
           <div className="hero-left">
-            <h1 className="hero-static-text">다가가{t('with_dgg')}</h1>
+            <h1 className="hero-static-text">
+              <Trans i18nKey="with_dgg">
+                <img src={logo} className="hero-logo-img" alt="Dagaga" />
+              </Trans>
+            </h1>
             <IntroRotateText
               texts={textItems}
               activeIndex={activeIndex}
@@ -91,22 +96,22 @@ const Homepage = () => {
 
       {/* Bottom Section: Navigation Cards */}
       <div className="homepage-navigation">
-        <RouteCard 
-          title="학습하기" 
-          body={<>다양한 시나리오로<br/>한국어를 연습하세요</>} 
-          onClick={() => handleNavClick('/ScenarioSelect')} 
+        <RouteCard
+          title={t('learning_navcard')}
+          body={t('learning_comment_navcard')}
+          onClick={() => handleNavClick('/ScenarioSelect')}
           image={learningImg}
         />
-        <RouteCard 
-          title="커뮤니티" 
-          body={<>다른 학습자들과<br/>이야기를 나누세요</>} 
-          onClick={() => handleNavClick('/Community/Chat')} 
+        <RouteCard
+          title={t('nav_community')}
+          body={t('community_comment_navcard')}
+          onClick={() => handleNavClick('/Community/Chat')}
           image={chatImg}
         />
-        <RouteCard 
-          title="정보공유" 
-          body={<>유용한 한국 생활 정보를<br/>확인하세요</>} 
-          onClick={() => handleNavClick('/Community/Info')} 
+        <RouteCard
+          title={t('info_navcard')}
+          body={t('info_comment_navcard')}
+          onClick={() => handleNavClick('/Community/Info')}
           image={infoImg}
         />
       </div>

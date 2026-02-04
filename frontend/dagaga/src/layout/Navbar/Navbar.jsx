@@ -5,7 +5,7 @@ import {
 } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import logo from "../../assets/icons/logo.png";
+import logo from "../../assets/icons/logo2.png";
 import "./Navbar.css";
 
 import { useUserStore } from "../../store/userStore";
