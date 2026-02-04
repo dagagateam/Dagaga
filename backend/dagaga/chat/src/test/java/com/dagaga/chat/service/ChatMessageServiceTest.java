@@ -50,6 +50,35 @@ public class ChatMessageServiceTest {
         @Mock
         private UserRepository userRepository;
 
+        @Mock
+        private org.springframework.transaction.support.TransactionTemplate transactionTemplate;
+
+        @org.junit.jupiter.api.BeforeEach
+        void setUp() {
+            // TransactionTemplate.execute()가 콜백을 즉시 실행하도록 설정
+            lenient().when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
+                org.springframework.transaction.support.TransactionCallback<Object> callback = invocation.getArgument(0);
+                return callback.doInTransaction(new org.springframework.transaction.support.SimpleTransactionStatus());
+            });
+
+            lenient().doAnswer(invocation -> {
+                java.util.function.Consumer<org.springframework.transaction.TransactionStatus> callback = invocation.getArgument(0);
+                callback.accept(new org.springframework.transaction.support.SimpleTransactionStatus());
+                return null;
+            }).when(transactionTemplate).executeWithoutResult(any());
+        }
+
+        // Reflection Helper
+        private void setMsgId(ChatMessage msg, Long id) {
+            try {
+                java.lang.reflect.Field field = ChatMessage.class.getDeclaredField("messageId");
+                field.setAccessible(true);
+                field.set(msg, id);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         @Test
         @DisplayName("Success: 모든 활성화된 언어(본인 제외)로 번역을 수행해야 한다")
         void save_shouldTranslateToAllSupportedLanguages_exceptOriginal() {
@@ -77,8 +106,20 @@ public class ChatMessageServiceTest {
                                 .willReturn(mockResult);
 
                 // 메시지 저장 Mocking
+                final ChatMessage[] capturedMsg = new ChatMessage[1];
                 given(chatMessageRepository.save(any(ChatMessage.class)))
-                                .willAnswer(invocation -> invocation.getArgument(0));
+                                .willAnswer(invocation -> {
+                                    ChatMessage msg = invocation.getArgument(0);
+                                    // ID 세팅 시늉 (실제로는 JPA가 함)
+                                    setMsgId(msg, 123L);
+                                    capturedMsg[0] = msg;
+                                    return msg;
+                                });
+                
+                // 메시지 조회 Mocking (saveTranslations용)
+                // 저장된 객체를 공유해야 업데이트가 반영됨
+                given(chatMessageRepository.findById(any()))
+                                .willAnswer(invocation -> java.util.Optional.ofNullable(capturedMsg[0]));
 
                 // when
                 SaveMessageResult result = chatMessageService.save(cmd);
@@ -87,8 +128,11 @@ public class ChatMessageServiceTest {
                 // TranslationPort가 올바른 타겟 언어들로 호출되었는지 검증
                 verify(translationPort, times(1)).detectAndTranslate(originalText, allActiveLangs);
 
-                // Repository 저장 1회 호출 검증
+                // Repository 저장 1회 호출 검증 (saveOriginalMessage)
                 verify(chatMessageRepository, times(1)).save(any(ChatMessage.class));
+                
+                // 조회 2회 (saveOriginalMessage 후, saveTranslations 전 / 후)
+                verify(chatMessageRepository, atLeastOnce()).findById(any());
 
                 // 반환값 검증: 번역된 결과 개수 (2개 -> 베트남어, 한국어)
                 assertThat(result.translations()).hasSize(2);
@@ -118,8 +162,20 @@ public class ChatMessageServiceTest {
                 given(translationPort.detectAndTranslate("你好", activeLangs))
                                 .willReturn(mockResult);
 
+                // 메시지 저장 & 조회 Mocking
+                // 저장된 객체를 캡처해서 findById가 반환하도록 설정 (Stateful Mock)
+                final ChatMessage[] capturedMsg = new ChatMessage[1];
+                
                 given(chatMessageRepository.save(any(ChatMessage.class)))
-                                .willAnswer(invocation -> invocation.getArgument(0));
+                                .willAnswer(invocation -> {
+                                    ChatMessage msg = invocation.getArgument(0);
+                                    setMsgId(msg, 100L);
+                                    capturedMsg[0] = msg;
+                                    return msg;
+                                });
+
+                given(chatMessageRepository.findById(any()))
+                                .willAnswer(invocation -> java.util.Optional.ofNullable(capturedMsg[0]));
 
                 // when
                 SaveMessageResult result = chatMessageService.save(cmd);
