@@ -5,7 +5,7 @@ import './CommunityChatRoom.css';
 import chattingTiger from '../../../assets/characters/chat_tiger.png';
 import EmojiPicker from 'emoji-picker-react';
 import ChatMessage from '../../../components/community/chat/ChatMessage';
-import { fetchChatMessages, fetchJoinedChats } from '../../../api/communityApi';
+import { fetchChatMessages, fetchJoinedChats, leaveChatRoom } from '../../../api/communityApi';
 import { useUserStore } from '../../../store/userStore';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
@@ -228,9 +228,16 @@ const CommunityChatRoom = () => {
         setShowEmojiPicker(false);
     };
 
-    const handleLeaveChat = () => {
+    const handleLeaveChat = async () => {
         if (window.confirm("채팅방을 나가시겠습니까?")) {
-            navigate('/community/chat');
+            try {
+                await leaveChatRoom(id);
+                // 성공 시 이동 (WebSocket 해제는 useEffect cleanup에서 처리됨)
+                navigate('/community/chat');
+            } catch (error) {
+                alert('채팅방 나가기에 실패했습니다.');
+                console.error(error);
+            }
         }
     };
 
