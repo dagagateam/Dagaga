@@ -38,15 +38,15 @@ const CommunityChatRoom = () => {
                 try {
                     const apiMessages = await fetchChatMessages(id);
                     // Map API response to UI model if necessary
-                    // API returns: { messageId, senderId, originalText, sentAt, ... }
-                    // UI expects: { id, sender, text, time, isMe }
-                    // We need to fetch user info or infer 'isMe'. For now assume senderId 123 is 'me' (this needs real user ID later)
+                    // API returns: { messageId, senderId, senderNickname, senderProfileImage, originalText, sentAt, ... }
+                    // UI expects: { id, sender, text, time, isMe, profileImage }
                     const mappedMessages = apiMessages.map(msg => ({
                         id: msg.messageId,
-                        sender: msg.senderId === currentUserId ? '나' : `User ${msg.senderId}`,
+                        sender: msg.senderNickname || `User ${msg.senderId}`,
                         text: msg.content,
                         time: new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                         isMe: msg.senderId === currentUserId,
+                        profileImage: msg.senderProfileImage,
                         type: 'text'
                     })).reverse(); // 최신 메시지가 아래에 오도록 정렬 순서 반전
                     setMessages(mappedMessages);
@@ -122,7 +122,7 @@ const CommunityChatRoom = () => {
                             
                             const newMsg = {
                                 id: receivedMsg.messageId,
-                                sender: receivedMsg.senderId === user.userId ? '나' : `User ${receivedMsg.senderId}`, // 닉네임 매핑 필요 시 추가 로직 필요
+                                sender: receivedMsg.senderNickname || `User ${receivedMsg.senderId}`, 
                                 text: receivedMsg.content, // 백엔드에서 이미 적절한 언어로 필터링되어 옴
                                 time: new Date(receivedMsg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                                 isMe: receivedMsg.senderId === user.userId,
