@@ -7,16 +7,16 @@ import { getUserMeAPI } from '../../api/userApi';
 const AuthSuccess = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const { login, setTokens } = useUserStore();
+    const { login, setAccessToken } = useUserStore();
 
     useEffect(() => {
         const handleAuth = async () => {
             const accessToken = searchParams.get('accessToken');
             const refreshToken = searchParams.get('refreshToken');
 
-            if (accessToken && refreshToken) {
-                // 1. 토큰 먼저 저장 (getUserMeAPI가 instance를 사용하므로 토큰이 필요함)
-                setTokens(accessToken, refreshToken);
+            if (accessToken) {
+                // 1. 토큰 먼저 저장 (refreshToken은 쿠키에 있을 수 있음)
+                setAccessToken(accessToken);
 
                 try {
                     // 2. 사용자 정보 조회
@@ -26,7 +26,7 @@ const AuthSuccess = () => {
                     login({
                         ...userInfo,
                         accessToken,
-                        refreshToken
+                        refreshToken: refreshToken || null
                     });
 
                     // 4. 메인 페이지로 이동
@@ -36,13 +36,13 @@ const AuthSuccess = () => {
                     navigate('/login?error=auth_failed');
                 }
             } else {
-                console.error('Missing tokens in OAuth redirect');
+                console.error('Missing accessToken in OAuth redirect');
                 navigate('/login?error=missing_tokens');
             }
         };
 
         handleAuth();
-    }, [searchParams, navigate, login, setTokens]);
+    }, [searchParams, navigate, login, setAccessToken]);
 
     return (
         <div className="auth-success-container" style={{
