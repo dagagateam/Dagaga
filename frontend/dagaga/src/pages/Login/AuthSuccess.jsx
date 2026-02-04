@@ -30,7 +30,7 @@ const AuthSuccess = () => {
                     });
 
                     // 4. 메인 페이지로 이동
-                    navigate('/ScenarioSelect');
+                    navigate('/Homepage');
                 } catch (error) {
                     console.error('Failed to fetch user info after social login:', error);
                     navigate('/login?error=auth_failed');
