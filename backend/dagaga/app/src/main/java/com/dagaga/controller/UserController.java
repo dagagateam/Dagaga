@@ -8,7 +8,7 @@ import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.dto.PasswordVerifyRequest;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.service.UserService;
-import com.dagaga.chat.service.ChatRoomService;
+
 import com.dagaga.security.dto.AuthResponse;
 import com.dagaga.security.jwt.JwtTokenProvider;
 import com.dagaga.domain.security.CurrentUser;
@@ -34,11 +34,10 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTokenService redisTokenService;
     private final CurrentUser currentUser;
-    private final ChatRoomService chatRoomService;
+
 
     @Value("${jwt.access-token-expiry}")
     private int accessTokenExpiry;
@@ -63,14 +62,6 @@ public class UserController {
         User user = userService.register(dto);
 
         // 회원가입 후 해당 지역의 기본 채팅방 자동 참여
-        try {
-            chatRoomService.joinDefaultRoom(user.getUserId(), dto.getLocationId());
-        } catch (Exception e) {
-            // 채팅방 참여 실패가 회원가입 전체 실패로 이어지지 않도록 로그만 남김
-            // 예: 기본 채팅방이 아직 생성되지 않은 경우 등
-            // TODO: 기본 채팅방 없을 때 자동 생성
-            log.error("기본 채팅방 참여 실패", e);
-        }
 
         return ResponseEntity.ok(user.getUserId());
     }
@@ -80,13 +71,6 @@ public class UserController {
             @RequestBody @Valid SocialSignupDto dto,
             HttpServletResponse response) {
         User user = userService.registerSocialUser(dto);
-
-        // 회원가입 후 해당 지역의 기본 채팅방 자동 참여
-        try {
-            chatRoomService.joinDefaultRoom(user.getUserId(), user.getLocationId());
-        } catch (Exception e) {
-            log.error("기본 채팅방 참여 실패", e);
-        }
 
         // 토큰 생성 및 응답
         String accessToken = jwtTokenProvider.generateAccessToken(
@@ -134,39 +118,7 @@ public class UserController {
                 .map(UserId::getValue)
                 .orElseThrow(() -> new IllegalArgumentException("인증된 사용자 정보를 찾을 수 없습니다."));
 
-        // 기존 유저 정보 조회 (지역 변경 확인용)
-        User currentUserInfo = userService.getUserById(userId);
-        Integer oldLocationId = currentUserInfo.getLocationId();
-
         UserResponseDto updatedUser = userService.updateUser(userId, dto);
-
-        // 지역이 변경된 경우 채팅방 처리
-        if (dto.getLocationId() != null && !dto.getLocationId().equals(oldLocationId)) {
-            int maxRetries = 3;
-            int attempt = 0;
-            boolean success = false;
-
-            while (attempt < maxRetries && !success) {
-                try {
-                    attempt++;
-                    chatRoomService.handleUserLocationChange(userId, oldLocationId, dto.getLocationId());
-                    success = true;
-                } catch (Exception e) {
-                    log.error("지역 변경에 따른 채팅방 처리 실패 (시도 {}/{})", attempt, maxRetries, e);
-                    if (attempt == maxRetries) {
-                        log.error("지역 변경 채팅방 처리 최종 실패: userId={}, oldLoc={}, newLoc={}", userId, oldLocationId, dto.getLocationId());
-                        // 최종 실패 시에도 유저 정보 업데이트는 유지 (비즈니스 요구사항에 따라 달라질 수 있음)
-                    } else {
-                        try {
-                            Thread.sleep(100); // 잠시 대기 후 재시도
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
-                            break;
-                        }
-                    }
-                }
-            }
-        }
 
         return ResponseEntity.ok(updatedUser);
     }

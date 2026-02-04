@@ -10,6 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.dagaga.chat.service.ChatRoomService;
+import com.dagaga.domain.user.dto.UserUpdateDto;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.BDDMockito.willThrow;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +32,9 @@ class UserServiceIntegrationTest {
 
         @Autowired
         private PasswordEncoder passwordEncoder;
+
+        @MockitoBean
+        private ChatRoomService chatRoomService;
 
         @Test
         @DisplayName("회원가입 성공 - 닉네임이 있을 때")
@@ -142,5 +150,37 @@ class UserServiceIntegrationTest {
                 assertThatThrownBy(() -> userService.authenticate(dto.getEmail(), dto.getPassword()))
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessageContaining("이메일 또는 비밀번호가 올바르지 않습니다");
+        }
+
+        @Test
+        @DisplayName("유저 정보 수정 - 채팅방 처리 실패 시 롤백 확인")
+        void updateUser_rollback_on_chat_failure() {
+                // given
+                String email = "rollback-test@example.com";
+                int oldLocationId = 100;
+                int newLocationId = 200;
+
+                User savedUser = userRepository.save(User.builder()
+                        .email(email)
+                        .password("password123")
+                        .nickname("rollbackTester")
+                        .viewLangCode("ko")
+                        .nativeLangCode("en")
+                        .locationId(oldLocationId)
+                        .build());
+                Integer userId = savedUser.getUserId();
+
+                UserUpdateDto updateDto = new UserUpdateDto();
+                updateDto.setLocationId(newLocationId);
+                updateDto.setNickname("newNickname");
+
+                // 채팅방 서비스가 예외를 던지도록 설정
+                willThrow(new IllegalStateException("Chat processing failed"))
+                        .given(chatRoomService).handleUserLocationChange(anyInt(), anyInt(), anyInt());
+
+                // when & then
+                assertThatThrownBy(() -> userService.updateUser(userId, updateDto))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessage("Chat processing failed");
         }
 }

@@ -1,7 +1,6 @@
 package com.dagaga.domain.user.service;
 
 import com.dagaga.domain.user.dto.SocialSignupDto;
-import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.dto.UserResponseDto;
 import com.dagaga.domain.user.dto.UserUpdateDto;
@@ -9,6 +8,9 @@ import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.context.ApplicationEventPublisher;
+import com.dagaga.domain.user.event.UserLocationUpdatedEvent;
+import com.dagaga.domain.user.event.UserRegisteredEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
 
     public void checkEmailDuplicate(String email) {
         if (userRepository.existsByEmail(email)) {
@@ -59,7 +62,9 @@ public class UserService {
                 .arrivalDate(dto.getArrivalDate())
                 .build();
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        eventPublisher.publishEvent(new UserRegisteredEvent(savedUser.getUserId(), savedUser.getLocationId()));
+        return savedUser;
     }
 
     @Transactional
@@ -79,7 +84,9 @@ public class UserService {
                 .isActive(true)
                 .build();
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        eventPublisher.publishEvent(new UserRegisteredEvent(savedUser.getUserId(), savedUser.getLocationId()));
+        return savedUser;
     }
 
     public Optional<User> findByEmail(String email) {
@@ -110,6 +117,7 @@ public class UserService {
     @Transactional
     public UserResponseDto updateUser(Integer userId, UserUpdateDto dto) {
         User user = getUserById(userId);
+        Integer oldLocationId = user.getLocationId();
 
         // 비밀번호가 제공된 경우 업데이트
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
@@ -135,6 +143,12 @@ public class UserService {
                 dto.getLocationId(),
                 dto.getArrivalDate(),
                 dto.getProfileImage());
+
+        // 지역이 변경되었으면 이벤트 발행
+        Integer newLocationId = user.getLocationId();
+        if (newLocationId != null && !newLocationId.equals(oldLocationId)) {
+            eventPublisher.publishEvent(new UserLocationUpdatedEvent(userId, oldLocationId, newLocationId));
+        }
 
         return UserResponseDto.from(user);
     }

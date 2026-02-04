@@ -14,6 +14,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import org.springframework.context.ApplicationEventPublisher;
+import com.dagaga.domain.user.event.UserLocationUpdatedEvent;
+import com.dagaga.domain.user.event.UserRegisteredEvent;
+
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -35,6 +39,9 @@ class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @Test
     @DisplayName("Register: Success with generated nickname")
@@ -64,6 +71,7 @@ class UserServiceTest {
         assertThat(result.getUserId()).isEqualTo(1);
         verify(userRepository).existsByNickname("tester");
         verify(userRepository).save(any(User.class));
+        verify(eventPublisher).publishEvent(any(UserRegisteredEvent.class));
     }
 
     @Test
@@ -183,6 +191,29 @@ class UserServiceTest {
 
         assertThat(result.getNickname()).isEqualTo("newNickname");
         verify(passwordEncoder).encode("newPassword123");
+    }
+
+    @Test
+    @DisplayName("Update My Profile: Location Change triggers Event")
+    void updateUser_locationChange_triggersEvent() {
+        Integer userId = 1;
+        Integer oldLocationId = 100;
+        Integer newLocationId = 200;
+        User user = User.builder()
+                .email("test@example.com")
+                .nickname("oldNickname")
+                .locationId(oldLocationId)
+                .build();
+        setUserId(user, userId);
+
+        UserUpdateDto updateDto = new UserUpdateDto();
+        updateDto.setLocationId(newLocationId);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+        userService.updateUser(userId, updateDto);
+
+        verify(eventPublisher).publishEvent(any(UserLocationUpdatedEvent.class));
     }
 
     @Test
