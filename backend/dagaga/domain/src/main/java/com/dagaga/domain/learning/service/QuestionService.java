@@ -13,7 +13,7 @@ public interface QuestionService {
      * @param category 카테고리명
      * @return 질문 목록
      */
-    List<QuestionResponse> getQuestionsByCategory(String category, String nativeLangCode);
+    List<QuestionResponse> getQuestionsByCategory(String category, String viewLangCode);
 
     /**
      * 카테고리와 순서로 질문 텍스트 조회 (모국어 모드용)

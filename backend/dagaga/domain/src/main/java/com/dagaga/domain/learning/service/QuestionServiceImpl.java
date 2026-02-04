@@ -21,13 +21,13 @@ public class QuestionServiceImpl implements QuestionService {
         private final QuestionBankRepository questionBankRepository;
 
         @Override
-        public List<QuestionResponse> getQuestionsByCategory(String category, String nativeLangCode) {
-                log.info("Fetching questions for category: {} with nativeLangcode: {}", category, nativeLangCode);
+        public List<QuestionResponse> getQuestionsByCategory(String category, String viewLangCode) {
+                log.info("Fetching questions for category: {} with nativeLangcode: {}", category, viewLangCode);
 
                 List<QuestionBank> questions = questionBankRepository.findByCategoryOrderByOrderIndex(category);
 
                 return questions.stream()
-                                .map(question -> convertToDto(question, nativeLangCode))
+                                .map(question -> convertToDto(question, viewLangCode))
                                 .collect(Collectors.toList());
         }
 
@@ -38,6 +38,8 @@ public class QuestionServiceImpl implements QuestionService {
                         viewQuestions = entity.getViQuestions();
                 } else if ("zh".equalsIgnoreCase(nativeLangCode)) {
                         viewQuestions = entity.getZhQuestions();
+                } else {
+                        viewQuestions = entity.getQuestionText();
                 }
 
                 return QuestionResponse.builder()
