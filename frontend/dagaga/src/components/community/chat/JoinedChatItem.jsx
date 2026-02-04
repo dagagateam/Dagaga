@@ -12,7 +12,7 @@ const JoinedChatItem = ({ chat }) => {
                 <span className="joined-chat-count">{chat.count}명</span>
             </div>
             <button className="enter-btn" onClick={() => navigate(`/Community/Chat/room/${chat.id}`)}>
-                입장
+                {t('enter')}
             </button>
         </div>
     );

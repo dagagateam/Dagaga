@@ -12,8 +12,8 @@ const UserChatCard = ({ chat }) => {
     const [joining, setJoining] = useState(false);
 
     // Profile image logic
-    const avatarSrc = (!chat.avatar || chat.avatar.includes('default_avatar')) 
-        ? stockProfile 
+    const avatarSrc = (!chat.avatar || chat.avatar.includes('default_avatar'))
+        ? stockProfile
         : chat.avatar;
 
     const handleJoinChat = async () => {
@@ -38,11 +38,11 @@ const UserChatCard = ({ chat }) => {
     return (
         <div className="user-chat-card">
             <div className="chat-card-header">
-                <img 
-                    src={avatarSrc} 
-                    alt={chat.creator} 
-                    className="creator-avatar" 
-                    onError={(e) => {e.target.src = stockProfile}}
+                <img
+                    src={avatarSrc}
+                    alt={chat.creator}
+                    className="creator-avatar"
+                    onError={(e) => { e.target.src = stockProfile }}
                 />
                 <span className="creator-name">{chat.creator}</span>
             </div>
@@ -50,16 +50,16 @@ const UserChatCard = ({ chat }) => {
             <h4 className="chat-title">{chat.title}</h4>
 
             <div className="chat-card-footer">
-                <button 
-                    className="user-join-btn" 
+                <button
+                    className="user-join-btn"
                     onClick={handleJoinChat}
                     disabled={joining}
                 >
-                    {joining ? '참여 중...' : '참여하기'}
+                    {joining ? '참여 중...' : t('participate')}
                 </button>
-                <span className="chat-participants">{chat.participantCount}명 참여중</span>
+                <span className="chat-participants">{chat.participantCount}{t('person_participating')}</span>
             </div>
-            
+
         </div>
     );
 };

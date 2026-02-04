@@ -100,7 +100,7 @@ const CommunityInfo = () => {
                         <input
                             type="text"
                             className="search-input"
-                            placeholder="검색어를 입력하세요 (제목, 기관, 내용)"
+                            placeholder={t('enter_search_info')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -120,7 +120,7 @@ const CommunityInfo = () => {
                                             <img src={info.image} alt={info.title} />
                                             {info.isExpired && (
                                                 <div className="expired-overlay">
-                                                    <span>마감</span>
+                                                    <span>{t('deadline')}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -146,11 +146,11 @@ const CommunityInfo = () => {
 
                                             <div className="info-periods">
                                                 <div className="period-row">
-                                                    <span className="period-label">접수 기간</span>
+                                                    <span className="period-label">{t('period_acceptance')}</span>
                                                     <span className="period-date">| {info.applicationPeriod}</span>
                                                 </div>
                                                 <div className="period-row">
-                                                    <span className="period-label">진행 기간</span>
+                                                    <span className="period-label">{t('period_progress')}</span>
                                                     <span className="period-date">| {info.progressPeriod}</span>
                                                 </div>
                                             </div>
@@ -161,7 +161,7 @@ const CommunityInfo = () => {
                         })
                     ) : (
                         <div className="no-results text-center py-5">
-                            검색 결과가 없습니다.
+                            {t('search_not_found')}
                         </div>
                     )}
                 </div>
