@@ -9,6 +9,7 @@ import UserChatCard from '../../../components/community/chat/UserChatCard';
 import JoinedChatItem from '../../../components/community/chat/JoinedChatItem';
 import Button from '../../../components/common/Button';
 import LocationBadge from '../../../components/common/LocationBadge';
+import regionChatImage from '../../../assets/images/region_chat.png'; // Added import
 
 const CommunityChatList = () => {
     const navigate = useNavigate();
@@ -65,8 +66,7 @@ const CommunityChatList = () => {
                             creator: chat.creatorNickname,
                             participantCount: chat.participantCount,
                             roomType: chat.roomType, // DEFAULT or CUSTOM
-                            avatar: `https://i.pravatar.cc/150?u=${chat.roomId}`,
-                            image: 'https://via.placeholder.com/150',
+                            avatar: chat.creatorProfileImage,
                             description: chat.title
                         }));
                         setLocationChats(mappedLocationChats);
@@ -134,8 +134,7 @@ const CommunityChatList = () => {
                         creator: chat.creatorNickname,
                         participantCount: chat.participantCount,
                         roomType: chat.roomType, // DEFAULT or CUSTOM
-                        avatar: `https://i.pravatar.cc/150?u=${chat.roomId}`,
-                        image: 'https://via.placeholder.com/150',
+                        avatar: chat.creatorProfileImage,
                         description: chat.title
                     }));
                     setLocationChats(mappedLocationChats);
@@ -200,7 +199,7 @@ const CommunityChatList = () => {
                                     </div>
                                 </div>
                                 <div className="regional-card-image">
-                                    <img src={regionalChats[0].image} alt={regionalChats[0].title} />
+                                    <img src={regionChatImage} alt={regionalChats[0].title} />
                                 </div>
                             </div>
                         </div>

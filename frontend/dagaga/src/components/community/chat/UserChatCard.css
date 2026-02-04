@@ -27,8 +27,8 @@
 }
 
 .creator-avatar {
-    width: 32px;
-    height: 32px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     object-fit: cover;
     background-color: #eee;
@@ -94,15 +94,3 @@
     font-weight: 500;
 }
 
-/* Decoration Line at Bottom */
-.card-decoration-line {
-    position: absolute;
-    bottom: 10px;
-    left: 12px;
-    right: 12px;
-    height: 4px;
-    background-color: #FFF3CD;
-    border-radius: 2px;
-    z-index: 0;
-    width: calc(100% - 24px);
-}

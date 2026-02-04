@@ -4,10 +4,17 @@ import './UserChatCard.css';
 import { joinChatRoom } from '../../../api/communityApi';
 import { useUserStore } from '../../../store/userStore';
 
+import stockProfile from '../../../assets/icons/stock_profile.jpg';
+
 const UserChatCard = ({ chat }) => {
     const navigate = useNavigate();
     const { user } = useUserStore();
     const [joining, setJoining] = useState(false);
+
+    // Profile image logic
+    const avatarSrc = (!chat.avatar || chat.avatar.includes('default_avatar')) 
+        ? stockProfile 
+        : chat.avatar;
 
     const handleJoinChat = async () => {
         if (!user || !user.userId) {
@@ -31,7 +38,12 @@ const UserChatCard = ({ chat }) => {
     return (
         <div className="user-chat-card">
             <div className="chat-card-header">
-                <img src={chat.avatar} alt={chat.creator} className="creator-avatar" />
+                <img 
+                    src={avatarSrc} 
+                    alt={chat.creator} 
+                    className="creator-avatar" 
+                    onError={(e) => {e.target.src = stockProfile}}
+                />
                 <span className="creator-name">{chat.creator}</span>
             </div>
 
@@ -48,7 +60,6 @@ const UserChatCard = ({ chat }) => {
                 <span className="chat-participants">{chat.participantCount}명 참여중</span>
             </div>
             
-            <div className="card-decoration-line"></div>
         </div>
     );
 };
