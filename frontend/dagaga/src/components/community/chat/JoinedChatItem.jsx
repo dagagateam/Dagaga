@@ -11,7 +11,7 @@ const JoinedChatItem = ({ chat }) => {
         <div className="joined-chat-item">
             <div className="joined-chat-info">
                 <span className="joined-chat-title">{chat.title}</span>
-                <span className="joined-chat-count">{chat.count}{t('person_count')}</span>
+                <span className="joined-chat-count">{chat.participantCount}{t('person_count')}</span>
             </div>
             <button className="enter-btn" onClick={() => navigate(`/Community/Chat/room/${chat.id}`)}>
                 {t('enter')}

@@ -48,7 +48,7 @@ const CommunityChatList = () => {
                         const mappedJoinedChats = joinedData.map(chat => ({
                             id: chat.roomId,
                             title: chat.title,
-                            count: chat.participantCount
+                            participantCount: chat.participantCount
                         }));
                         // DEBUG: Mapped joined chats
                         // console.log('Mapped joined chats:', mappedJoinedChats);
@@ -157,7 +157,7 @@ const CommunityChatList = () => {
                     const mappedJoinedChats = joinedData.map(chat => ({
                         id: chat.roomId,
                         title: chat.title,
-                        count: chat.participantCount
+                        participantCount: chat.participantCount
                     }));
                     setJoinedChats(mappedJoinedChats);
                 }
