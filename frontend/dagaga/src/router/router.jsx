@@ -16,6 +16,7 @@ import AuthSuccess from "../pages/Login/AuthSuccess";
 import SocialSignup from "../pages/Signup/SocialSignup";
 import Homepage from "../pages/Homepage/Homepage";
 import ProtectedRoute from "../components/common/ProtectedRoute";
+import NotFound from "../pages/Error/NotFound";
 
 const router = createBrowserRouter([
   {
@@ -96,6 +97,10 @@ const router = createBrowserRouter([
         ],
       },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);
 
