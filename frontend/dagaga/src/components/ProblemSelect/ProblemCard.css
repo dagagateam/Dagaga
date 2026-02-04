@@ -23,6 +23,10 @@
   height: 7rem; /* Fixed height for default state */
 }
 
+.problem-card.semi-active {
+  background-color: var(--main-orange);
+}
+
 .problem-card.active {
   background-color: var(--main-orange);
   /* Width stays the same as default to be "standardized horizontally" */
