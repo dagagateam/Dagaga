@@ -111,3 +111,14 @@ export const updateUserMeAPI = async (userData) => {
         throw error;
     }
 };
+
+export const verifyPasswordAPI = async (password) => {
+    try {
+        // 비밀번호 검증 API 호출
+        await instance.post('/users/verify-password', { password });
+        return true;
+    } catch (error) {
+        console.error("Verify Password API Error:", error);
+        throw error;
+    }
+};
