@@ -19,7 +19,7 @@
 }
 
 .scenario-button.selected {
-  background-color: #e8a549;
+  background-color: var(--main-orange);
 }
 
 .scenario-button-text {

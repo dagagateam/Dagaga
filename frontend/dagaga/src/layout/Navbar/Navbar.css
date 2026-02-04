@@ -52,11 +52,11 @@
   font-family: var(--main-font);
   font-size: 1rem;
   font-weight: 600;
-  color: #F8B15E;
+  color: var(--main-orange);
   padding: 8px 16px;
   background-color: #FFF5E6;
   border-radius: 20px;
-  border: 2px solid #F8B15E;
+  border: 2px solid var(--main-orange);
 }
 
 .logout-btn {
@@ -64,7 +64,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: white;
-  background-color: #F8B15E;
+  background-color: var(--main-orange);
   border: none;
   padding: 8px 20px;
   border-radius: 20px;

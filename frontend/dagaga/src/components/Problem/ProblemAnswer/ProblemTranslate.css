@@ -3,7 +3,7 @@
   height: 30px;
   border: none;
   border-radius: 12px;
-  background: #F3AE5C;
+  background: var(--main-orange);
   box-shadow: 0 4px 0 #A8864D;
   display: flex;
   align-items: center;

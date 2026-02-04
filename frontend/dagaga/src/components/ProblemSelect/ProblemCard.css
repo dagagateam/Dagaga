@@ -26,7 +26,7 @@
 }
 
 .problem-card.active {
-  background-color: #e8a549;
+  background-color: var(--main-orange);
   width: fit-content; /* Allow expansion to fit content */
   max-width: 60dvw;   /* Cap it so it doesn't go off screen */
   min-height: 7.5rem; 
