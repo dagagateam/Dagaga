@@ -379,19 +379,24 @@ class ChatRoomServiceTest {
     }
 
     @Test
-    @DisplayName("Success: 기본 채팅방이 없으면 지역 이름을 포함하여 생성하고 참여함")
-    void joinDefaultRoom_shouldCreateRoomWithLocationName_whenRoomDoesNotExist() {
+    @DisplayName("Success: 기본 채팅방이 없으면 지역 이름을 포함하여 생성하고 참여함 (Admin 존재 시 Admin이 생성자)")
+    void joinDefaultRoom_shouldCreateRoomWithLocationName_whenRoomDoesNotExist_andAdminExists() {
         // given
         int userId = 1;
+        int adminId = 999;
         int locationId = 100;
         String districtName = "강남구";
 
         Location location = org.mockito.Mockito.mock(Location.class);
         given(location.getDistrictName()).willReturn(districtName);
 
+        User adminUser = User.builder().nickname("DagagaAdmin").build();
+        ReflectionTestUtils.setField(adminUser, "userId", adminId);
+
         given(chatRoomRepository.findByLocationIdAndRoomType(locationId, RoomType.DEFAULT))
                 .willReturn(Optional.empty());
         given(locationRepository.findById(locationId)).willReturn(Optional.of(location));
+        given(userRepository.findFirstByRole("ROLE_ADMIN")).willReturn(Optional.of(adminUser));
         
         // save 호출 시 인자 캡처를 위해 mock 설정
         given(chatRoomRepository.save(any(ChatRoom.class))).willAnswer(invocation -> {
@@ -409,9 +414,66 @@ class ChatRoomServiceTest {
         verify(chatRoomRepository).save(org.mockito.ArgumentMatchers.argThat(room -> 
             room.getTitle().equals("강남구 단체 채팅방") && 
             room.getRoomType() == RoomType.DEFAULT &&
-            room.getLocationId() == locationId
+            room.getLocationId() == locationId &&
+            room.getCreatorId() == adminId // Admin ID 확인
         ));
         
-        verify(chatRoomUserRepository).save(any(ChatRoomUser.class));
+        // 유저는 MEMBER로 참여해야 함
+        verify(chatRoomUserRepository).save(org.mockito.ArgumentMatchers.argThat(user -> 
+            user.getId().getUserId().equals(userId) &&
+            user.getRole() == Role.MEMBER
+        ));
+    }
+
+    @Test
+    @DisplayName("Success: Admin이 없으면 요청 유저가 생성자로 설정됨")
+    void joinDefaultRoom_shouldUseRequesterAsCreator_whenAdminDoesNotExist() {
+        // given
+        int userId = 1;
+        int locationId = 100;
+        String districtName = "강남구";
+
+        Location location = org.mockito.Mockito.mock(Location.class);
+        given(location.getDistrictName()).willReturn(districtName);
+
+        given(chatRoomRepository.findByLocationIdAndRoomType(locationId, RoomType.DEFAULT))
+                .willReturn(Optional.empty());
+        given(locationRepository.findById(locationId)).willReturn(Optional.of(location));
+        given(userRepository.findFirstByRole("ROLE_ADMIN")).willReturn(Optional.empty());
+        
+        given(chatRoomRepository.save(any(ChatRoom.class))).willAnswer(invocation -> {
+            ChatRoom room = invocation.getArgument(0);
+            ReflectionTestUtils.setField(room, "roomId", 1);
+            return room;
+        });
+
+        // when
+        chatRoomService.joinDefaultRoom(userId, locationId);
+
+        // then
+        verify(chatRoomRepository).save(org.mockito.ArgumentMatchers.argThat(room -> 
+            room.getCreatorId() == userId
+        ));
+    }
+
+    @Test
+    @DisplayName("Fail: 기본 채팅방 삭제 시도는 항상 실패해야 함")
+    void deleteRoom_shouldThrowException_whenRoomIsDefault() {
+        // given
+        int roomId = 1;
+        int requesterId = 100; // 방 생성자라고 가정해도
+
+        ChatRoom room = ChatRoom.builder()
+                .roomId(roomId)
+                .roomType(RoomType.DEFAULT)
+                .creatorId(requesterId)
+                .build();
+
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
+
+        // when & then
+        assertThatThrownBy(() -> chatRoomService.deleteRoom(roomId, requesterId))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("기본 채팅방은 삭제할 수 없습니다");
     }
 }
