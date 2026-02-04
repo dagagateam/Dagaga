@@ -5,8 +5,9 @@ import com.dagaga.chat.dto.MessageControllerDto.SendMessageResponse;
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
 import com.dagaga.chat.service.ChatMessageService;
 import com.dagaga.chat.service.ChatRoomService;
+import com.dagaga.domain.user.entity.User;
+import com.dagaga.domain.user.repository.UserRepository;
 import com.dagaga.security.principal.UserPrincipal;
-import com.dagaga.domain.user.value.UserId;
 import jakarta.validation.Valid;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -19,13 +20,16 @@ public class ChatStompController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageService chatMessageService;
     private final ChatRoomService chatRoomService;
+    private final UserRepository userRepository;
 
     public ChatStompController(SimpMessagingTemplate messagingTemplate,
             ChatMessageService chatMessageService,
-            ChatRoomService chatRoomService) {
+            ChatRoomService chatRoomService,
+            UserRepository userRepository) {
         this.messagingTemplate = messagingTemplate;
         this.chatMessageService = chatMessageService;
         this.chatRoomService = chatRoomService;
+        this.userRepository = userRepository;
     }
 
     // 송신 -> /pub/chat/message
@@ -40,6 +44,10 @@ public class ChatStompController {
         Authentication auth = (Authentication) principal;
         UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
 
+        // 최신 닉네임과 프로필 이미지를 위해 User 엔티티 조회
+        User sender = userRepository.findById(userPrincipal.getUserId().getValue())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
         // 지역 검증
         chatRoomService.getRoomAndValidateLocation(req.roomId(), userPrincipal.getLocationId());
 
@@ -49,7 +57,12 @@ public class ChatStompController {
 
         // 원문 언어 사용자들에게 전송
         // /sub/chat/rooms/{roomId}/{originalLang}
-        SendMessageResponse originalPayload = SendMessageResponse.from(savedResult, savedResult.message().getOriginalLang());
+        SendMessageResponse originalPayload = SendMessageResponse.from(
+                savedResult, 
+                savedResult.message().getOriginalLang(),
+                sender.getNickname(),
+                sender.getProfileImage());
+                
         messagingTemplate.convertAndSend(
                 "/sub/chat/rooms/" + req.roomId() + "/" + savedResult.message().getOriginalLang(),
                 originalPayload);
@@ -58,7 +71,12 @@ public class ChatStompController {
         // /sub/chat/rooms/{roomId}/{targetLang}
         if (savedResult.translations() != null) {
             savedResult.translations().forEach(translation -> {
-                SendMessageResponse translatedPayload = SendMessageResponse.from(savedResult, translation.getTargetLang());
+                SendMessageResponse translatedPayload = SendMessageResponse.from(
+                        savedResult, 
+                        translation.getTargetLang(),
+                        sender.getNickname(),
+                        sender.getProfileImage());
+                        
                 messagingTemplate.convertAndSend(
                         "/sub/chat/rooms/" + req.roomId() + "/" + translation.getTargetLang(),
                         translatedPayload);

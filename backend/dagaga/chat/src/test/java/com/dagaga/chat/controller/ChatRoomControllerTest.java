@@ -124,6 +124,22 @@ public class ChatRoomControllerTest {
     }
 
     @Test
+    @DisplayName("Success: 채팅방 나가기 성공 시 200 OK 반환")
+    void leaveChatRoom_shouldReturnOk() throws Exception {
+        // given
+        int roomId = 10;
+        int userId = 1;
+        
+        given(currentUser.getUserId()).willReturn(Optional.of(UserId.of(userId)));
+        
+        // when & then
+        mockMvc.perform(post("/api/v1/community/chats/{roomId}/leave", roomId))
+                .andExpect(status().isOk());
+
+        verify(chatRoomService).leaveRoom(userId, roomId);
+    }
+
+    @Test
     @DisplayName("Fail: 채팅방 삭제 권한 없을 시(Service예외) 400 Bad Request (혹은 예외전파)")
     void deleteChatRoom_shouldReturnError_whenServiceThrowsException() throws Exception {
         // given

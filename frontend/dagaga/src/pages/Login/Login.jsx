@@ -125,7 +125,7 @@ const Login = () => {
                             <div className="social-login">
                                 <SocialButton
                                     provider="google"
-                                    onClick={() => window.location.href = `${import.meta.env.VITE_BACKEND_URL}/oauth2/authorization/google`}
+                                    onClick={() => window.location.href = `/oauth2/authorization/google`}
                                 >
                                     {t('google_login')}
                                 </SocialButton>

@@ -7,6 +7,7 @@ import com.dagaga.domain.chat.room.repository.ChatRoomRepository;
 import com.dagaga.domain.chat.user.entity.ChatRoomUser;
 import com.dagaga.domain.chat.user.entity.ChatRoomUserId;
 import com.dagaga.domain.chat.user.entity.UserStatus;
+import com.dagaga.domain.chat.user.entity.Role;
 import com.dagaga.domain.chat.user.repository.ChatRoomUserRepository;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
@@ -221,9 +222,102 @@ class ChatRoomServiceTest {
         given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
 
         // when & then
+        // when & then
         assertThatThrownBy(() -> chatRoomService.joinRoom(userId, userLocationId, roomId))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("다른 지역 채팅방에는 접근할 수 없습니다");
+    }
+
+    @Test
+    @DisplayName("Success: 방장이 나가면 다음 오래된 멤버에게 방장이 위임됨")
+    void leaveRoom_shouldDelegateOwner_whenOwnerLeaves() {
+        // given
+        int roomId = 1;
+        int ownerId = 10;
+        int nextOwnerId = 11;
+
+        ChatRoom room = ChatRoom.builder().roomId(roomId).roomType(RoomType.CUSTOM).creatorId(ownerId).build();
+
+        ChatRoomUser owner = ChatRoomUser.builder()
+                .id(new ChatRoomUserId(roomId, ownerId))
+                .role(Role.OWNER)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        ChatRoomUser nextUser = ChatRoomUser.builder()
+                .id(new ChatRoomUserId(roomId, nextOwnerId))
+                .role(Role.MEMBER)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
+        given(chatRoomUserRepository.findById(new ChatRoomUserId(roomId, ownerId))).willReturn(Optional.of(owner));
+        given(chatRoomUserRepository.findFirstByIdRoomIdAndStatusOrderByJoinedAtAsc(roomId, UserStatus.ACTIVE))
+                .willReturn(Optional.of(nextUser));
+
+        // when
+        chatRoomService.leaveRoom(ownerId, roomId);
+
+        // then
+        assertThat(owner.getStatus()).isEqualTo(UserStatus.LEFT);
+        assertThat(owner.getRole()).isEqualTo(Role.MEMBER);
+        assertThat(nextUser.getRole()).isEqualTo(Role.OWNER);
+        assertThat(room.getCreatorId()).isEqualTo(nextOwnerId);
+    }
+
+    @Test
+    @DisplayName("Success: 커스텀 방의 마지막 인원이 나가면 방이 DELETED 상태가 됨")
+    void leaveRoom_shouldDeleteRoom_whenCustomRoomBecomesEmpty() {
+        // given
+        int roomId = 1;
+        int userId = 10;
+
+        ChatRoom room = ChatRoom.builder().roomId(roomId).roomType(RoomType.CUSTOM).status(RoomStatus.ACTIVE).creatorId(userId).build();
+        ChatRoomUser user = ChatRoomUser.builder()
+                .id(new ChatRoomUserId(roomId, userId))
+                .role(Role.OWNER) // or MEMBER
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
+        given(chatRoomUserRepository.findById(new ChatRoomUserId(roomId, userId))).willReturn(Optional.of(user));
+        // 방장이면 위임 시도. 인원이 없으므로 Optional.empty()
+        given(chatRoomUserRepository.findFirstByIdRoomIdAndStatusOrderByJoinedAtAsc(roomId, UserStatus.ACTIVE))
+                .willReturn(Optional.empty());
+        given(chatRoomUserRepository.countByIdRoomIdAndStatus(roomId, UserStatus.ACTIVE)).willReturn(0L);
+
+        // when
+        chatRoomService.leaveRoom(userId, roomId);
+
+        // then
+        assertThat(user.getStatus()).isEqualTo(UserStatus.LEFT);
+        assertThat(room.getStatus()).isEqualTo(RoomStatus.DELETED);
+    }
+
+    @Test
+    @DisplayName("Success: 멤버가 나가도 방장이 존재하고 인원이 남으면 방은 ACTIVE 유지")
+    void leaveRoom_shouldKeepRoomActive_whenMemberLeavesAndRoomIsNotEmpty() {
+        // given
+        int roomId = 1;
+        int userId = 10;
+
+        ChatRoom room = ChatRoom.builder().roomId(roomId).roomType(RoomType.CUSTOM).status(RoomStatus.ACTIVE).creatorId(99).build();
+        ChatRoomUser user = ChatRoomUser.builder()
+                .id(new ChatRoomUserId(roomId, userId))
+                .role(Role.MEMBER)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
+        given(chatRoomUserRepository.findById(new ChatRoomUserId(roomId, userId))).willReturn(Optional.of(user));
+        given(chatRoomUserRepository.countByIdRoomIdAndStatus(roomId, UserStatus.ACTIVE)).willReturn(1L);
+
+        // when
+        chatRoomService.leaveRoom(userId, roomId);
+
+        // then
+        assertThat(user.getStatus()).isEqualTo(UserStatus.LEFT);
+        assertThat(room.getStatus()).isEqualTo(RoomStatus.ACTIVE);
     }
 
                 
@@ -285,19 +379,24 @@ class ChatRoomServiceTest {
     }
 
     @Test
-    @DisplayName("Success: 기본 채팅방이 없으면 지역 이름을 포함하여 생성하고 참여함")
-    void joinDefaultRoom_shouldCreateRoomWithLocationName_whenRoomDoesNotExist() {
+    @DisplayName("Success: 기본 채팅방이 없으면 지역 이름을 포함하여 생성하고 참여함 (Admin 존재 시 Admin이 생성자)")
+    void joinDefaultRoom_shouldCreateRoomWithLocationName_whenRoomDoesNotExist_andAdminExists() {
         // given
         int userId = 1;
+        int adminId = 999;
         int locationId = 100;
         String districtName = "강남구";
 
         Location location = org.mockito.Mockito.mock(Location.class);
         given(location.getDistrictName()).willReturn(districtName);
 
+        User adminUser = User.builder().nickname("DagagaAdmin").build();
+        ReflectionTestUtils.setField(adminUser, "userId", adminId);
+
         given(chatRoomRepository.findByLocationIdAndRoomType(locationId, RoomType.DEFAULT))
                 .willReturn(Optional.empty());
         given(locationRepository.findById(locationId)).willReturn(Optional.of(location));
+        given(userRepository.findFirstByRole("ROLE_ADMIN")).willReturn(Optional.of(adminUser));
         
         // save 호출 시 인자 캡처를 위해 mock 설정
         given(chatRoomRepository.save(any(ChatRoom.class))).willAnswer(invocation -> {
@@ -315,9 +414,66 @@ class ChatRoomServiceTest {
         verify(chatRoomRepository).save(org.mockito.ArgumentMatchers.argThat(room -> 
             room.getTitle().equals("강남구 단체 채팅방") && 
             room.getRoomType() == RoomType.DEFAULT &&
-            room.getLocationId() == locationId
+            room.getLocationId() == locationId &&
+            room.getCreatorId() == adminId // Admin ID 확인
         ));
         
-        verify(chatRoomUserRepository).save(any(ChatRoomUser.class));
+        // 유저는 MEMBER로 참여해야 함
+        verify(chatRoomUserRepository).save(org.mockito.ArgumentMatchers.argThat(user -> 
+            user.getId().getUserId().equals(userId) &&
+            user.getRole() == Role.MEMBER
+        ));
+    }
+
+    @Test
+    @DisplayName("Success: Admin이 없으면 요청 유저가 생성자로 설정됨")
+    void joinDefaultRoom_shouldUseRequesterAsCreator_whenAdminDoesNotExist() {
+        // given
+        int userId = 1;
+        int locationId = 100;
+        String districtName = "강남구";
+
+        Location location = org.mockito.Mockito.mock(Location.class);
+        given(location.getDistrictName()).willReturn(districtName);
+
+        given(chatRoomRepository.findByLocationIdAndRoomType(locationId, RoomType.DEFAULT))
+                .willReturn(Optional.empty());
+        given(locationRepository.findById(locationId)).willReturn(Optional.of(location));
+        given(userRepository.findFirstByRole("ROLE_ADMIN")).willReturn(Optional.empty());
+        
+        given(chatRoomRepository.save(any(ChatRoom.class))).willAnswer(invocation -> {
+            ChatRoom room = invocation.getArgument(0);
+            ReflectionTestUtils.setField(room, "roomId", 1);
+            return room;
+        });
+
+        // when
+        chatRoomService.joinDefaultRoom(userId, locationId);
+
+        // then
+        verify(chatRoomRepository).save(org.mockito.ArgumentMatchers.argThat(room -> 
+            room.getCreatorId() == userId
+        ));
+    }
+
+    @Test
+    @DisplayName("Fail: 기본 채팅방 삭제 시도는 항상 실패해야 함")
+    void deleteRoom_shouldThrowException_whenRoomIsDefault() {
+        // given
+        int roomId = 1;
+        int requesterId = 100; // 방 생성자라고 가정해도
+
+        ChatRoom room = ChatRoom.builder()
+                .roomId(roomId)
+                .roomType(RoomType.DEFAULT)
+                .creatorId(requesterId)
+                .build();
+
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
+
+        // when & then
+        assertThatThrownBy(() -> chatRoomService.deleteRoom(roomId, requesterId))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("기본 채팅방은 삭제할 수 없습니다");
     }
 }

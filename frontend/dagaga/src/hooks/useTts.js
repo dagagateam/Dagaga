@@ -83,7 +83,15 @@ export const useTts = () => {
         }
     }, []);
 
-    return { playTts, isPlaying, preloadTts };
+    const stopTts = useCallback(() => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+            setIsPlaying(false);
+        }
+    }, []);
+
+    return { playTts, isPlaying, preloadTts, stopTts };
 };
 
 // Module-level cache
