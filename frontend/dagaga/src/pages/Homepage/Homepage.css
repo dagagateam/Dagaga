@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   /* Remove fixed gap to allow flexibility */
-  /* gap: 3rem; */ 
+  /* gap: 3rem; */
 }
 
 .homepage-hero-section {
@@ -70,7 +70,8 @@
 }
 
 @keyframes pulse-scale {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -81,8 +82,6 @@
 .overflow-hidden {
   overflow: hidden;
 }
-
-
 
 .nav-card {
   background: white;
@@ -120,9 +119,6 @@
 }
 
 /* Ensure cursor targets work with new cursor */
-.cursor-target {
-  cursor: none; /* Hide default cursor on targets if handled by component */
-}
 
 @media (max-width: 768px) {
   .hero-static-text,
