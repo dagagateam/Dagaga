@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Container, Modal } from 'react-bootstrap';
 import './CommunityChatList.css';
@@ -12,6 +13,7 @@ import LocationBadge from '../../../components/common/LocationBadge';
 import regionChatImage from '../../../assets/images/region_chat.png'; // Added import
 
 const CommunityChatList = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { user } = useUserStore();
     const [loading, setLoading] = useState(true);
@@ -174,11 +176,11 @@ const CommunityChatList = () => {
                 {/* Header */}
                 <div className="chat-header">
                     <h2>
-                        채팅방
+                        {t('chat_room')}
                         <LocationBadge region={userRegion} />
                     </h2>
                     <Button className="create-chat-btn" onClick={() => setShowCreateModal(true)}>
-                        채팅방 생성하기 +
+                        {t('create_chat_room')}
                     </Button>
                 </div>
 
@@ -193,9 +195,9 @@ const CommunityChatList = () => {
                                     <h3 className="regional-card-title">{regionalChats[0].title}</h3>
                                     <div>
                                         <Button className="join-btn" onClick={() => navigate(`/Community/Chat/room/${regionalChats[0].id}`)}>
-                                            참여하기
+                                            {t('participate')}
                                         </Button>
-                                        <span className="participant-info">{regionalChats[0].participantCount}명 참여중</span>
+                                        <span className="participant-info">{regionalChats[0].participantCount}{t('person_participating')}</span>
                                     </div>
                                 </div>
                                 <div className="regional-card-image">
@@ -207,14 +209,14 @@ const CommunityChatList = () => {
 
                     {/* Right: Joined Chats */}
                     <div className="joined-chats-section">
-                        <h3 className="section-title">참여중인 채팅방</h3>
+                        <h3 className="section-title">{t('participating_chat_rooms')}</h3>
                         <div className="joined-chats-list">
                             {joinedChats && joinedChats.length > 0 ? (
                                 joinedChats.map(chat => (
                                     <JoinedChatItem key={chat.id} chat={chat} />
                                 ))
                             ) : (
-                                <div className="no-joined-chats">참여중인 채팅방이 없습니다.</div>
+                                <div className="no-joined-chats">{t('no_joined_chats')}</div>
                             )}
                         </div>
                     </div>
@@ -223,11 +225,11 @@ const CommunityChatList = () => {
                 {/* User Chat Section */}
                 <div className="user-chat-section">
                     <div className="user-chat-header">
-                        <span className="section-label-badge" style={{ marginBottom: 0 }}>사용자 채팅방</span>
+                        <span className="section-label-badge" style={{ marginBottom: 0 }}>{t('user_chat_rooms')}</span>
                         <input
                             type="text"
                             className="chat-search-input"
-                            placeholder="검색어를 입력하세요"
+                            placeholder={t('enter_search')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -239,7 +241,7 @@ const CommunityChatList = () => {
                                 <UserChatCard key={chat.id} chat={chat} />
                             ))
                         ) : (
-                            <div className="text-center py-5 w-100">검색 결과가 없습니다.</div>
+                            <div className="text-center py-5 w-100">{t('search_not_found')}</div>
                         )}
                     </div>
                 </div>
@@ -248,16 +250,16 @@ const CommunityChatList = () => {
             {/* Create Chat Room Modal */}
             <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>새 채팅방 만들기</Modal.Title>
+                    <Modal.Title>{t('new_chat_room')}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="mb-3">
-                        <label htmlFor="chatTitle" className="form-label">채팅방 제목</label>
+                        <label htmlFor="chatTitle" className="form-label">{t('chating_room_title')}</label>
                         <input
                             type="text"
                             id="chatTitle"
                             className="form-control"
-                            placeholder="채팅방 제목을 입력하세요"
+                            placeholder={t('input_chat_title')}
                             value={newChatTitle}
                             onChange={(e) => setNewChatTitle(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleCreateChatRoom()}
@@ -267,10 +269,10 @@ const CommunityChatList = () => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowCreateModal(false)} disabled={creating}>
-                        취소
+                        {t('cancel')}
                     </Button>
                     <Button onClick={handleCreateChatRoom} disabled={creating}>
-                        {creating ? '생성 중...' : '생성하기'}
+                        {creating ? t('creating') : t('create')}
                     </Button>
                 </Modal.Footer>
             </Modal>

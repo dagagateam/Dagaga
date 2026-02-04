@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import './CommunityInfo.css';
 import { Container, Row, Col, Card } from 'react-bootstrap';
@@ -13,6 +14,7 @@ import { useUserStore } from '../../../store/userStore';
 import LocationBadge from '../../../components/common/LocationBadge';
 
 const CommunityInfo = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { user, savedItems, likedPostIds, toggleSave, toggleLike } = useUserStore();
     const [infos, setInfos] = useState([]);
@@ -93,14 +95,14 @@ const CommunityInfo = () => {
             <Container>
                 <div className="info-header">
                     <div className="header-left">
-                        <h2>정보</h2>
+                        <h2>{t('nav_info')}</h2>
                         <LocationBadge region={userRegion} />
                     </div>
                     <div className="search-wrapper">
                         <input
                             type="text"
                             className="search-input"
-                            placeholder="검색어를 입력하세요 (제목, 기관, 내용)"
+                            placeholder={t('enter_search_info')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -120,7 +122,7 @@ const CommunityInfo = () => {
                                             <img src={info.image} alt={info.title} />
                                             {info.isExpired && (
                                                 <div className="expired-overlay">
-                                                    <span>마감</span>
+                                                    <span>{t('deadline')}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -146,11 +148,11 @@ const CommunityInfo = () => {
 
                                             <div className="info-periods">
                                                 <div className="period-row">
-                                                    <span className="period-label">접수 기간</span>
+                                                    <span className="period-label">{t('period_acceptance')}</span>
                                                     <span className="period-date">| {info.applicationPeriod}</span>
                                                 </div>
                                                 <div className="period-row">
-                                                    <span className="period-label">진행 기간</span>
+                                                    <span className="period-label">{t('period_progress')}</span>
                                                     <span className="period-date">| {info.progressPeriod}</span>
                                                 </div>
                                             </div>
@@ -161,7 +163,7 @@ const CommunityInfo = () => {
                         })
                     ) : (
                         <div className="no-results text-center py-5">
-                            검색 결과가 없습니다.
+                            {t('search_not_found')}
                         </div>
                     )}
                 </div>

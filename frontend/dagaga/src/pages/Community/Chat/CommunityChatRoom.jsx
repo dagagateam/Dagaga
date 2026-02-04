@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import './CommunityChatRoom.css';
@@ -12,6 +13,7 @@ import SockJS from 'sockjs-client';
 import stockProfile from '../../../assets/icons/stock_profile.jpg';
 
 const CommunityChatRoom = () => {
+    const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
     const fileInputRef = React.useRef(null);
@@ -90,12 +92,12 @@ const CommunityChatRoom = () => {
         if (!id || !user?.userId || !accessToken) return;
 
         console.log('Initiating WebSocket connection...');
-        
+
         // 백엔드 URL 결정 (환경 변수 또는 기본값)
         // 로컬 테스트 시 .env에 VITE_BACKEND_URL=http://localhost:8080 추가 권장
         const baseURL = import.meta.env.VITE_BACKEND_URL || 'https://i14b110.p.ssafy.io';
         const wsURL = baseURL.replace(/^http/, 'ws') + '/ws-chat';
-        
+
         console.log('Connecting to WebSocket URL:', wsURL);
 
         const client = new Client({
@@ -111,7 +113,7 @@ const CommunityChatRoom = () => {
             heartbeatOutgoing: 4000,
             onConnect: (frame) => {
                 console.log('STOMP Connected: ' + frame);
-                
+
                 // Subscribe to room messages (언어별 채널 구독)
                 const userNativeLang = user?.nativeLangCode || 'ko';
                 client.subscribe(`/sub/chat/rooms/${id}/${userNativeLang}`, (message) => {
@@ -119,7 +121,7 @@ const CommunityChatRoom = () => {
                         try {
                             const receivedMsg = JSON.parse(message.body);
                             console.log('Received message:', receivedMsg);
-                            
+
                             const newMsg = {
                                 id: receivedMsg.messageId,
                                 sender: receivedMsg.senderNickname || `User ${receivedMsg.senderId}`, 
@@ -134,7 +136,7 @@ const CommunityChatRoom = () => {
                                 // 중복 방지 (ID 기준)
                                 if (prev.some(m => m.id === newMsg.id)) return prev;
                                 // 최신 메시지가 아래에 오도록 정렬 순서 유지 (기존 reverse()와 매칭)
-                                return [...prev, newMsg]; 
+                                return [...prev, newMsg];
                             });
                         } catch (e) {
                             console.error('Failed to parse message body:', e);
@@ -277,20 +279,20 @@ const CommunityChatRoom = () => {
                     {/* Left Sidebar */}
                     <div className="chat-sidebar">
                         <div className="sidebar-header">
-                            <button 
-                                className="sidebar-back-btn" 
+                            <button
+                                className="sidebar-back-btn"
                                 onClick={() => navigate('/community/chat')}
                                 title="목록으로 돌아가기"
                             >
                                 ←
                             </button>
-                            <h3>참여중인 모임방</h3>
+                            <h3>{t('participating_chat_rooms')}</h3>
                         </div>
 
                         <div className="sidebar-search">
                             <input
                                 type="text"
-                                placeholder="모임방 이름을 검색하세요"
+                                placeholder={t('search_chat_name')}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -330,17 +332,17 @@ const CommunityChatRoom = () => {
                     <div className="chat-main">
                         <div className="chat-main-header">
                             <div className="header-user-info">
-                                <img 
-                                    src={(!currentRoomInfo?.creatorProfileImage || currentRoomInfo.creatorProfileImage.includes('default_avatar')) 
-                                        ? stockProfile 
-                                        : currentRoomInfo.creatorProfileImage} 
-                                    alt="User" 
+                                <img
+                                    src={(!currentRoomInfo?.creatorProfileImage || currentRoomInfo.creatorProfileImage.includes('default_avatar'))
+                                        ? stockProfile
+                                        : currentRoomInfo.creatorProfileImage}
+                                    alt="User"
                                     className="header-avatar"
-                                    onError={(e) => {e.target.src = stockProfile}}
+                                    onError={(e) => { e.target.src = stockProfile }}
                                 />
                                 <div>
                                     <div className="header-username">{currentRoomInfo?.creatorNickname}</div>
-                                    <div className="header-user-status">모임방 방장 👑</div>
+                                    <div className="header-user-status">{t('room_manager')}👑</div>
                                 </div>
                             </div>
                             <div style={{ position: 'relative' }}>
@@ -348,7 +350,7 @@ const CommunityChatRoom = () => {
                                 {showMoreMenu && (
                                     <div className="more-menu-dropdown">
                                         <button className="more-menu-item delete" onClick={handleLeaveChat}>
-                                            나가기
+                                            {t('chat_room_leave')}
                                         </button>
                                     </div>
                                 )}
@@ -375,7 +377,7 @@ const CommunityChatRoom = () => {
                             )}
                             <input
                                 type="text"
-                                placeholder="메세지 보내기"
+                                placeholder={t('send_msg')}
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                             />

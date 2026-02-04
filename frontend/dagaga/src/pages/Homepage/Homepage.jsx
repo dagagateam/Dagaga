@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import IntroRotateText from '../../components/Homepage/IntroRotateText/IntroRotateText';
@@ -12,14 +13,15 @@ import infoImg from '../../assets/screenshots/Info_screen_screenshot_1.png';
 import './Homepage.css';
 
 const Homepage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Text rotation items for top left
   const textItems = [
-    "한국어",
-    "소통",
-    "정보 확인",
+    t('lang_ko'),
+    t('communication_rotation'),
+    t('info_rotation'),
   ];
 
   // Synchronization effect - Single source of truth
@@ -42,7 +44,7 @@ const Homepage = () => {
       <div className="homepage-hero-section">
         <div className="hero-content">
           <div className="hero-left">
-            <h1 className="hero-static-text">다가가와 함께</h1>
+            <h1 className="hero-static-text">다가가{t('with_dgg')}</h1>
             <IntroRotateText
               texts={textItems}
               activeIndex={activeIndex}
@@ -57,9 +59,9 @@ const Homepage = () => {
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
             />
           </div>
-          
-          <div 
-            className="hero-right" 
+
+          <div
+            className="hero-right"
             style={{ height: '350px', width: '100%', position: 'relative', display: 'flex', justifyContent: 'center' }}
           >
             <CardSwap
@@ -71,16 +73,16 @@ const Homepage = () => {
               height={270}
             >
               <Card style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #EE5D5D 100%)' }}>
-                <h3>📚 학습</h3>
-                <p>재미있는 시나리오를 통해<br/>한국어를 배워보세요</p>
+                <h3>📚 {t('nav_learning')}</h3>
+                <p>{t('learning_swapcard')}</p>
               </Card>
               <Card style={{ background: 'linear-gradient(135deg, #4ECDC4 0%, #45B7AF 100%)' }}>
-                <h3>💬 소통</h3>
-                <p>다른 학습자들과<br/>자유롭게 대화하세요</p>
+                <h3>💬 {t('communication_rotation')}</h3>
+                <p>{t('community_swapcard')}</p>
               </Card>
               <Card style={{ background: 'linear-gradient(135deg, #45B7D1 0%, #3CA5BD 100%)' }}>
-                <h3>📰 정보</h3>
-                <p>한국 생활에 필요한<br/>다양한 정보를 얻으세요</p>
+                <h3>📰 {t('info_rotation')}</h3>
+                <p>{t('info_swapcard')}</p>
               </Card>
             </CardSwap>
           </div>
@@ -90,20 +92,20 @@ const Homepage = () => {
       {/* Bottom Section: Navigation Cards */}
       <div className="homepage-navigation">
         <RouteCard 
-          title="학습하기" 
-          body={<>다양한 시나리오로<br/>한국어를 연습하세요</>} 
+          title={t('learning_navcard')} 
+          body={t('learning_comment_navcard')}
           onClick={() => handleNavClick('/ScenarioSelect')} 
           image={learningImg}
         />
         <RouteCard 
-          title="커뮤니티" 
-          body={<>다른 학습자들과<br/>이야기를 나누세요</>} 
+          title={t('nav_community')}
+          body={t('community_comment_navcard')}
           onClick={() => handleNavClick('/Community/Chat')} 
           image={chatImg}
         />
         <RouteCard 
-          title="정보공유" 
-          body={<>유용한 한국 생활 정보를<br/>확인하세요</>} 
+          title={t('info_navcard')}
+          body={t('info_comment_navcard')}
           onClick={() => handleNavClick('/Community/Info')} 
           image={infoImg}
         />
