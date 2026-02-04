@@ -1,7 +1,7 @@
 .problem-card {
   position: absolute;
   /* Uniform width for both states */
-  width: 30rem; 
+  width: 25rem; 
   padding: 0.9375rem 1.5625rem;
   background-color: #d1d5db;
   border-radius: 0.9375rem;
@@ -32,7 +32,7 @@
   /* Width stays the same as default to be "standardized horizontally" */
   
   height: 10rem; /* Standardized Fixed Height */
-  width: 50rem;
+  width: 40rem;
   padding: 1.875rem 2.5rem; 
   z-index: 10; 
   /* Transition when expanding (default -> active): Synchronized */
