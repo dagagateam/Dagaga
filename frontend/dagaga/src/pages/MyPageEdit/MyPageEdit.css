@@ -62,3 +62,46 @@ label.text-muted {
     background-color: #ddd;
     border-radius: 3px;
 }
+
+/* Confirmation Modal Styles */
+.confirm-modal-dialog {
+    max-width: fit-content !important;
+    min-width: 400px;
+}
+
+.confirm-modal-header {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+}
+
+.confirm-modal-title {
+    font-weight: 700 !important; /* fw-bold */
+}
+
+.confirm-modal-body {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+}
+
+.confirm-modal-text {
+    margin: 0 !important;
+    text-align: center;
+    white-space: nowrap;
+    font-weight: 500; /* fw-medium */
+    font-size: 1.05rem;
+}
+
+.confirm-modal-footer {
+    border-top: none !important;
+    padding-top: 0 !important;
+    padding-bottom: 1.5rem !important;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.confirm-modal-btn {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    border-radius: 50rem !important; /* rounded-pill */
+    font-weight: 600 !important; /* fw-semibold */
+}
