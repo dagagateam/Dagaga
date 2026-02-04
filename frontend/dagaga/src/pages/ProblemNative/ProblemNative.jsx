@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Container } from "react-bootstrap";
 import ProblemProgress from "../../components/Problem/ProblemProgress/ProblemProgress";
@@ -8,6 +8,7 @@ import ProblemSoundwave from "../../components/Problem/ProblemSoundwave/ProblemS
 import ProblemMascot from "../../components/Problem/ProblemMascot/ProblemMascot";
 import BufferingButton from "../../components/ProblemNative/BufferingButton";
 import ProblemDone from "../../components/Problem/ProblemDone/ProblemDone";
+import ProblemRepeat from "../../components/Problem/ProblemRepeat/ProblemRepeatButton";
 import { useSpeechApi } from "../../api/useSpeechApi";
 import { useTts } from "../../hooks/useTts";
 import { fetchProblemNative } from "../../api/learningApi";
@@ -38,7 +39,7 @@ const ProblemNative = () => {
 
   // Post-translate state management (same as Problem page)
   const [currentStep, setCurrentStep] = useState(0);
-  const [sentenceHighlightIndex, setSentenceHighlightIndex] = useState(0);
+  const [sentenceHighlightIndex, setSentenceHighlightIndex] = useState(-1);
 
   // Pronunciation feedback state
   const [wordResults, setWordResults] = useState([]); // "correct" | "incorrect" | null for each word
@@ -106,41 +107,40 @@ const ProblemNative = () => {
   // Check if done
   const isProblemDone = currentStep >= totalSteps;
 
-  // Animate through words during full sentence step
+  // Track audio state
+  const lastPlayedStepRef = useRef(-1);
+  const initialHeaderPlayedRef = useRef(false);
+
+  // Remove Karaoke effect (deleted)
+
+  // Play header when entering pre-translate (Initial Load)
   useEffect(() => {
-    if (pageState === "post-translate" && isFullSentenceStep && !isProblemDone) {
-      setSentenceHighlightIndex(0);
-
-      let currentIndex = 0;
-      const interval = setInterval(() => {
-        currentIndex++;
-        if (currentIndex < words.length) {
-          setSentenceHighlightIndex(currentIndex);
-        } else {
-          setSentenceHighlightIndex(-1);
-          clearInterval(interval);
+    if (pageState === "pre-translate" && !initialHeaderPlayedRef.current) {
+        if (problemText && problemText !== "문제를 불러오는 중...") {
+            initialHeaderPlayedRef.current = true;
+            playTts(problemText);
         }
-      }, 800);
-
-      return () => clearInterval(interval);
     }
-  }, [pageState, isFullSentenceStep, isProblemDone, words.length]);
+  }, [pageState, problemText, playTts]);
 
   // Auto-play TTS when step changes (only in post-translate state)
   useEffect(() => {
     if (pageState !== "post-translate") return;
 
-    // Determine the text to play
-    let textToPlay = null;
-    if (currentStep < words.length) {
-      textToPlay = words[currentStep];
-    } else if (currentStep === words.length && !isProblemDone) {
-      // Full sentence step
-      textToPlay = words.join(" ");
-    }
+    // Skip step 0 (first word) auto-playing
+    if (currentStep > 0 && lastPlayedStepRef.current !== currentStep) {
+        let textToPlay = null;
+        if (currentStep < words.length) {
+            textToPlay = words[currentStep];
+        } else if (currentStep === words.length && !isProblemDone) {
+            // Full sentence step
+            textToPlay = words.join(" ");
+        }
 
-    if (textToPlay) {
-      playTts(textToPlay);
+        if (textToPlay) {
+            lastPlayedStepRef.current = currentStep;
+            playTts(textToPlay);
+        }
     }
   }, [pageState, currentStep, words, isProblemDone, playTts]);
 
@@ -172,6 +172,10 @@ const ProblemNative = () => {
     }
   };
 
+  const handlePlayWord = useCallback((text) => {
+    if (text) playTts(text, 'normal');
+  }, [playTts]);
+
   // Post-translate: move to next step
   const handleStepComplete = (result) => {
     // Update the result for the current word
@@ -200,20 +204,18 @@ const ProblemNative = () => {
     setCurrentStep(0);
     setWordResults(new Array(words.length).fill(null));
     setCurrentTries(0);
-    setSentenceHighlightIndex(0);
+    setSentenceHighlightIndex(-1); // Ensure it's -1
+    lastPlayedStepRef.current = -1; // Reset last played
+    initialHeaderPlayedRef.current = true; // Mark as played manually below
+    
+    // Play header again
+    playTts(problemText);
   };
 
   // Post-translate: handle recording completion with pronunciation feedback
   const handlePostTranslateRecordingComplete = async ({ audioBlob, audioUrl }) => {
     const currentWord =
       currentStep < words.length ? words[currentStep] : words.join(" ");
-
-    // DEBUG: Recorded word info
-    /*
-    console.log(
-      `Recorded word: "${currentWord}" (Step ${currentStep + 1}/${totalSteps}, Try ${currentTries + 1}/${MAX_TRIES})`,
-    );
-    */
 
     // Use the hook to check pronunciation
     const result = await checkPronunciation(audioBlob, problemId, currentWord, currentStep);
@@ -251,7 +253,10 @@ const ProblemNative = () => {
   // Render pre-translate state
   const renderPreTranslate = () => (
     <Container fluid className="problem-native-container pre-translate">
-      <h2 className="problem-question">{problemText}</h2>
+      <div style={{ display: 'flex', alignItems: 'center', width: '100%', paddingLeft: '40px', paddingRight: '40px', marginTop: '20px', marginBottom: '30px', gap: '10px' }}>
+        <h2 className="problem-question" style={{ margin: 0, padding: 0, width: 'auto' }}>{problemText}</h2>
+        <ProblemRepeat onClick={() => playTts(problemText)} />
+      </div>
       <div className="problem-answer-section">
         <ProblemMascot />
         <div className="problem-answer-content">
@@ -274,7 +279,9 @@ const ProblemNative = () => {
   // Render translating state
   const renderTranslating = () => (
     <Container fluid className="problem-native-container translating">
-      <h2 className="problem-question">{problemText}</h2>
+      <div style={{ display: 'flex', alignItems: 'center', width: '100%', paddingLeft: '40px', paddingRight: '40px', marginTop: '20px', marginBottom: '30px', gap: '10px' }}>
+        <h2 className="problem-question" style={{ margin: 0, padding: 0, width: 'auto' }}>{problemText}</h2>
+      </div>
       <div className="problem-answer-section">
         <ProblemMascot />
         <div className="problem-answer-content">
@@ -295,7 +302,10 @@ const ProblemNative = () => {
   const renderPostTranslate = () => (
     <Container fluid className="problem-native-container post-translate">
       <ProblemProgress currentWord={currentStep} totalWords={totalSteps} />
-      <h2 className="problem-question">{problemText}</h2>
+      <div style={{ display: 'flex', alignItems: 'center', width: '100%', paddingLeft: '40px', paddingRight: '40px', marginTop: '20px', marginBottom: '30px', gap: '10px' }}>
+        <h2 className="problem-question" style={{ margin: 0, padding: 0, width: 'auto' }}>{problemText}</h2>
+        <ProblemRepeat onClick={() => playTts(problemText)} />
+      </div>
       <div className="problem-answer-section">
         <ProblemMascot />
         <div className="problem-answer-content">
@@ -309,6 +319,7 @@ const ProblemNative = () => {
             wordResults={wordResults}
             onReplay={handleReplay}
             onSlowReplay={handleSlowReplay}
+            onPlayWord={handlePlayWord}
           />
         </div>
       </div>

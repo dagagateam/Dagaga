@@ -3,6 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import IntroRotateText from '../../components/Homepage/IntroRotateText/IntroRotateText';
 import CardSwap, { Card } from '../../components/Homepage/CardSwawp/CardSwap';
+import RouteCard from '../../components/Homepage/RouteCard/RouteCard';
+
+import learningImg from '../../assets/screenshots/scenario_select_screenshot_1.png';
+import chatImg from '../../assets/screenshots/chat_screenshot_1.png';
+import infoImg from '../../assets/screenshots/Info_screen_screenshot_1.png';
 
 import './Homepage.css';
 
@@ -84,21 +89,24 @@ const Homepage = () => {
 
       {/* Bottom Section: Navigation Cards */}
       <div className="homepage-navigation">
-        <div className="nav-card" onClick={() => handleNavClick('/ScenarioSelect')}>
-          <div className="nav-card-icon">📚</div>
-          <h3>학습하기</h3>
-          <p>다양한 시나리오로<br/>한국어를 연습하세요</p>
-        </div>
-        <div className="nav-card" onClick={() => handleNavClick('/Community/Chat')}>
-          <div className="nav-card-icon">💬</div>
-          <h3>커뮤니티</h3>
-          <p>다른 학습자들과<br/>이야기를 나누세요</p>
-        </div>
-        <div className="nav-card" onClick={() => handleNavClick('/Community/Info')}>
-          <div className="nav-card-icon">📰</div>
-          <h3>정보공유</h3>
-          <p>유용한 한국 생활 정보를<br/>확인하세요</p>
-        </div>
+        <RouteCard 
+          title="학습하기" 
+          body={<>다양한 시나리오로<br/>한국어를 연습하세요</>} 
+          onClick={() => handleNavClick('/ScenarioSelect')} 
+          image={learningImg}
+        />
+        <RouteCard 
+          title="커뮤니티" 
+          body={<>다른 학습자들과<br/>이야기를 나누세요</>} 
+          onClick={() => handleNavClick('/Community/Chat')} 
+          image={chatImg}
+        />
+        <RouteCard 
+          title="정보공유" 
+          body={<>유용한 한국 생활 정보를<br/>확인하세요</>} 
+          onClick={() => handleNavClick('/Community/Info')} 
+          image={infoImg}
+        />
       </div>
     </div>
   );
