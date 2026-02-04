@@ -99,7 +99,7 @@ const CommunityInfo = () => {
             <Container>
                 <div className="info-header">
                     <div className="header-left">
-                        <h2>정보</h2>
+                        <h2>{t('nav_info')}</h2>
                         <LocationBadge region={userRegion} />
                     </div>
                     <div className="search-wrapper">

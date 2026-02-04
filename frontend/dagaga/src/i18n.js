@@ -107,8 +107,7 @@ const resources = {
       "info_swapcard": "한국 생활에 필요한 다양한 정보를 얻으세요",
       "learning_navcard": "학습하기",
       "learning_comment_navcard": "다양한 시나리오로 한국어를 연습하세요",
-      "community_navcard": "커뮤니티",
-      "community_comment_navcard": "다른 학습 자들과 이야기를 나누세요",
+      "community_comment_navcard": "다른 학습자들과 이야기를 나누세요",
       "info_navcard": "정보공유",
       "info_comment_navcard": "유용한 한국 생활 정보를 확인하세요",
 
