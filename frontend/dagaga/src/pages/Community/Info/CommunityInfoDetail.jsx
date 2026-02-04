@@ -5,10 +5,10 @@ import { fetchCommunityInfo, fetchCommunityInfoDetail, createComment, fetchComme
 import { useUserStore } from '../../../store/userStore';
 import './CommunityInfoDetail.css';
 
-
 import bookmarkedIcon from '../../../assets/icons/bookmark.png';
 import unbookmarkIcon from '../../../assets/icons/unbookmark.png';
 import stockProfile from '../../../assets/icons/stock_profile.jpg';
+import { formatPeriod } from '../../../utils/dateUtils';
 
 
 const CommunityInfoDetail = () => {
@@ -75,9 +75,8 @@ const CommunityInfoDetail = () => {
                         image: data.imageUrls?.[0] || 'https://via.placeholder.com/600x800/F8B15E/FFFFFF?text=No+Image',
                         contact: data.contact || "",
                         capacity: data.capacity || "",
-                        // Format dates using helper
-                        applicationPeriod: formatDate(data.regStartDate, data.regEndDate),
-                        progressPeriod: formatDate(data.progStartDate, data.progEndDate),
+                        applicationPeriod: formatPeriod(data.regStartDate, data.regEndDate),
+                        progressPeriod: formatPeriod(data.progStartDate, data.progEndDate),
                         isLiked: false, // TODO: 좋아요 기능 구현 시 수정
                         isBookmarked: false // TODO: 북마크 기능 구현 시 수정
                     });

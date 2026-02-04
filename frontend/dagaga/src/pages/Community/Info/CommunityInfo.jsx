@@ -5,9 +5,9 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import { fetchCommunityInfo } from '../../../api/communityApi';
 import { getLocationName } from '../../../data/regionData';
 
-
 import bookmarkedIcon from '../../../assets/icons/bookmark.png';
 import unbookmarkIcon from '../../../assets/icons/unbookmark.png';
+import { formatPeriod } from '../../../utils/dateUtils';
 
 import { useUserStore } from '../../../store/userStore';
 import LocationBadge from '../../../components/common/LocationBadge';
@@ -50,24 +50,19 @@ const CommunityInfo = () => {
 
                 // 백엔드 응답 형식 → 프론트엔드 형식 변환
                 const items = allPosts.map(post => {
-                    // 날짜 포맷팅 함수
-                    const formatDate = (start, end) => {
-                        if (!start && !end) return "미정";
-                        return `${start || ''} ~ ${end || ''}`;
-                    };
-
-                    const applicationPeriod = formatDate(post.regStartDate, post.regEndDate);
-                    const progressPeriod = formatDate(post.progStartDate, post.progEndDate);
+                    // content에서 날짜 파싱 (백엔드에 별도 필드가 없는 경우)
+                    const content = post.content || "";
+                    const progressPeriod = formatPeriod(post.progStartDate, post.progEndDate);
 
                     return {
                         id: post.postId,
                         title: post.title || "제목 없음",
                         orgName: "다가가정보지원", // 고정값
-                        content: post.content || "",
-                        applicationPeriod: applicationPeriod,
+                        content: content,
+                        applicationPeriod: formatPeriod(post.regStartDate, post.regEndDate),
                         progressPeriod: progressPeriod,
                         // 마감 여부는 접수 마감일(regEndDate) 기준으로 판단 (없으면 진행 마감일 기준)
-                        isExpired: checkIsExpired(formatDate(post.regStartDate, post.regEndDate)) || checkIsExpired(formatDate(post.progStartDate, post.progEndDate)),
+                        isExpired: checkIsExpired(formatPeriod(post.regStartDate, post.regEndDate)) || checkIsExpired(formatPeriod(post.progStartDate, post.progEndDate)),
                         image: post.imageUrls?.[0] || `https://via.placeholder.com/600x300/F8B15E/FFFFFF?text=${encodeURIComponent(post.title || 'No Image')}`
                     };
                 });
@@ -137,7 +132,6 @@ const CommunityInfo = () => {
                                                     <span className="org-name">{info.orgName}</span>
                                                 </div>
                                                 <div className="action-icons">
-                                                    {/* Like Button Removed */}
                                                     <button className="icon-btn" onClick={(e) => { e.stopPropagation(); toggleSave(info); }}>
                                                         <img
                                                             src={isBookmarked ? bookmarkedIcon : unbookmarkIcon}
