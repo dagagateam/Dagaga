@@ -2,7 +2,7 @@ import ProblemRepeat from "../ProblemRepeat/ProblemRepeatButton";
 import ProblemRepeatSlow from "../ProblemRepeat/ProblemRepeatSlow";
 import "./ProblemAnswer.css";
 
-const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIndex, wordResults, onReplay, onSlowReplay, showTranslations, nativeAnswer }) => {
+const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIndex, wordResults, onReplay, onSlowReplay, onPlayWord, showTranslations, nativeAnswer }) => {
   // Check if we're on the full sentence step (last step)
   const isFullSentenceStep = currentStep >= words.length;
   
@@ -46,15 +46,33 @@ const ProblemAnswer = ({ words, pronunciations, currentStep, sentenceHighlightIn
         ].filter(Boolean).join(' ');
         
         return (
-          <div key={index} className="word-group">
-            <span className={wordClasses}>
+          <div 
+            key={index} 
+            className="word-group" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onPlayWord && onPlayWord(word);
+            }} 
+            style={{ cursor: 'pointer' }}
+          >
+            <span 
+              className={wordClasses} 
+            >
               {word}
             </span>
             <span className={pronunciationClasses}>
               [ {pronunciations[index] || word.split('').join(' ')} ]
             </span>
             {isCurrentWord && (
-              <div className="word-buttons">
+              <div 
+                className="word-buttons" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Button clicks should perform their own action, already handled by button onClick
+                }} 
+                style={{ cursor: 'default' }}
+              >
                 <ProblemRepeat onClick={onReplay} />
                 <ProblemRepeatSlow onClick={onSlowReplay} />
               </div>

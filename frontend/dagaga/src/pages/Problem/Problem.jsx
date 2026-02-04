@@ -180,14 +180,19 @@ const Problem = () => {
     playSeq();
   }, [data, playTts]); // Only depend on data and playTts to run once when data is ready
 
+  // Track the last played step index to prevent double playback in StrictMode
+  const lastPlayedStepRef = useRef(-1);
+
   // Auto-play TTS when moving to next word (skip step 0 as it's handled above)
   useEffect(() => {
-    if (currentStep > 0) {
+    if (currentStep > 0 && lastPlayedStepRef.current !== currentStep) {
       if (currentStep < words.length) {
+        lastPlayedStepRef.current = currentStep;
         playTts(words[currentStep]);
       } else if (currentStep === words.length) {
         // Play full sentence (Answer)
         const sentenceToPlay = exampleAnswer || words.join(" ");
+        lastPlayedStepRef.current = currentStep;
         playTts(sentenceToPlay);
       }
     }
@@ -228,7 +233,9 @@ const Problem = () => {
     setWordResults({});
     setCurrentTries(0);
     setSentenceHighlightIndex(-1); // Ensure it's reset to -1 (default)
+    setSentenceHighlightIndex(-1); // Ensure it's reset to -1 (default)
     initialAudioPlayedRef.current = true; // Mark as played since we manual play below
+    lastPlayedStepRef.current = -1; // Reset last played tracking
     
     // Manually replay the header question
     if (data && data.problemText) {
@@ -315,6 +322,10 @@ const Problem = () => {
     if (text) playTts(text, 'slow');
   }, [currentStep, words, playTts]);
 
+  const handlePlayWord = useCallback((text) => {
+    if (text) playTts(text, 'normal');
+  }, [playTts]);
+
   const handleQuestionReplay = useCallback(() => {
     if (data && data.problemText) {
       playTts(data.problemText);
@@ -355,6 +366,7 @@ const Problem = () => {
             wordResults={wordResults}
             onReplay={handleReplay}
             onSlowReplay={handleSlowReplay}
+            onPlayWord={handlePlayWord}
             showTranslations={showNative}
             nativeAnswer={nativeAnswer}
           />
