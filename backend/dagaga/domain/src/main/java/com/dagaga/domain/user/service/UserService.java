@@ -185,4 +185,31 @@ public class UserService {
         // 또는 명시적으로 예외 발생 가능
         return nickname;
     }
+
+    @Transactional
+    public String findPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("가입되지 않았습니다"));
+
+        // 소셜 로그인 사용자는 비밀번호 변경 불가 (또는 별도 처리)
+        if (user.getSocialProvider() != null) {
+            throw new IllegalArgumentException("소셜 로그인 사용자는 비밀번호를 찾을 수 없습니다.");
+        }
+
+        String tempPassword = generateTempPassword();
+        user.updatePassword(passwordEncoder.encode(tempPassword));
+
+        return tempPassword;
+    }
+
+    private String generateTempPassword() {
+        int length = 8;
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*+-";
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < length; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return sb.toString();
+    }
 }

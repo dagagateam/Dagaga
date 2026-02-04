@@ -6,6 +6,8 @@ import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.dto.UserResponseDto;
 import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.dto.PasswordVerifyRequest;
+import com.dagaga.domain.user.dto.PasswordFindRequest;
+import com.dagaga.domain.user.dto.PasswordFindResponse;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.service.UserService;
 
@@ -268,6 +270,16 @@ public class UserController {
 
         userService.verifyPassword(userId, request.getPassword());
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/find-password")
+    public ResponseEntity<PasswordFindResponse> findPassword(@RequestBody @Valid PasswordFindRequest request) {
+        String tempPassword = userService.findPassword(request.getEmail());
+        PasswordFindResponse response = PasswordFindResponse.builder()
+                .email(request.getEmail())
+                .tempPassword(tempPassword)
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
