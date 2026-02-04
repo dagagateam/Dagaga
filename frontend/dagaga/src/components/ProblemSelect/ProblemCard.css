@@ -1,12 +1,11 @@
 .problem-card {
   position: absolute;
-  width: fit-content;
-  max-width: 60dvw;
-  min-width: 18.75rem;
-  min-height: 5rem; /* Changed from fixed height */
+  /* Fixed width for collapsed state to ensure uniform look */
+  width: 18.75rem; 
+  padding: 0.9375rem 1.5625rem;
   background-color: #d1d5db;
   border-radius: 0.9375rem;
-  padding: 0.9375rem 1.5625rem;
+  
   /* Transition when collapsing (active -> default): Height first, then Width */
   transition: 
     background-color 0.3s ease, 
@@ -28,9 +27,9 @@
 
 .problem-card.active {
   background-color: #e8a549;
-  /* width: auto;  Let fit-content from base class handle it, or specify if different */
-  max-width: 70dvw; /* Allow slightly more space if needed */
-  min-height: 7.5rem; /* Changed from fixed height */
+  width: fit-content; /* Allow expansion to fit content */
+  max-width: 60dvw;   /* Cap it so it doesn't go off screen */
+  min-height: 7.5rem; 
   height: auto;
   padding: 1.875rem 2.5rem; /* Increased padding for bigger feel */
   z-index: 10; /* Ensure active card is on top if overlap */
@@ -54,6 +53,8 @@
   flex-direction: column;
   gap: 0.5rem;
   width: 100%;
+  min-width: 0; /* Important for flex item truncation */
+  overflow: hidden; /* Ensure content stays inside */
   color: white;
 }
 
@@ -69,7 +70,22 @@
   margin: 0;
   line-height: 1.4;
   word-break: keep-all; /* Keep words together for better Korean readability */
-  white-space: pre-wrap; /* Allow wrapping */
+  transition: font-size 0.3s ease;
+}
+
+/* Collapsed state: Single line with ellipsis */
+.problem-card:not(.active) .problem-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
+}
+
+/* Active state: Full text wrapping */
+.problem-card.active .problem-text {
+  font-size: 1.125rem;
+  white-space: pre-wrap;
   transition: font-size 0.3s ease;
 }
 
