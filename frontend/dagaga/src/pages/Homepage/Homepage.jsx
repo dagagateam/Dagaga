@@ -69,7 +69,7 @@ const Homepage = () => {
             >
               <Card style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #EE5D5D 100%)' }}>
                 <h3>📚 {t('nav_learning')}</h3>
-                <p>{t('learing_swapcard')}</p>
+                <p>{t('learning_swapcard')}</p>
               </Card>
               <Card style={{ background: 'linear-gradient(135deg, #4ECDC4 0%, #45B7AF 100%)' }}>
                 <h3>💬 {t('communication_rotation')}</h3>
@@ -93,7 +93,7 @@ const Homepage = () => {
         </div>
         <div className="nav-card" onClick={() => handleNavClick('/Community/Chat')}>
           <div className="nav-card-icon">💬</div>
-          <h3>{t('community_navcard')}</h3>
+          <h3>{t('nav_community')}</h3>
           <p>{t('community_comment_navcard')}</p>
         </div>
         <div className="nav-card" onClick={() => handleNavClick('/Community/Info')}>
