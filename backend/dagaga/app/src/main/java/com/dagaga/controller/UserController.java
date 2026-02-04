@@ -5,13 +5,12 @@ import com.dagaga.domain.user.dto.UserLoginDto;
 import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.dto.UserResponseDto;
 import com.dagaga.domain.user.dto.UserUpdateDto;
+import com.dagaga.domain.user.dto.PasswordVerifyRequest;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.service.UserService;
 import com.dagaga.chat.service.ChatRoomService;
 import com.dagaga.security.dto.AuthResponse;
-import com.dagaga.security.dto.RefreshTokenRequest;
 import com.dagaga.security.jwt.JwtTokenProvider;
-import com.dagaga.security.principal.UserPrincipal;
 import com.dagaga.domain.security.CurrentUser;
 import com.dagaga.domain.user.value.UserId;
 import com.dagaga.security.redis.RedisTokenService;
@@ -26,9 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -309,6 +305,16 @@ public class UserController {
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
 
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/verify-password")
+    public ResponseEntity<Void> verifyPassword(@RequestBody PasswordVerifyRequest request) {
+        Integer userId = currentUser.getUserId()
+                .map(UserId::getValue)
+                .orElseThrow(() -> new IllegalArgumentException("인증된 사용자 정보를 찾을 수 없습니다."));
+
+        userService.verifyPassword(userId, request.getPassword());
         return ResponseEntity.ok().build();
     }
 

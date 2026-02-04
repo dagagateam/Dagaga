@@ -139,6 +139,19 @@ public class UserService {
         return UserResponseDto.from(user);
     }
 
+    public void verifyPassword(Integer userId, String password) {
+        User user = getUserById(userId);
+
+        // 비밀번호가 없는 사용자(소셜 로그인 전용 등)는 검증 패스
+        if (user.getPassword() == null) {
+            return;
+        }
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+    }
+
     /**
      * 유니크한 닉네임 생성 (이메일 아이디 기반 + 필요 시 4자리 랜덤 숫자)
      */
