@@ -1,13 +1,13 @@
 package com.dagaga.chat.controller;
 
 import com.dagaga.chat.dto.MessageControllerDto.SendMessageRequest;
+
 import com.dagaga.chat.dto.MessageControllerDto.SendMessageResponse;
-import com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
+import com.dagaga.chat.dto.MessageServiceDto.TargetedMessageResult;
 import com.dagaga.chat.service.ChatMessageService;
-import com.dagaga.chat.service.ChatRoomService;
 import com.dagaga.security.principal.UserPrincipal;
-import com.dagaga.domain.user.value.UserId;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
@@ -18,19 +18,17 @@ public class ChatStompController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageService chatMessageService;
-    private final ChatRoomService chatRoomService;
 
     public ChatStompController(SimpMessagingTemplate messagingTemplate,
-            ChatMessageService chatMessageService,
-            ChatRoomService chatRoomService) {
+            ChatMessageService chatMessageService) {
         this.messagingTemplate = messagingTemplate;
         this.chatMessageService = chatMessageService;
-        this.chatRoomService = chatRoomService;
     }
 
     // 송신 -> /pub/chat/message
     // 수신 -> /sub/chat/rooms/{roomId}/{langCode}
     @MessageMapping("/chat/message")
+
     public void send(@Valid SendMessageRequest req, java.security.Principal principal) {
         // Principal에서 User 정보 추출
         if (principal == null) {
@@ -40,29 +38,28 @@ public class ChatStompController {
         Authentication auth = (Authentication) principal;
         UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
 
-        // 지역 검증
-        chatRoomService.getRoomAndValidateLocation(req.roomId(), userPrincipal.getLocationId());
+        // 서비스 호출 및 응답 획득
+        List<TargetedMessageResult> results = chatMessageService.processAndReturnResponses(
+                req.toServiceDto(userPrincipal.getUserId().getValue(), userPrincipal.getNativeLangCode()),
+                userPrincipal.getLocationId());
 
-        // 메시지 저장 (번역 포함)
-        SaveMessageResult savedResult = chatMessageService
-                .save(req.toServiceDto(userPrincipal.getUserId().getValue(), userPrincipal.getNativeLangCode()));
+        // 각 대상 언어별로 메시지 전송
+        results.forEach(result -> {
+            SendMessageResponse response = new SendMessageResponse(
+                    result.result().messageId(),
+                    result.result().roomId(),
+                    result.result().senderId(),
+                    result.result().senderNickname(),
+                    result.result().senderProfileImage(),
+                    result.result().content(),
+                    result.result().originalLang(),
+                    result.result().sentAt(),
+                    result.result().type()
+            );
 
-        // 원문 언어 사용자들에게 전송
-        // /sub/chat/rooms/{roomId}/{originalLang}
-        SendMessageResponse originalPayload = SendMessageResponse.from(savedResult, savedResult.message().getOriginalLang());
-        messagingTemplate.convertAndSend(
-                "/sub/chat/rooms/" + req.roomId() + "/" + savedResult.message().getOriginalLang(),
-                originalPayload);
-
-        // 번역된 언어 사용자들에게 전송
-        // /sub/chat/rooms/{roomId}/{targetLang}
-        if (savedResult.translations() != null) {
-            savedResult.translations().forEach(translation -> {
-                SendMessageResponse translatedPayload = SendMessageResponse.from(savedResult, translation.getTargetLang());
-                messagingTemplate.convertAndSend(
-                        "/sub/chat/rooms/" + req.roomId() + "/" + translation.getTargetLang(),
-                        translatedPayload);
-            });
-        }
+            messagingTemplate.convertAndSend(
+                    "/sub/chat/rooms/" + req.roomId() + "/" + result.targetLang(),
+                    response);
+        });
     }
 }

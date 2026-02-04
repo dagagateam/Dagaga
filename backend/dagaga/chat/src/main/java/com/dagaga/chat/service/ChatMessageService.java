@@ -2,11 +2,17 @@ package com.dagaga.chat.service;
 
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageCommand;
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
+import com.dagaga.chat.dto.MessageServiceDto.ChatMessageResult;
+import com.dagaga.chat.dto.MessageServiceDto.TargetedMessageResult;
+import java.util.ArrayList;
 import com.dagaga.domain.chat.language.repository.LanguageRepository;
 import com.dagaga.domain.chat.message.entity.ChatMessage;
 import com.dagaga.domain.chat.message.entity.MessageTranslation;
 import com.dagaga.domain.chat.message.repository.ChatMessageRepository;
 import com.dagaga.domain.chat.translate.port.TranslationPort;
+import com.dagaga.domain.chat.translate.port.TranslationResult;
+import com.dagaga.domain.user.entity.User;
+import com.dagaga.domain.user.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +22,9 @@ import com.dagaga.chat.dto.ChatMessageResponse;
 import org.springframework.data.domain.PageRequest;
 import java.util.stream.Collectors;
 import java.util.List;
+import java.util.Set;
+import java.util.Map;
+import java.util.function.Function;
 
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -29,16 +38,20 @@ public class ChatMessageService {
     private final ChatRoomService chatRoomService;
     private final TransactionTemplate transactionTemplate;
 
+    private final UserRepository userRepository;
+
     public ChatMessageService(ChatMessageRepository chatMessageRepository,
             LanguageRepository languageRepository,
             TranslationPort translationPort,
             ChatRoomService chatRoomService,
-            TransactionTemplate transactionTemplate) {
+            TransactionTemplate transactionTemplate,
+            UserRepository userRepository) {
         this.chatMessageRepository = chatMessageRepository;
         this.languageRepository = languageRepository;
         this.translationPort = translationPort;
         this.chatRoomService = chatRoomService;
         this.transactionTemplate = transactionTemplate;
+        this.userRepository = userRepository;
     }
 
     public SaveMessageResult save(SaveMessageCommand cmd) {
@@ -84,7 +97,7 @@ public class ChatMessageService {
         });
     }
 
-    private void saveTranslations(Long messageId, com.dagaga.domain.chat.translate.port.TranslationResult result) {
+    private void saveTranslations(Long messageId, TranslationResult result) {
         ChatMessage msg = chatMessageRepository.findById(messageId)
                 .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
 
@@ -107,6 +120,54 @@ public class ChatMessageService {
 
     }
 
+    public List<TargetedMessageResult> processAndReturnResponses(SaveMessageCommand cmd, Integer locationId) {
+        // 사용자 조회
+        User sender = userRepository.findById(cmd.senderId())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 지역 검증
+        chatRoomService.getRoomAndValidateLocation(cmd.roomId(), locationId);
+
+        // 메시지 저장 (번역 포함)
+        SaveMessageResult savedResult = save(cmd);
+
+        // 응답 생성
+        List<TargetedMessageResult> responses = new ArrayList<>();
+
+        // 원문 언어 사용자용
+        ChatMessageResult originalPayload = new ChatMessageResult(
+                savedResult.message().getMessageId(),
+                savedResult.message().getRoomId(),
+                savedResult.message().getSenderId(),
+                sender.getNickname(),
+                sender.getProfileImage(),
+                savedResult.message().getOriginalText(),
+                savedResult.message().getOriginalLang(),
+                savedResult.message().getSentAt().toString(),
+                "TALK");
+
+        responses.add(new TargetedMessageResult(savedResult.message().getOriginalLang(), originalPayload));
+
+        // 번역 언어 사용자용
+        if (savedResult.translations() != null) {
+            savedResult.translations().forEach(translation -> {
+                ChatMessageResult translatedPayload = new ChatMessageResult(
+                        savedResult.message().getMessageId(),
+                        savedResult.message().getRoomId(),
+                        savedResult.message().getSenderId(),
+                        sender.getNickname(),
+                        sender.getProfileImage(),
+                        translation.getTranslatedText(),
+                        savedResult.message().getOriginalLang(),
+                        savedResult.message().getSentAt().toString(),
+                        "TALK");
+                responses.add(new TargetedMessageResult(translation.getTargetLang(), translatedPayload));
+            });
+        }
+
+        return responses;
+    }
+
     @Transactional(readOnly = true)
     public List<ChatMessageResponse> getMessages(int roomId, int userLocationId, String userNativeLangCode, Long cursor, int size) {
         // 지역 검증
@@ -121,6 +182,15 @@ public class ChatMessageService {
         } else {
             messages = chatMessageRepository.findByRoomIdAndMessageIdLessThanOrderByMessageIdDesc(roomId, cursor, page);
         }
+
+        // 발신자 정보 조회를 위한 ID 목록 수집
+        Set<Integer> senderIds = messages.stream()
+                .map(ChatMessage::getSenderId)
+                .collect(Collectors.toSet());
+
+        // 사용자 정보 일괄 조회
+        Map<Integer, User> userMap = userRepository.findAllById(senderIds).stream()
+                .collect(Collectors.toMap(User::getUserId, Function.identity()));
 
         // 언어에 맞게 변환
         return messages.stream()
@@ -143,7 +213,11 @@ public class ChatMessageService {
                         }
                     }
 
-                    return ChatMessageResponse.from(msg, content, isTranslated);
+                    User sender = userMap.get(msg.getSenderId());
+                    String senderNickname = (sender != null) ? sender.getNickname() : "Unknown";
+                    String senderProfileImage = (sender != null) ? sender.getProfileImage() : null;
+
+                    return ChatMessageResponse.from(msg, content, isTranslated, senderNickname, senderProfileImage);
                 })
                 .collect(Collectors.toList());
     }

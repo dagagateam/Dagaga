@@ -85,7 +85,12 @@ public class ChatRoomService {
                             .orElseThrow(() -> new IllegalArgumentException("지역 정보를 찾을 수 없습니다. locationId=" + locationId));
                     String title = location.getDistrictName() + " 단체 채팅방";
                     
-                    ChatRoom newRoom = ChatRoom.createDefaultRoom(userId, locationId, title);
+                    // Admin 유저 찾기 (없으면 요청한 유저가 생성자)
+                    Integer creatorId = userRepository.findFirstByRole("ROLE_ADMIN")
+                            .map(User::getUserId)
+                            .orElse(userId);
+                    
+                    ChatRoom newRoom = ChatRoom.createDefaultRoom(creatorId, locationId, title);
                     return chatRoomRepository.save(newRoom);
                 });
 
@@ -128,6 +133,10 @@ public class ChatRoomService {
         ChatRoom room = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다. roomId : " + roomId));
 
+        if (room.getRoomType() == RoomType.DEFAULT) {
+            throw new IllegalStateException("기본 채팅방은 삭제할 수 없습니다.");
+        }
+
         if (!room.getCreatorId().equals(requesterId)) {
             throw new IllegalArgumentException("채팅방을 삭제할 권한이 없습니다.");
         }
@@ -155,6 +164,22 @@ public class ChatRoomService {
                 .orElseThrow(() -> new IllegalArgumentException("채팅방에 참여 중인 유저가 아닙니다."));
 
         user.leave();
+
+        // 방장이 나간 경우 위임 처리
+        if (user.getRole() == Role.OWNER) {
+            chatRoomUserRepository.findFirstByIdRoomIdAndStatusOrderByJoinedAtAsc(roomId, UserStatus.ACTIVE)
+                    .ifPresent(nextOwner -> {
+                        nextOwner.setRole(Role.OWNER);
+                        room.setCreatorId(nextOwner.getId().getUserId());
+                    });
+            user.setRole(Role.MEMBER);
+        }
+
+        // 남은 인원이 0명이고 커스텀 채팅방이면 삭제 처리
+        long activeCount = chatRoomUserRepository.countByIdRoomIdAndStatus(roomId, UserStatus.ACTIVE);
+        if (activeCount == 0 && room.getRoomType() == RoomType.CUSTOM) {
+            room.setStatus(RoomStatus.DELETED);
+        }
     }
 
     @Transactional

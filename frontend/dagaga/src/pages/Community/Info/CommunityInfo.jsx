@@ -6,10 +6,9 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import { fetchCommunityInfo } from '../../../api/communityApi';
 import { getLocationName } from '../../../data/regionData';
 
-import heartIcon from '../../../assets/icons/heart.png';
-import unheartIcon from '../../../assets/icons/unheart.png';
 import bookmarkedIcon from '../../../assets/icons/bookmark.png';
 import unbookmarkIcon from '../../../assets/icons/unbookmark.png';
+import { formatPeriod } from '../../../utils/dateUtils';
 
 import { useUserStore } from '../../../store/userStore';
 import LocationBadge from '../../../components/common/LocationBadge';
@@ -23,11 +22,7 @@ const CommunityInfo = () => {
     const [userRegion, setUserRegion] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
 
-    const parseDateFromContent = (content, keyword) => {
-        const regex = new RegExp(`${keyword}\\s*(\\d{4}-\\d{2}-\\d{2}\\s*~\\s*\\d{4}-\\d{2}-\\d{2})`);
-        const match = content.match(regex);
-        return match ? match[1] : "미정";
-    };
+
 
     const checkIsExpired = (periodString) => {
         if (!periodString || periodString === "미정") return false;
@@ -59,16 +54,17 @@ const CommunityInfo = () => {
                 const items = allPosts.map(post => {
                     // content에서 날짜 파싱 (백엔드에 별도 필드가 없는 경우)
                     const content = post.content || "";
-                    const progressPeriod = parseDateFromContent(content, "프로그램기간");
+                    const progressPeriod = formatPeriod(post.progStartDate, post.progEndDate);
 
                     return {
                         id: post.postId,
                         title: post.title || "제목 없음",
                         orgName: "다가가정보지원", // 고정값
                         content: content,
-                        applicationPeriod: parseDateFromContent(content, "접수기간"),
+                        applicationPeriod: formatPeriod(post.regStartDate, post.regEndDate),
                         progressPeriod: progressPeriod,
-                        isExpired: checkIsExpired(progressPeriod),
+                        // 마감 여부는 접수 마감일(regEndDate) 기준으로 판단 (없으면 진행 마감일 기준)
+                        isExpired: checkIsExpired(formatPeriod(post.regStartDate, post.regEndDate)) || checkIsExpired(formatPeriod(post.progStartDate, post.progEndDate)),
                         image: post.imageUrls?.[0] || `https://via.placeholder.com/600x300/F8B15E/FFFFFF?text=${encodeURIComponent(post.title || 'No Image')}`
                     };
                 });
@@ -138,13 +134,6 @@ const CommunityInfo = () => {
                                                     <span className="org-name">{info.orgName}</span>
                                                 </div>
                                                 <div className="action-icons">
-                                                    <button className="icon-btn" onClick={(e) => { e.stopPropagation(); toggleLike(info.id); }}>
-                                                        <img
-                                                            src={isLiked ? heartIcon : unheartIcon}
-                                                            alt="Like"
-                                                            className="icon-img"
-                                                        />
-                                                    </button>
                                                     <button className="icon-btn" onClick={(e) => { e.stopPropagation(); toggleSave(info); }}>
                                                         <img
                                                             src={isBookmarked ? bookmarkedIcon : unbookmarkIcon}

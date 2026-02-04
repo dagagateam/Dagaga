@@ -31,7 +31,7 @@ public class TestAuthController {
         Integer testUserId = 1;
         String testEmail = "test1@dagaga.com";
         Integer testLocationId = 229;
-        String testViewLangCode = "ko";
+        String testViewLangCode = "vi";
         String testNativeLangCode = "vi"; // 베트남어 (테스트용)
 
         String accessToken = jwtTokenProvider.generateAccessToken(

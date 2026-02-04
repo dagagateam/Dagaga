@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Container, Form, Button, Card } from 'react-bootstrap';
+import { Container, Form, Button, Card, Modal } from 'react-bootstrap';
 import { useUserStore } from '../../store/userStore';
 import { getLocationId } from '../../data/regionData';
 import ProfileImageSection from '../../components/MyPageEdit/ProfileImageSection';
@@ -12,7 +12,7 @@ import './MyPageEdit.css';
 const MyPageEdit = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const { user, updateUserProfile } = useUserStore();
+    const { user, updateUserProfile, logout } = useUserStore();
 
     const [formData, setFormData] = useState({
         nickname: '',
@@ -28,6 +28,10 @@ const MyPageEdit = () => {
 
     const [errors, setErrors] = useState({});
     const [previewImage, setPreviewImage] = useState(stockProfile);
+    
+    // Modal State
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [pendingUpdates, setPendingUpdates] = useState(null);
 
     useEffect(() => {
         if (user) {
@@ -162,6 +166,16 @@ const MyPageEdit = () => {
              updates.profileImage = previewImage;
         }
         
+        // Check for critical changes preventing immediate update
+        const isAreaChanged = user.locationId !== locationId;
+        const isNativeLangChanged = user.nativeLangCode !== nativeLangCode;
+
+        if (isAreaChanged || isNativeLangChanged) {
+            setPendingUpdates(updates);
+            setShowConfirmModal(true);
+            return;
+        }
+
         try {
             // Use the async action
             await updateUserProfile(updates);
@@ -173,7 +187,25 @@ const MyPageEdit = () => {
         }
     };
 
+    const handleConfirmUpdate = async () => {
+        if (!pendingUpdates) return;
+
+        try {
+            await updateUserProfile(pendingUpdates);
+            setShowConfirmModal(false);
+            
+            // Logout and Redirect
+            logout();
+            navigate('/Login');
+        } catch (error) {
+            console.error("Update failed:", error);
+            setErrors(prev => ({ ...prev, submit: t('update_failed') || "Update failed" }));
+            setShowConfirmModal(false);
+        }
+    };
+
     return (
+        <>
         <Container className="my-page-edit-container">
             <Card className="edit-card mx-auto">
                 <Card.Body className="p-5">
@@ -207,6 +239,27 @@ const MyPageEdit = () => {
                 </Card.Body>
             </Card>
         </Container>
+
+        {/* Confirmation Modal */}
+        <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered dialogClassName="confirm-modal-dialog">
+            <Modal.Header closeButton className="confirm-modal-header">
+                <Modal.Title className="confirm-modal-title">{t('notice')}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="confirm-modal-body">
+                <p className="confirm-modal-text">
+                    {t('info_changed_relogin')}
+                </p>
+            </Modal.Body>
+            <Modal.Footer className="confirm-modal-footer">
+                <Button variant="light" onClick={() => setShowConfirmModal(false)} className="confirm-modal-btn text-muted">
+                    {t('cancel')}
+                </Button>
+                <Button variant="primary" onClick={handleConfirmUpdate} className="confirm-modal-btn btn-save text-white">
+                    {t('confirm')}
+                </Button>
+            </Modal.Footer>
+        </Modal>
+        </>
     );
 };
 

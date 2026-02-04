@@ -18,4 +18,21 @@ public class MessageServiceDto {
                         ChatMessage message,
                         List<MessageTranslation> translations) {
         }
+
+        public record ChatMessageResult(
+                        Long messageId,
+                        Integer roomId,
+                        Integer senderId,
+                        String senderNickname,
+                        String senderProfileImage,
+                        String content,
+                        String originalLang,
+                        String sentAt,
+                        String type) {
+        }
+
+        public record TargetedMessageResult(
+                        String targetLang,
+                        ChatMessageResult result) {
+        }
 }

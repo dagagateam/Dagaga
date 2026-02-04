@@ -62,3 +62,46 @@ label.text-muted {
     background-color: #ddd;
     border-radius: 3px;
 }
+
+/* Confirmation Modal Styles */
+.modal-dialog.confirm-modal-dialog {
+    max-width: fit-content;
+    min-width: 400px;
+}
+
+.confirm-modal-dialog .confirm-modal-header {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.confirm-modal-dialog .confirm-modal-title {
+    font-weight: 700; /* fw-bold */
+}
+
+.confirm-modal-dialog .confirm-modal-body {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+.confirm-modal-dialog .confirm-modal-text {
+    margin: 0;
+    text-align: center;
+    white-space: nowrap;
+    font-weight: 500; /* fw-medium */
+    font-size: 1.05rem;
+}
+
+.confirm-modal-dialog .confirm-modal-footer {
+    border-top: none;
+    padding-top: 0;
+    padding-bottom: 1.5rem;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.confirm-modal-dialog .confirm-modal-btn {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    border-radius: 50rem; /* rounded-pill */
+    font-weight: 600; /* fw-semibold */
+}
