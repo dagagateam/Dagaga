@@ -24,6 +24,16 @@ export default defineConfig({
         // CORS 문제 해결을 위한 설정
         rewrite: (path) => path,
       },
+      '/oauth2': {
+        target: 'https://i14b110.p.ssafy.io',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/login/oauth2': {
+        target: 'https://i14b110.p.ssafy.io',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 })
