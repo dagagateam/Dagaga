@@ -11,6 +11,8 @@ const ProblemCard = ({
   rotation, 
   isActive, 
   onClick,
+  onMouseEnter,
+  onMouseLeave,
   ...props // Capture other props like translations, stages
 }) => {
   const navigate = useNavigate();
@@ -49,6 +51,8 @@ const ProblemCard = ({
         transform: `translateY(-50%) rotate(${rotation}deg)`,
       }}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       <div className="problem-card-content">
         <span className="problem-number">{t('problem')} {problemNumber}</span>

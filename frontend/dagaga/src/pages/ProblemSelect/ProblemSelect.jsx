@@ -95,10 +95,7 @@ const ProblemSelect = () => {
     }
   }, [handleWheel]);
 
-  // Handle card click
-  const handleCardClick = (problemId) => {
-    setSelectedCardId(problemId === selectedCardId ? null : problemId);
-  };
+
 
   if (!scenario) {
     return <div>{t('category_not_found')}</div>;
@@ -132,7 +129,8 @@ const ProblemSelect = () => {
                   pronunciations={problem.pronunciations}
                   rotation={rotation}
                   isActive={isActive}
-                  onClick={() => handleCardClick(problem.id)}
+                  onMouseEnter={() => setSelectedCardId(problem.id)}
+                  onMouseLeave={() => setSelectedCardId(null)}
                   translations={problem.wordTranslations} // from API response map
                   stages={problems} // Pass full list for progress bar
                 />
