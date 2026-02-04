@@ -1,44 +1,41 @@
 .problem-card {
   position: absolute;
-  /* Fixed width for collapsed state to ensure uniform look */
-  width: 18.75rem; 
+  /* Uniform width for both states */
+  width: 30rem; 
   padding: 0.9375rem 1.5625rem;
   background-color: #d1d5db;
   border-radius: 0.9375rem;
-  
-  /* Transition when collapsing (active -> default): Height first, then Width */
+  /* Transition when collapsing (active -> default): Synchronized */
   transition: 
     background-color 0.3s ease, 
-    min-height 0.3s ease, 
-    width 0.3s ease 0.3s,
+    height 0.3s ease, 
+    width 0.3s ease,
     transform 0.1s linear,
-    padding 0.3s ease; /* Add padding transition */
-    
+    padding 0.3s ease;
   display: flex;
   align-items: center; /* Vertically center content */
-
   transform-origin: calc(-55vh - 3.125rem) center; 
   left: 3.125rem; 
   top: 50%;
   transform: translateY(-50%); /* Center based on its own dynamic height */
   margin-top: 0; /* Remove fixed margin offset */
   cursor: pointer;
+  height: 7rem; /* Fixed height for default state */
 }
 
 .problem-card.active {
   background-color: var(--main-orange);
-  width: fit-content; /* Allow expansion to fit content */
-  max-width: 60dvw;   /* Cap it so it doesn't go off screen */
-  min-height: 7.5rem; 
-  height: auto;
-  padding: 1.875rem 2.5rem; /* Increased padding for bigger feel */
-  z-index: 10; /* Ensure active card is on top if overlap */
+  /* Width stays the same as default to be "standardized horizontally" */
   
-  /* Transition when expanding (default -> active): Width first, then Height */
+  height: 10rem; /* Standardized Fixed Height */
+  width: 50rem;
+  padding: 1.875rem 2.5rem; 
+  z-index: 10; 
+  /* Transition when expanding (default -> active): Synchronized */
   transition: 
     background-color 0.3s ease, 
-    width 0.3s ease, 
-    min-height 0.3s ease 0.3s,
+    height 0.3s ease,
+    width 0.3s ease,
     transform 0.1s linear,
     padding 0.3s ease;
 }
@@ -85,7 +82,11 @@
 /* Active state: Full text wrapping */
 .problem-card.active .problem-text {
   font-size: 1.125rem;
-  white-space: pre-wrap;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
   transition: font-size 0.3s ease;
 }
 
