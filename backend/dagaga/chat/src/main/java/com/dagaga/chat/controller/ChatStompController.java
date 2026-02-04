@@ -2,7 +2,8 @@ package com.dagaga.chat.controller;
 
 import com.dagaga.chat.dto.MessageControllerDto.SendMessageRequest;
 
-import com.dagaga.chat.dto.MessageControllerDto.TargetedMessage;
+import com.dagaga.chat.dto.MessageControllerDto.SendMessageResponse;
+import com.dagaga.chat.dto.MessageServiceDto.TargetedMessageResult;
 import com.dagaga.chat.service.ChatMessageService;
 import com.dagaga.security.principal.UserPrincipal;
 import jakarta.validation.Valid;
@@ -38,16 +39,27 @@ public class ChatStompController {
         UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
 
         // 서비스 호출 및 응답 획득
-        List<TargetedMessage> responses = chatMessageService.processAndReturnResponses(
-                req,
-                userPrincipal.getUserId().getValue(),
+        List<TargetedMessageResult> results = chatMessageService.processAndReturnResponses(
+                req.toServiceDto(userPrincipal.getUserId().getValue(), userPrincipal.getNativeLangCode()),
                 userPrincipal.getLocationId());
 
         // 각 대상 언어별로 메시지 전송
-        responses.forEach(targetedMessage -> {
+        results.forEach(result -> {
+            SendMessageResponse response = new SendMessageResponse(
+                    result.result().messageId(),
+                    result.result().roomId(),
+                    result.result().senderId(),
+                    result.result().senderNickname(),
+                    result.result().senderProfileImage(),
+                    result.result().content(),
+                    result.result().originalLang(),
+                    result.result().sentAt(),
+                    result.result().type()
+            );
+
             messagingTemplate.convertAndSend(
-                    "/sub/chat/rooms/" + req.roomId() + "/" + targetedMessage.targetLang(),
-                    targetedMessage.response());
+                    "/sub/chat/rooms/" + req.roomId() + "/" + result.targetLang(),
+                    response);
         });
     }
 }
