@@ -120,12 +120,17 @@ const MyInfo = () => {
       </Card.Body>
 
       {/* 비밀번호 확인 모달 */}
-      <Modal show={showVerifyModal} onHide={() => setShowVerifyModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>{t('verify_password', '비밀번호 확인')}</Modal.Title>
+      <Modal 
+        show={showVerifyModal} 
+        onHide={() => setShowVerifyModal(false)} 
+        centered
+        contentClassName="verify-modal-content"
+      >
+        <Modal.Header closeButton className="verify-modal-header">
+          <Modal.Title className="verify-modal-title">{t('verify_password', '비밀번호 확인')}</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <p>{t('verify_password_desc', '정보 수정을 위해 비밀번호를 입력해주세요.')}</p>
+        <Modal.Body className="verify-modal-body">
+          <p className="text-muted mb-3">{t('verify_password_desc', '정보 수정을 위해 비밀번호를 입력해주세요.')}</p>
           <Form onSubmit={handleVerifyPassword}>
             <Form.Group>
               <Form.Control
@@ -134,14 +139,15 @@ const MyInfo = () => {
                 value={verifyPassword}
                 onChange={(e) => setVerifyPassword(e.target.value)}
                 autoFocus
+                className="verify-input"
               />
             </Form.Group>
-            {verifyError && <div className="text-danger mt-2">{verifyError}</div>}
-            <div className="d-flex justify-content-end mt-3">
-              <Button variant="secondary" onClick={() => setShowVerifyModal(false)} className="me-2">
+            {verifyError && <div className="text-danger mt-2 small">{verifyError}</div>}
+            <div className="d-flex justify-content-end mt-4">
+              <Button variant="light" onClick={() => setShowVerifyModal(false)} className="me-2 btn-verify-cancel">
                 {t('cancel', '취소')}
               </Button>
-              <Button variant="primary" type="submit">
+              <Button variant="primary" type="submit" className="btn-verify-confirm">
                 {t('confirm', '확인')}
               </Button>
             </div>
