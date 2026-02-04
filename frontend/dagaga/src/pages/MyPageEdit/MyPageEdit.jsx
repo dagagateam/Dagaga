@@ -166,25 +166,10 @@ const MyPageEdit = () => {
              updates.profileImage = previewImage;
         }
         
-        // Check for critical changes preventing immediate update
-        const isAreaChanged = user.locationId !== locationId;
-        const isNativeLangChanged = user.nativeLangCode !== nativeLangCode;
-
-        if (isAreaChanged || isNativeLangChanged) {
-            setPendingUpdates(updates);
-            setShowConfirmModal(true);
-            return;
-        }
-
-        try {
-            // Use the async action
-            await updateUserProfile(updates);
-            navigate('/MyPage');
-        } catch (error) {
-            console.error("Update failed:", error);
-            // Optionally set error state to show to user
-            setErrors(prev => ({ ...prev, submit: t('update_failed') || "Update failed" }));
-        }
+        // User requested to show modal for ANY change
+        // We assume valid submission implies intent to update
+        setPendingUpdates(updates);
+        setShowConfirmModal(true);
     };
 
     const handleConfirmUpdate = async () => {
