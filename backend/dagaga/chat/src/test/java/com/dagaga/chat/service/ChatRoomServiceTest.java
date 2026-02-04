@@ -7,6 +7,7 @@ import com.dagaga.domain.chat.room.repository.ChatRoomRepository;
 import com.dagaga.domain.chat.user.entity.ChatRoomUser;
 import com.dagaga.domain.chat.user.entity.ChatRoomUserId;
 import com.dagaga.domain.chat.user.entity.UserStatus;
+import com.dagaga.domain.chat.user.entity.Role;
 import com.dagaga.domain.chat.user.repository.ChatRoomUserRepository;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
@@ -221,9 +222,102 @@ class ChatRoomServiceTest {
         given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
 
         // when & then
+        // when & then
         assertThatThrownBy(() -> chatRoomService.joinRoom(userId, userLocationId, roomId))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("다른 지역 채팅방에는 접근할 수 없습니다");
+    }
+
+    @Test
+    @DisplayName("Success: 방장이 나가면 다음 오래된 멤버에게 방장이 위임됨")
+    void leaveRoom_shouldDelegateOwner_whenOwnerLeaves() {
+        // given
+        int roomId = 1;
+        int ownerId = 10;
+        int nextOwnerId = 11;
+
+        ChatRoom room = ChatRoom.builder().roomId(roomId).roomType(RoomType.CUSTOM).creatorId(ownerId).build();
+
+        ChatRoomUser owner = ChatRoomUser.builder()
+                .id(new ChatRoomUserId(roomId, ownerId))
+                .role(Role.OWNER)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        ChatRoomUser nextUser = ChatRoomUser.builder()
+                .id(new ChatRoomUserId(roomId, nextOwnerId))
+                .role(Role.MEMBER)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
+        given(chatRoomUserRepository.findById(new ChatRoomUserId(roomId, ownerId))).willReturn(Optional.of(owner));
+        given(chatRoomUserRepository.findFirstByIdRoomIdAndStatusOrderByJoinedAtAsc(roomId, UserStatus.ACTIVE))
+                .willReturn(Optional.of(nextUser));
+
+        // when
+        chatRoomService.leaveRoom(ownerId, roomId);
+
+        // then
+        assertThat(owner.getStatus()).isEqualTo(UserStatus.LEFT);
+        assertThat(owner.getRole()).isEqualTo(Role.MEMBER);
+        assertThat(nextUser.getRole()).isEqualTo(Role.OWNER);
+        assertThat(room.getCreatorId()).isEqualTo(nextOwnerId);
+    }
+
+    @Test
+    @DisplayName("Success: 커스텀 방의 마지막 인원이 나가면 방이 DELETED 상태가 됨")
+    void leaveRoom_shouldDeleteRoom_whenCustomRoomBecomesEmpty() {
+        // given
+        int roomId = 1;
+        int userId = 10;
+
+        ChatRoom room = ChatRoom.builder().roomId(roomId).roomType(RoomType.CUSTOM).status(RoomStatus.ACTIVE).creatorId(userId).build();
+        ChatRoomUser user = ChatRoomUser.builder()
+                .id(new ChatRoomUserId(roomId, userId))
+                .role(Role.OWNER) // or MEMBER
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
+        given(chatRoomUserRepository.findById(new ChatRoomUserId(roomId, userId))).willReturn(Optional.of(user));
+        // 방장이면 위임 시도. 인원이 없으므로 Optional.empty()
+        given(chatRoomUserRepository.findFirstByIdRoomIdAndStatusOrderByJoinedAtAsc(roomId, UserStatus.ACTIVE))
+                .willReturn(Optional.empty());
+        given(chatRoomUserRepository.countByIdRoomIdAndStatus(roomId, UserStatus.ACTIVE)).willReturn(0L);
+
+        // when
+        chatRoomService.leaveRoom(userId, roomId);
+
+        // then
+        assertThat(user.getStatus()).isEqualTo(UserStatus.LEFT);
+        assertThat(room.getStatus()).isEqualTo(RoomStatus.DELETED);
+    }
+
+    @Test
+    @DisplayName("Success: 멤버가 나가도 방장이 존재하고 인원이 남으면 방은 ACTIVE 유지")
+    void leaveRoom_shouldKeepRoomActive_whenMemberLeavesAndRoomIsNotEmpty() {
+        // given
+        int roomId = 1;
+        int userId = 10;
+
+        ChatRoom room = ChatRoom.builder().roomId(roomId).roomType(RoomType.CUSTOM).status(RoomStatus.ACTIVE).creatorId(99).build();
+        ChatRoomUser user = ChatRoomUser.builder()
+                .id(new ChatRoomUserId(roomId, userId))
+                .role(Role.MEMBER)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(room));
+        given(chatRoomUserRepository.findById(new ChatRoomUserId(roomId, userId))).willReturn(Optional.of(user));
+        given(chatRoomUserRepository.countByIdRoomIdAndStatus(roomId, UserStatus.ACTIVE)).willReturn(1L);
+
+        // when
+        chatRoomService.leaveRoom(userId, roomId);
+
+        // then
+        assertThat(user.getStatus()).isEqualTo(UserStatus.LEFT);
+        assertThat(room.getStatus()).isEqualTo(RoomStatus.ACTIVE);
     }
 
                 
