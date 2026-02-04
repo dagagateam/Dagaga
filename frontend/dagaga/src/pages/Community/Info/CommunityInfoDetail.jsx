@@ -39,7 +39,7 @@ const CommunityInfoDetail = () => {
                     text: child.content,
                     avatar: `https://i.pravatar.cc/150?u=${child.userId}`,
                     createdAt: child.createdAt,
-                    children: [] 
+                    children: []
                 })) : []
             }));
             setComments(mappedComments);
@@ -70,7 +70,7 @@ const CommunityInfoDetail = () => {
                         isLiked: false, // TODO: 좋아요 기능 구현 시 수정
                         isBookmarked: false // TODO: 북마크 기능 구현 시 수정
                     });
-                    
+
                     // 댓글 목록 가져오기
                     await loadComments();
                 }
@@ -88,7 +88,7 @@ const CommunityInfoDetail = () => {
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
         if (!comment.trim()) return;
-        
+
         if (!isLoggedIn || !user) {
             alert("로그인이 필요한 서비스입니다.");
             navigate('/login');
@@ -99,10 +99,10 @@ const CommunityInfoDetail = () => {
             // Reply인 경우 parentCommentId 전달
             const parentId = replyingTo ? replyingTo.id : null;
             await createComment(Number(id), comment, user.userId, parentId);
-            
+
             // Re-fetch comments from server to ensure data consistency
             await loadComments();
-            
+
             setComment('');
             setReplyingTo(null); // 답글 모드 종료
         } catch (error) {
@@ -133,7 +133,7 @@ const CommunityInfoDetail = () => {
                         <span className="comment-author">
                             {cmt.user}
                             {/* 답글 버튼 */}
-                            <button className="comment-reply-btn" onClick={() => handleReply(cmt)}>답글 달기</button>
+                            <button className="comment-reply-btn" onClick={() => handleReply(cmt)}>{t('replying')}</button>
                         </span>
                         <span className="comment-body">{cmt.text}</span>
                     </div>
@@ -181,11 +181,11 @@ const CommunityInfoDetail = () => {
 
                         <div className="detail-periods">
                             <div className="detail-period-row">
-                                <span className="period-label">접수 기간</span>
+                                <span className="period-label">{t('period_acceptance')}</span>
                                 <span className="period-value">| {info.startDate} ~ {info.endDate}</span>
                             </div>
                             <div className="detail-period-row">
-                                <span className="period-label">진행 기간</span>
+                                <span className="period-label">{t('period_progress')}</span>
                                 <span className="period-value">| {info.startDate} ~ {info.endDate}</span>
                             </div>
                         </div>
@@ -213,7 +213,7 @@ const CommunityInfoDetail = () => {
                                 <input
                                     type="text"
                                     className="comment-input"
-                                    placeholder={replyingTo ? "답글을 입력하세요" : "궁금한 점이 있으시면 댓글 남겨주세요"}
+                                    placeholder={replyingTo ? t('reply_input') : t('question_comment')}
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
                                 />
