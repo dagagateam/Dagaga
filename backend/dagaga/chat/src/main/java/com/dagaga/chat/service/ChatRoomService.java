@@ -85,7 +85,12 @@ public class ChatRoomService {
                             .orElseThrow(() -> new IllegalArgumentException("지역 정보를 찾을 수 없습니다. locationId=" + locationId));
                     String title = location.getDistrictName() + " 단체 채팅방";
                     
-                    ChatRoom newRoom = ChatRoom.createDefaultRoom(userId, locationId, title);
+                    // Admin 유저 찾기 (없으면 요청한 유저가 생성자)
+                    Integer creatorId = userRepository.findFirstByRole("ROLE_ADMIN")
+                            .map(User::getUserId)
+                            .orElse(userId);
+                    
+                    ChatRoom newRoom = ChatRoom.createDefaultRoom(creatorId, locationId, title);
                     return chatRoomRepository.save(newRoom);
                 });
 
@@ -127,6 +132,10 @@ public class ChatRoomService {
     public void deleteRoom(int roomId, int requesterId) {
         ChatRoom room = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다. roomId : " + roomId));
+
+        if (room.getRoomType() == RoomType.DEFAULT) {
+            throw new IllegalStateException("기본 채팅방은 삭제할 수 없습니다.");
+        }
 
         if (!room.getCreatorId().equals(requesterId)) {
             throw new IllegalArgumentException("채팅방을 삭제할 권한이 없습니다.");
