@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import './CommunityInfo.css';
 import { Container, Row, Col, Card } from 'react-bootstrap';
@@ -14,6 +15,7 @@ import { useUserStore } from '../../../store/userStore';
 import LocationBadge from '../../../components/common/LocationBadge';
 
 const CommunityInfo = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { user, savedItems, likedPostIds, toggleSave, toggleLike } = useUserStore();
     const [infos, setInfos] = useState([]);

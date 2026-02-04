@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import { fetchCommunityInfo, fetchCommunityInfoDetail, createComment, fetchComments } from '../../../api/communityApi';
@@ -12,6 +13,7 @@ import unbookmarkIcon from '../../../assets/icons/unbookmark.png';
 
 
 const CommunityInfoDetail = () => {
+    const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
     const { user, isLoggedIn } = useUserStore();
