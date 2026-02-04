@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import IntroRotateText from '../../components/Homepage/IntroRotateText/IntroRotateText';
@@ -7,6 +8,7 @@ import CardSwap, { Card } from '../../components/Homepage/CardSwawp/CardSwap';
 import './Homepage.css';
 
 const Homepage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import './CommunityChatRoom.css';
@@ -12,6 +13,7 @@ import SockJS from 'sockjs-client';
 import stockProfile from '../../../assets/icons/stock_profile.jpg';
 
 const CommunityChatRoom = () => {
+    const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
     const fileInputRef = React.useRef(null);

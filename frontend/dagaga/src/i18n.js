@@ -91,6 +91,7 @@ const resources = {
       "input_chat_title": "채팅방 제목을 입력하세요",
       "create": "생성하기",
       "creating": "생성 중",
+      "person_count": "명",
 
 
       // 채팅방
@@ -249,6 +250,7 @@ const resources = {
       "input_chat_title": "请输入聊天室标题",
       "create": "创建",
       "creating": "创建中",
+      "person_count": "人",
       "chat_room_leave": "退出",
       "send_msg": "发送信件",
       "search_chat_name": "请搜索一下聊天室的名字",
@@ -397,6 +399,7 @@ const resources = {
       "input_chat_title": "Hãy nhập tựa đề phòng chat",
       "create": "Tạo ra",
       "creating": "Đang tạo ra",
+      "person_count": "người",
       "chat_room_leave": "ra ngoài",
       "send_msg": "Gửi tin nhắn",
       "search_chat_name": "Các bạn search tên phòng chat thử đi",
