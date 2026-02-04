@@ -122,3 +122,14 @@ export const verifyPasswordAPI = async (password) => {
         throw error;
     }
 };
+
+export const findPasswordAPI = async (email) => {
+    try {
+        const response = await instance.post('/users/find-password', { email });
+        // Response: { email, tempPassword }
+        return response.data;
+    } catch (error) {
+        console.error("Find Password API Error:", error);
+        throw error;
+    }
+};

@@ -9,6 +9,7 @@ import LanguageSelector from '../../components/auth/LanguageSelector';
 import SocialButton from '../../components/auth/SocialButton';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import FindPasswordModal from '../../components/auth/FindPasswordModal';
 
 import { useUserStore } from '../../store/userStore';
 
@@ -21,6 +22,7 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState('');
+    const [isFindPasswordModalOpen, setIsFindPasswordModalOpen] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -107,11 +109,26 @@ const Login = () => {
                                     </div>
                                 )}
 
-                                <div className="forgot-password">
-                                    <a href="#">{t('forgot_password')}</a>
-                                </div>
+                            <div className="forgot-password">
+                                <Button
+                                    type="button"
+                                    className="text-btn"
+                                    onClick={() => setIsFindPasswordModalOpen(true)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: '#666',
+                                        textDecoration: 'underline',
+                                        cursor: 'pointer',
+                                        padding: 0,
+                                        fontSize: '0.9rem'
+                                    }}
+                                >
+                                    {t('forgot_password')}
+                                </Button>
+                            </div>
 
-                                <Button type="submit" className="login-btn">{t('login')}</Button>
+                            <Button type="submit" className="login-btn">{t('login')}</Button>
                             </form>
 
                             <div className="signup-link">
@@ -145,6 +162,11 @@ const Login = () => {
                     </div>
                 </div>
             </main>
+            
+            <FindPasswordModal
+                isOpen={isFindPasswordModalOpen}
+                onClose={() => setIsFindPasswordModalOpen(false)}
+            />
         </motion.div>
     );
 };
