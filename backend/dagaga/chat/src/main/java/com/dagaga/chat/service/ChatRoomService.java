@@ -193,6 +193,32 @@ public class ChatRoomService {
         chatRoomUserRepository.findById(id).ifPresent(ChatRoomUser::leave);
     }
 
+    @Transactional
+    public void handleUserLocationChange(int userId, int oldLocationId, int newLocationId) {
+        // 새로운 지역의 기본 채팅방 참여
+        joinDefaultRoom(userId, newLocationId);
+
+        // 유저가 참여 중인 모든 활성 채팅방 조회
+        List<ChatRoomUser> activeRooms = chatRoomUserRepository.findAllByIdUserIdAndStatus(userId, UserStatus.ACTIVE);
+
+        for (ChatRoomUser chatRoomUser : activeRooms) {
+            Integer roomId = chatRoomUser.getId().getRoomId();
+            ChatRoom room = chatRoomRepository.findById(roomId)
+                    .orElseThrow(() -> new IllegalStateException("채팅방 정보를 찾을 수 없습니다. roomId=" + roomId));
+
+            // 이전 지역에 속한 채팅방인지 확인
+            if (room.getLocationId().equals(oldLocationId)) {
+                if (room.getRoomType() == RoomType.DEFAULT) {
+                    // 이전 지역의 기본 채팅방 나가기
+                    leaveDefaultRoom(userId, oldLocationId);
+                } else if (room.getRoomType() == RoomType.CUSTOM) {
+                    // 이전 지역에서 생성되거나 참여한 커스텀 채팅방 나가기
+                    leaveRoom(userId, roomId);
+                }
+            }
+        }
+    }
+
     private void upsertActiveStatus(int roomId, int userId, Role role) {
         ChatRoomUserId id = new ChatRoomUserId(roomId, userId);
 

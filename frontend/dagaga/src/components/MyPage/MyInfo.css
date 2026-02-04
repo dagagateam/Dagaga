@@ -58,3 +58,62 @@
 .mt-4 {
   margin-top: 1rem !important; /* Reduced from 2rem to make card more compact */
 }
+
+/* Modal Custom Styles */
+.verify-modal-content {
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.verify-modal-header {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.verify-modal-title {
+  font-weight: 700;
+  color: #333;
+}
+
+.verify-modal-body {
+  padding-top: 10px;
+}
+
+.verify-input {
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+
+.verify-input:focus {
+  border-color: #E67E22;
+  box-shadow: 0 0 0 0.2rem rgba(230, 126, 34, 0.25);
+}
+
+.btn-verify-cancel {
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-weight: 600;
+  background-color: #f1f3f5;
+  border: none;
+  color: #495057;
+}
+
+.btn-verify-cancel:hover {
+  background-color: #e9ecef;
+  color: #212529;
+}
+
+.btn-verify-confirm {
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-weight: 600;
+  background-color: #E67E22;
+  border: none;
+  color: white;
+}
+
+.btn-verify-confirm:hover {
+  background-color: #D35400;
+}
