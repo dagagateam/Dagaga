@@ -95,10 +95,7 @@ const ProblemSelect = () => {
     }
   }, [handleWheel]);
 
-  // Handle card click
-  const handleCardClick = (problemId) => {
-    setSelectedCardId(problemId === selectedCardId ? null : problemId);
-  };
+
 
   if (!scenario) {
     return <div>{t('category_not_found')}</div>;
@@ -115,8 +112,10 @@ const ProblemSelect = () => {
           ) : (
             problems.map((problem, index) => {
               // Cards spaced 15 degrees apart
+              // Cards spaced 15 degrees apart
               const rotation = index * 15 + scrollOffset;
               const isActive = selectedCardId === problem.id;
+              const isSemiActive = Math.abs(rotation) <= 5;
               
               // Determine display text based on API's viewQuestions field
               // viewQuestions contains the question in the user's native language
@@ -132,7 +131,9 @@ const ProblemSelect = () => {
                   pronunciations={problem.pronunciations}
                   rotation={rotation}
                   isActive={isActive}
-                  onClick={() => handleCardClick(problem.id)}
+                  isSemiActive={isSemiActive}
+                  onMouseEnter={() => setSelectedCardId(problem.id)}
+                  onMouseLeave={() => setSelectedCardId(null)}
                   translations={problem.wordTranslations} // from API response map
                   stages={problems} // Pass full list for progress bar
                 />
