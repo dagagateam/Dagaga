@@ -33,13 +33,15 @@ public class MessageControllerDto {
             Long messageId,
             Integer roomId,
             Integer senderId,
+            String senderNickname,
+            String senderProfileImage,
             String content, // 원문 또는 번역문
             String originalLang,
             String sentAt,
             String type) { // TALK, LEAVE
 
         // Service Result -> Response 변환 (언어별)
-        public static SendMessageResponse from(SaveMessageResult result, String targetLang) {
+        public static SendMessageResponse from(SaveMessageResult result, String targetLang, String senderNickname, String senderProfileImage) {
             ChatMessage message = result.message();
             String content = message.getOriginalText();
 
@@ -59,6 +61,8 @@ public class MessageControllerDto {
                     message.getMessageId(),
                     message.getRoomId(),
                     message.getSenderId(),
+                    senderNickname,
+                    senderProfileImage,
                     content,
                     message.getOriginalLang(),
                     message.getSentAt().toString(),
