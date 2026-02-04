@@ -69,4 +69,7 @@ public class MessageControllerDto {
                     "TALK");
         }
     }
+
+    public record TargetedMessage(String targetLang, SendMessageResponse response) {
+    }
 }

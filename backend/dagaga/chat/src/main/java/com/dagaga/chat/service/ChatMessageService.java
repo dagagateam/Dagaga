@@ -2,6 +2,10 @@ package com.dagaga.chat.service;
 
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageCommand;
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
+import com.dagaga.chat.dto.MessageControllerDto.SendMessageRequest;
+import com.dagaga.chat.dto.MessageControllerDto.SendMessageResponse;
+import com.dagaga.chat.dto.MessageControllerDto.TargetedMessage;
+import java.util.ArrayList;
 import com.dagaga.domain.chat.language.repository.LanguageRepository;
 import com.dagaga.domain.chat.message.entity.ChatMessage;
 import com.dagaga.domain.chat.message.entity.MessageTranslation;
@@ -115,6 +119,45 @@ public class ChatMessageService {
             }
         });
 
+    }
+
+    @Transactional
+    public List<TargetedMessage> processAndReturnResponses(SendMessageRequest req, Integer userId, Integer locationId) {
+        // 사용자 조회
+        User sender = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 지역 검증
+        chatRoomService.getRoomAndValidateLocation(req.roomId(), locationId);
+
+        // 메시지 저장 (번역 포함)
+        SaveMessageResult savedResult = save(req.toServiceDto(userId, sender.getNativeLangCode()));
+
+        // 응답 생성
+        List<TargetedMessage> responses = new ArrayList<>();
+
+        // 원문 언어 사용자용
+        SendMessageResponse originalPayload = SendMessageResponse.from(
+                savedResult,
+                savedResult.message().getOriginalLang(),
+                sender.getNickname(),
+                sender.getProfileImage());
+
+        responses.add(new TargetedMessage(savedResult.message().getOriginalLang(), originalPayload));
+
+        // 번역 언어 사용자용
+        if (savedResult.translations() != null) {
+            savedResult.translations().forEach(translation -> {
+                SendMessageResponse translatedPayload = SendMessageResponse.from(
+                        savedResult,
+                        translation.getTargetLang(),
+                        sender.getNickname(),
+                        sender.getProfileImage());
+                responses.add(new TargetedMessage(translation.getTargetLang(), translatedPayload));
+            });
+        }
+
+        return responses;
     }
 
     @Transactional(readOnly = true)
