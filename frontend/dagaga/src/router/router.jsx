@@ -20,7 +20,7 @@ import ProtectedRoute from "../components/common/ProtectedRoute";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/Login" replace />,
+    element: <Navigate to="/Homepage" replace />,
   },
   {
     path: "/Login",
