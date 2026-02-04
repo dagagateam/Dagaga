@@ -652,20 +652,29 @@ export const fetchProblemNative = async (categoryId, orderIndex) => {
         const mockResponse = {
           success: true,
           message: "질문 조회 성공 (MOCK)",
-          data: "Sample Question Text (Native Mock)",
+          data: {
+            nativeQuestion: "Sample Question Text (Native Mock)",
+            koreanQuestion: "Sample Question Text (Korean Mock)"
+          },
         };
 
         // Specific mock data for "학업" to match other mocks
         if (categoryId === "학업") {
           if (orderIndex == 1 || orderIndex == 201) {
-            mockResponse.data =
-              "어머니, 요즘 OO가 집에서 학교 이야기를 자주 들려주나요? 주로 어떤 주제인가요?";
+            mockResponse.data = {
+              nativeQuestion: "어머니, 요즘 OO가 집에서 학교 이야기를 자주 들려주나요? 주로 어떤 주제인가요?",
+              koreanQuestion: "어머니, 요즘 OO가 집에서 학교 이야기를 자주 들려주나요? 주로 어떤 주제인가요? (Korean)"
+            };
           } else if (orderIndex == 2 || orderIndex == 202) {
-            mockResponse.data =
-              "아이가 학교 가는 것에 대해 아침에 어떤 기분이나 태도를 보이나요?";
+            mockResponse.data = {
+              nativeQuestion: "아이가 학교 가는 것에 대해 아침에 어떤 기분이나 태도를 보이나요?",
+              koreanQuestion: "아이가 학교 가는 것에 대해 아침에 어떤 기분이나 태도를 보이나요? (Korean)"
+            };
           } else if (orderIndex == 3 || orderIndex == 203) {
-            mockResponse.data =
-              "요즘 아이가 집에서 가장 몰입하고 있거나 즐거워하는 취미나 관심사가 무엇인가요?";
+            mockResponse.data = {
+              nativeQuestion: "요즘 아이가 집에서 가장 몰입하고 있거나 즐거워하는 취미나 관심사가 무엇인가요?",
+              koreanQuestion: "요즘 아이가 집에서 가장 몰입하고 있거나 즐거워하는 취미나 관심사가 무엇인가요? (Korean)"
+            };
           }
         }
 

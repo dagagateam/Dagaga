@@ -9,6 +9,7 @@ import ProblemMascot from "../../components/Problem/ProblemMascot/ProblemMascot"
 import BufferingButton from "../../components/ProblemNative/BufferingButton";
 import ProblemDone from "../../components/Problem/ProblemDone/ProblemDone";
 import ProblemRepeat from "../../components/Problem/ProblemRepeat/ProblemRepeatButton";
+import ProblemTranslate from "../../components/Problem/ProblemAnswer/ProblemTranslate";
 import { useSpeechApi } from "../../api/useSpeechApi";
 import { useTts } from "../../hooks/useTts";
 import { fetchProblemNative } from "../../api/learningApi";
@@ -23,6 +24,7 @@ const ProblemNative = () => {
   const navigate = useNavigate();
 
   const [fetchedProblemText, setFetchedProblemText] = useState(null);
+  const [koreanProblemText, setKoreanProblemText] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Prioritize fetched text (native) over passed state (view lang)
@@ -32,6 +34,7 @@ const ProblemNative = () => {
 
   // Page state: "pre-translate" | "translating" | "post-translate"
   const [pageState, setPageState] = useState("pre-translate");
+  const [showNative, setShowNative] = useState(false); // Default to showing native language
 
   // Audio analyser for visualization
   const [audioAnalyser, setAudioAnalyser] = useState(null);
@@ -65,7 +68,11 @@ const ProblemNative = () => {
           if (response && response.data && response.data.success) {
             console.log("[ProblemNative] Fetched Problem:", response.data.data); // DEBUG
             console.log("[ProblemNative] Full Response Data:", response.data); // DEBUG
-            setFetchedProblemText(response.data.data);
+            // Extract both Korean and native questions
+            const nativeText = response.data.data?.nativeQuestion || response.data.data;
+            const koreanText = response.data.data?.koreanQuestion || "";
+            setFetchedProblemText(nativeText);
+            setKoreanProblemText(koreanText);
           } else {
             setFetchedProblemText("문제 정보를 불러올 수 없습니다.");
           }
@@ -131,11 +138,15 @@ const ProblemNative = () => {
   useEffect(() => {
     if (pageState === "pre-translate" && !initialHeaderPlayedRef.current) {
         if (problemText && problemText !== "문제를 불러오는 중...") {
-            initialHeaderPlayedRef.current = true;
-            playTts(problemText);
+            // Only play if we have the text for the current mode
+            const textToPlay = showNative ? problemText : koreanProblemText;
+            if (textToPlay) {
+                initialHeaderPlayedRef.current = true;
+                playTts(textToPlay);
+            }
         }
     }
-  }, [pageState, problemText, playTts]);
+  }, [pageState, problemText, koreanProblemText, showNative, playTts]);
 
   // Auto-play TTS when step changes (only in post-translate state)
   useEffect(() => {
@@ -267,9 +278,12 @@ const ProblemNative = () => {
   // Render pre-translate state
   const renderPreTranslate = () => (
     <Container fluid className="problem-native-container pre-translate">
-      <div style={{ display: 'flex', alignItems: 'center', width: '100%', paddingLeft: '40px', paddingRight: '40px', marginTop: '20px', marginBottom: '30px', gap: '10px' }}>
-        <h2 className="problem-question" style={{ margin: 0, padding: 0, width: 'auto' }}>{problemText}</h2>
-        <ProblemRepeat onClick={() => playTts(problemText)} />
+      <div className="problem-question-header-centered">
+        <h2 className="problem-question problem-question-centered">
+          {showNative ? problemText : koreanProblemText}
+        </h2>
+        <ProblemTranslate onClick={() => setShowNative(!showNative)} active={!showNative} />
+        <ProblemRepeat onClick={() => playTts(showNative ? problemText : koreanProblemText)} />
       </div>
       <div className="problem-answer-section">
         <ProblemMascot />
@@ -293,8 +307,11 @@ const ProblemNative = () => {
   // Render translating state
   const renderTranslating = () => (
     <Container fluid className="problem-native-container translating">
-      <div style={{ display: 'flex', alignItems: 'center', width: '100%', paddingLeft: '40px', paddingRight: '40px', marginTop: '20px', marginBottom: '30px', gap: '10px' }}>
-        <h2 className="problem-question" style={{ margin: 0, padding: 0, width: 'auto' }}>{problemText}</h2>
+      <div className="problem-question-header-centered">
+        <h2 className="problem-question problem-question-centered">
+          {showNative ? problemText : koreanProblemText}
+        </h2>
+        <ProblemTranslate onClick={() => setShowNative(!showNative)} active={!showNative} />
       </div>
       <div className="problem-answer-section">
         <ProblemMascot />
@@ -316,9 +333,12 @@ const ProblemNative = () => {
   const renderPostTranslate = () => (
     <Container fluid className="problem-native-container post-translate">
       <ProblemProgress currentWord={currentStep} totalWords={totalSteps} />
-      <div style={{ display: 'flex', alignItems: 'center', width: '100%', paddingLeft: '40px', paddingRight: '40px', marginTop: '20px', marginBottom: '30px', gap: '10px' }}>
-        <h2 className="problem-question" style={{ margin: 0, padding: 0, width: 'auto' }}>{problemText}</h2>
-        <ProblemRepeat onClick={() => playTts(problemText)} />
+      <div className="problem-question-header-centered">
+        <h2 className="problem-question problem-question-centered">
+          {showNative ? problemText : koreanProblemText}
+        </h2>
+        <ProblemTranslate onClick={() => setShowNative(!showNative)} active={!showNative} />
+        <ProblemRepeat onClick={() => playTts(showNative ? problemText : koreanProblemText)} />
       </div>
       <div className="problem-answer-section">
         <ProblemMascot />
