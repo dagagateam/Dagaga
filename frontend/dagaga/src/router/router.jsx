@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import App from "../App";
 import ScenarioSelect from "../pages/ScenarioSelect/ScenarioSelect";
 import ProblemSelect from "../pages/ProblemSelect/ProblemSelect";
@@ -42,88 +42,58 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path: "ScenarioSelect",
-        element: (
-          <ProtectedRoute>
-            <ScenarioSelect />
-          </ProtectedRoute>
-        ),
-      },
-      {
         path: "Homepage",
         element: <Homepage />,
       },
+      // Protected Routes
       {
-        path: "ProblemSelect/:categoryId",
         element: (
           <ProtectedRoute>
-            <ProblemSelect />
+            <Outlet />
           </ProtectedRoute>
         ),
-      },
-      {
-        path: "Problem/:categoryId/:questionId",
-        element: (
-          <ProtectedRoute>
-            <Problem />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "Community/Info",
-        element: (
-          <ProtectedRoute>
-            <CommunityInfo />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "Community/Info/:id",
-        element: (
-          <ProtectedRoute>
-            <CommunityInfoDetail />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "ProblemTranslate/:categoryId/:problemId",
-        element: (
-          <ProtectedRoute>
-            <ProblemNative />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "Community/Chat",
-        element: (
-          <ProtectedRoute>
-            <CommunityChatList />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "Community/Chat/room/:id",
-        element: (
-          <ProtectedRoute>
-            <CommunityChatRoom />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "MyPage",
-        element: (
-          <ProtectedRoute>
-            <MyPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "MyPage/Edit",
-        element: (
-          <ProtectedRoute>
-            <MyPageEdit />
-          </ProtectedRoute>
-        ),
+        children: [
+          {
+            path: "ScenarioSelect",
+            element: <ScenarioSelect />,
+          },
+          {
+            path: "ProblemSelect/:categoryId",
+            element: <ProblemSelect />,
+          },
+          {
+            path: "Problem/:categoryId/:questionId",
+            element: <Problem />,
+          },
+          {
+            path: "Community/Info",
+            element: <CommunityInfo />,
+          },
+          {
+            path: "Community/Info/:id",
+            element: <CommunityInfoDetail />,
+          },
+          {
+            path: "ProblemTranslate/:categoryId/:problemId",
+            element: <ProblemNative />,
+          },
+          {
+            path: "Community/Chat",
+            element: <CommunityChatList />,
+          },
+          {
+            path: "Community/Chat/room/:id",
+            element: <CommunityChatRoom />,
+          },
+          {
+            path: "MyPage",
+            element: <MyPage />,
+          },
+          {
+            path: "MyPage/Edit",
+            element: <MyPageEdit />,
+          },
+        ],
       },
     ],
   },
