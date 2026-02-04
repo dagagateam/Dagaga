@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import IntroRotateText from '../../components/Homepage/IntroRotateText/IntroRotateText';
 import CardSwap, { Card } from '../../components/Homepage/CardSwawp/CardSwap';
-import TargetCursor from '../../components/Homepage/TargetCursorCard/TargetCursorCard';
+
 import './Homepage.css';
 
 const Homepage = () => {
@@ -32,12 +32,7 @@ const Homepage = () => {
 
   return (
     <div className="homepage-container">
-      <TargetCursor 
-        spinDuration={5}
-        hideDefaultCursor={true}
-        parallaxOn={true}
-        hoverDuration={0.2}
-      />
+
       {/* Hero Section */}
       <div className="homepage-hero-section">
         <div className="hero-content">
@@ -89,17 +84,17 @@ const Homepage = () => {
 
       {/* Bottom Section: Navigation Cards */}
       <div className="homepage-navigation">
-        <div className="nav-card cursor-target" onClick={() => handleNavClick('/ScenarioSelect')}>
+        <div className="nav-card" onClick={() => handleNavClick('/ScenarioSelect')}>
           <div className="nav-card-icon">📚</div>
           <h3>학습하기</h3>
           <p>다양한 시나리오로<br/>한국어를 연습하세요</p>
         </div>
-        <div className="nav-card cursor-target" onClick={() => handleNavClick('/Community/Chat')}>
+        <div className="nav-card" onClick={() => handleNavClick('/Community/Chat')}>
           <div className="nav-card-icon">💬</div>
           <h3>커뮤니티</h3>
           <p>다른 학습자들과<br/>이야기를 나누세요</p>
         </div>
-        <div className="nav-card cursor-target" onClick={() => handleNavClick('/Community/Info')}>
+        <div className="nav-card" onClick={() => handleNavClick('/Community/Info')}>
           <div className="nav-card-icon">📰</div>
           <h3>정보공유</h3>
           <p>유용한 한국 생활 정보를<br/>확인하세요</p>
