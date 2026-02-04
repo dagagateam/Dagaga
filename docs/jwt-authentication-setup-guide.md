@@ -153,37 +153,33 @@ KEYS user_sessions:*
 TTL refresh_token:1:{tokenId}
 ```
 
+## 최근 아키텍처 변경 사항 (Recent Architecture Changes)
+
+### 1. 보안 모듈화 (Security Modularity)
+- 보안 관련 모든 로직이 `:security` 모듈로 분리되었습니다.
+- JWT 생성/검증, Redis 기반 토큰 관리, Spring Security 필터 체인이 포함됩니다.
+
+### 2. 쿠키 기반 Refresh Token (Cookie-based Refresh Token)
+- Refresh Token은 이제 브라우저의 `httpOnly` 쿠키(`refresh_token`)로 관리됩니다.
+- 클라이언트 측에서 직접 토큰을 저장하거나 관리할 필요가 없어 보안성이 강화되었습니다.
+
+### 3. JWT 데이터 자동 추출 (Automated JWT Data Extraction)
+- Access Token의 페이로드에 `userId`, `locationId`, `viewLangCode`, `nativeLangCode`가 포함됩니다.
+- 백엔드 컨트롤러에서는 `CurrentUser` 추상화를 통해 이 데이터를 자동으로 주입받아 사용합니다.
+
 ## 다음 단계 (Next Steps)
 
 ### 남은 과제 (Remaining Tasks)
 
-1. **위치 기반 필터링**: 리포지토리 레벨 필터링 구현
-   - `PostRepository`, `ProgramRepository` 등을 업데이트하여 locationId로 필터링
-   - 서비스에서 `SecurityContextHelper.getCurrentLocationId()` 사용
-
-2. **통합 테스트**: 테스트 커버리지 추가
-   - 인증 흐름 테스트
-   - 토큰 갱신 테스트
-   - 동시 세션 제한 테스트
-
-3. **OAuth 통합**: Google/LINE 로그인 구현
-   - 기존 `socialProvider` 및 `socialId` 필드 사용
-   - OAuth 컨트롤러 엔드포인트 생성
-
-## 보안 알림 (Security Reminders)
-
-- ⚠️ **프로덕션에서는 JWT_SECRET을 변경하세요!** 안전한 새 키를 생성해야 합니다.
-- ⚠️ **프로덕션에서는 HTTPS를 사용하세요.** 토큰이 전송 중에 노출되지 않도록 해야 합니다.
-- ⚠️ **주기적으로 비밀 키를 교체하세요.** 보안을 강화할 수 있습니다.
-- ⚠️ **Redis 메모리 사용량을 모니터링하세요.** 토큰 저장으로 인해 사용량이 증가할 수 있습니다.
+1. **OAuth2 프로바이더 확장**: Google/LINE 외 추가 프로바이더 지원 고려.
+2. **프론트엔드 최적화**: JWT 만료 시 자동 갱신 흐름(Axios Interceptor) 안정성 강화.
 
 ## 테스트 체크리스트 (Testing Checklist)
 
-- [ ] 유효한 자격 증명으로 회원가입 가능
-- [ ] 로그인 시 JWT 토큰 반환
-- [ ] Access Token으로 보호된 엔드포인트 접근 가능
-- [ ] 만료된 Access Token은 401 반환
-- [ ] Refresh Token으로 새로운 Access Token 발급 성공
-- [ ] 로그아웃 시 Access Token 블랙리스트 처리됨
-- [ ] 최대 3개의 동시 세션 제한 적용됨
-- [ ] 위치 기반 필터링이 올바르게 작동함
+- [x] 유효한 자격 증명으로 회원가입 가능
+- [x] 로그인 시 JWT 토큰 및 쿠키 발급 성공
+- [x] Access Token으로 보호된 엔드포인트 접근 가능
+- [x] 만료된 Access Token은 401 반환
+- [x] Refresh Token 쿠키를 사용하여 새로운 Access Token 발급 성공
+- [x] 로그아웃 시 Access Token 블랙리스트 및 쿠키 삭제 처리됨
+- [x] 위치 기반 필터링이 JWT 데이터를 통해 자동으로 작동함

@@ -8,19 +8,29 @@ import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.service.UserService;
 import com.dagaga.chat.service.ChatRoomService;
-import com.dagaga.domain.security.SecurityContextHelper;
 import com.dagaga.security.dto.AuthResponse;
 import com.dagaga.security.dto.RefreshTokenRequest;
-import com.dagaga.domain.security.jwt.JwtTokenProvider;
+import com.dagaga.security.jwt.JwtTokenProvider;
+import com.dagaga.security.principal.UserPrincipal;
+import com.dagaga.domain.security.CurrentUser;
+import com.dagaga.domain.user.value.UserId;
 import com.dagaga.security.redis.RedisTokenService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -28,9 +38,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final ChatRoomService chatRoomService;
+    private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTokenService redisTokenService;
+    private final CurrentUser currentUser;
+    private final ChatRoomService chatRoomService;
 
     @Value("${jwt.access-token-expiry}")
     private int accessTokenExpiry;
@@ -61,7 +73,7 @@ public class UserController {
             // 채팅방 참여 실패가 회원가입 전체 실패로 이어지지 않도록 로그만 남김
             // 예: 기본 채팅방이 아직 생성되지 않은 경우 등
             // TODO: 기본 채팅방 없을 때 자동 생성
-            System.err.println("기본 채팅방 참여 실패: " + e.getMessage());
+            log.error("기본 채팅방 참여 실패", e);
         }
 
         return ResponseEntity.ok(user.getUserId());
@@ -69,19 +81,21 @@ public class UserController {
 
     @PostMapping("/social-signup")
     public ResponseEntity<AuthResponse> socialSignup(
-            @RequestBody @Valid SocialSignupDto dto) {
+            @RequestBody @Valid SocialSignupDto dto,
+            HttpServletResponse response) {
         User user = userService.registerSocialUser(dto);
 
         // 회원가입 후 해당 지역의 기본 채팅방 자동 참여
         try {
-            chatRoomService.joinDefaultRoom(user.getUserId(), dto.getLocationId());
+            chatRoomService.joinDefaultRoom(user.getUserId(), user.getLocationId());
         } catch (Exception e) {
-            System.err.println("기본 채팅방 참여 실패: " + e.getMessage());
+            log.error("기본 채팅방 참여 실패", e);
         }
 
-        // 토큰 생성 및 응답 (로그인 로직과 동일)
+        // 토큰 생성 및 응답
         String accessToken = jwtTokenProvider.generateAccessToken(
                 user.getUserId(),
+                user.getEmail(),
                 user.getLocationId(),
                 user.getViewLangCode(),
                 user.getNativeLangCode(),
@@ -92,9 +106,11 @@ public class UserController {
         redisTokenService.saveRefreshToken(user.getUserId(), refreshTokenId, refreshToken, refreshTokenExpiry);
         redisTokenService.addUserSession(user.getUserId(), refreshTokenId);
 
-        AuthResponse response = AuthResponse.builder()
+        // Refresh Token을 httpOnly 쿠키에 저장
+        setRefreshTokenCookie(response, refreshToken);
+
+        AuthResponse authResponse = AuthResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .expiresIn(accessTokenExpiry)
                 .userId(user.getUserId())
@@ -105,29 +121,34 @@ public class UserController {
                 .nickname(user.getNickname())
                 .build();
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authResponse);
     }
 
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> getCurrentUser() {
-        Integer userId = SecurityContextHelper.getCurrentUserId();
+        Integer userId = currentUser.getUserId()
+                .map(UserId::getValue)
+                .orElseThrow(() -> new IllegalArgumentException("인증된 사용자 정보를 찾을 수 없습니다."));
         return ResponseEntity.ok(userService.getUserResponse(userId));
     }
 
     @PatchMapping("/me")
     public ResponseEntity<UserResponseDto> updateCurrentUser(@RequestBody @Valid UserUpdateDto dto) {
-        Integer userId = SecurityContextHelper.getCurrentUserId();
+        Integer userId = currentUser.getUserId()
+                .map(UserId::getValue)
+                .orElseThrow(() -> new IllegalArgumentException("인증된 사용자 정보를 찾을 수 없습니다."));
         return ResponseEntity.ok(userService.updateUser(userId, dto));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody @Valid UserLoginDto dto) {
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid UserLoginDto dto, HttpServletResponse response) {
         // 사용자 인증
         User user = userService.authenticate(dto.getEmail(), dto.getPassword());
 
         // 토큰 생성
         String accessToken = jwtTokenProvider.generateAccessToken(
                 user.getUserId(),
+                user.getEmail(),
                 user.getLocationId(),
                 user.getViewLangCode(),
                 user.getNativeLangCode(),
@@ -143,26 +164,33 @@ public class UserController {
         // 동시 세션 관리
         redisTokenService.addUserSession(user.getUserId(), refreshTokenId);
 
+        // Refresh Token을 httpOnly 쿠키에 저장
+        setRefreshTokenCookie(response, refreshToken);
+
         // 응답 생성
-        AuthResponse response = AuthResponse.builder()
+        AuthResponse authResponse = AuthResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .expiresIn(accessTokenExpiry)
                 .userId(user.getUserId())
                 .email(user.getEmail())
+                .nickname(user.getNickname())
                 .locationId(user.getLocationId())
                 .viewLangCode(user.getViewLangCode())
                 .nativeLangCode(user.getNativeLangCode())
-                .nickname(user.getNickname())
                 .build();
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(@RequestBody @Valid RefreshTokenRequest request) {
-        String refreshToken = request.getRefreshToken();
+    public ResponseEntity<AuthResponse> refresh(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response) {
+
+        if (refreshToken == null) {
+            throw new IllegalArgumentException("Refresh token is missing");
+        }
 
         // Refresh Token 유효성 검사
         if (!jwtTokenProvider.validateToken(refreshToken)) {
@@ -190,15 +218,15 @@ public class UserController {
         // 새로운 Access Token 생성
         String newAccessToken = jwtTokenProvider.generateAccessToken(
                 userId,
+                user.getEmail(),
                 user.getLocationId(),
                 user.getViewLangCode(),
                 user.getNativeLangCode(),
                 user.getNickname());
 
         // 응답 생성
-        AuthResponse response = AuthResponse.builder()
+        AuthResponse authResponse = AuthResponse.builder()
                 .accessToken(newAccessToken)
-                .refreshToken(refreshToken) // Refresh Token은 유지
                 .tokenType("Bearer")
                 .expiresIn(accessTokenExpiry)
                 .userId(userId)
@@ -209,11 +237,12 @@ public class UserController {
                 .nickname(user.getNickname())
                 .build();
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader,
+            HttpServletResponse response) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new IllegalArgumentException("Invalid authorization header");
         }
@@ -222,7 +251,7 @@ public class UserController {
 
         // 토큰 유효성 검사
         if (!jwtTokenProvider.validateToken(accessToken)) {
-            return ResponseEntity.ok().build(); // 이미 유효하지 않으므로 무시
+            return ResponseEntity.ok().build();
         }
 
         // 토큰 정보 추출
@@ -235,11 +264,25 @@ public class UserController {
             redisTokenService.blacklistToken(accessTokenId, remainingTtl);
         }
 
-        // 참고: 현재 보안을 위해 "모든 기기에서 로그아웃" 정책을 적용 중입니다.
-        // 기기별 로그아웃을 구현하려면 클라이언트가 refreshToken을 본문에 보내야 하며, 해당 토큰만 삭제해야 합니다.
         redisTokenService.deleteAllUserRefreshTokens(userId);
         redisTokenService.removeAllUserSessions(userId);
 
+        // Refresh Token 쿠키 삭제
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+
         return ResponseEntity.ok().build();
+    }
+
+    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true); // HTTPS 개발 환경 또는 운영 환경
+        cookie.setPath("/");
+        cookie.setMaxAge((int) refreshTokenExpiry);
+        response.addCookie(cookie);
     }
 }

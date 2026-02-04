@@ -40,7 +40,7 @@ const MyPage = () => {
       {/* Greeting Header */}
       <Card className="greeting-card mb-3">
         <Card.Body className="greeting-body">
-          <div className="profile-circle">
+          <div key="profile" className="profile-circle">
             <img 
               src={user?.profileImage || stockProfile} 
               alt="Profile" 
@@ -48,7 +48,7 @@ const MyPage = () => {
               onError={(e) => {e.target.style.display='none'}} 
             />
           </div>
-          <h2 className="greeting-text">
+          <h2 key="greeting" className="greeting-text">
             <strong>{t('hello_user', { name: userNickname })}</strong>
           </h2>
         </Card.Body>
@@ -92,9 +92,11 @@ const MyPage = () => {
           <Card className="joined-chat-card">
             <Card.Body className="joined-chat-body">
               {joinedChats.length > 0 ? (
-                joinedChats.map(chat => (
-                  <JoinedChatItem key={chat.id} chat={chat} />
-                ))
+                <>
+                  {joinedChats.map(chat => (
+                    <JoinedChatItem key={chat.id} chat={chat} />
+                  ))}
+                </>
               ) : (
                 <div className="p-3 text-muted text-center">
                   {t('no_joined_chats')}

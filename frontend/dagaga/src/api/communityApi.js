@@ -85,12 +85,19 @@ export const sendChatMessage = async (roomId, message) => {
         const payload = {
             message
         };
-        
-        console.log('Sending message:', { roomId, payload });
-        
+
+        // Add userLocationId if provided
+        if (userLocationId) {
+            payload.userLocationId = userLocationId;
+        }
+
+        // DEBUG: Sending message info
+        // console.log('Sending message:', { roomId, payload });
+
         const response = await instance.post(`/community/chats/${roomId}/messages`, payload);
-        
-        console.log('Message sent successfully:', response.data);
+
+        // DEBUG: Message sent info
+        // console.log('Message sent successfully:', response.data);
         return response.data; // ApiResponse 형식: { success, message, data }
     } catch (error) {
         console.error('Failed to send message:', error);

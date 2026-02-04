@@ -34,30 +34,31 @@ const CommunityInfo = () => {
         const endDateStr = parts[1].trim();
         const endDate = new Date(endDateStr);
         const today = new Date();
-        
+
         endDate.setHours(23, 59, 59, 999);
         return today.getTime() > endDate.getTime();
     };
 
     useEffect(() => {
-                const regionName = user?.locationId ? getLocationName(user.locationId) : '지역 설정 필요';
+        const regionName = user?.locationId ? getLocationName(user.locationId) : '지역 설정 필요';
         setUserRegion(regionName);
 
         const loadData = async () => {
             try {
                 const response = await fetchCommunityInfo(0, 100); // 더 많은 데이터 요청
-                
+
                 // 백엔드 응답 구조: { success, message, data: { content: [...], totalElements, ... } }
                 const allPosts = response.data.content || [];
-                
-                console.log(`Loaded ${allPosts.length} posts for region: ${regionName}`);
-                
+
+                // DEBUG: Posts loaded info
+                // console.log(`Loaded ${allPosts.length} posts for region: ${regionName}`);
+
                 // 백엔드 응답 형식 → 프론트엔드 형식 변환
                 const items = allPosts.map(post => {
                     // content에서 날짜 파싱 (백엔드에 별도 필드가 없는 경우)
                     const content = post.content || "";
                     const progressPeriod = parseDateFromContent(content, "프로그램기간");
-                    
+
                     return {
                         id: post.postId,
                         title: post.title || "제목 없음",
@@ -69,7 +70,7 @@ const CommunityInfo = () => {
                         image: post.imageUrls?.[0] || `https://via.placeholder.com/600x300/F8B15E/FFFFFF?text=${encodeURIComponent(post.title || 'No Image')}`
                     };
                 });
-                
+
                 setInfos(items);
             } catch (error) {
                 console.error("Failed to fetch community info:", error);
@@ -83,7 +84,7 @@ const CommunityInfo = () => {
         loadData();
     }, []);
 
-    const filteredInfos = infos.filter(info => 
+    const filteredInfos = infos.filter(info =>
         info.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         info.orgName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (info.content && info.content.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -100,10 +101,10 @@ const CommunityInfo = () => {
                         <LocationBadge region={userRegion} />
                     </div>
                     <div className="search-wrapper">
-                        <input 
-                            type="text" 
-                            className="search-input" 
-                            placeholder="검색어를 입력하세요 (제목, 기관, 내용)" 
+                        <input
+                            type="text"
+                            className="search-input"
+                            placeholder="검색어를 입력하세요 (제목, 기관, 내용)"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -115,7 +116,7 @@ const CommunityInfo = () => {
                         filteredInfos.map((info) => {
                             const isLiked = likedPostIds.includes(info.id);
                             const isBookmarked = savedItems.some(item => item.id === info.id);
-                            
+
                             return (
                                 <Card key={info.id} className="info-card" onClick={() => navigate(`/Community/Info/${info.id}`)} style={{ cursor: 'pointer' }}>
                                     <div className="info-card-inner">

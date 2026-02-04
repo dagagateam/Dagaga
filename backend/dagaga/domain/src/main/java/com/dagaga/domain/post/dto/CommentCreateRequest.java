@@ -14,6 +14,4 @@ public class CommentCreateRequest {
 
     private Integer parentCommentId;
 
-    @NotNull(message = "사용자 ID는 필수입니다.")
-    private Integer userId;
 }

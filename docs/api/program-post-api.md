@@ -33,6 +33,10 @@
             "createdAt": "2024-01-01T10:00:00",
             "updatedAt": "2024-01-01T12:00:00",
             "capacity": "20명",
+            "regStartDate": "2024-02-01",
+            "regEndDate": "2024-02-15",
+            "progStartDate": "2024-03-01",
+            "progEndDate": "2024-03-31",
             "imageUrls": ["https://example.com/image.jpg"]
           }
         ],
@@ -117,8 +121,7 @@
   ```json
   {
     "content": "댓글 내용입니다.",
-    "parentCommentId": null,
-    "userId": 123
+    "parentCommentId": null
   }
   ```
 - **응답 본문 (Response Body):**
@@ -151,12 +154,14 @@
         {
           "commentId": 1,
           "userId": 123,
+          "nickname": "작성자1",
           "content": "댓글 내용입니다.",
           "createdAt": "2024-01-01T15:00:00",
           "replies": [
             {
               "commentId": 2,
               "userId": 456,
+              "nickname": "작성자2",
               "content": "답글 내용입니다.",
               "createdAt": "2024-01-01T16:00:00",
               "replies": []

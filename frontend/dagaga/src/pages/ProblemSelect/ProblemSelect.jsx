@@ -17,7 +17,7 @@ const ProblemSelect = () => {
   const [problems, setProblems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const wheelRef = useRef(null);
-  
+
   // Get user language preference
   const userLang = useUserStore((state) => state.user?.viewLangCode || state.language);
 
@@ -28,11 +28,12 @@ const ProblemSelect = () => {
   useEffect(() => {
     const loadProblems = async () => {
       if (!categoryId) return;
-      
+
       setIsLoading(true);
       try {
         const response = await fetchCategoryStages(categoryId);
-        console.log("API Full Response:", response);
+        // DEBUG: API Full Response
+        // console.log("API Full Response:", response);
         if (response.data && response.data.success) {
           const basicProblems = response.data.data;
           
@@ -50,17 +51,17 @@ const ProblemSelect = () => {
           // Fallback
           console.warn("Failed to fetch problems, response unsuccessful:", response.data);
           const translatedProblems = t(`scenario_problems.${scenario.id}`, { returnObjects: true });
-          const fallbackProblems = Array.isArray(translatedProblems) 
-              ? translatedProblems.map((text, idx) => ({ id: idx + 1, text, wordTranslations: [] })) 
-              : (scenario?.problems || []);
+          const fallbackProblems = Array.isArray(translatedProblems)
+            ? translatedProblems.map((text, idx) => ({ id: idx + 1, text, wordTranslations: [] }))
+            : (scenario?.problems || []);
           setProblems(fallbackProblems);
         }
       } catch (error) {
         console.error("Error fetching problems:", error);
         const translatedProblems = t(`scenario_problems.${scenario.id}`, { returnObjects: true });
-        const fallbackProblems = Array.isArray(translatedProblems) 
-            ? translatedProblems.map((text, idx) => ({ id: idx + 1, text, wordTranslations: [] })) 
-            : (scenario?.problems || []);
+        const fallbackProblems = Array.isArray(translatedProblems)
+          ? translatedProblems.map((text, idx) => ({ id: idx + 1, text, wordTranslations: [] }))
+          : (scenario?.problems || []);
         setProblems(fallbackProblems);
       } finally {
         setIsLoading(false);
@@ -117,13 +118,9 @@ const ProblemSelect = () => {
               const rotation = index * 15 + scrollOffset;
               const isActive = selectedCardId === problem.id;
               
-              // Determine display text based on language
-              let displayText = problem.questionText || problem.text; // Default
-              if (userLang === 'vi' && problem.viQuestion) {
-                  displayText = problem.viQuestion;
-              } else if (userLang === 'zh' && problem.zhQuestion) {
-                  displayText = problem.zhQuestion;
-              }
+              // Determine display text based on API's viewQuestions field
+              // viewQuestions contains the question in the user's native language
+              let displayText = problem.viewQuestions || problem.questionText || problem.text;
 
               return (
                 <ProblemCard

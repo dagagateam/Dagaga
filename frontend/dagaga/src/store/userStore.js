@@ -3,13 +3,25 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import i18n from '../i18n';
 import stockProfile from '../assets/icons/stock_profile.jpg';
 
+const decodeJWT = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+};
+
 export const useUserStore = create(
   persist(
     (set) => ({
       user: null, // { userId, email, nickname, locationId, viewLangCode, nativeLangCode }
       isLoggedIn: false,
       accessToken: null,
-      refreshToken: null,
       savedItems: [], // Array of community objects
       likedPostIds: [], // Array of IDs
       joinedChats: [], // Persisted chat rooms
@@ -20,53 +32,69 @@ export const useUserStore = create(
         set({ language: lang });
       },
 
-      // Login with full AuthResponse
+      // Login with accessToken
       login: (authResponse) => {
-        if (authResponse.viewLangCode) {
-           i18n.changeLanguage(authResponse.viewLangCode);
+        const token = authResponse.accessToken;
+        const decoded = decodeJWT(token);
+
+        if (!decoded) {
+          console.error("Failed to decode JWT");
+          return;
         }
-        
-        set((state) => ({ 
+
+        if (decoded.viewLangCode) {
+          i18n.changeLanguage(decoded.viewLangCode);
+        }
+
+        set((state) => ({
           user: {
-            userId: authResponse.userId,
-            email: authResponse.email,
-            locationId: authResponse.locationId,
-            viewLangCode: authResponse.viewLangCode,
-            nativeLangCode: authResponse.nativeLangCode,
-            nickname: authResponse.nickname,
-            profileImage: authResponse.profileImage || stockProfile,
+            userId: decoded.userId,
+            email: decoded.email,
+            locationId: decoded.locationId,
+            viewLangCode: decoded.viewLangCode,
+            nativeLangCode: decoded.nativeLangCode,
+            nickname: decoded.nickname,
+            profileImage: state.user?.profileImage || stockProfile,
           },
-          language: authResponse.viewLangCode || state.language,
-          accessToken: authResponse.accessToken,
-          refreshToken: authResponse.refreshToken,
-          isLoggedIn: true 
+          language: decoded.viewLangCode || state.language,
+          accessToken: token,
+          isLoggedIn: true
         }));
       },
-      
-      logout: () => set({ 
-        user: null, 
+
+      logout: () => set({
+        user: null,
         isLoggedIn: false,
         accessToken: null,
-        refreshToken: null,
         savedItems: [],
         likedPostIds: [],
         joinedChats: []
       }),
 
-      // Set tokens (for refresh)
-      setTokens: (accessToken, refreshToken) => set({
-        accessToken,
-        refreshToken: refreshToken || undefined, // Only update if provided
-      }),
+      // Set access token (for refresh)
+      setAccessToken: (accessToken) => {
+        const decoded = decodeJWT(accessToken);
+        set((state) => ({
+          accessToken,
+          user: decoded ? {
+            ...state.user,
+            userId: decoded.userId,
+            email: decoded.email,
+            locationId: decoded.locationId,
+            viewLangCode: decoded.viewLangCode,
+            nativeLangCode: decoded.nativeLangCode,
+            nickname: decoded.nickname,
+          } : state.user
+        }));
+      },
 
       // Clear tokens only
       clearTokens: () => set({
         accessToken: null,
-        refreshToken: null,
       }),
-      
+
       setJoinedChats: (chats) => set({ joinedChats: chats }),
-      
+
       toggleSave: (item) => set((state) => {
         const isSaved = state.savedItems.some(i => i.id === item.id);
         if (isSaved) {
@@ -84,14 +112,14 @@ export const useUserStore = create(
           return { likedPostIds: [...state.likedPostIds, id] };
         }
       }),
-      
+
       updateUser: (updates) => set((state) => {
         if (updates.viewLangCode) {
-            i18n.changeLanguage(updates.viewLangCode);
+          i18n.changeLanguage(updates.viewLangCode);
         }
         return {
-           user: { ...state.user, ...updates },
-           language: updates.viewLangCode || state.language
+          user: { ...state.user, ...updates },
+          language: updates.viewLangCode || state.language
         };
       }),
 

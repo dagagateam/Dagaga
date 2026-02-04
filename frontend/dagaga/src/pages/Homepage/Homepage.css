@@ -1,0 +1,140 @@
+.homepage-container {
+  min-height: 100vh;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  /* Remove fixed gap to allow flexibility */
+  /* gap: 3rem; */ 
+}
+
+.homepage-hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh; /* Occupy top half */
+  padding: 2rem;
+}
+
+/* ... existing styles ... */
+
+.homepage-navigation {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: auto; /* Center vertically in the remaining space */
+  padding: 0 1rem;
+}
+
+.hero-content {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+}
+
+.hero-static-text {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #333;
+  margin: 0;
+  line-height: 1;
+}
+
+.hero-rotating-box {
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
+  background: var(--main-orange);
+  padding: 0.5rem 1.5rem;
+  border-radius: 1rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  min-width: 12.5rem;
+}
+
+@keyframes pulse-scale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+
+
+.nav-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  text-align: left; /* Left align for row layout */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  cursor: pointer;
+  display: flex; /* Flex row */
+  align-items: center;
+  gap: 1.5rem;
+  height: 100%; /* Ensure uniform height */
+}
+
+.nav-card:hover {
+  transform: translateY(-5px);
+}
+
+.nav-card-icon {
+  font-size: 3rem;
+  margin-bottom: 0; /* Remove bottom margin */
+  flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.nav-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.nav-card p {
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Ensure cursor targets work with new cursor */
+.cursor-target {
+  cursor: none; /* Hide default cursor on targets if handled by component */
+}
+
+@media (max-width: 768px) {
+  .hero-static-text,
+  .hero-rotating-box {
+    font-size: 2.5rem;
+  }
+
+  .hero-content {
+    gap: 1rem;
+  }
+
+  .homepage-navigation {
+    grid-template-columns: 1fr;
+  }
+}

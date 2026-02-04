@@ -30,13 +30,14 @@ const Login = () => {
             // 1. API 호출 - AuthResponse 반환
             const authResponse = await loginAPI(email, password);
 
-            console.log('✅ Login successful:', authResponse);
+            // DEBUG: 콘솔 로그
+            // console.log('✅ Login successful:', authResponse);
 
             // 2. Store에 AuthResponse 저장 (토큰 + 사용자 정보)
             login(authResponse);
 
-            // 3. 메인 페이지로 이동
-            navigate('/ScenarioSelect');
+            // 3. 홈페이지로 이동
+            navigate('/Homepage');
         } catch (error) {
             console.error('Login failed:', error);
 
@@ -60,7 +61,7 @@ const Login = () => {
             transition={{ duration: 0.5 }}
         >
             <header className="login-header">
-                <div className="logo-area">
+                <div className="logo-area" onClick={() => navigate('/Homepage')} style={{ cursor: 'pointer' }}>
                     <img src={logo} alt="Dagaga Logo" style={{ height: '40px' }} />
                 </div>
 

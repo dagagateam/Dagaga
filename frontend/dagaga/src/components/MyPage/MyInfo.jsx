@@ -56,33 +56,33 @@ const MyInfo = () => {
   return (
     <Card className="my-info-card">
       <Card.Body>
-        <div className="my-info-header">
+        <div key="header" className="my-info-header">
           <Button className="edit-info-btn" onClick={() => navigate('/MyPage/Edit')}>{t('edit_profile')}</Button>
         </div>
         
-        <Row className="info-grid">
-          <Col md={4} className="info-item">
+        <Row key="info-grid" className="info-grid">
+          <Col key="nickname" md={4} className="info-item">
             <label className="info-label">{t('nickname')}</label>
             <div className="info-value">{userInfo.nickname}</div>
           </Col>
-          <Col md={4} className="info-item">
+          <Col key="preferredLang" md={4} className="info-item">
             <label className="info-label">{t('preferred_language')}</label>
             <div className="info-value">{userInfo.preferredLang}</div>
           </Col>
-          <Col md={4} className="info-item">
+          <Col key="region" md={4} className="info-item">
             <label className="info-label">{t('region')}</label>
             <div className="info-value">{userInfo.region}</div>
           </Col>
           
-          <Col md={4} className="info-item mt-3">
+          <Col key="email" md={4} className="info-item mt-3">
             <label className="info-label">{t('email')}</label>
             <div className="info-value email-value">{userInfo.email}</div>
           </Col>
-          <Col md={4} className="info-item mt-3">
+          <Col key="nativeLang" md={4} className="info-item mt-3">
             <label className="info-label">{t('native_language')}</label>
             <div className="info-value">{userInfo.nativeLang}</div>
           </Col>
-          <Col md={4} className="info-item mt-3">
+          <Col key="entryDate" md={4} className="info-item mt-3">
             <label className="info-label">{t('entry_date_short')}</label>
             <div className="info-value">{userInfo.entryDate}</div>
           </Col>

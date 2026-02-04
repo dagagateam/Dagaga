@@ -229,11 +229,13 @@ const Signup = () => {
                 arrivalDate: formData.arrivalDate || null
             };
 
-            console.log("🔍 회원가입 요청 데이터:", requestData);
+            // DEBUG: 회원가입 요청 데이터
+            // console.log("🔍 회원가입 요청 데이터:", requestData);
 
             const response = await signupAPI(requestData);
 
-            console.log("✅ 회원가입 성공! 응답:", response);
+            // DEBUG: 회원가입 성공 응답
+            // console.log("✅ 회원가입 성공! 응답:", response);
             alert("회원가입에 성공했습니다!");
             navigate('/Login');
 

@@ -2,9 +2,10 @@ package com.dagaga.security.oauth;
 
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.service.UserService;
-import com.dagaga.domain.security.jwt.JwtTokenProvider;
+import com.dagaga.security.jwt.JwtTokenProvider;
 import com.dagaga.security.redis.RedisTokenService;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * OAuth2 로그인 성공 후 처리를 담당하는 핸들러
+ */
 @Component
 @RequiredArgsConstructor
 public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -46,9 +50,11 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         String targetUrl;
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            // 기존 유저: 토큰 생성 후 프론트엔드 성공 페이지로 리다이렉트
+
+            // 기존 유저: 토큰 생성
             String accessToken = jwtTokenProvider.generateAccessToken(
                     user.getUserId(),
+                    user.getEmail(),
                     user.getLocationId(),
                     user.getViewLangCode(),
                     user.getNativeLangCode(),
@@ -56,12 +62,21 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
             String refreshTokenId = jwtTokenProvider.getTokenIdFromToken(refreshToken);
 
+            // Redis에 Refresh Token 저장
             redisTokenService.saveRefreshToken(user.getUserId(), refreshTokenId, refreshToken, refreshTokenExpiry);
             redisTokenService.addUserSession(user.getUserId(), refreshTokenId);
 
+            // Refresh Token을 httpOnly 쿠키에 저장
+            Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(true); // HTTPS 환경에서만 전송
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge((int) refreshTokenExpiry);
+            response.addCookie(refreshTokenCookie);
+
+            // Access Token만 쿼리 파라미터로 전달 (프론트엔드에서 저장)
             targetUrl = UriComponentsBuilder.fromUriString(frontendRedirectUri)
                     .queryParam("accessToken", accessToken)
-                    .queryParam("refreshToken", refreshToken)
                     .build().toUriString();
         } else {
             // 신규 유저: 회원가입 페이지로 리다이렉트 (이메일 포함)

@@ -41,7 +41,7 @@ const Navbar = () => {
       <Container fluid>
         {/* 로고 */}
         <BootstrapNavbar.Brand className="p-0">
-          <Link to={isLoggedIn ? "/ScenarioSelect" : "/"}>
+          <Link to={isLoggedIn ? "/Homepage" : "/"}>
             <img src={logo} alt="Dagaga Logo" style={{ height: "40px" }} />
           </Link>
         </BootstrapNavbar.Brand>

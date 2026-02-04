@@ -6,4 +6,4 @@ pluginManagement {
 }
 
 rootProject.name = 'dagaga'
-include 'app', 'common', 'chat', 'domain', 'infra'
+include 'app', 'common', 'chat', 'domain', 'infra', 'security'
