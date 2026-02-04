@@ -19,26 +19,28 @@ const ScenarioSelect = () => {
   };
 
   return (
-    <Container fluid className="scenario-select-container">
-      <div className="scenario-content">
-        {/* Tiger mascot - 4 columns */}
-        <div className="scenario-mascot">
-          <img src={study_tiger} alt="study_tiger" className="scenario-mascot-image" />
-        </div>
+    <div>
+      <Container fluid className="scenario-select-container">
+        <div className="scenario-content">
+          {/* Tiger mascot - 4 columns */}
+          <div className="scenario-mascot">
+            <img src={study_tiger} alt="study_tiger" className="scenario-mascot-image" />
+          </div>
 
-        {/* Scenario cards - 8 columns */}
-        <div className="scenario-cards-wrapper">
-          {scenarios.map((scenario) => (
-            <ScenarioCard
-              key={scenario.id}
-              scenario={scenario}
-              isSelected={selectedScenario === scenario.id}
-              onSelect={handleScenarioSelect}
-            />
-          ))}
+          {/* Scenario cards - 8 columns */}
+          <div className="scenario-cards-wrapper">
+            {scenarios.map((scenario) => (
+              <ScenarioCard
+                key={scenario.id}
+                scenario={scenario}
+                isSelected={selectedScenario === scenario.id}
+                onSelect={handleScenarioSelect}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    </Container>
+      </Container>
+    </div>
   );
 };
 
