@@ -13,8 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dagaga.chat.dto.ChatMessageResponse;
-import com.dagaga.domain.user.entity.User;
-import com.dagaga.domain.user.repository.UserRepository;
 import org.springframework.data.domain.PageRequest;
 import java.util.stream.Collectors;
 import java.util.List;
@@ -27,18 +25,15 @@ public class ChatMessageService {
     private final LanguageRepository languageRepository;
     private final TranslationPort translationPort;
     private final ChatRoomService chatRoomService;
-    private final UserRepository userRepository;
 
     public ChatMessageService(ChatMessageRepository chatMessageRepository,
             LanguageRepository languageRepository,
             TranslationPort translationPort,
-            ChatRoomService chatRoomService,
-            UserRepository userRepository) {
+            ChatRoomService chatRoomService) {
         this.chatMessageRepository = chatMessageRepository;
         this.languageRepository = languageRepository;
         this.translationPort = translationPort;
         this.chatRoomService = chatRoomService;
-        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -53,20 +48,30 @@ public class ChatMessageService {
                 cmd.originalText(),
                 cmd.originalLang());
 
-        // 타겟 언어 조회 (전체 지원 언어 중 원문 언어 제외)
-        List<String> targetLangs = languageRepository.findAllActiveLangCodes()
-                .stream()
-                .filter(lang -> !lang.equalsIgnoreCase(cmd.originalLang())) // 원문 언어 제외
-                .toList();
+        // 타겟 언어 조회 (전체 지원 언어 조회)
+        List<String> targetLangs = languageRepository.findAllActiveLangCodes();
 
-        // 번역
+        // 번역 및 언어 감지
         if (!targetLangs.isEmpty()) {
             try {
-                var translationMap = translationPort.translate(cmd.originalText(), cmd.originalLang(), targetLangs);
+                log.info("Detecting and translating text: {}", cmd.originalText());
+                var translationResult = translationPort.detectAndTranslate(cmd.originalText(), targetLangs);
+                
+                String detectedLang = translationResult.getDetectedLanguage();
+                log.info("Detected language: {}", detectedLang);
 
-                translationMap.forEach((lang, translatedText) -> {
-                    MessageTranslation translation = MessageTranslation.create(msg, lang, translatedText);
-                    msg.addTranslation(translation);
+                // 감지된 언어로 원본 언어 설정
+                if (detectedLang != null && !detectedLang.equals("unknown")) {
+                    msg.setOriginalLang(detectedLang);
+                }
+
+                // 번역본 추가
+                translationResult.getTranslations().forEach((lang, translatedText) -> {
+                    // 원본 언어와 같은 번역본은 제외
+                    if (!lang.equalsIgnoreCase(msg.getOriginalLang())) {
+                        MessageTranslation translation = MessageTranslation.create(msg, lang, translatedText);
+                        msg.addTranslation(translation);
+                    }
                 });
             } catch (Exception e) {
                 log.error("메시지 번역 처리 중 오류가 발생했습니다.", e);

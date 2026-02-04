@@ -2,7 +2,7 @@ package com.dagaga.chat.adapter;
 
 import com.dagaga.chat.dto.GeminiExternalDto;
 import com.dagaga.domain.chat.translate.port.TranslationPort;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.dagaga.domain.chat.translate.port.TranslationResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -35,72 +34,73 @@ public class TranslationAdapter implements TranslationPort {
     @Value("${dagaga.translation.enabled:true}")
     private boolean isTranslationEnabled;
 
+
     @Override
-    public Map<String, String> translate(String text, String sourceLang, List<String> targetLangs) {
-        // 대상 언어가 없으면 번역하지 않음
+    public TranslationResult detectAndTranslate(String text, List<String> targetLangs) {
         if (targetLangs == null || targetLangs.isEmpty()) {
-            return Collections.emptyMap();
+            return new TranslationResult("unknown", Collections.emptyMap());
         }
 
-        // 번역 기능 비활성화 시 빈 결과 반환
         if (!isTranslationEnabled) {
-            log.debug("Translation is disabled. Skipping Gemini API call.");
-            return Collections.emptyMap();
+            log.debug("번역 기능 비활성화. Gemini API 호출을 건너뜁니다.");
+            return new TranslationResult("unknown", Collections.emptyMap());
         }
 
-        // Gemini에 보낼 프롬프트 생성
-        String prompt = createPrompt(text, sourceLang, targetLangs);
-
+        String prompt = createDetectionPrompt(text, targetLangs);
         String url = String.format(
                 "https://gms.ssafy.io/gmsapi/generativelanguage.googleapis.com/v1beta/models/%s:generateContent",
                 model);
 
         try {
-            // request 객체 및 header 생성
             GeminiExternalDto.GeminiRequest request = GeminiExternalDto.GeminiRequest.create(prompt);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("x-goog-api-key", apiKey);
 
-            // API 호출 (POST)
             HttpEntity<GeminiExternalDto.GeminiRequest> entity = new HttpEntity<>(request, headers);
             GeminiExternalDto.GeminiResponse response = restTemplate.postForObject(url, entity,
                     GeminiExternalDto.GeminiResponse.class);
 
-            // response 파싱해서 return
-            return parseResponse(response);
+            return parseDetectionResponse(response);
 
         } catch (Exception e) {
-            log.warn("Gemini 번역 API 호출 실패: {}", e.getMessage());
-            return Collections.emptyMap();
+            log.warn("번역 실패! Error: {}", e.getMessage());
+            return new TranslationResult("unknown", Collections.emptyMap());
         }
     }
 
-    private String createPrompt(String text, String sourceLang, List<String> targetLangs) {
+    private String createDetectionPrompt(String text, List<String> targetLangs) {
         String targets = String.join(", ", targetLangs);
         return String.format("""
-                You are a professional translator.
-                Translate the text provided at the end from %s into the following target languages: [%s].
-
+                You are a professional translator and language detector.
+                1. Detect the language of the text provided at the end.
+                2. Translate the text into the following target languages: [%s].
+                
                 Requirements:
                 1. Output ONLY a valid JSON object.
-                2. keys must be the language codes from the target list (%s).
-                3. values must be the translated text.
-                4. Do NOT include the source language in the output.
-                5. Ensure ALL requested target languages are included in the JSON.
-
-                Example Output format:
-                {"ko": "안녕하세요", "vi": "Xin chào"}
-
+                2. The JSON must have two root keys: "detectedLanguage" and "translations".
+                3. "detectedLanguage" should be the ISO 639-1 language code of the source text (e.g., 'ko', 'en', 'zh').
+                4. "translations" should be a map where keys are target language codes and values are translated text.
+                5. Do NOT include the detected source language in the translations map.
+                6. Ensure ALL other requested target languages are included in the translations map.
+                
+                Example Output:
+                {
+                    "detectedLanguage": "ko",
+                    "translations": {
+                        "vi": "Xin chào",
+                        "en": "Hello"
+                    }
+                }
+                
                 --- TEXT TO TRANSLATE ---
                 %s
-                """, sourceLang, targets, targets, text);
+                """, targets, text);
     }
 
-    // api 응답으로 받은 json을 map으로 변환
-    private Map<String, String> parseResponse(GeminiExternalDto.GeminiResponse response) {
+    private TranslationResult parseDetectionResponse(GeminiExternalDto.GeminiResponse response) {
         if (response == null || response.candidates() == null || response.candidates().isEmpty()) {
-            return Collections.emptyMap();
+            return new TranslationResult("unknown", Collections.emptyMap());
         }
 
         try {
@@ -109,22 +109,13 @@ public class TranslationAdapter implements TranslationPort {
                     .text();
 
             jsonText = jsonText.replaceAll("```json|```", "").trim();
-            log.debug("Raw Translation Response: {}", jsonText);
+            log.info("번역 결과 파싱 성공! Response: {}", jsonText);
 
-            // 배열([])로 감싸져서 오는 경우 처리
-            if (jsonText.startsWith("[")) {
-                List<Map<String, String>> list = objectMapper.readValue(jsonText, new TypeReference<>() {
-                });
-                return list.isEmpty() ? Collections.emptyMap() : list.get(0);
-            }
-
-            // json 문자열을 Map으로 변환
-            return objectMapper.readValue(jsonText, new TypeReference<>() {
-            });
+            return objectMapper.readValue(jsonText, TranslationResult.class);
 
         } catch (Exception e) {
-            log.error("번역 결과 파싱 실패. Error: {}, Response: {}", e.getMessage(), response);
-            return Collections.emptyMap();
+            log.error("번역 결과 파싱 실패! Error: {}, Response: {}", e.getMessage(), response);
+            return new TranslationResult("unknown", Collections.emptyMap());
         }
     }
 }
