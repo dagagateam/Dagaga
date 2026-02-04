@@ -180,7 +180,7 @@ const CommunityChatList = () => {
                         <LocationBadge region={userRegion} />
                     </h2>
                     <Button className="create-chat-btn" onClick={() => setShowCreateModal(true)}>
-                        {t('create_chat_room')}+
+                        {t('create_chat_room')}
                     </Button>
                 </div>
 
