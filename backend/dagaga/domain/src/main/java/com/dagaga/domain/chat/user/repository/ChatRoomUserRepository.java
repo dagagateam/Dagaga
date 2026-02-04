@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUser, ChatRoomUserId> {
     // Optional<ChatRoomUser> findByRoomIdAndUserId(Integer roomId, Integer userId);
@@ -25,4 +26,6 @@ public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUser, Chat
     long countByIdRoomIdAndStatus(Integer roomId, UserStatus status);
 
     List<ChatRoomUser> findAllByIdUserIdAndStatus(Integer userId, UserStatus status);
+
+    Optional<ChatRoomUser> findFirstByIdRoomIdAndStatusOrderByJoinedAtAsc(Integer roomId, UserStatus status);
 }

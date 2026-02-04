@@ -140,6 +140,21 @@ export const joinChatRoom = async (roomId) => {
     }
 };
 
+/**
+ * Leave a chat room.
+ * @param {number} roomId - The chat room ID.
+ * @returns {Promise<Object>} - Leave result.
+ */
+export const leaveChatRoom = async (roomId) => {
+    try {
+        const response = await instance.post(`/community/chats/${roomId}/leave`);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to leave chat room:', error);
+        throw error;
+    }
+};
+
 
 
 

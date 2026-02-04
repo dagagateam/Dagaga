@@ -57,6 +57,19 @@ public class ChatRoomController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "채팅방 나가기", description = "사용자가 채팅방을 나갑니다.")
+    @PostMapping("/{roomId}/leave")
+    public ResponseEntity<Void> leaveChatRoom(
+            @Parameter(description = "채팅방 ID") @PathVariable int roomId) {
+        int userId = currentUser.getUserId()
+                .map(UserId::getValue)
+                .orElseThrow(() -> new IllegalArgumentException("인증된 사용자 정보를 찾을 수 없습니다."));
+
+        chatRoomService.leaveRoom(userId, roomId);
+
+        return ResponseEntity.ok().build();
+    }
+
     // 채팅방 참여
     @Operation(summary = "채팅방 참여", description = "사용자가 자신의 지역에 있는 유저 생성 채팅방에 참여합니다.")
     @PostMapping("/{roomId}/join")
