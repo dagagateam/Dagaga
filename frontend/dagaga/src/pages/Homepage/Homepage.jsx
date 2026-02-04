@@ -9,7 +9,7 @@ import RouteCard from '../../components/Homepage/RouteCard/RouteCard';
 import learningImg from '../../assets/screenshots/scenario_select_screenshot_1.png';
 import chatImg from '../../assets/screenshots/chat_screenshot_1.png';
 import infoImg from '../../assets/screenshots/Info_screen_screenshot_1.png';
-import logo from '../../assets/icons/logo2.png';
+import logo from '../../assets/icons/logo3.png';
 
 import './Homepage.css';
 
