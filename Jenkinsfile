@@ -70,7 +70,7 @@ pipeline {
             steps {
                 // 기존 컨테이너를 강제로 중지 및 제거 후 새로운 이미지로 재시작
                 sh 'docker compose down || true'
-                sh 'docker rm -f dagaga-backend dagaga-frontend || true'
+                sh 'docker rm -f dagaga-backend dagaga-frontend dagaga-redis || true'
                 sh 'docker compose pull'
                 sh 'docker compose up -d'
             }
