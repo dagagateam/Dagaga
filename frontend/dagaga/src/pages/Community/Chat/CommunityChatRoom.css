@@ -41,15 +41,7 @@
     color: #333;
 }
 
-.badge-new {
-    background-color: #F8B15E;
-    color: white;
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 10px;
-    margin-left: 5px;
-    vertical-align: middle;
-}
+
 
 .settings-btn {
     background: none;

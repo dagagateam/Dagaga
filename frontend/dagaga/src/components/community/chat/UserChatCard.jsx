@@ -31,10 +31,13 @@ const UserChatCard = ({ chat }) => {
     return (
         <div className="user-chat-card">
             <div className="chat-card-header">
-                <div className="header-left-group">
-                    <img src={chat.avatar} alt={chat.creator} className="creator-avatar" />
-                    <span className="creator-name">{chat.creator}</span>
-                </div>
+                <img src={chat.avatar} alt={chat.creator} className="creator-avatar" />
+                <span className="creator-name">{chat.creator}</span>
+            </div>
+
+            <h4 className="chat-title">{chat.title}</h4>
+
+            <div className="chat-card-footer">
                 <button 
                     className="user-join-btn" 
                     onClick={handleJoinChat}
@@ -42,16 +45,10 @@ const UserChatCard = ({ chat }) => {
                 >
                     {joining ? '참여 중...' : '참여하기'}
                 </button>
+                <span className="chat-participants">{chat.participantCount}명 참여중</span>
             </div>
-            <div className="chat-card-body">
-                <div className="chat-card-thm-wrapper">
-                    <img src={chat.image} alt={chat.title} className="chat-card-thm" />
-                </div>
-                <div className="chat-card-info">
-                    <span className="chat-participants">{chat.participantCount}명 참여중</span>
-                    <h4 className="chat-title">{chat.title}</h4>
-                </div>
-            </div>
+            
+            <div className="card-decoration-line"></div>
         </div>
     );
 };

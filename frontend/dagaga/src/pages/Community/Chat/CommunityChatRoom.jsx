@@ -247,7 +247,7 @@ const CommunityChatRoom = () => {
                     {/* Left Sidebar */}
                     <div className="chat-sidebar">
                         <div className="sidebar-header">
-                            <h3>현재 참여중이 모임방 <span className="badge-new">2 New</span></h3>
+                            <h3>현재 참여중이 모임방</h3>
 
                         </div>
 
