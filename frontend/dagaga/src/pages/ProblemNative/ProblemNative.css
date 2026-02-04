@@ -21,17 +21,62 @@
   margin: 0;
 }
 
-/* Reuse Problem page styles for pre-translate */
-.problem-native-container.pre-translate .problem-question {
+/* Question header wrapper - centered version */
+.problem-question-header-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-left: 40px;
+  padding-right: 40px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  gap: 10px;
+}
+
+/* Question header wrapper - also centered (following Problem.css pattern) */
+.problem-question-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-left: 40px;
+  padding-right: 40px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  gap: 10px;
+}
+
+/* Question text styles */
+h2.problem-question.problem-question-centered {
   font-family: var(--main-font);
   font-size: 1.5rem;
   font-weight: 500;
-  color: #333;
-  text-align: left;
-  margin: 20px 0 30px;
-  padding: 0 40px;
-  width: 100%;
+  margin: 0;
+  padding: 0;
+  width: auto !important;
+  max-width: 50rem;
+  text-align: center !important;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: keep-all;
 }
+
+h2.problem-question.problem-question-left {
+  font-family: var(--main-font);
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  max-width: 50rem;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: keep-all;
+}
+
+/* Pre-translate styles now handled by wrapper classes above */
+
 
 .problem-native-container.pre-translate .problem-answer-section {
   display: flex;
@@ -71,17 +116,7 @@
   justify-content: flex-start;
 }
 
-/* Reuse Problem page styles for translating */
-.problem-native-container.translating .problem-question {
-  font-family: var(--main-font);
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: #333;
-  text-align: left;
-  margin: 20px 0 30px;
-  padding: 0 40px;
-  width: 100%;
-}
+/* Translating styles now handled by wrapper classes above */
 
 .problem-native-container.translating .problem-answer-section {
   display: flex;
@@ -121,17 +156,7 @@
   justify-content: flex-start;
 }
 
-/* Reuse styles from Problem.css */
-.problem-native-container.post-translate .problem-question {
-  font-family: var(--main-font);
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: #333;
-  text-align: left;
-  margin: 20px 0 30px;
-  padding: 0 40px;
-  width: 100%;
-}
+/* Post-translate styles now handled by wrapper classes above */
 
 .problem-native-container.post-translate .problem-answer-section {
   display: flex;
