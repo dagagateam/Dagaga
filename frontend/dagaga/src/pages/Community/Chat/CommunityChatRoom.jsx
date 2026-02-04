@@ -9,12 +9,15 @@ import { fetchChatMessages, fetchJoinedChats } from '../../../api/communityApi';
 import { useUserStore } from '../../../store/userStore';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import stockProfile from '../../../assets/icons/stock_profile.jpg';
 
 const CommunityChatRoom = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const fileInputRef = React.useRef(null);
     const messagesEndRef = React.useRef(null);
+    const emojiPickerRef = React.useRef(null);
+    const emojiBtnRef = React.useRef(null);
     const [message, setMessage] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -63,6 +66,25 @@ const CommunityChatRoom = () => {
         scrollToBottom();
     }, [messages]);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                showEmojiPicker &&
+                emojiPickerRef.current &&
+                !emojiPickerRef.current.contains(event.target) &&
+                emojiBtnRef.current &&
+                !emojiBtnRef.current.contains(event.target)
+            ) {
+                setShowEmojiPicker(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showEmojiPicker]);
+
     // WebSocket Connection
     useEffect(() => {
         if (!id || !user?.userId || !accessToken) return;
@@ -104,6 +126,7 @@ const CommunityChatRoom = () => {
                                 text: receivedMsg.content, // 백엔드에서 이미 적절한 언어로 필터링되어 옴
                                 time: new Date(receivedMsg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                                 isMe: receivedMsg.senderId === user.userId,
+                                profileImage: receivedMsg.senderProfileImage,
                                 type: 'text'
                             };
 
@@ -247,8 +270,14 @@ const CommunityChatRoom = () => {
                     {/* Left Sidebar */}
                     <div className="chat-sidebar">
                         <div className="sidebar-header">
-                            <h3>현재 참여중이 모임방 <span className="badge-new">2 New</span></h3>
-
+                            <button 
+                                className="sidebar-back-btn" 
+                                onClick={() => navigate('/community/chat')}
+                                title="목록으로 돌아가기"
+                            >
+                                ←
+                            </button>
+                            <h3>참여중인 모임방</h3>
                         </div>
 
                         <div className="sidebar-search">
@@ -294,7 +323,14 @@ const CommunityChatRoom = () => {
                     <div className="chat-main">
                         <div className="chat-main-header">
                             <div className="header-user-info">
-                                <img src="https://i.pravatar.cc/150?u=creator" alt="User" className="header-avatar" />
+                                <img 
+                                    src={(!currentRoomInfo?.creatorProfileImage || currentRoomInfo.creatorProfileImage.includes('default_avatar')) 
+                                        ? stockProfile 
+                                        : currentRoomInfo.creatorProfileImage} 
+                                    alt="User" 
+                                    className="header-avatar"
+                                    onError={(e) => {e.target.src = stockProfile}}
+                                />
                                 <div>
                                     <div className="header-username">{currentRoomInfo?.creatorNickname}</div>
                                     <div className="header-user-status">모임방 방장 👑</div>
@@ -326,7 +362,7 @@ const CommunityChatRoom = () => {
 
                         <form className="chat-input-area" onSubmit={handleSendMessage}>
                             {showEmojiPicker && (
-                                <div className="emoji-picker-container">
+                                <div className="emoji-picker-container" ref={emojiPickerRef}>
                                     <EmojiPicker onEmojiClick={onEmojiClick} width={300} height={400} />
                                 </div>
                             )}
@@ -345,7 +381,7 @@ const CommunityChatRoom = () => {
                             />
                             <div className="input-actions">
                                 <button type="button" className="attach-btn" onClick={handleClipClick}>📎</button>
-                                <button type="button" className="emoji-btn" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>☺</button>
+                                <button ref={emojiBtnRef} type="button" className="emoji-btn" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>☺</button>
                             </div>
                         </form>
                     </div>

@@ -29,9 +29,25 @@
 
 .sidebar-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 10px; /* Space between arrow and title */
     margin-bottom: 20px;
+    justify-content: flex-start; /* Align left */
+}
+
+.sidebar-back-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #333;
+    cursor: pointer;
+    padding: 0 5px;
+    transition: color 0.2s;
+    line-height: 1;
+}
+
+.sidebar-back-btn:hover {
+    color: #F8B15E;
 }
 
 .sidebar-header h3 {
@@ -41,15 +57,7 @@
     color: #333;
 }
 
-.badge-new {
-    background-color: #F8B15E;
-    color: white;
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 10px;
-    margin-left: 5px;
-    vertical-align: middle;
-}
+
 
 .settings-btn {
     background: none;

@@ -131,7 +131,10 @@ export const useUserStore = create(
             user: {
               ...state.user,
               ...userData,
-              profileImage: userData.profileImage || stockProfile,
+              // profileImage: userData.profileImage || stockProfile, 원래 코드
+              profileImage: (!userData.profileImage || userData.profileImage.includes('default_avatar')) 
+                ? stockProfile 
+                : userData.profileImage,
             },
             // Assuming the API returns viewLangCode, we might want to update the language too
             language: userData.viewLangCode || state.language

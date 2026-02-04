@@ -11,6 +11,7 @@ import bookmarkedIcon from '../../../assets/icons/bookmark.png';
 import unbookmarkIcon from '../../../assets/icons/unbookmark.png';
 
 import { useUserStore } from '../../../store/userStore';
+import LocationBadge from '../../../components/common/LocationBadge';
 
 const CommunityInfo = () => {
     const navigate = useNavigate();
@@ -97,9 +98,7 @@ const CommunityInfo = () => {
                 <div className="info-header">
                     <div className="header-left">
                         <h2>정보</h2>
-                        <div className="location-badge">
-                            <span className="pin-icon">📍</span> {userRegion}
-                        </div>
+                        <LocationBadge region={userRegion} />
                     </div>
                     <div className="search-wrapper">
                         <input

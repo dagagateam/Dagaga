@@ -1,13 +1,19 @@
 import React from 'react';
 import './ChatMessage.css';
+import stockProfile from '../../../assets/icons/stock_profile.jpg';
 
 const ChatMessage = ({ msg, showAvatar }) => {
+    // Basic fallback logic if msg.profileImage is missing or is 'default_avatar'
+    const profileImg = (!msg.profileImage || msg.profileImage.includes('default_avatar')) 
+        ? stockProfile 
+        : msg.profileImage;
+
     return (
         <div className={`message-row ${msg.isMe ? 'my-message' : 'other-message'}`}>
             <div className="message-content-wrapper">
                 {!msg.isMe && showAvatar && (
                     <div className="message-avatar">
-                        <img src="https://i.pravatar.cc/150?u=hanna" alt={msg.sender} />
+                        <img src={profileImg} alt={msg.sender} onError={(e) => {e.target.src = stockProfile}} />
                     </div>
                 )}
                 {!msg.isMe && showAvatar && <div className="message-sender">{msg.sender}</div>}
