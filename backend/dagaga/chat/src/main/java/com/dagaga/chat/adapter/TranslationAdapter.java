@@ -80,18 +80,21 @@ public class TranslationAdapter implements TranslationPort {
         String targets = String.join(", ", targetLangs);
         return String.format("""
                 You are a professional translator.
-                Translate the text "%s" from %s into the following target languages: [%s].
-                
+                Translate the text provided at the end from %s into the following target languages: [%s].
+
                 Requirements:
                 1. Output ONLY a valid JSON object.
                 2. keys must be the language codes from the target list (%s).
                 3. values must be the translated text.
                 4. Do NOT include the source language in the output.
                 5. Ensure ALL requested target languages are included in the JSON.
-                
+
                 Example Output format:
                 {"ko": "안녕하세요", "vi": "Xin chào"}
-                """, text, sourceLang, targets, targets);
+
+                --- TEXT TO TRANSLATE ---
+                %s
+                """, sourceLang, targets, targets, text);
     }
 
     // api 응답으로 받은 json을 map으로 변환
@@ -110,8 +113,9 @@ public class TranslationAdapter implements TranslationPort {
 
             // 배열([])로 감싸져서 오는 경우 처리
             if (jsonText.startsWith("[")) {
-                 List<Map<String, String>> list = objectMapper.readValue(jsonText, new TypeReference<>() {});
-                 return list.isEmpty() ? Collections.emptyMap() : list.get(0);
+                List<Map<String, String>> list = objectMapper.readValue(jsonText, new TypeReference<>() {
+                });
+                return list.isEmpty() ? Collections.emptyMap() : list.get(0);
             }
 
             // json 문자열을 Map으로 변환
