@@ -2,6 +2,9 @@ package com.dagaga.chat.service;
 
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageCommand;
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
+import com.dagaga.chat.dto.MessageServiceDto.ChatMessageResult;
+import com.dagaga.chat.dto.MessageServiceDto.TargetedMessageResult;
+import java.util.ArrayList;
 import com.dagaga.domain.chat.language.repository.LanguageRepository;
 import com.dagaga.domain.chat.message.entity.ChatMessage;
 import com.dagaga.domain.chat.message.entity.MessageTranslation;
@@ -115,6 +118,54 @@ public class ChatMessageService {
             }
         });
 
+    }
+
+    public List<TargetedMessageResult> processAndReturnResponses(SaveMessageCommand cmd, Integer locationId) {
+        // 사용자 조회
+        User sender = userRepository.findById(cmd.senderId())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 지역 검증
+        chatRoomService.getRoomAndValidateLocation(cmd.roomId(), locationId);
+
+        // 메시지 저장 (번역 포함)
+        SaveMessageResult savedResult = save(cmd);
+
+        // 응답 생성
+        List<TargetedMessageResult> responses = new ArrayList<>();
+
+        // 원문 언어 사용자용
+        ChatMessageResult originalPayload = new ChatMessageResult(
+                savedResult.message().getMessageId(),
+                savedResult.message().getRoomId(),
+                savedResult.message().getSenderId(),
+                sender.getNickname(),
+                sender.getProfileImage(),
+                savedResult.message().getOriginalText(),
+                savedResult.message().getOriginalLang(),
+                savedResult.message().getSentAt().toString(),
+                "TALK");
+
+        responses.add(new TargetedMessageResult(savedResult.message().getOriginalLang(), originalPayload));
+
+        // 번역 언어 사용자용
+        if (savedResult.translations() != null) {
+            savedResult.translations().forEach(translation -> {
+                ChatMessageResult translatedPayload = new ChatMessageResult(
+                        savedResult.message().getMessageId(),
+                        savedResult.message().getRoomId(),
+                        savedResult.message().getSenderId(),
+                        sender.getNickname(),
+                        sender.getProfileImage(),
+                        translation.getTranslatedText(),
+                        savedResult.message().getOriginalLang(),
+                        savedResult.message().getSentAt().toString(),
+                        "TALK");
+                responses.add(new TargetedMessageResult(translation.getTargetLang(), translatedPayload));
+            });
+        }
+
+        return responses;
     }
 
     @Transactional(readOnly = true)

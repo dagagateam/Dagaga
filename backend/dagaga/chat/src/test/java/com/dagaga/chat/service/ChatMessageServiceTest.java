@@ -2,9 +2,11 @@ package com.dagaga.chat.service;
 
 import com.dagaga.chat.dto.ChatMessageResponse;
 import com.dagaga.domain.chat.message.entity.MessageTranslation;
+import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Pageable;
 
+import com.dagaga.chat.dto.MessageServiceDto.TargetedMessageResult;
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageCommand;
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
 import com.dagaga.domain.chat.language.repository.LanguageRepository;
@@ -255,5 +257,62 @@ public class ChatMessageServiceTest {
             
             assertThat(result.get(1).content()).isEqualTo("반갑습니다");
             assertThat(result.get(1).isTranslated()).isFalse();
+        }
+
+        @Test
+        @DisplayName("Success: 원본 메시지와 번역본에 대한 응답 목록을 반환해야 한다")
+        void processAndReturnResponses_shouldReturnTargetedMessages() {
+            // given
+            int roomId = 1;
+            Integer userId = 100;
+            Integer locationId = 10;
+            String originalText = "你好";
+            String nativeLang = "en"; // User's native lang (sender)
+
+            SaveMessageCommand cmd = new SaveMessageCommand(roomId, userId, originalText, nativeLang, null, null);
+
+            // Mock User
+            User mockUser = mock(User.class);
+            given(mockUser.getNickname()).willReturn("User1");
+            given(mockUser.getProfileImage()).willReturn("img.png");
+
+            given(userRepository.findById(userId)).willReturn(java.util.Optional.of(mockUser));
+
+            // Mock dependencies for save()
+            List<String> allActiveLangs = List.of("en", "zh", "vi");
+            given(languageRepository.findAllActiveLangCodes()).willReturn(allActiveLangs);
+
+            TranslationResult mockTranslationResult = new TranslationResult("zh", Map.of(
+                    "en", "Hello",
+                    "vi", "Xin chào"
+            ));
+            given(translationPort.detectAndTranslate(eq(originalText), anyList()))
+                    .willReturn(mockTranslationResult);
+
+            // Mock Repository Save
+            final ChatMessage[] capturedMsg = new ChatMessage[1];
+            given(chatMessageRepository.save(any(ChatMessage.class)))
+                    .willAnswer(invocation -> {
+                        ChatMessage msg = invocation.getArgument(0);
+                        setMsgId(msg, 123L);
+                        // Original lang initially set to sender's native lang ("en")
+                        capturedMsg[0] = msg;
+                        return msg;
+                    });
+
+            // Mock FindById (for saveTranslations and final return)
+            given(chatMessageRepository.findById(any()))
+                    .willAnswer(invocation -> java.util.Optional.ofNullable(capturedMsg[0]));
+
+            // when
+            List<TargetedMessageResult> results = chatMessageService.processAndReturnResponses(cmd, locationId);
+
+            // then
+            verify(chatRoomService).getRoomAndValidateLocation(roomId, locationId);
+
+            assertThat(results).hasSize(3);
+
+            List<String> targetLangs = results.stream().map(TargetedMessageResult::targetLang).toList();
+            assertThat(targetLangs).containsExactlyInAnyOrder("zh", "en", "vi");
         }
 }
