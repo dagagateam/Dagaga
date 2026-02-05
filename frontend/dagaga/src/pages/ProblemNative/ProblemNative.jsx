@@ -424,6 +424,10 @@ const ProblemNative = () => {
     return <ProblemLoading text={t('loading_problem')} />;
   }
 
+  if (pageState === "translating") {
+    return <ProblemLoading text={t('translating')} />;
+  }
+
   return (
     <>
       {pageState === "pre-translate" && renderPreTranslate()}
