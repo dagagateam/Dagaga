@@ -65,3 +65,28 @@
   display: block; /* Remove flex centering */
   font-size: 0.95rem;
 }
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .route-card {
+    padding: 1.25rem;
+  }
+  .route-card-title {
+    font-size: 1.1rem;
+  }
+  .route-card-body {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .route-card {
+    padding: 1rem;
+    height: 3rem; /* Specific fixed height as requested for dimensions change */
+    width: 14rem;
+  }
+  .route-card-title {
+    font-size: 1.2rem; /* Slightly larger for potential single-column stack readability */
+  }
+
+}
