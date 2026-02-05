@@ -33,16 +33,16 @@ const CommunityInfoDetail = () => {
                 id: c.commentId,
                 user: c.nickname || `User ${c.userId}`,
                 text: c.content,
-                avatar: (!c.profileImage || c.profileImage.includes('default_avatar')) 
-                    ? stockProfile 
+                avatar: (!c.profileImage || c.profileImage.includes('default_avatar'))
+                    ? stockProfile
                     : c.profileImage,
                 createdAt: c.createdAt,
                 children: c.replies ? c.replies.map(child => ({
                     id: child.commentId,
                     user: child.nickname || `User ${child.userId}`,
                     text: child.content,
-                    avatar: (!child.profileImage || child.profileImage.includes('default_avatar')) 
-                        ? stockProfile 
+                    avatar: (!child.profileImage || child.profileImage.includes('default_avatar'))
+                        ? stockProfile
                         : child.profileImage,
                     createdAt: child.createdAt,
                     children: []
@@ -102,7 +102,7 @@ const CommunityInfoDetail = () => {
         if (!comment.trim()) return;
 
         if (!isLoggedIn || !user) {
-            alert("로그인이 필요한 서비스입니다.");
+            alert(t('login_required_service'));
             navigate('/login');
             return;
         }
@@ -140,11 +140,11 @@ const CommunityInfoDetail = () => {
         return list.map(cmt => (
             <div key={cmt.id}>
                 <div className="comment-item">
-                    <img 
-                        src={cmt.avatar} 
-                        alt={cmt.user} 
-                        className="comment-avatar" 
-                        onError={(e) => {e.target.src = stockProfile}} 
+                    <img
+                        src={cmt.avatar}
+                        alt={cmt.user}
+                        className="comment-avatar"
+                        onError={(e) => { e.target.src = stockProfile }}
                     />
                     <div className="comment-text-wrapper">
                         <span className="comment-author">
@@ -173,7 +173,7 @@ const CommunityInfoDetail = () => {
             <Container>
                 <div className="detail-header-nav">
                     <button className="detail-back-btn" onClick={() => navigate(-1)}>
-                        <span>←</span> 목록으로 돌아가기
+                        <span>←</span> {t('back_info_list')}
                     </button>
                 </div>
                 <div className="detail-card">

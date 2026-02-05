@@ -5,18 +5,20 @@ import unheartIcon from '../../assets/icons/unheart.png';
 import bookmarkedIcon from '../../assets/icons/bookmark.png';
 import unbookmarkIcon from '../../assets/icons/unbookmark.png';
 import './SavedNewsCard.css';
+import { useTranslation } from 'react-i18next';
 
-const SavedNewsCard = ({ 
-  title, 
-  orgName, 
-  applicationPeriod, 
-  progressPeriod, 
-  isExpired, 
-  isLiked, 
+const SavedNewsCard = ({
+  title,
+  orgName,
+  applicationPeriod,
+  progressPeriod,
+  isExpired,
+  isLiked,
   isBookmarked,
   onToggleLike,
-  onToggleBookmark 
+  onToggleBookmark
 }) => {
+  const { t } = useTranslation();
   return (
     <Card className="saved-news-card">
       <div className="saved-news-inner">
@@ -44,16 +46,16 @@ const SavedNewsCard = ({
               </button>
             </div>
           </div>
-          
+
           <h3 className="saved-news-title">{title}</h3>
-          
+
           <div className="saved-news-periods">
             <div className="saved-news-period-row">
-              <span className="saved-news-period-label">접수</span>
+              <span className="saved-news-period-label">{t('status_application')}</span>
               <span className="saved-news-period-date">| {applicationPeriod}</span>
             </div>
             <div className="saved-news-period-row">
-              <span className="saved-news-period-label">진행</span>
+              <span className="saved-news-period-label">{t('status_progress')}</span>
               <span className="saved-news-period-date">| {progressPeriod}</span>
             </div>
           </div>

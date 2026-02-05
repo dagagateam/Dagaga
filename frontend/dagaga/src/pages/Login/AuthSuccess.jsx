@@ -4,7 +4,10 @@ import { motion } from 'framer-motion';
 import { useUserStore } from '../../store/userStore';
 import { getUserMeAPI } from '../../api/userApi';
 
+import { useTranslation } from 'react-i18next';
+
 const AuthSuccess = () => {
+    const { t } = useTranslation();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { login, setAccessToken } = useUserStore();
@@ -61,8 +64,8 @@ const AuthSuccess = () => {
                 <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem', marginBottom: '1.5rem' }}>
                     <span className="visually-hidden">Loading...</span>
                 </div>
-                <h4 style={{ color: '#333', fontWeight: '500' }}>로그인 중입니다...</h4>
-                <p style={{ color: '#666' }}>잠시만 기다려주세요.</p>
+                <h4 style={{ color: '#333', fontWeight: '500' }}>{t('logging_in')}</h4>
+                <p style={{ color: '#666' }}>{t('please_wait')}</p>
             </motion.div>
         </div>
     );

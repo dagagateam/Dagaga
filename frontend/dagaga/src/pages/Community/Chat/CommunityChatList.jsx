@@ -29,7 +29,7 @@ const CommunityChatList = () => {
     const [creating, setCreating] = useState(false);
 
     useEffect(() => {
-        const regionName = user?.locationId ? getLocationName(user.locationId) : '지역 설정 필요';
+        const regionName = user?.locationId ? getLocationName(user.locationId) : t('region_setup_needed');
         setUserRegion(regionName);
 
         const loadData = async () => {
@@ -97,7 +97,7 @@ const CommunityChatList = () => {
 
     const handleCreateChatRoom = async () => {
         if (!newChatTitle.trim()) {
-            alert('채팅방 제목을 입력해주세요.');
+            alert(t('input_chat_title_error'));
             return;
         }
 
@@ -111,12 +111,12 @@ const CommunityChatList = () => {
         try {
             await createChatRoom(newChatTitle.trim());
             // 성공 시 알림
-            alert('채팅방이 생성되었습니다!');
+            alert(t('chat_created_success'));
             setShowCreateModal(false);
             setNewChatTitle('');
         } catch (error) {
             console.error('Failed to create chat room:', error);
-            alert('채팅방 생성에 실패했습니다. 다시 시도해주세요.');
+            alert(t('chat_create_failed'));
             // 생성 실패 시 여기서 종료
             return;
         } finally {

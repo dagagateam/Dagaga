@@ -20,7 +20,7 @@ const UserChatCard = ({ chat }) => {
 
     const handleJoinChat = async () => {
         if (!user || !user.userId) {
-            alert('로그인이 필요합니다.');
+            alert(t('login_required'));
             return;
         }
 
@@ -31,7 +31,7 @@ const UserChatCard = ({ chat }) => {
             navigate(`/community/chat/room/${chat.id}`);
         } catch (error) {
             console.error('Failed to join chat room:', error);
-            alert('채팅방 참여에 실패했습니다. 다시 시도해주세요.');
+            alert(t('chat_join_failed'));
         } finally {
             setJoining(false);
         }
@@ -57,7 +57,7 @@ const UserChatCard = ({ chat }) => {
                     onClick={handleJoinChat}
                     disabled={joining}
                 >
-                    {joining ? '참여 중...' : t('participate')}
+                    {joining ? t('joining') : t('participate')}
                 </button>
                 <span className="chat-participants">{chat.participantCount}{t('person_participating')}</span>
             </div>

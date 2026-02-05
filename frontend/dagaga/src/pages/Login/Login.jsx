@@ -53,11 +53,11 @@ const Login = () => {
 
             // 에러 메시지 처리
             if (error.response?.status === 401) {
-                setLoginError("이메일 또는 비밀번호가 잘못 되었습니다.");
+                setLoginError(t('login_failed_creds'));
             } else if (error.response?.data?.message) {
                 setLoginError(error.response.data.message);
             } else {
-                setLoginError("로그인 중 오류가 발생했습니다.");
+                setLoginError(t('login_error'));
             }
         }
     };
