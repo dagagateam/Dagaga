@@ -43,6 +43,9 @@ class UserServiceTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    @Mock
+    private EmailVerificationService emailVerificationService;
+
     @Test
     @DisplayName("Register: Success with generated nickname")
     void register_success_with_generated_nickname() {
@@ -61,6 +64,7 @@ class UserServiceTest {
         } catch (Exception e) {
         }
 
+        given(emailVerificationService.isVerified(dto.getEmail())).willReturn(true);
         given(userRepository.existsByEmail(dto.getEmail())).willReturn(false);
         given(userRepository.existsByNickname("tester")).willReturn(false);
         given(passwordEncoder.encode(dto.getPassword())).willReturn("encoded-password");
