@@ -10,30 +10,7 @@
     /* Light background */
 }
 
-.signup-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 30px 50px;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 10;
-}
-
-/* Inherited from Login but renamed for clarity */
-.lang-btn {
-    background-color: white !important;
-    border: 1px solid #eee !important;
-    border-radius: 20px !important;
-    padding: 8px 20px !important;
-    font-size: 0.9rem;
-    color: #666 !important;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    display: flex;
-    align-items: center;
-}
+/* Header styles removed as global Navbar is used */
 
 .signup-content {
     flex: 1;
@@ -42,13 +19,13 @@
     align-items: center;
     padding: 20px;
     position: relative;
+    overflow-y: auto; /* Allow scrolling if content is too tall */
 }
 
 .signup-wrapper {
     position: relative;
     width: 100%;
-    max-width: 1000px;
-    /* Reduced from 1200px */
+    max-width: 800px; /* Slightly wider than login for 2 columns */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -56,45 +33,39 @@
 
 .signup-card {
     background: white;
-    padding: 30px 40px;
-    /* Adjusted padding */
-    border-radius: 40px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+    padding: 35px 35px 20px 35px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     width: 100%;
-    max-width: 1000px;
-    min-height: 550px;
-    /* Reduced from 600px */
     display: flex;
     flex-direction: column;
-    /* Stack content vertically */
     z-index: 1;
     position: relative;
-    justify-content: center;
+    transform: translateY(-30px); /* Slight lift */
 }
 
-.signup-left-section {
+.signup-form-section {
     width: 100%;
-    padding-right: 200px;
-    /* Make space for the tiger image on the right */
 }
 
-.signup-left-section h2 {
-    font-size: 2rem;
+.signup-form-section h2 {
+    font-size: 1.8rem;
     font-weight: bold;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     color: #333;
+    text-align: left;
 }
 
 /* Form Layout */
 .signup-form {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 5px;
 }
 
 .form-row {
     display: flex;
-    gap: 20px;
+    gap: 40px;
 }
 
 .custom-input-group.half {
@@ -105,22 +76,15 @@
 
 .custom-input-group label {
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #333;
     margin-bottom: 5px;
 }
 
 .custom-input-group label span {
     color: #ff4d4f;
-    /* Red asterisk */
     margin-left: 2px;
 }
-
-
-
-/* Redefining strictly for region-select as it's likely a <select> or special input */
-/* Actually region-select usually refers to the native select if used, but here we use Dropdowns. */
-/* Wait, line 243 shows .region-select styling. */
 
 .region-select {
     padding: 10px 15px;
@@ -167,7 +131,7 @@
 /* Nickname Group (Input + Button) */
 .nickname-group {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .nickname-group input {
@@ -180,30 +144,38 @@
     color: white;
     border: none;
     border-radius: 10px;
-    padding: 0 16px;
-    font-size: 0.85rem;
+    padding: 0 12px;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: background-color 0.2s;
+    height: 48px; /* Match input height usually */
+    align-self: flex-start; /* Prevent stretching if container grows */
 }
 
 .check-btn:hover {
     background-color: #444;
 }
 
-
-
-
 /* Signup Action Button */
 .signup-action {
     display: flex;
     justify-content: center;
-    margin-top: 15px;
+    margin-top: 8px;
 }
 
 .signup-btn {
     font-size: 1.1rem;
     padding: 14px;
     width: 100%;
+    background-color: var(--main-orange);
+    border: none;
+    color: white;
+    font-weight: 700;
+    border-radius: 10px;
+}
+
+.signup-btn:hover {
+    background-color: #e09b4d;
 }
 
 /* Login Link */
@@ -219,16 +191,4 @@
     font-weight: 600;
     cursor: pointer;
     margin-left: 5px;
-}
-
-/* Tiger Image - Same as Login but positioning might need tweak */
-.signup-tiger-image {
-    position: absolute;
-    top: 250px;
-    right: -60px;
-    width: 300px;
-    /* Slightly smaller or adjusted for this layout? */
-    height: auto;
-    z-index: 2;
-    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
 }

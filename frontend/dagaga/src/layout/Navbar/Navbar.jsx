@@ -10,6 +10,7 @@ import "./Navbar.css";
 
 import { useUserStore } from "../../store/userStore";
 import { logoutAPI } from "../../api/userApi";
+import LanguageSelector from "../../components/auth/LanguageSelector";
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -39,7 +40,7 @@ const Navbar = () => {
         {/* 로고 */}
         <BootstrapNavbar.Brand className="p-0">
           <Link to="/Homepage">
-            <img src={logo} alt="Dagaga Logo" style={{ height: "40px" }} />
+            <img src={logo} alt="Dagaga Logo" style={{ height: "25px", transform: "translateY(-3px)" }} />
           </Link>
         </BootstrapNavbar.Brand>
         {isLoggedIn && (
@@ -92,13 +93,14 @@ const Navbar = () => {
           </>
         )}
         {!isLoggedIn && (
-          <div className="ms-auto">
+          <div className="ms-auto d-flex align-items-center" style={{ gap: '15px' }}>
             <button
               className="logout-btn"
               onClick={() => navigate('/Login')}
             >
               {t('login')}
             </button>
+            <LanguageSelector />
           </div>
         )}
       </Container>
