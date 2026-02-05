@@ -14,6 +14,7 @@ import { useSpeechApi } from "../../api/useSpeechApi";
 import { useTts } from "../../hooks/useTts";
 import { fetchProblemNative } from "../../api/learningApi";
 import ProblemLoading from "../../components/Problem/ProblemLoading/ProblemLoading";
+import { useUserStore } from "../../store/userStore";
 import "./ProblemNative.css";
 
 const MAX_TRIES = 3;
@@ -22,6 +23,7 @@ const ProblemNative = () => {
   const { categoryId, problemId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const userLanguage = useUserStore((state) => state.user?.nativeLangCode);
 
   const [fetchedProblemText, setFetchedProblemText] = useState(null);
   const [koreanProblemText, setKoreanProblemText] = useState(null);
@@ -282,7 +284,7 @@ const ProblemNative = () => {
         <h2 className="problem-question problem-question-centered">
           {showNative ? problemText : koreanProblemText}
         </h2>
-        <ProblemTranslate onClick={() => setShowNative(!showNative)} active={!showNative} />
+        {userLanguage !== 'ko' && <ProblemTranslate onClick={() => setShowNative(!showNative)} active={!showNative} />}
         <ProblemRepeat onClick={() => playTts(showNative ? problemText : koreanProblemText)} />
       </div>
       <div className="problem-answer-section">
@@ -311,7 +313,7 @@ const ProblemNative = () => {
         <h2 className="problem-question problem-question-centered">
           {showNative ? problemText : koreanProblemText}
         </h2>
-        <ProblemTranslate onClick={() => setShowNative(!showNative)} active={!showNative} />
+        {userLanguage !== 'ko' && <ProblemTranslate onClick={() => setShowNative(!showNative)} active={!showNative} />}
       </div>
       <div className="problem-answer-section">
         <ProblemMascot />
@@ -337,7 +339,7 @@ const ProblemNative = () => {
         <h2 className="problem-question problem-question-centered">
           {showNative ? problemText : koreanProblemText}
         </h2>
-        <ProblemTranslate onClick={() => setShowNative(!showNative)} active={!showNative} />
+        {userLanguage !== 'ko' && <ProblemTranslate onClick={() => setShowNative(!showNative)} active={!showNative} />}
         <ProblemRepeat onClick={() => playTts(showNative ? problemText : koreanProblemText)} />
       </div>
       <div className="problem-answer-section">
