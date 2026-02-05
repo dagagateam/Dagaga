@@ -1,13 +1,32 @@
 .community-detail-container {
     padding: 0 20px 20px;
-    /* Remove top padding completely */
     min-height: 100vh;
+    max-height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    /* Move card to top */
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
     padding-top: 10px;
-    /* Minimal top spacing */
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar for Detail Container */
+.community-detail-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.community-detail-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.community-detail-container::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.community-detail-container::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
 }
 
 .detail-header-nav {
@@ -52,25 +71,18 @@
     max-width: 1200px;
     display: flex;
     height: 80vh;
-    /* Fit to viewport */
     margin: 0 auto;
-    /* Ensure horizontal centering */
 }
 
 /* Left Section: Poster Image */
 .detail-left {
     flex: 1;
     background-color: #ffecc8;
-    /* Placeholder bg color */
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    /* Align top for scrolling */
     padding: 20px;
-    height: 100%;
-    /* Fill parent height */
-    overflow-y: auto;
-    /* Enable scrolling */
+    min-height: 100%;
 }
 
 /* Custom Scrollbar for image section */
@@ -100,14 +112,10 @@
 .detail-right {
     flex: 1;
     padding: 30px;
-    /* Reduced to match symmetry */
     display: flex;
     flex-direction: column;
     position: relative;
-    max-height: 800px;
-    /* Optional: limit height if content is long */
-    overflow-y: auto;
-    /* Allow scrolling within content area */
+    min-height: 100%;
 }
 
 /* Detail Header */
@@ -223,8 +231,6 @@
 
 .comment-list {
     margin-bottom: 20px;
-    max-height: 250px;
-    overflow-y: auto;
 }
 
 .comment-item {
@@ -365,4 +371,55 @@
 
 .cancel-reply-btn:hover {
     color: #ff4d4f;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .community-detail-container {
+        padding: 10px 10px 20px;
+        min-height: 75vh;
+        max-height: 75vh; /* Keep viewport constraint for scrollbar */
+        overflow-y: auto; /* Ensure scroll is enabled */
+    }
+
+    .detail-card {
+        flex-direction: column;
+        height: auto; /* Remove fixed height */
+        max-height: none;
+        overflow: visible; /* Allow content to flow */
+    }
+
+    .detail-left {
+        height: auto; /* Let image determine height */
+        min-height: 250px;
+        padding: 15px;
+        overflow: visible;
+    }
+
+    .detail-poster {
+        max-height: 400px; /* Limit image height */
+    }
+
+    .detail-right {
+        padding: 20px;
+        max-height: none; /* Remove height constraint */
+        overflow: visible; /* Allow scrolling on page level */
+    }
+
+    .detail-title {
+        font-size: 1.5rem;
+    }
+
+    .detail-periods {
+        margin-bottom: 20px;
+    }
+
+    .detail-description {
+        margin-bottom: 20px;
+        font-size: 0.95rem;
+    }
+
+    .comment-list {
+        max-height: none; /* Remove scroll constraint, use page scroll */
+    }
 }
