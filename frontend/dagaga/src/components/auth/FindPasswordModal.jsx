@@ -105,6 +105,7 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
                     <div style={{ textAlign: 'center', padding: '10px 0' }}>
                         <p style={{ marginBottom: '15px', color: '#333', fontSize: '1.1rem', fontWeight: 'bold' }}>{message}</p>
 
+
                         <div style={{
                             background: '#f8f9fa',
                             padding: '20px',
