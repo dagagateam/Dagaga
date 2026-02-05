@@ -31,7 +31,7 @@
 }
 
 .word {
-  font-size: 1.5rem; /* Reduced from 2rem */
+  font-size: 1.8rem; /* Increased from 1.5rem */
   font-weight: 600;
   font-family: var(--main-font);
   color: #999;

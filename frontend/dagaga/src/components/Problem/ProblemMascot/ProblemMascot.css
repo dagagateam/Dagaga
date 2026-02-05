@@ -2,11 +2,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem; /* Reduced from 20px */
+  padding: 0; /* 1rem에서 0으로 제거 (정확한 정렬 위해) */
 }
 
 .problem-mascot-image {
   width: auto;
-  height: 25vh; /* Drastically reduced from 400px to avoid scrolling */
+  height: 30vh; /* 25vh에서 확대 */
   object-fit: contain;
+  transform: scaleX(-1); /* Flip horizontally */
 }

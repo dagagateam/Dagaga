@@ -23,6 +23,12 @@ const ProblemNative = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Navigation state passed from ScenarioSelect (consistent with Problem.jsx)
+  const navState = location.state || {};
+  const scenarionStages = navState.stages || [];
+  // Note: problemId from params is string, store might have numbers
+  const currentStageIndex = scenarionStages.findIndex(s => s.questionId === parseInt(problemId));
+
   const [fetchedProblemText, setFetchedProblemText] = useState(null);
   const [koreanProblemText, setKoreanProblemText] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -278,12 +284,24 @@ const ProblemNative = () => {
   // Render pre-translate state
   const renderPreTranslate = () => (
     <Container fluid className="problem-native-container pre-translate">
+      <ProblemProgress
+        current={currentStageIndex + 1}
+        total={scenarionStages.length}
+        onExit={() => navigate('/ScenarioSelect')}
+      />
       <div className="problem-question-header-centered">
-        <h2 className="problem-question problem-question-centered">
-          {showNative ? problemText : koreanProblemText}
-        </h2>
-        <ProblemTranslate onClick={() => setShowNative(!showNative)} active={!showNative} />
-        <ProblemRepeat onClick={() => playTts(showNative ? problemText : koreanProblemText)} />
+        <div className="problem-native-header-row">
+          <h2 className="problem-native-header-text">
+            {koreanProblemText || problemText}
+          </h2>
+          <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />
+          <ProblemRepeat onClick={() => playTts(koreanProblemText || problemText)} />
+        </div>
+        {showNative && (
+          <div className="problem-translation-text">
+            {problemText}
+          </div>
+        )}
       </div>
       <div className="problem-answer-section">
         <ProblemMascot />
@@ -308,10 +326,17 @@ const ProblemNative = () => {
   const renderTranslating = () => (
     <Container fluid className="problem-native-container translating">
       <div className="problem-question-header-centered">
-        <h2 className="problem-question problem-question-centered">
-          {showNative ? problemText : koreanProblemText}
-        </h2>
-        <ProblemTranslate onClick={() => setShowNative(!showNative)} active={!showNative} />
+        <div className="problem-native-header-row">
+          <h2 className="problem-native-header-text">
+            {koreanProblemText || problemText}
+          </h2>
+          <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />
+        </div>
+        {showNative && (
+          <div className="problem-translation-text">
+            {problemText}
+          </div>
+        )}
       </div>
       <div className="problem-answer-section">
         <ProblemMascot />
@@ -332,13 +357,24 @@ const ProblemNative = () => {
   // Render post-translate state (same as Problem page)
   const renderPostTranslate = () => (
     <Container fluid className="problem-native-container post-translate">
-      <ProblemProgress currentWord={currentStep} totalWords={totalSteps} />
+      <ProblemProgress
+        current={currentStageIndex + 1}
+        total={scenarionStages.length}
+        onExit={() => navigate('/ScenarioSelect')}
+      />
       <div className="problem-question-header-centered">
-        <h2 className="problem-question problem-question-centered">
-          {showNative ? problemText : koreanProblemText}
-        </h2>
-        <ProblemTranslate onClick={() => setShowNative(!showNative)} active={!showNative} />
-        <ProblemRepeat onClick={() => playTts(showNative ? problemText : koreanProblemText)} />
+        <div className="problem-native-header-row">
+          <h2 className="problem-native-header-text">
+            {koreanProblemText || problemText}
+          </h2>
+          <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />
+          <ProblemRepeat onClick={() => playTts(koreanProblemText || problemText)} />
+        </div>
+        {showNative && (
+          <div className="problem-translation-text">
+            {problemText}
+          </div>
+        )}
       </div>
       <div className="problem-answer-section">
         <ProblemMascot />
