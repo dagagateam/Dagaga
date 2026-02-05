@@ -51,7 +51,10 @@ public class SecurityConfig {
                                                                 "/api/v1/users/login",
                                                                 "/api/v1/users/refresh",
                                                                 "/api/v1/users/check-email",
+                                                                "/api/v1/users/check-email",
                                                                 "/api/v1/users/check-nickname",
+                                                                // 이메일 인증 엔드포인트
+                                                                "/api/v1/email-verification/**",
                                                                 // 테스트용 토큰 발급 엔드포인트
                                                                 "/api/v1/auth/test-token",
                                                                 // WebSocket Endpoint

@@ -25,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
+    private final EmailVerificationService emailVerificationService;
 
     public void checkEmailDuplicate(String email) {
         if (userRepository.existsByEmail(email)) {
@@ -41,6 +42,10 @@ public class UserService {
     @Transactional
     public User register(UserRegisterDto dto) {
         checkEmailDuplicate(dto.getEmail());
+
+        if (!emailVerificationService.isVerified(dto.getEmail())) {
+            throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
+        }
 
         String nickname = dto.getNickname();
         if (nickname == null || nickname.isBlank()) {
