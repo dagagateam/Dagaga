@@ -20,7 +20,7 @@
   transform: translateY(-50%); /* Center based on its own dynamic height */
   margin-top: 0; /* Remove fixed margin offset */
   cursor: pointer;
-  height: 7rem; /* Fixed height for default state */
+  height: 5rem; /* Fixed height for default state */
 }
 
 .problem-card.semi-active {
@@ -31,7 +31,7 @@
   background-color: var(--main-orange);
   /* Width stays the same as default to be "standardized horizontally" */
   
-  height: 10rem; /* Standardized Fixed Height */
+  height: 8rem; /* Standardized Fixed Height */
   width: 40rem;
   padding: 1.875rem 2.5rem; 
   z-index: 10; 
