@@ -43,6 +43,23 @@
   margin-left: 5vh;
 }
 
+@media (max-width: 1200px) {
+  .scenario-mascot-image {
+      max-width: 38vw; /* Slight reduction for 1200px */
+  }
+}
+
+@media (max-width: 1024px) {
+  .scenario-mascot-image {
+    max-width: 35vw; /* Reduce mascot size */
+  }
+  
+  .scenario-cards-wrapper {
+    gap: 1rem; /* Reduce gap */
+    margin-left: 2vh; /* Reduce left margin */
+  }
+}
+
 @media (max-width: 768px) {
   .scenario-content {
     flex-direction: column;

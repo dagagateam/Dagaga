@@ -69,6 +69,14 @@
   min-width: 12.5rem;
 }
 
+.hero-right {
+  height: 350px;
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
 @keyframes pulse-scale {
   0%,
   100% {
@@ -121,12 +129,20 @@
     padding-bottom: 2rem; /* Ensure bottom spacing on scroll */
   }
 
+  .homepage-hero-section {
+    min-height: auto; /* Remove vh constraint to be as small as content */
+    height: auto; 
+    justify-content: center;
+    padding: 2rem 1rem 1rem 1rem; /* Adjust padding: Top needs space, bottom less */
+  }
+
   .hero-content {
     grid-template-columns: 1fr 1fr; /* 50/50 Split */
     text-align: left;
-    gap: 1rem;
-    padding-top: 1rem;
+    gap: 0.5rem; /* Reduce gap within hero content */
+    padding-top: 0;
     align-items: center;
+    height: auto; 
   }
 
   .hero-left {
@@ -150,7 +166,7 @@
 
   /* Increase height for hero right to accommodate CardSwap nicely in 50% width */
   .hero-right {
-    height: 280px !important; 
+    height: 12.5rem; /* ~200px in rem */
     margin-bottom: 0;
   }
 
