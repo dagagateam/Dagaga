@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card, Row, Col, Button, Modal, Form } from 'react-bootstrap';
+import { Card, Row, Col, Button, Modal, Form, InputGroup } from 'react-bootstrap';
 import { useUserStore } from '../../store/userStore';
+import PasswordToggleButton from '../common/PasswordToggleButton';
 import { getLocationName } from '../../data/regionData';
 import { verifyPasswordAPI } from '../../api/userApi';
 import './MyInfo.css';
@@ -15,6 +16,7 @@ const MyInfo = () => {
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [verifyPassword, setVerifyPassword] = useState('');
   const [verifyError, setVerifyError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const userInfo = (() => {
     if (!user) return {
@@ -133,14 +135,21 @@ const MyInfo = () => {
           <p className="text-muted mb-3">{t('verify_password_desc', '정보 수정을 위해 비밀번호를 입력해주세요.')}</p>
           <Form onSubmit={handleVerifyPassword}>
             <Form.Group>
-              <Form.Control
-                type="password"
-                placeholder={t('password', '비밀번호')}
-                value={verifyPassword}
-                onChange={(e) => setVerifyPassword(e.target.value)}
-                autoFocus
-                className="verify-input"
-              />
+              <InputGroup>
+                <Form.Control
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t('password', '비밀번호')}
+                  value={verifyPassword}
+                  onChange={(e) => setVerifyPassword(e.target.value)}
+                  autoFocus
+                  className="verify-input rounded-start-3 border-0 bg-light py-2"
+                />
+                <PasswordToggleButton
+                  showPassword={showPassword}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="border-0 bg-light rounded-end-3"
+                />
+              </InputGroup>
             </Form.Group>
             {verifyError && <div className="text-danger mt-2 small">{verifyError}</div>}
             <div className="d-flex justify-content-end mt-4">

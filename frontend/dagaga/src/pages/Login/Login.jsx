@@ -3,15 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { loginAPI } from '../../api/userApi';
 
+import { InputGroup } from 'react-bootstrap';
 import './Login.css';
 import LanguageSelector from '../../components/auth/LanguageSelector';
 import SocialButton from '../../components/auth/SocialButton';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import PasswordToggleButton from '../../components/common/PasswordToggleButton';
 import FindPasswordModal from '../../components/auth/FindPasswordModal';
-
 import { useUserStore } from '../../store/userStore';
-
 import { motion } from 'framer-motion';
 
 const Login = () => {
@@ -21,6 +21,7 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [isFindPasswordModalOpen, setIsFindPasswordModalOpen] = useState(false);
 
     const handleLogin = async (e) => {
@@ -91,15 +92,24 @@ const Login = () => {
 
                                 <div className="custom-input-group">
                                     <label>{t('password')}</label>
-                                    <Input
-                                        type="password"
-                                        placeholder={t('password_placeholder')}
-                                        value={password}
-                                        onChange={(e) => {
-                                            setPassword(e.target.value);
-                                            if (loginError) setLoginError('');
-                                        }}
-                                    />
+                                    <InputGroup>
+                                        <Input
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder={t('password_placeholder')}
+                                            value={password}
+                                            onChange={(e) => {
+                                                setPassword(e.target.value);
+                                                if (loginError) setLoginError('');
+                                            }}
+                                            className="form-control rounded-end-0 border-end-0"
+                                        />
+                                        <PasswordToggleButton
+                                            showPassword={showPassword}
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="bg-white border rounded-end-3 border-start-0"
+                                            style={{ borderColor: '#ddd' }}
+                                        />
+                                    </InputGroup>
                                 </div>
 
                                 {loginError && (
