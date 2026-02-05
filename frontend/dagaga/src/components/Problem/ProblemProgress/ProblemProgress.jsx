@@ -1,12 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import "./ProblemProgress.css";
 
-const ProblemProgress = ({ currentWord, totalWords }) => {
+const ProblemProgress = ({ current, total, currentWord, totalWords, onExit }) => {
   const navigate = useNavigate();
-  const progressPercentage = totalWords > 0 ? (currentWord / totalWords) * 100 : 0;
+  // Support both generic 'current/total' and specific 'currentWord/totalWords'
+  const cur = current !== undefined ? current : currentWord;
+  const tot = total !== undefined ? total : totalWords;
+  
+  const progressPercentage = tot > 0 ? (cur / tot) * 100 : 0;
 
   const handleClose = () => {
-    navigate(-1); // Go back to previous page
+    if (onExit) {
+      onExit();
+    } else {
+      navigate(-1); // Go back to previous page
+    }
   };
 
   return (

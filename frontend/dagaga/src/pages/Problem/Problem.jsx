@@ -358,24 +358,28 @@ const Problem = () => {
   return (
     <Container fluid className="problem-container">
       {/* ... (progress bar, etc) ... */}
-      <ProblemProgress
-        current={currentStageIndex + 1}
-        total={scenarionStages.length}
-        onExit={() => navigate('/ScenarioSelect')}
-      />
-      
       {loading ? (
         <ProblemLoading text="문제를 불러오는 중..." />
       ) : (
         <>
+          <ProblemProgress
+            current={currentStageIndex + 1}
+            total={scenarionStages.length}
+            onExit={() => navigate('/ScenarioSelect')}
+          />
       <div className="problem-question">
         <div className="problem-header">
-          <h2>
-            {showNative ? data?.nativeQuestion : problemText}
+          <h2 onClick={() => setShowNative(!showNative)} style={{ cursor: 'pointer' }}>
+            {problemText}
           </h2>
           {userLanguage !== 'ko' && <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />}
           <ProblemRepeat onClick={handleQuestionReplay} />
         </div>
+        {showNative && (
+          <div className="problem-translation-text">
+            {data?.nativeQuestion}
+          </div>
+        )}
       </div>
 
       <div className="problem-answer-section">

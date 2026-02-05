@@ -3,7 +3,8 @@
   align-items: center;
   gap: 15px;
   padding: 20px 40px;
-  width: 100%;
+  width: 90%;
+  margin: 10px auto 0; /* 20px -> 10px (위로 이동) */
 }
 
 .progress-bar-wrapper {
@@ -15,7 +16,7 @@
 .progress-bar-track {
   flex: 1;
   height: 8px;
-  background-color: #E5D4B8;
+  background-color: #F6D39E;
   border-radius: 4px;
   overflow: hidden;
 }
