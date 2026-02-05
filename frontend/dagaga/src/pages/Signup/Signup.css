@@ -47,8 +47,8 @@
 .signup-wrapper {
     position: relative;
     width: 100%;
-    max-width: 1000px;
-    /* Reduced from 1200px */
+    max-width: 1200px;
+    /* Reduced from 1200px -> Actually restored to 1200px */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -61,7 +61,7 @@
     border-radius: 40px;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
     width: 100%;
-    max-width: 1000px;
+    max-width: 1200px;
     min-height: 550px;
     /* Reduced from 600px */
     display: flex;

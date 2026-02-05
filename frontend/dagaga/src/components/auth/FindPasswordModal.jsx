@@ -67,7 +67,7 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={handleClose} title={t('find_password') || "비밀번호 찾기"}>
+        <Modal isOpen={isOpen} onClose={handleClose} title={t('find_password') || "비밀번호 찾기"} style={{ maxWidth: '500px' }}>
             <div style={{ minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 {step === 'input' && (
                     <div style={{ width: '100%', padding: '10px 0' }}>
@@ -103,7 +103,7 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
 
                 {step === 'result' && (
                     <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                        <p style={{ marginBottom: '15px', color: '#333', fontSize: '1.1rem', fontWeight: 'bold' }}>{message}</p>
+                        <p style={{ marginBottom: '15px', color: '#333', fontSize: '1.1rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>{message}</p>
 
 
                         <div style={{
