@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Dropdown } from 'react-bootstrap';
-import { signupAPI, checkEmailAPI, checkNicknameAPI } from '../../api/userApi';
+import { signupAPI, checkEmailAPI, checkNicknameAPI, requestVerificationAPI, confirmVerificationAPI } from '../../api/userApi';
 import './Signup.css';
 import loginTiger from '../../assets/characters/login_tiger.png';
 import logo from '../../assets/icons/logo.png';
@@ -38,6 +38,10 @@ const Signup = () => {
     // Email Verification State
     const [emailMessage, setEmailMessage] = useState('');
     const [isEmailAvailable, setIsEmailAvailable] = useState(null); // null, true, false
+    const [isEmailVerified, setIsEmailVerified] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [showVerificationInput, setShowVerificationInput] = useState(false);
+    const [verificationTicker, setVerificationTicker] = useState(null);
 
     // Nickname Verification State
     const [nicknameMessage, setNicknameMessage] = useState('');
@@ -63,8 +67,8 @@ const Signup = () => {
         });
     };
 
-    // Handle Email Check
-    const handleCheckEmail = async () => {
+    // Handle Email Verification Request
+    const handleRequestVerification = async () => {
         const { email } = formData;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -79,18 +83,40 @@ const Signup = () => {
         }
 
         try {
+            // 1. Check Duplicate first
             const isAvailable = await checkEmailAPI(email);
             setIsEmailAvailable(isAvailable);
 
-            if (isAvailable) {
-                setEmailMessage("사용 가능한 이메일입니다.");
-                setErrors({ ...errors, email: '' });
-            } else {
+            if (!isAvailable) {
                 setEmailMessage("이미 사용 중인 이메일입니다.");
+                return;
             }
+
+            // 2. Request Verification Code
+            await requestVerificationAPI(email);
+            setEmailMessage("인증 코드가 전송되었습니다. 이메일을 확인해주세요.");
+            setShowVerificationInput(true);
+            setErrors({ ...errors, email: '' });
+
         } catch (error) {
-            setEmailMessage("이메일 확인 중 오류가 발생했습니다.");
+            setEmailMessage("인증 메일 전송 중 오류가 발생했습니다.");
             setIsEmailAvailable(false);
+        }
+    };
+
+    const handleConfirmVerification = async () => {
+        if (!verificationCode) {
+            alert("인증 코드를 입력해주세요.");
+            return;
+        }
+
+        try {
+            await confirmVerificationAPI(formData.email, verificationCode);
+            setIsEmailVerified(true);
+            setShowVerificationInput(false);
+            setEmailMessage("이메일 인증이 완료되었습니다.");
+        } catch (error) {
+            alert("인증 코드가 올바르지 않습니다.");
         }
     };
 
@@ -132,6 +158,9 @@ const Signup = () => {
         // Reset verification on change
         if (name === 'email') {
             setIsEmailAvailable(null);
+            setIsEmailVerified(false);
+            setShowVerificationInput(false);
+            setVerificationCode('');
             setEmailMessage('');
         }
         if (name === 'nickname') {
@@ -199,8 +228,9 @@ const Signup = () => {
         // 4. Duplicate Checks (API Call)
         // 실제로는 입력 시점(onBlur 등)에 체크하는 것이 좋지만 여기서는 가입 시점에 체크
         if (!newErrors.email) {
-            const isEmailAvailable = await checkEmailAPI(email);
-            if (!isEmailAvailable) newErrors.email = "이미 사용 중인 이메일입니다.";
+           if (!isEmailVerified) {
+               newErrors.email = "이메일 인증을 완료해주세요.";
+           }
         }
 
         setErrors(newErrors);
@@ -281,16 +311,37 @@ const Signup = () => {
                                                 onChange={handleChange}
                                                 required
                                                 className={errors.email ? 'error-input' : ''}
+                                                disabled={isEmailVerified}
                                             />
-                                            <button type="button" className="check-btn" onClick={handleCheckEmail}>
-                                                {t('check_duplicate')}
+                                            <button 
+                                                type="button" 
+                                                className="check-btn" 
+                                                onClick={handleRequestVerification}
+                                                disabled={isEmailVerified}
+                                            >
+                                                {isEmailVerified ? "인증 완료" : "인증하기"}
                                             </button>
                                         </div>
+                                        
+                                        {showVerificationInput && (
+                                            <div className="nickname-group" style={{ marginTop: '10px' }}>
+                                                <Input
+                                                    type="text"
+                                                    placeholder="인증 코드 6자리"
+                                                    value={verificationCode}
+                                                    onChange={(e) => setVerificationCode(e.target.value)}
+                                                />
+                                                <button type="button" className="check-btn" onClick={handleConfirmVerification}>
+                                                    확인
+                                                </button>
+                                            </div>
+                                        )}
+
                                         {/* 우선순위: 에러 메시지 > 성공/실패 메시지 */}
                                         {errors.email ? (
                                             <span className="error-msg">{errors.email}</span>
                                         ) : (
-                                            emailMessage && <span className={`validation-msg ${isEmailAvailable ? 'success' : 'error'}`}>{emailMessage}</span>
+                                            emailMessage && <span className={`validation-msg ${isEmailVerified || isEmailAvailable ? 'success' : 'error'}`}>{emailMessage}</span>
                                         )}
                                     </div>
                                     <div className="custom-input-group half">

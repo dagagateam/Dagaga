@@ -122,3 +122,23 @@ export const verifyPasswordAPI = async (password) => {
         throw error;
     }
 };
+
+export const requestVerificationAPI = async (email) => {
+    try {
+        await instance.post('/email-verification/request', { email });
+        return true;
+    } catch (error) {
+        console.error("Request Verification API Error:", error);
+        throw error;
+    }
+};
+
+export const confirmVerificationAPI = async (email, code) => {
+    try {
+        await instance.post('/email-verification/confirm', { email, code });
+        return true;
+    } catch (error) {
+        console.error("Confirm Verification API Error:", error);
+        throw error;
+    }
+};
