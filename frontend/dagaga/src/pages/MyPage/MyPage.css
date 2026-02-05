@@ -80,27 +80,7 @@
   width: max-content;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .greeting-card {
-    width: 100%;
-    min-width: auto;
-  }
-  
-  .greeting-text {
-    font-size: 1.4rem;
-  }
-  
-  .profile-circle {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .bottom-sections {
-    flex-direction: column;
-  }
-}
-
+/* Base Styles */
 .joined-chat-card {
   border-radius: 20px;
   border: none;
@@ -127,4 +107,88 @@
 .joined-chat-body::-webkit-scrollbar-thumb {
   background-color: #ddd;
   border-radius: 3px;
+}
+
+/* Tablet Landscape (1024px) */
+@media (max-width: 1024px) {
+  /* Restrict height on tablet as well */
+  .joined-chat-card {
+    height: 240px; 
+    min-height: auto;
+    max-height: none;
+  }
+  
+  .joined-chat-body {
+    padding: 10px 20px !important;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .my-page-container {
+    padding: 10px 3%;
+  }
+
+  .greeting-card {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .greeting-body {
+    padding: 12px 20px;
+  }
+
+  .greeting-text {
+    font-size: 1.4rem;
+  }
+  
+  .profile-circle {
+    width: 50px;
+    height: 50px;
+  }
+
+  .section-badge {
+    font-size: 0.85rem;
+    padding: 6px 16px;
+  }
+
+  /* Keep sections horizontal on mobile with 1:2 ratio */
+  .bottom-sections {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 15px;
+    --bs-gutter-y: 0.5rem; /* Reduce vertical gutter (was 1.5rem) */
+  }
+
+  .section-title-wrapper {
+    margin-bottom: 4px; /* Tighter title spacing */
+  }
+
+  .bottom-sections > :first-child {
+    flex: 1; /* Joined chats takes 1 part */
+    min-width: 0;
+  }
+
+  .bottom-sections > :last-child {
+    flex: 2; /* My info takes 2 parts (1:2 ratio) */
+    min-width: 0;
+  }
+
+  /* Make saved news cards slightly smaller on mobile */
+  .saved-news-scroll {
+    gap: 10px;
+  }
+
+  /* Reduce vertical height of both cards */
+  .joined-chat-card {
+    height: 160px; /* Reduced to match MyInfo */
+    min-height: auto;
+    max-height: none;
+  }
+
+  /* Compact padding for chat body on mobile */
+  .joined-chat-body {
+    padding: 10px !important;
+  }
 }

@@ -107,3 +107,45 @@ label.text-muted {
     border-radius: 50rem; /* rounded-pill */
     font-weight: 600; /* fw-semibold */
 }
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .my-page-edit-container {
+        padding: 10px;
+        overflow-x: hidden; /* Prevent page-wide horizontal scroll */
+        height: calc(100vh - 60px); /* Fill viewport minus approx navbar */
+        display: flex;
+        align-items: center; /* Center card vertically */
+        justify-content: center;
+    }
+
+    /* Override p-5 (3rem) to smaller padding on mobile */
+    .edit-card .card-body {
+        padding: 1.5rem !important;
+        display: flex;
+        flex-direction: column;
+        max-height: 100%;
+        overflow: hidden;
+    }
+
+    .edit-card {
+        max-height: 90vh; /* Constrain card height */
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    /* Target the form to make it flex and fill space */
+    .edit-card .card-body form {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Contain scroll within form */
+        flex: 1;
+    }
+
+    .edit-form-scroll {
+        flex: 1; /* Take remaining space */
+        max-height: none; /* Remove fixed constraint */
+        padding-bottom: 10px;
+    }
+}
