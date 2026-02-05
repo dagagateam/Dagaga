@@ -52,6 +52,7 @@ public class SecurityConfig {
                                                                 "/api/v1/users/refresh",
                                                                 "/api/v1/users/check-email",
                                                                 "/api/v1/users/check-nickname",
+                                                                "/api/v1/users/find-password",
                                                                 // 테스트용 토큰 발급 엔드포인트
                                                                 "/api/v1/auth/test-token",
                                                                 // WebSocket Endpoint
