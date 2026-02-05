@@ -132,3 +132,42 @@
     transform: translateY(0);
   }
 }
+/* Laptop Layout (1200px) */
+@media (max-width: 1200px) {
+  .scenario-card.collapsed {
+    width: 6.5rem; /* Slight reduction from 7rem */
+  }
+  .scenario-card.expanded {
+    width: 22rem; /* Reduction from 25rem */
+    padding: 2.2rem;
+  }
+  .scenario-card-title {
+    font-size: 1.9rem;
+  }
+}
+@media (max-width: 1024px) {
+  /* Collapsed State */
+  .scenario-card.collapsed {
+    width: 5.5rem; /* Reduced from 7rem */
+    padding: 1.5rem 0.5rem;
+  }
+  
+  .scenario-card-text {
+    font-size: 1.1rem; /* Reduced from 1.4rem */
+    letter-spacing: 0.5rem;
+  }
+
+  /* Expanded State */
+  .scenario-card.expanded {
+    width: 20rem; /* Reduced from 25rem */
+    padding: 2rem;
+  }
+  
+  .scenario-card-title {
+    font-size: 1.75rem; /* Reduced */
+  }
+  
+  .scenario-card-list li {
+    font-size: 0.9rem;
+  }
+}

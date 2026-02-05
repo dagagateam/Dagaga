@@ -67,7 +67,6 @@ const Homepage = () => {
 
           <div
             className="hero-right"
-            style={{ height: '350px', width: '100%', position: 'relative', display: 'flex', justifyContent: 'center' }}
           >
             <CardSwap
               triggerIndex={activeIndex}
