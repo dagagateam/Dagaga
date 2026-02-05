@@ -6,7 +6,7 @@ import './ProblemLoading.css';
 const ProblemLoading = ({ text = "로딩중..." }) => {
   return (
     <Container fluid className="problem-loading-container">
-      <div className="problem-loading-content">
+      <div className="problem-loading-card">
         <img src={loadingGif} alt="Loading" className="loading-gif" />
         <div className="problem-loading-text">{text}</div>
       </div>
