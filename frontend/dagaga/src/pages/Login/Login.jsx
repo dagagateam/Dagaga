@@ -29,6 +29,14 @@ const Login = () => {
         setLoginError('');
 
         try {
+            // 0. 비밀번호 복잡성 검사 (프론트엔드 유효성 검사)
+            // 영문, 숫자, 특수문자(*, +, -) 포함 8자 이상
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[*+-])[A-Za-z\d*+-]{8,}$/;
+            if (!passwordRegex.test(password)) {
+                setLoginError(t('password_error_requirements') || "비밀번호는 영문, 숫자, 특수문자(*, +, -)를 포함하여 8자 이상이어야 합니다.");
+                return;
+            }
+
             // 1. API 호출 - AuthResponse 반환
             const authResponse = await loginAPI(email, password);
 

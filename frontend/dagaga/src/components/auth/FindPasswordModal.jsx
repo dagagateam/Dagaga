@@ -16,9 +16,7 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
     const [email, setEmail] = useState('');
     const [step, setStep] = useState('input'); // input, result, error
     const [message, setMessage] = useState('');
-    const [tempPassword, setTempPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [copySuccess, setCopySuccess] = useState('');
 
     const handleSubmit = async (e) => {
         if (e) {
@@ -33,11 +31,10 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
         setMessage('');
 
         try {
-            const response = await findPasswordAPI(email);
+            await findPasswordAPI(email);
             // Success
-            setTempPassword(response.tempPassword);
             setStep('result');
-            setMessage(t('temp_password_issued') || '임시 비밀번호가 발급되었습니다.');
+            setMessage(t('temp_password_sent_email') || '임시 비밀번호가 이메일로 전송되었습니다.');
         } catch (error) {
             console.error("Find Password Failed:", error);
             if (error.response?.status === 400 || error.response?.status === 404) {
@@ -52,32 +49,9 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
         }
     };
 
-    const handleCopyPassword = async () => {
-        try {
-            await navigator.clipboard.writeText(tempPassword);
-            setCopySuccess('비밀번호가 복사되었습니다!');
-            setTimeout(() => setCopySuccess(''), 2000);
-        } catch (err) {
-            console.error('Failed to copy!', err);
-            setCopySuccess('복사에 실패했습니다.');
-        }
-    };
-
-    const handleConfirmResult = async () => {
-        // Auto login with temp password and redirect
-        try {
-            setIsLoading(true);
-            const authResponse = await loginAPI(email, tempPassword);
-            login(authResponse);
-            onClose();
-            navigate('/MyPage');
-        } catch (error) {
-            console.error("Auto login failed:", error);
-            onClose();
-            navigate('/Login'); // Fallback
-        } finally {
-            setIsLoading(false);
-        }
+    const handleConfirmResult = () => {
+        onClose();
+        navigate('/Login');
     };
 
     const handleConfirmError = () => {
@@ -89,8 +63,6 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
         setEmail('');
         setStep('input');
         setMessage('');
-        setTempPassword('');
-        setCopySuccess('');
         onClose();
     };
 
@@ -131,7 +103,7 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
 
                 {step === 'result' && (
                     <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                        <p style={{ marginBottom: '15px', color: '#333', fontSize: '1.1rem', fontWeight: 'bold' }}>{t('temp_password_sent_desc') || "새로운 임시 비밀번호가 발급되었습니다."}</p>
+                        <p style={{ marginBottom: '15px', color: '#333', fontSize: '1.1rem', fontWeight: 'bold' }}>{message}</p>
 
                         <div style={{
                             background: '#f8f9fa',
@@ -140,37 +112,16 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
                             marginBottom: '20px',
                             border: '1px solid #eee'
                         }}>
-                            <div style={{
-                                fontSize: '1.5rem',
-                                fontWeight: 'bold',
-                                letterSpacing: '3px',
-                                color: '#F8B15E',
-                                marginBottom: '10px',
-                                wordBreak: 'break-all'
-                            }}>
-                                {tempPassword}
-                            </div>
-                            <Button
-                                onClick={handleCopyPassword}
-                                style={{
-                                    backgroundColor: '#fff',
-                                    color: '#555',
-                                    border: '1px solid #ddd',
-                                    padding: '5px 15px',
-                                    fontSize: '0.9rem',
-                                    width: 'auto',
-                                    borderRadius: '20px'
-                                }}
-                            >
-                                {copySuccess ? "복사 완료!" : "비밀번호 복사"}
-                            </Button>
+                            <p style={{ margin: 0, color: '#666', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                                {t('check_email_spam') || "메일함을 확인해주세요.\n메일이 오지 않았다면 스팸함도 확인해주세요."}
+                            </p>
                         </div>
 
                         <p style={{ marginBottom: '20px', fontSize: '0.9rem', color: '#e53935' }}>
                             {t('change_password_warning') || "보안을 위해 로그인 후 즉시 비밀번호를 변경해주세요."}
                         </p>
                         <Button onClick={handleConfirmResult} disabled={isLoading} className="login-btn">
-                            {t('login_and_go_mypage') || "로그인 및 마이페이지로 이동"}
+                            {t('go_to_login') || "로그인 하러 가기"}
                         </Button>
                     </div>
                 )}
