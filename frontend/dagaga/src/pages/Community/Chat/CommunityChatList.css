@@ -319,3 +319,77 @@
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .chat-header {
+        flex-direction: row; /* Keep horizontal */
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chat-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .create-chat-btn {
+        width: auto; /* Size to content */
+        white-space: nowrap;
+    }
+
+    .top-section-layout {
+        flex-direction: row; /* Keep horizontal */
+        gap: 10px;
+    }
+
+    .regional-chat-card {
+        height: auto;
+        min-height: 150px;
+    }
+
+    /* Hide the image section on mobile */
+    .regional-card-image {
+        display: none;
+    }
+
+    .regional-card-content {
+        padding: 20px;
+    }
+
+    .regional-card-title {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    .joined-chats-section {
+        height: 150px; /* Match regional chat exact height */
+        min-height: auto;
+    }
+
+    .joined-chats-list {
+        overflow-y: auto; /* Ensure scrollbar */
+    }
+
+    /* Hide participant count on mobile */
+    .joined-chat-count {
+        display: none;
+    }
+
+    .user-chat-header {
+        flex-direction: row; /* Keep horizontal */
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .chat-search-input {
+        width: auto;
+        flex: 1;
+        max-width: 300px;
+    }
+
+    .user-chat-grid {
+        flex-wrap: wrap;
+        overflow-x: visible;
+    }
+}
