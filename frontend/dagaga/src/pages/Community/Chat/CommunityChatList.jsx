@@ -192,7 +192,7 @@ const CommunityChatList = () => {
                         <div className="regional-chat-section">
                             <div className="regional-chat-card">
                                 <div className="regional-card-content">
-                                    <h3 className="regional-card-title">{regionalChats[0].title}</h3>
+                                    <h3 className="regional-card-title">지역 단체 채팅방</h3>
                                     <div>
                                         <Button className="join-btn" onClick={() => navigate(`/Community/Chat/room/${regionalChats[0].id}`)}>
                                             {t('participate')}

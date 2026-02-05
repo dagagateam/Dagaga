@@ -4,7 +4,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   background-color: white;
   height: 100%;
-  min-height: 200px; /* Reduced specific height */
+  min-height: 200px; 
   padding: 10px;
 }
 
@@ -15,22 +15,22 @@
 }
 
 .edit-info-btn {
-  background-color: #E67E22; /* Orange color */
-  border-color: #E67E22;
+  background-color: var(--main-orange); 
+  border-color: var(--main-orange);
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 600;
   padding: 8px 10px;
-  min-width: 150px; /* Ensure wide enough for text */
+  min-width: 150px; 
 }
 
 .edit-info-btn:hover {
-  background-color: #D35400;
-  border-color: #D35400;
+  background-color: #e09b4d;
+  border-color: #e09b4d;
 }
 
 .info-grid {
-  padding: 0 20px 10px 20px; /* Reduced bottom padding */
+  padding: 0 20px 10px 20px; 
 }
 
 .info-item {
@@ -52,14 +52,13 @@
 }
 
 .email-value {
-  font-size: 1rem; /* Slightly smaller for email */
+  font-size: 1rem; 
 }
 
 .mt-4 {
-  margin-top: 1rem !important; /* Reduced from 2rem to make card more compact */
+  margin-top: 1rem !important; 
 }
 
-/* Modal Custom Styles */
 .verify-modal-content {
   border-radius: 20px;
   border: none;
@@ -87,7 +86,7 @@
 }
 
 .verify-input:focus {
-  border-color: #E67E22;
+  border-color: var(--main-orange);
   box-shadow: 0 0 0 0.2rem rgba(230, 126, 34, 0.25);
 }
 
@@ -109,11 +108,11 @@
   border-radius: 12px;
   padding: 8px 16px;
   font-weight: 600;
-  background-color: #E67E22;
+  background-color: var(--main-orange);
   border: none;
   color: white;
 }
 
 .btn-verify-confirm:hover {
-  background-color: #D35400;
+  background-color: #e09b4d;
 }
