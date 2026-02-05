@@ -32,7 +32,7 @@
   /* Width stays the same as default to be "standardized horizontally" */
   
   height: 8rem; /* Standardized Fixed Height */
-  width: 40rem;
+  width: 30rem;
   padding: 1.875rem 2.5rem; 
   z-index: 10; 
   /* Transition when expanding (default -> active): Synchronized */
@@ -105,4 +105,65 @@
 .problem-arrows span {
   display: flex;
   align-items: center;
+}
+
+/* Responsive Breakpoints */
+
+/* Laptop (1200px) */
+@media (max-width: 1200px) {
+  .problem-card {
+    /* Radius = 50vh, Left = 3.125rem (default) -> Origin = -50vh - 3.125rem */
+    transform-origin: calc(-50vh - 3.125rem) center;
+    width: 22rem;
+  }
+
+  .problem-card.active {
+    width: 28rem;
+    height: 7.5rem;
+    padding: 1.5rem 2rem;
+  }
+}
+
+/* Tablet Landscape (1024px) */
+@media (max-width: 1024px) {
+  .problem-card {
+    /* Radius = 50vh, Left = 2.5rem -> Origin = -50vh - 2.5rem */
+    left: 2.5rem;
+    transform-origin: calc(-50vh - 2.5rem) center;
+    width: 20rem;
+    padding: 0.8rem 1.2rem;
+  }
+
+  .problem-card.active {
+    width: 26rem;
+    height: 7rem;
+    padding: 1.2rem 1.8rem;
+  }
+
+  .problem-text {
+    font-size: 0.95rem;
+  }
+}
+
+/* Tablet Portrait (768px) */
+@media (max-width: 768px) {
+  .problem-card {
+    /* Increasing left to 5rem to space out cards visually (larger arc radius) */
+    left: 2rem;
+    /* Radius = 50vh, Left = 5rem -> Origin = -50vh - 5rem */
+    transform-origin: calc(-50vh - 5rem) center;
+    width: 16rem;
+    height: 4rem;
+    z-index: 9;
+  }
+
+  .problem-card.active {
+    width: 20rem;
+    height: 6rem;
+    padding: 1rem 1.5rem;
+  }
+
+  .problem-card.active .problem-text {
+    font-size: 1rem;
+  }
 }
