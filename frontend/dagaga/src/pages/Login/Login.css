@@ -212,3 +212,50 @@
     position: relative;
     z-index: 1;
 }
+
+/* Tablet/Mobile Responsiveness */
+@media (max-width: 768px) {
+    .login-wrapper {
+        max-width: 320px; /* Reduced specific width */
+    }
+
+    .login-card {
+        padding: 15px 20px; /* Very compact vertical padding */
+    }
+
+    .login-header {
+        padding: 10px 20px; /* Minimal header padding */
+    }
+
+    .login-card h2 {
+        font-size: 1.3rem;
+        margin-bottom: 15px; /* Reduced margin */
+    }
+
+    /* Vertical Compaction */
+    .custom-input-group {
+        margin-bottom: 10px; /* Reduced from 20px */
+    }
+
+    .custom-input-group label {
+        margin-bottom: 4px; /* Reduced from 8px */
+        font-size: 0.85rem;
+    }
+
+    .login-btn {
+        padding: 10px; /* Slimmer button */
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    .form-control, .form-select {
+        font-size: 0.9rem; /* Smaller text inside inputs */
+        padding: 8px 12px;
+    }
+
+    .forgot-password, .signup-link, .divider {
+        margin-bottom: 10px; /* Tighten up bottom links */
+        margin-top: 10px;
+        font-size: 0.8rem;
+    }
+}
