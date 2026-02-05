@@ -18,9 +18,15 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
     const [message, setMessage] = useState('');
     const [tempPassword, setTempPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [copySuccess, setCopySuccess] = useState('');
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.nativeEvent) e.nativeEvent.stopImmediatePropagation();
+        }
+
         if (!email.trim()) return;
 
         setIsLoading(true);
@@ -37,12 +43,23 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
             if (error.response?.status === 400 || error.response?.status === 404) {
                 // Not found
                 setStep('error');
-                setMessage(t('email_not_found') || '가입되지 않은 이메일입니다.\n회원가입 페이지로 이동하시겠습니까?');
+                setMessage(t('email_not_found'));
             } else {
                 setMessage(t('error_occurred') || '오류가 발생했습니다. 다시 시도해주세요.');
             }
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleCopyPassword = async () => {
+        try {
+            await navigator.clipboard.writeText(tempPassword);
+            setCopySuccess('비밀번호가 복사되었습니다!');
+            setTimeout(() => setCopySuccess(''), 2000);
+        } catch (err) {
+            console.error('Failed to copy!', err);
+            setCopySuccess('복사에 실패했습니다.');
         }
     };
 
@@ -53,16 +70,7 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
             const authResponse = await loginAPI(email, tempPassword);
             login(authResponse);
             onClose();
-            // Redirect to MyPage or Home -> MyPage per requirement
-            // But wait, user might want to change password immediately. 
-            // The requirement says "change password modal and redirect to MyPage".
-            // Since we are creating logic here:
-            // 1. Auto login.
-            // 2. Navigate to MyPage.
-            // 3. User can change password there. 
-            // (Ideally we should show "Change Password" modal on MyPage upon arrival, but that requires more state passing. 
-            //  Simplify: Just redirect to MyPage so they can see profile.)
-            navigate('/MyPage'); 
+            navigate('/MyPage');
         } catch (error) {
             console.error("Auto login failed:", error);
             onClose();
@@ -82,67 +90,105 @@ const FindPasswordModal = ({ isOpen, onClose }) => {
         setStep('input');
         setMessage('');
         setTempPassword('');
+        setCopySuccess('');
         onClose();
     };
 
     return (
         <Modal isOpen={isOpen} onClose={handleClose} title={t('find_password') || "비밀번호 찾기"}>
-            {step === 'input' && (
-                <form onSubmit={handleSubmit}>
-                    <p style={{marginBottom: '10px', fontSize: '0.9rem', color: '#666'}}>
-                        {t('enter_email_for_password') || "가입한 이메일을 입력해주세요."}
-                    </p>
-                    <Input
-                        type="email"
-                        placeholder={t('email_placeholder') || "이메일 입력"}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        autoFocus
-                    />
-                    {message && <p style={{color: 'red', fontSize: '0.8rem', marginTop: '5px'}}>{message}</p>}
-                    <Button type="submit" disabled={isLoading} style={{marginTop: '15px'}}>
-                        {isLoading ? (t('processing') || "처리중...") : (t('confirm') || "확인")}
-                    </Button>
-                </form>
-            )}
-
-            {step === 'result' && (
-                <div style={{textAlign: 'center'}}>
-                    <p style={{marginBottom: '10px', color: '#333'}}>{t('temp_password_sent_desc') || "새로운 임시 비밀번호가 발급되었습니다."}</p>
-                    <div style={{
-                        background: '#f5f5f5', 
-                        padding: '15px', 
-                        borderRadius: '8px', 
-                        fontSize: '1.2rem', 
-                        fontWeight: 'bold', 
-                        letterSpacing: '2px',
-                        marginBottom: '20px',
-                        wordBreak: 'break-all'
-                    }}>
-                        {tempPassword}
-                    </div>
-                    <p style={{marginBottom: '20px', fontSize: '0.9rem', color: '#e53935'}}>
-                        {t('change_password_warning') || "보안을 위해 로그인 후 즉시 비밀번호를 변경해주세요."}
-                    </p>
-                    <Button onClick={handleConfirmResult} disabled={isLoading}>
-                        {t('login_and_go_mypage') || "로그인 및 마이페이지로 이동"}
-                    </Button>
-                </div>
-            )}
-
-            {step === 'error' && (
-                <div style={{textAlign: 'center'}}>
-                    <p style={{marginBottom: '20px', color: '#333', whiteSpace: 'pre-line'}}>{message}</p>
-                    <div style={{display: 'flex', gap: '10px'}}>
-                        <Button onClick={handleClose} style={{backgroundColor: '#999'}}>
-                            {t('cancel') || "취소"}
-                        </Button>
-                        <Button onClick={handleConfirmError}>
-                            {t('signup') || "회원가입"}
+            <div style={{ minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                {step === 'input' && (
+                    <div style={{ width: '100%', padding: '10px 0' }}>
+                        <p style={{ marginBottom: '20px', fontSize: '1rem', color: '#555', fontWeight: '500' }}>
+                            {t('enter_email_for_password') || "가입된 이메일을 입력해 주세요"}
+                        </p>
+                        <div className="custom-input-group" style={{ marginBottom: '20px' }}>
+                            <Input
+                                type="email"
+                                placeholder={t('email_placeholder') || "이메일 입력"}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleSubmit(e);
+                                    }
+                                }}
+                                autoFocus
+                                style={{ width: '100%' }}
+                            />
+                        </div>
+                        {message && <p style={{ color: '#ff4d4f', fontSize: '0.9rem', marginTop: '5px', marginBottom: '10px' }}>{message}</p>}
+                        <Button
+                            onClick={handleSubmit}
+                            disabled={isLoading}
+                            className="login-btn"
+                            style={{ marginTop: '10px' }}
+                        >
+                            {isLoading ? (t('processing') || "처리중...") : (t('confirm') || "확인")}
                         </Button>
                     </div>
-                </div>
-            )}
+                )}
+
+                {step === 'result' && (
+                    <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                        <p style={{ marginBottom: '15px', color: '#333', fontSize: '1.1rem', fontWeight: 'bold' }}>{t('temp_password_sent_desc') || "새로운 임시 비밀번호가 발급되었습니다."}</p>
+
+                        <div style={{
+                            background: '#f8f9fa',
+                            padding: '20px',
+                            borderRadius: '12px',
+                            marginBottom: '20px',
+                            border: '1px solid #eee'
+                        }}>
+                            <div style={{
+                                fontSize: '1.5rem',
+                                fontWeight: 'bold',
+                                letterSpacing: '3px',
+                                color: '#F8B15E',
+                                marginBottom: '10px',
+                                wordBreak: 'break-all'
+                            }}>
+                                {tempPassword}
+                            </div>
+                            <Button
+                                onClick={handleCopyPassword}
+                                style={{
+                                    backgroundColor: '#fff',
+                                    color: '#555',
+                                    border: '1px solid #ddd',
+                                    padding: '5px 15px',
+                                    fontSize: '0.9rem',
+                                    width: 'auto',
+                                    borderRadius: '20px'
+                                }}
+                            >
+                                {copySuccess ? "복사 완료!" : "비밀번호 복사"}
+                            </Button>
+                        </div>
+
+                        <p style={{ marginBottom: '20px', fontSize: '0.9rem', color: '#e53935' }}>
+                            {t('change_password_warning') || "보안을 위해 로그인 후 즉시 비밀번호를 변경해주세요."}
+                        </p>
+                        <Button onClick={handleConfirmResult} disabled={isLoading} className="login-btn">
+                            {t('login_and_go_mypage') || "로그인 및 마이페이지로 이동"}
+                        </Button>
+                    </div>
+                )}
+
+                {step === 'error' && (
+                    <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                        <p style={{ marginBottom: '30px', color: '#333', fontSize: '1.1rem', whiteSpace: 'pre-line' }}>{message}</p>
+                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+                            <Button onClick={handleClose} style={{ backgroundColor: '#f1f3f5', color: '#333', border: 'none' }}>
+                                {t('cancel') || "취소"}
+                            </Button>
+                            <Button onClick={handleConfirmError} style={{ width: 'auto', padding: '0 30px' }}>
+                                {t('signup') || "회원가입"}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </Modal>
     );
 };
