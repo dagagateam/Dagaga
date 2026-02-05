@@ -201,11 +201,11 @@ const CommunityInfoDetail = () => {
                         <div className="detail-periods">
                             <div className="detail-period-row">
                                 <span className="period-label">{t('period_acceptance')}</span>
-                                <span className="period-value">| {info.startDate} ~ {info.endDate}</span>
+                                <span className="period-value">| {info.applicationPeriod}</span>
                             </div>
                             <div className="detail-period-row">
                                 <span className="period-label">{t('period_progress')}</span>
-                                <span className="period-value">| {info.startDate} ~ {info.endDate}</span>
+                                <span className="period-value">| {info.progressPeriod}</span>
                             </div>
                         </div>
 
