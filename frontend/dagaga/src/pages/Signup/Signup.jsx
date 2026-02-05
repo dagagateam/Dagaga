@@ -4,10 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Dropdown } from 'react-bootstrap';
 import { signupAPI, checkEmailAPI, checkNicknameAPI, requestVerificationAPI, confirmVerificationAPI } from '../../api/userApi';
 import './Signup.css';
-import loginTiger from '../../assets/characters/login_tiger2.png';
-import logo from '../../assets/icons/logo3.png';
 import { area0, allAreas, getLocationId } from '../../data/regionData';
-import LanguageSelector from '../../components/auth/LanguageSelector';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import RegionSelect from '../../components/common/RegionSelect';
@@ -283,19 +280,10 @@ const Signup = () => {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
         >
-            <header className="signup-header">
-                <div className="logo-area">
-                    <img src={logo} alt="Dagaga Logo" style={{ height: '40px' }} />
-                </div>
-
-                <LanguageSelector language={language} setLanguage={setLanguage} />
-            </header>
-
-
             <main className="signup-content">
                 <div className="signup-wrapper">
                     <div className="signup-card">
-                        <div className="signup-left-section">
+                        <div className="signup-form-section">
                             <h2>{t('signup')}</h2>
 
                             <form onSubmit={handleSignup} className="signup-form">
@@ -452,8 +440,6 @@ const Signup = () => {
                         </div>
 
                     </div>
-
-                    <img src={loginTiger} alt="Welcome Tiger" className="signup-tiger-image" />
                 </div>
             </main>
         </motion.div>

@@ -3,7 +3,7 @@ import { Container } from "react-bootstrap";
 import ScenarioCard from "../../components/ScenarioSelect/ScenarioCard";
 import { scenarios } from "../../data/scenarios";
 import "./ScenarioSelect.css";
-import study_tiger from "../../assets/characters/study_tiger2.png";
+import tiger_waving_crop from "../../assets/characters/tiger_waving_crop.gif";
 
 const ScenarioSelect = () => {
   const [selectedScenario, setSelectedScenario] = useState(() => {
@@ -24,7 +24,7 @@ const ScenarioSelect = () => {
         <div className="scenario-content">
           {/* Tiger mascot - 4 columns */}
           <div className="scenario-mascot">
-            <img src={study_tiger} alt="study_tiger" className="scenario-mascot-image" />
+            <img src={tiger_waving_crop} alt="tiger_waving_crop" className="scenario-mascot-image" />
           </div>
 
           {/* Scenario cards - 8 columns */}

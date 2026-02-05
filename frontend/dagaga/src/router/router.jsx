@@ -23,25 +23,27 @@ const router = createBrowserRouter([
     path: "/",
     element: <Navigate to="/Homepage" replace />,
   },
-  {
-    path: "/Login",
-    element: <Login />,
-  },
+
   {
     path: "/Auth/Success",
     element: <AuthSuccess />,
   },
-  {
-    path: "/Signup",
-    element: <Signup />,
-  },
-  {
-    path: "/Signup/Social",
-    element: <SocialSignup />,
-  },
+
   {
     element: <App />,
     children: [
+      {
+        path: "Login",
+        element: <Login />,
+      },
+      {
+        path: "Signup",
+        element: <Signup />,
+      },
+      {
+        path: "Signup/Social",
+        element: <SocialSignup />,
+      },
       {
         path: "Homepage",
         element: <Homepage />,

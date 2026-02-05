@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { loginAPI } from '../../api/userApi';
+
 import './Login.css';
-import loginTiger from '../../assets/characters/login_tiger2.png';
-import logo from '../../assets/icons/logo3.png';
 import LanguageSelector from '../../components/auth/LanguageSelector';
 import SocialButton from '../../components/auth/SocialButton';
 import Button from '../../components/common/Button';
@@ -70,18 +69,10 @@ const Login = () => {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
         >
-            <header className="login-header">
-                <div className="logo-area" onClick={() => navigate('/Homepage')} style={{ cursor: 'pointer' }}>
-                    <img src={logo} alt="Dagaga Logo" style={{ height: '40px' }} />
-                </div>
-
-                <LanguageSelector />
-            </header>
-
             <main className="login-content">
                 <div className="login-wrapper">
                     <div className="login-card">
-                        <div className="login-left-section">
+                        <div className="login-form-section">
                             <h2>{t('login')}</h2>
 
                             <form onSubmit={handleLogin}>
@@ -157,14 +148,6 @@ const Login = () => {
                                 {/* <SocialButton provider="line">
                                     {t('line_login')}
                                 </SocialButton> */}
-                            </div>
-                        </div>
-
-                        <div className="login-right-section">
-                            <img src={loginTiger} alt="Welcome Tiger" className="login-tiger-image" />
-                            <div className="welcome-text">
-                                <h1 style={{ whiteSpace: 'pre-line' }}>{t('welcome_title')}</h1>
-                                <p>{t('welcome_subtitle')}</p>
                             </div>
                         </div>
                     </div>

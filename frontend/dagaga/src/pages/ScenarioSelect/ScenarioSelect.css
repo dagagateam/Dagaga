@@ -9,7 +9,7 @@
 .scenario-content {
   display: flex;
   flex-direction: row;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   gap: 0;
   max-width: 112.5rem;
@@ -32,14 +32,15 @@
 }
 
 .scenario-cards-wrapper {
-  flex: 1;
+  /* flex: 1; Removed to allow centering */
   display: flex;
   flex-direction: row;
   align-items: flex-end;
   gap: 1.875rem;
-  justify-content: center;
-  height: 75vh; /* 75% of viewport height (approx) */
-  margin-bottom: 4vh; /* Align roughly with mascot feet */
+  justify-content: flex-start; /* Ensure cards align to start of wrapper */
+  height: 75vh;
+  margin-bottom: 4vh;
+  margin-left: 5vh;
 }
 
 @media (max-width: 768px) {
