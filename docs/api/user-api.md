@@ -22,7 +22,7 @@ Access Token과 Refresh Token을 사용하는 JWT 기반 인증 시스템을 포
 ```json
 {
   "email": "user@example.com",
-  "password": "securePassword123",
+  "password": "securePassword123+",  // 특수문자는 *, +, - 만 허용됩니다.
   "nickname": "username",
   "viewLangCode": "en",
   "nativeLangCode": "ko",
@@ -421,10 +421,37 @@ curl -X GET http://localhost:8080/api/v1/posts \
 # 브라우저가 쿠키에 있는 refresh_token을 자동으로 전송합니다.
 curl -X POST http://localhost:8080/api/v1/users/refresh -b "refreshToken={refreshToken}"
 
-# 5. 로그아웃 (Logout)
-curl -X POST http://localhost:8080/api/v1/users/logout \
-  -H "Authorization: Bearer {accessToken}"
-```
+### 6. 로그아웃 (비회원 가능 여부: 불가능)
+- **설명**: 현재 사용자의 세션을 종료하고 토큰을 만료시킵니다
+- **URL**: `/api/v1/users/logout`
+- **Method**: `POST`
+- **Headers**:
+    - `Authorization`: `Bearer {accessToken}`
+- **Success Response**:
+    - **Code**: `200`
+
+### 7. 비밀번호 찾기 (임시 비밀번호 발급)
+- **설명**: 가입된 이메일 확인 후 임시 비밀번호를 발급합니다.
+- **URL**: `/api/v1/users/find-password`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "email": "user@example.com"
+  }
+  ```
+- **Success Response**:
+    - **Code**: `200`
+    - **Content**:
+      ```json
+      {
+        "email": "user@example.com",
+        "tempPassword": "TEMP_PASSWORD_1234"
+      }
+      ```
+- **Error Response**:
+    - **Code**: `400`
+    - **Content**: `가입되지 않았습니다` (또는 `소셜 로그인 사용자는 비밀번호를 찾을 수 없습니다`)
 
 ---
 

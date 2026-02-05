@@ -10,9 +10,8 @@ import SocialButton from '../../components/auth/SocialButton';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import PasswordToggleButton from '../../components/common/PasswordToggleButton';
-
+import FindPasswordModal from '../../components/auth/FindPasswordModal';
 import { useUserStore } from '../../store/userStore';
-
 import { motion } from 'framer-motion';
 
 const Login = () => {
@@ -23,12 +22,21 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [isFindPasswordModalOpen, setIsFindPasswordModalOpen] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoginError('');
 
         try {
+            // 0. 비밀번호 복잡성 검사 (프론트엔드 유효성 검사)
+            // 영문, 숫자, 특수문자(*, +, -) 포함 8자 이상
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[*+-])[A-Za-z\d*+-]{8,}$/;
+            if (!passwordRegex.test(password)) {
+                setLoginError(t('password_error_requirements') || "비밀번호는 영문, 숫자, 특수문자(*, +, -)를 포함하여 8자 이상이어야 합니다.");
+                return;
+            }
+
             // 1. API 호출 - AuthResponse 반환
             const authResponse = await loginAPI(email, password);
 
@@ -111,7 +119,22 @@ const Login = () => {
                                 )}
 
                                 <div className="forgot-password">
-                                    <a href="#">{t('forgot_password')}</a>
+                                    <Button
+                                        type="button"
+                                        className="text-btn"
+                                        onClick={() => setIsFindPasswordModalOpen(true)}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            color: '#666',
+                                            textDecoration: 'none',
+                                            cursor: 'pointer',
+                                            padding: 0,
+                                            fontSize: '0.9rem'
+                                        }}
+                                    >
+                                        {t('forgot_password')}
+                                    </Button>
                                 </div>
 
                                 <Button type="submit" className="login-btn">{t('login')}</Button>
@@ -140,6 +163,11 @@ const Login = () => {
                     </div>
                 </div>
             </main>
+
+            <FindPasswordModal
+                isOpen={isFindPasswordModalOpen}
+                onClose={() => setIsFindPasswordModalOpen(false)}
+            />
         </motion.div>
     );
 };

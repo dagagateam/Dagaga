@@ -6,6 +6,8 @@ import com.dagaga.domain.user.dto.UserRegisterDto;
 import com.dagaga.domain.user.dto.UserResponseDto;
 import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.dto.PasswordVerifyRequest;
+import com.dagaga.domain.user.dto.PasswordFindRequest;
+import com.dagaga.domain.user.dto.PasswordFindResponse;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.service.UserService;
 
@@ -37,7 +39,6 @@ public class UserController {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTokenService redisTokenService;
     private final CurrentUser currentUser;
-
 
     @Value("${jwt.access-token-expiry}")
     private int accessTokenExpiry;
@@ -267,6 +268,12 @@ public class UserController {
                 .orElseThrow(() -> new IllegalArgumentException("인증된 사용자 정보를 찾을 수 없습니다."));
 
         userService.verifyPassword(userId, request.getPassword());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/find-password")
+    public ResponseEntity<Void> findPassword(@RequestBody @Valid PasswordFindRequest request) {
+        userService.findPassword(request.getEmail());
         return ResponseEntity.ok().build();
     }
 
