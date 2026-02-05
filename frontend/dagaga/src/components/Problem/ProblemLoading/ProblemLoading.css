@@ -46,3 +46,21 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .problem-loading-card {
+        padding: 3rem 2rem; /* Reduced padding */
+        min-width: 280px; /* Reduced min-width */
+        width: 80%;
+    }
+
+    .loading-gif {
+        height: 120px; /* Smaller GIF */
+        margin-bottom: 1rem;
+    }
+
+    .problem-loading-text {
+        font-size: 1.1rem; /* Smaller text */
+    }
+}
