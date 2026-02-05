@@ -54,7 +54,6 @@ class UserControllerTest {
         @MockitoBean
         private PasswordEncoder passwordEncoder;
 
-
         @MockitoBean
         private CurrentUser currentUser;
 
@@ -106,7 +105,8 @@ class UserControllerTest {
                                 .nickname("tester")
                                 .locationId(100)
                                 .build();
-                // reflection to set userId if needed, or if builder doesn't support it (User entity usually sets ID via JPA)
+                // reflection to set userId if needed, or if builder doesn't support it (User
+                // entity usually sets ID via JPA)
                 // For mocking, we just pretend getUserById returns this.
 
                 given(currentUser.getUserId()).willReturn(Optional.of(UserId.of(userIdValue)));
@@ -165,114 +165,121 @@ class UserControllerTest {
         @Test
         @DisplayName("POST /api/v1/users/verify-password - 성공")
         void verifyPassword_Success() throws Exception {
-            // given
-            Integer userIdValue = 1;
-            PasswordVerifyRequest request = new PasswordVerifyRequest();
-            request.setPassword("correctPassword");
+                // given
+                Integer userIdValue = 1;
+                PasswordVerifyRequest request = new PasswordVerifyRequest();
+                request.setPassword("correctPassword");
 
-            given(currentUser.getUserId()).willReturn(Optional.of(UserId.of(userIdValue)));
-            // userService.verifyPassword returns void on success
+                given(currentUser.getUserId()).willReturn(Optional.of(UserId.of(userIdValue)));
+                // userService.verifyPassword returns void on success
 
-            // when & then
-            mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/users/verify-password")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                            .andExpect(status().isOk());
+                // when & then
+                mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .post("/api/v1/users/verify-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isOk());
 
-            org.mockito.Mockito.verify(userService).verifyPassword(userIdValue, "correctPassword");
+                org.mockito.Mockito.verify(userService).verifyPassword(userIdValue, "correctPassword");
         }
 
         @Test
         @DisplayName("POST /api/v1/users/verify-password - 실패")
         void verifyPassword_Fail() throws Exception {
-            // given
-            Integer userIdValue = 1;
-            PasswordVerifyRequest request = new PasswordVerifyRequest();
-            request.setPassword("wrongPassword");
+                // given
+                Integer userIdValue = 1;
+                PasswordVerifyRequest request = new PasswordVerifyRequest();
+                request.setPassword("wrongPassword");
 
-            given(currentUser.getUserId()).willReturn(Optional.of(UserId.of(userIdValue)));
-            org.mockito.BDDMockito.willThrow(new IllegalArgumentException("비밀번호가 일치하지 않습니다."))
-                    .given(userService).verifyPassword(userIdValue, "wrongPassword");
+                given(currentUser.getUserId()).willReturn(Optional.of(UserId.of(userIdValue)));
+                org.mockito.BDDMockito.willThrow(new IllegalArgumentException("비밀번호가 일치하지 않습니다."))
+                                .given(userService).verifyPassword(userIdValue, "wrongPassword");
 
-            // when & then
-            mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/users/verify-password")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                            .andExpect(status().is4xxClientError());
+                // when & then
+                mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .post("/api/v1/users/verify-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().is4xxClientError());
         }
 
         @Test
         @DisplayName("POST /api/v1/users/verify-password - 소셜 로그인 유저 (비밀번호 없음) 성공")
         void verifyPassword_SocialUser_Success() throws Exception {
-            // given
-            Integer userIdValue = 1;
-            PasswordVerifyRequest request = new PasswordVerifyRequest();
-            request.setPassword("anyPassword"); // 소셜 유저는 어떤 값을 보내도 통과
+                // given
+                Integer userIdValue = 1;
+                PasswordVerifyRequest request = new PasswordVerifyRequest();
+                request.setPassword("anyPassword"); // 소셜 유저는 어떤 값을 보내도 통과
 
-            given(currentUser.getUserId()).willReturn(Optional.of(UserId.of(userIdValue)));
+                given(currentUser.getUserId()).willReturn(Optional.of(UserId.of(userIdValue)));
 
-            // when & then
-            mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/users/verify-password")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                            .andExpect(status().isOk());
+                // when & then
+                mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .post("/api/v1/users/verify-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isOk());
 
-            org.mockito.Mockito.verify(userService).verifyPassword(userIdValue, "anyPassword");
+                org.mockito.Mockito.verify(userService).verifyPassword(userIdValue, "anyPassword");
         }
 
         @Test
         @DisplayName("POST /api/v1/users/find-password - 성공")
         void findPassword_Success() throws Exception {
-            // given
-            String email = "test@example.com";
-            PasswordFindRequest request = new PasswordFindRequest();
-            // Reflection to set email since no setter? 
-            // Wait, DTO has NoArgsConstructor but fields are private. 
-            // Usually RequestBody mapping uses setters or reflection. 
-            // Let's use reflection/ObjectMapper or just add a constructor or setter in test if needed.
-            // PasswordFindRequest uses @Getter @NoArgsConstructor. 
-            // Jackson can handle private fields.
-            // But for creating the object here manually? 
-            // We need to check PasswordFindRequest definition again.
-            // It has no setters. It has NoArgsConstructor.
-            // Jackson can deserialize JSON into it. 
-            // But here we need to create Java object to pass to objectMapper.writeValueAsString?
-            // Actually, we can just pass a Map or create the object via reflection.
-            
-            // Let's use reflection to set email
-            java.lang.reflect.Field emailField = PasswordFindRequest.class.getDeclaredField("email");
-            emailField.setAccessible(true);
-            emailField.set(request, email);
+                // given
+                String email = "test@example.com";
+                PasswordFindRequest request = new PasswordFindRequest();
+                // Reflection to set email since no setter?
+                // Wait, DTO has NoArgsConstructor but fields are private.
+                // Usually RequestBody mapping uses setters or reflection.
+                // Let's use reflection/ObjectMapper or just add a constructor or setter in test
+                // if needed.
+                // PasswordFindRequest uses @Getter @NoArgsConstructor.
+                // Jackson can handle private fields.
+                // But for creating the object here manually?
+                // We need to check PasswordFindRequest definition again.
+                // It has no setters. It has NoArgsConstructor.
+                // Jackson can deserialize JSON into it.
+                // But here we need to create Java object to pass to
+                // objectMapper.writeValueAsString?
+                // Actually, we can just pass a Map or create the object via reflection.
 
-            String tempPassword = "temporaryPassword123";
-            
-            given(userService.findPassword(email)).willReturn(tempPassword);
+                // Let's use reflection to set email
+                java.lang.reflect.Field emailField = PasswordFindRequest.class.getDeclaredField("email");
+                emailField.setAccessible(true);
+                emailField.set(request, email);
 
-            // when & then
-            mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/users/find-password")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                            .andExpect(status().isOk())
-                            .andExpect(jsonPath("$.email").value(email))
-                            .andExpect(jsonPath("$.tempPassword").value(tempPassword));
+                // userService.findPassword returns void
+
+                // when & then
+                mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .post("/api/v1/users/find-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isOk());
+
+                org.mockito.Mockito.verify(userService).findPassword(email);
         }
 
         @Test
         @DisplayName("POST /api/v1/users/find-password - 실패 (가입되지 않음)")
         void findPassword_Fail_NotFound() throws Exception {
-            // given
-            String email = "unknown@example.com";
-            PasswordFindRequest request = new PasswordFindRequest();
-            java.lang.reflect.Field emailField = PasswordFindRequest.class.getDeclaredField("email");
-            emailField.setAccessible(true);
-            emailField.set(request, email);
+                // given
+                String email = "unknown@example.com";
+                PasswordFindRequest request = new PasswordFindRequest();
+                java.lang.reflect.Field emailField = PasswordFindRequest.class.getDeclaredField("email");
+                emailField.setAccessible(true);
+                emailField.set(request, email);
 
-            given(userService.findPassword(email)).willThrow(new IllegalArgumentException("가입되지 않았습니다"));
+                org.mockito.BDDMockito.willThrow(new IllegalArgumentException("가입되지 않았습니다"))
+                                .given(userService).findPassword(email);
 
-            // when & then
-            mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/users/find-password")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                            .andExpect(status().is4xxClientError()); // Assuming GlobalExceptionHandler maps IllegalArgumentException to 400 or similar
+                // when & then
+                mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .post("/api/v1/users/find-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().is4xxClientError()); // Assuming GlobalExceptionHandler maps
+                                                                         // IllegalArgumentException to 400 or similar
         }
 }

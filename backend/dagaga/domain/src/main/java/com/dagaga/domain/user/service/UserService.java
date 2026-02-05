@@ -6,6 +6,7 @@ import com.dagaga.domain.user.dto.UserResponseDto;
 import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
+import com.dagaga.domain.user.port.EmailPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,6 +27,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final EmailVerificationService emailVerificationService;
+    private final EmailPort emailPort;
 
     public void checkEmailDuplicate(String email) {
         if (userRepository.existsByEmail(email)) {
@@ -192,7 +194,7 @@ public class UserService {
     }
 
     @Transactional
-    public String findPassword(String email) {
+    public void findPassword(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("가입되지 않았습니다"));
 
@@ -204,17 +206,42 @@ public class UserService {
         String tempPassword = generateTempPassword();
         user.updatePassword(passwordEncoder.encode(tempPassword));
 
-        return tempPassword;
+        emailPort.sendTempPasswordEmail(email, tempPassword);
     }
 
     private String generateTempPassword() {
         int length = 8;
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*+-";
+        String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        String digits = "0123456789";
+        String specials = "*+-";
+        String allChars = letters + digits + specials;
+
         StringBuilder sb = new StringBuilder();
         Random random = new Random();
-        for (int i = 0; i < length; i++) {
-            sb.append(chars.charAt(random.nextInt(chars.length())));
+
+        // 각 필수 카테고리에서 최소 1개씩 추가
+        sb.append(letters.charAt(random.nextInt(letters.length())));
+        sb.append(digits.charAt(random.nextInt(digits.length())));
+        sb.append(specials.charAt(random.nextInt(specials.length())));
+
+        // 나머지 길이는 모든 허용 문자로 채움
+        for (int i = 0; i < length - 3; i++) {
+            sb.append(allChars.charAt(random.nextInt(allChars.length())));
         }
-        return sb.toString();
+
+        // 섞어서 무작위성 보장
+        return shuffleString(sb.toString());
+    }
+
+    private String shuffleString(String input) {
+        char[] characters = input.toCharArray();
+        Random random = new Random();
+        for (int i = 0; i < characters.length; i++) {
+            int randomIndex = random.nextInt(characters.length);
+            char temp = characters[i];
+            characters[i] = characters[randomIndex];
+            characters[randomIndex] = temp;
+        }
+        return new String(characters);
     }
 }

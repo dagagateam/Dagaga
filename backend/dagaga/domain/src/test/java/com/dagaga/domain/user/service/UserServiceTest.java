@@ -25,8 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -45,6 +47,9 @@ class UserServiceTest {
 
     @Mock
     private EmailVerificationService emailVerificationService;
+
+    @Mock
+    private com.dagaga.domain.user.port.EmailPort emailPort;
 
     @Test
     @DisplayName("Register: Success with generated nickname")
@@ -317,31 +322,26 @@ class UserServiceTest {
                 .email(email)
                 .password("old-password")
                 .build();
-        
+
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
         given(passwordEncoder.encode(anyString())).willReturn("encoded-new-password");
 
-        String tempPassword = userService.findPassword(email);
+        userService.findPassword(email);
 
-        assertThat(tempPassword).isNotBlank();
-        verify(passwordEncoder).encode(tempPassword);
-        // user.updatePassword() called? User object state check
-        // Assuming updatePassword calls modifiedAt = now, etc.
-        // We can check if password was updated in the user object
-        // But since we mock passwordEncoder.encode returning "encoded-new-password",
-        // we can check if user.password became that.
-        // However, User class is not a mock, it's a real object here. 
-        // Wait, User object is created via builder. 
-        // Let's check:
-        // assertThat(user.getPassword()).isEqualTo("encoded-new-password"); 
-        // -> verify logic.
+        ArgumentCaptor<String> passwordCaptor = ArgumentCaptor.forClass(String.class);
+        verify(emailPort).sendTempPasswordEmail(eq(email), passwordCaptor.capture());
+
+        String generatedPassword = passwordCaptor.getValue();
+        assertThat(generatedPassword).matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[*+-])[A-Za-z\\d*+-]{8,}$");
+
+        verify(passwordEncoder).encode(generatedPassword);
     }
 
     @Test
     @DisplayName("Find Password: Fail - Email Not Found")
     void findPassword_fail_notFound() {
         String email = "unknown@example.com";
-        
+
         given(userRepository.findByEmail(email)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.findPassword(email))

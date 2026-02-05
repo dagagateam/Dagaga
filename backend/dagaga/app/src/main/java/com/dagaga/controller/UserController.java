@@ -40,7 +40,6 @@ public class UserController {
     private final RedisTokenService redisTokenService;
     private final CurrentUser currentUser;
 
-
     @Value("${jwt.access-token-expiry}")
     private int accessTokenExpiry;
 
@@ -273,13 +272,9 @@ public class UserController {
     }
 
     @PostMapping("/find-password")
-    public ResponseEntity<PasswordFindResponse> findPassword(@RequestBody @Valid PasswordFindRequest request) {
-        String tempPassword = userService.findPassword(request.getEmail());
-        PasswordFindResponse response = PasswordFindResponse.builder()
-                .email(request.getEmail())
-                .tempPassword(tempPassword)
-                .build();
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Void> findPassword(@RequestBody @Valid PasswordFindRequest request) {
+        userService.findPassword(request.getEmail());
+        return ResponseEntity.ok().build();
     }
 
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
