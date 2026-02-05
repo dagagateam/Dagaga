@@ -40,7 +40,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
   width: 100%;
 }
@@ -65,6 +65,7 @@
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+  flex-wrap: nowrap; /* Override component's default wrap */
   min-width: 12.5rem;
 }
 
@@ -82,21 +83,80 @@
   overflow: hidden;
 }
 
-/* Ensure cursor targets work with new cursor */
-
-/* Ensure cursor targets work with new cursor */
-
-@media (max-width: 768px) {
-  .hero-static-text,
-  .hero-rotating-box {
-    font-size: 2.5rem;
+/* Tablet Landscape (1024px) */
+@media (max-width: 1024px) {
+  .hero-content {
+    gap: 1.5rem;
+    grid-template-columns: 1fr 3fr; /* Keep left side smaller (25%) */
   }
 
-  .hero-content {
-    gap: 1rem;
+  .hero-static-text {
+    font-size: 1.75rem;
+  }
+  
+  .hero-logo-img {
+      height: 20px; /* Reduced from default (which is likely larger or auto) */
+      transform: translateY(-2px);
+  }
+
+  .hero-rotating-box {
+    font-size: 1.75rem; /* Reduce font size to fit narrower column */
+    min-width: 10rem; /* Scale down min-width from 12.5rem */
+    padding: 0.4rem 1rem; /* Slightly reduce padding */
+  }
+  .hero-content .hero-left {
+    align-items: center;
+    text-align: center;
   }
 
   .homepage-navigation {
-    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+}
+
+/* Tablet Portrait / Small Laptop (768px) */
+@media (max-width: 768px) {
+  .homepage-container {
+    padding-bottom: 2rem; /* Ensure bottom spacing on scroll */
+  }
+
+  .hero-content {
+    grid-template-columns: 1fr 1fr; /* 50/50 Split */
+    text-align: left;
+    gap: 1rem;
+    padding-top: 1rem;
+    align-items: center;
+  }
+
+  .hero-left {
+    align-items: center;
+  }
+
+  .hero-static-text,
+  .hero-rotating-box {
+    font-size: 1.4rem; /* Smaller font to fit side-by-side */
+  }
+  
+  .hero-rotating-box {
+    min-width: 8rem;
+    padding: 0.3rem 0.8rem;
+  }
+  
+  .hero-logo-img {
+      height: 16px;
+      transform: translateY(-2px);
+  }
+
+  /* Increase height for hero right to accommodate CardSwap nicely in 50% width */
+  .hero-right {
+    height: 280px !important; 
+    margin-bottom: 0;
+  }
+
+  .homepage-navigation {
+    grid-template-columns: repeat(3, 1fr); /* 3 Columns as requested */
+    max-width: 100%; /* Allow full width to fit 3 cards */
+    gap: 1rem;
   }
 }

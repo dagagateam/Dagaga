@@ -32,14 +32,25 @@
   color: white;
 }
 
+/* Tablet Responsive */
+@media (max-width: 1024px) {
+  .card-swap-container {
+    transform: scale(0.85); /* Slightly larger than 0.75 for tablet */
+    transform-origin: center center; /* Keep centered */
+  }
+}
+
+/* Mobile/Small Tablet Responsive */
 @media (max-width: 768px) {
   .card-swap-container {
-    transform: scale(0.75);
+    transform: scale(0.5); /* Adjust from 0.5 to be visible but small */
+    transform-origin: center top; /* Pin to top to avoid gap above */
   }
 }
 
 @media (max-width: 480px) {
   .card-swap-container {
-    transform: scale(0.55);
+    transform: scale(0.5);
+    transform-origin: center top;
   }
 }
