@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { socialSignupAPI, checkNicknameAPI } from '../../api/userApi';
 import { useUserStore } from '../../store/userStore';
 import './Signup.css'; // Reuse Signup styles
-import loginTiger from '../../assets/characters/login_tiger.png';
-import logo from '../../assets/icons/logo.png';
+import loginTiger from '../../assets/characters/login_tiger2.png';
+import logo from '../../assets/icons/logo3.png';
 import { getLocationId } from '../../data/regionData';
 import LanguageSelector from '../../components/auth/LanguageSelector';
 import Button from '../../components/common/Button';

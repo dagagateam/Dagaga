@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import './CommunityChatRoom.css';
-import chattingTiger from '../../../assets/characters/chat_tiger.png';
+import chattingTiger from '../../../assets/characters/chat_tiger2.png';
 import EmojiPicker from 'emoji-picker-react';
 import ChatMessage from '../../../components/community/chat/ChatMessage';
 import { fetchChatMessages, fetchJoinedChats, leaveChatRoom } from '../../../api/communityApi';
@@ -124,7 +124,7 @@ const CommunityChatRoom = () => {
 
                             const newMsg = {
                                 id: receivedMsg.messageId,
-                                sender: receivedMsg.senderNickname || `User ${receivedMsg.senderId}`, 
+                                sender: receivedMsg.senderNickname || `User ${receivedMsg.senderId}`,
                                 text: receivedMsg.content, // 백엔드에서 이미 적절한 언어로 필터링되어 옴
                                 time: new Date(receivedMsg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                                 isMe: receivedMsg.senderId === user.userId,
@@ -177,7 +177,7 @@ const CommunityChatRoom = () => {
                             id: chat.roomId,
                             title: chat.title,
                             creatorNickname: chat.creatorNickname,
-                            lastMessage: '메시지를 확인하세요', // TODO: 마지막 메시지 API 추가 필요
+                            lastMessage: t('check_msg'), // TODO: 마지막 메시지 API 추가 필요
                             time: '', // TODO: 시간 정보 API 추가 필요
                             active: parseInt(id) === chat.roomId
                         }));
