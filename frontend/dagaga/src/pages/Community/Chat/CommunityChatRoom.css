@@ -100,9 +100,9 @@
     color: white;
 }
 
-.sidebar-chat-item:hover {
-    background-color: white;
-}
+/* .sidebar-chat-item:hover {
+    background-color: #e09b4d;
+} */
 
 .chat-item-avatar {
     width: 45px;
@@ -324,4 +324,22 @@
 
 .input-actions button:hover {
     color: #F8B15E;
+}
+
+.leave-chat-btn {
+    background-color: transparent;
+    color: #ff4d4f;
+    border: 1px solid #ff4d4f;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.leave-chat-btn:hover {
+    background-color: #ff4d4f;
+    color: white;
 }
