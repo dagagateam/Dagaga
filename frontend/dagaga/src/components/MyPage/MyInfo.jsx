@@ -30,24 +30,24 @@ const MyInfo = () => {
 
     // Helper to format date YYYY/MM/DD
     const formatDate = (dateString) => {
-        if (!dateString) return "-";
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return dateString; // fallback if invalid
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}/${month}/${day}`;
+      if (!dateString) return "-";
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString; // fallback if invalid
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}/${month}/${day}`;
     };
 
     // Helper to get translated language name from language code
     const getLangName = (langCode) => {
-        if (!langCode) return "-";
-        switch(langCode) {
-            case 'ko': return t('lang_ko');
-            case 'zh': return t('lang_zh');
-            case 'vi': return t('lang_vi');
-            default: return langCode;
-        }
+      if (!langCode) return "-";
+      switch (langCode) {
+        case 'ko': return t('lang_ko');
+        case 'zh': return t('lang_zh');
+        case 'vi': return t('lang_vi');
+        default: return langCode;
+      }
     };
 
     return {
@@ -91,7 +91,7 @@ const MyInfo = () => {
         <div key="header" className="my-info-header">
           <Button className="edit-info-btn" onClick={handleEditClick}>{t('edit_profile')}</Button>
         </div>
-        
+
         <Row key="info-grid" className="info-grid">
           <Col key="nickname" md={4} className="info-item">
             <label className="info-label">{t('nickname')}</label>
@@ -105,7 +105,7 @@ const MyInfo = () => {
             <label className="info-label">{t('region')}</label>
             <div className="info-value">{userInfo.region}</div>
           </Col>
-          
+
           <Col key="email" md={4} className="info-item mt-3">
             <label className="info-label">{t('email')}</label>
             <div className="info-value email-value">{userInfo.email}</div>
@@ -122,9 +122,9 @@ const MyInfo = () => {
       </Card.Body>
 
       {/* 비밀번호 확인 모달 */}
-      <Modal 
-        show={showVerifyModal} 
-        onHide={() => setShowVerifyModal(false)} 
+      <Modal
+        show={showVerifyModal}
+        onHide={() => setShowVerifyModal(false)}
         centered
         contentClassName="verify-modal-content"
       >
@@ -132,7 +132,7 @@ const MyInfo = () => {
           <Modal.Title className="verify-modal-title">{t('verify_password', '비밀번호 확인')}</Modal.Title>
         </Modal.Header>
         <Modal.Body className="verify-modal-body">
-          <p className="text-muted mb-3">{t('verify_password_desc', '정보 수정을 위해 비밀번호를 입력해주세요.')}</p>
+          <p className="text-muted mb-3">{t('verify_password_desc')}</p>
           <Form onSubmit={handleVerifyPassword}>
             <Form.Group>
               <InputGroup>
@@ -154,10 +154,10 @@ const MyInfo = () => {
             {verifyError && <div className="text-danger mt-2 small">{verifyError}</div>}
             <div className="d-flex justify-content-end mt-4">
               <Button variant="light" onClick={() => setShowVerifyModal(false)} className="me-2 btn-verify-cancel">
-                {t('cancel', '취소')}
+                {t('cancel')}
               </Button>
               <Button variant="primary" type="submit" className="btn-verify-confirm">
-                {t('confirm', '확인')}
+                {t('confirm')}
               </Button>
             </div>
           </Form>

@@ -14,14 +14,19 @@ import { useSpeechApi } from "../../api/useSpeechApi";
 import { useTts } from "../../hooks/useTts";
 import { fetchProblemNative } from "../../api/learningApi";
 import ProblemLoading from "../../components/Problem/ProblemLoading/ProblemLoading";
+import { useUserStore } from "../../store/userStore";
 import "./ProblemNative.css";
 
 const MAX_TRIES = 3;
 
+import { useTranslation } from 'react-i18next';
+
 const ProblemNative = () => {
+  const { t } = useTranslation();
   const { categoryId, problemId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const userLanguage = useUserStore((state) => state.user?.nativeLangCode);
 
   // Navigation state passed from ScenarioSelect (consistent with Problem.jsx)
   const navState = location.state || {};
@@ -35,7 +40,7 @@ const ProblemNative = () => {
 
   // Prioritize fetched text (native) over passed state (view lang)
   // We strictly wait for fetched text to ensure we don't show/play the wrong language from the card
-  const problemText = fetchedProblemText || "문제를 불러오는 중...";
+  const problemText = fetchedProblemText || t("loading_problem");
   const { translateAudio, checkPronunciation, isUploading } = useSpeechApi();
 
   // Page state: "pre-translate" | "translating" | "post-translate"
@@ -80,12 +85,12 @@ const ProblemNative = () => {
             setFetchedProblemText(nativeText);
             setKoreanProblemText(koreanText);
           } else {
-            setFetchedProblemText("문제 정보를 불러올 수 없습니다.");
+            setFetchedProblemText(t("error_fetching_problem_info"));
           }
         })
         .catch((err) => {
           console.error("Error fetching native problem:", err);
-          setFetchedProblemText("오류가 발생했습니다.");
+          setFetchedProblemText(t("error_occurred"));
         })
         .finally(() => setIsLoading(false));
     }
@@ -143,14 +148,14 @@ const ProblemNative = () => {
   // Play header when entering pre-translate (Initial Load)
   useEffect(() => {
     if (pageState === "pre-translate" && !initialHeaderPlayedRef.current) {
-        if (problemText && problemText !== "문제를 불러오는 중...") {
-            // Only play if we have the text for the current mode
-            const textToPlay = showNative ? problemText : koreanProblemText;
-            if (textToPlay) {
-                initialHeaderPlayedRef.current = true;
-                playTts(textToPlay);
-            }
+      if (problemText && problemText !== t("loading_problem")) {
+        // Only play if we have the text for the current mode
+        const textToPlay = showNative ? problemText : koreanProblemText;
+        if (textToPlay) {
+          initialHeaderPlayedRef.current = true;
+          playTts(textToPlay);
         }
+      }
     }
   }, [pageState, problemText, koreanProblemText, showNative, playTts]);
 
@@ -160,20 +165,20 @@ const ProblemNative = () => {
 
     // Skip step 0 (first word) auto-playing
     if (currentStep > 0 && lastPlayedStepRef.current !== currentStep) {
-        let textToPlay = null;
-        if (currentStep < words.length) {
-            textToPlay = words[currentStep];
-        } else if (currentStep === words.length && !isProblemDone) {
-            // Full sentence step
-            textToPlay = words.join(" ");
-        }
+      let textToPlay = null;
+      if (currentStep < words.length) {
+        textToPlay = words[currentStep];
+      } else if (currentStep === words.length && !isProblemDone) {
+        // Full sentence step
+        textToPlay = words.join(" ");
+      }
 
-        if (textToPlay) {
-            lastPlayedStepRef.current = currentStep;
-            playTts(textToPlay);
-        }
+      if (textToPlay) {
+        lastPlayedStepRef.current = currentStep;
+        playTts(textToPlay);
+      }
     }
-  }, [pageState, currentStep, words, isProblemDone, playTts]);
+  }, [pageState, currentStep, words, isProblemDone, playTts, t]);
 
   // Handle replay at normal speed
   const handleReplay = () => {
@@ -238,7 +243,7 @@ const ProblemNative = () => {
     setSentenceHighlightIndex(-1); // Ensure it's -1
     lastPlayedStepRef.current = -1; // Reset last played
     initialHeaderPlayedRef.current = true; // Mark as played manually below
-    
+
     // Play header again
     playTts(problemText);
   };
@@ -307,7 +312,7 @@ const ProblemNative = () => {
         <ProblemMascot />
         <div className="problem-answer-content">
           <p className="problem-native-instruction">
-            모국어로 해당 질문에 대한 답변을 말해주세요
+            {t('native_answer_instruction')}
           </p>
         </div>
       </div>
@@ -342,7 +347,7 @@ const ProblemNative = () => {
         <ProblemMascot />
         <div className="problem-answer-content">
           <p className="problem-native-instruction">
-            번역 중...
+            {t('translating')}
           </p>
         </div>
       </div>
@@ -415,14 +420,14 @@ const ProblemNative = () => {
   );
 
   // Render based on current page state
-  if (pageState === "translating") {
-    return <ProblemLoading text="번역 중..." />;
+  if (isLoading) {
+    return <ProblemLoading text={t('loading_problem')} />;
   }
 
   return (
     <>
       {pageState === "pre-translate" && renderPreTranslate()}
-      {/* Translating state is now handled above */}
+      {pageState === "translating" && renderTranslating()}
       {pageState === "post-translate" && renderPostTranslate()}
     </>
   );

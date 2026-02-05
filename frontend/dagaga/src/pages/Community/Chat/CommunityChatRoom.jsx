@@ -256,7 +256,7 @@ const CommunityChatRoom = () => {
     };
 
     const handleLeaveChat = async () => {
-        if (window.confirm("채팅방을 나가시겠습니까?")) {
+        if (window.confirm(t('confirm_leave_chat'))) {
             try {
                 await leaveChatRoom(id);
                 // 성공 시 이동 (WebSocket 해제는 useEffect cleanup에서 처리됨)
@@ -360,13 +360,13 @@ const CommunityChatRoom = () => {
                                 const prevMsg = index > 0 ? messages[index - 1] : null;
                                 const isDifferentSenderThanPrev = prevMsg ? (prevMsg.senderId !== msg.senderId) : true;
                                 const showAvatar = !msg.isMe && isDifferentSenderThanPrev;
-                                
+
                                 // Show time logic: Show if it's the last message, or next message is different time/sender
                                 const isLast = index === messages.length - 1;
                                 const nextMsg = !isLast ? messages[index + 1] : null;
                                 const isDifferentSenderThanNext = nextMsg ? (nextMsg.senderId !== msg.senderId) : true;
                                 const isDifferentTimeThanNext = nextMsg ? (nextMsg.time !== msg.time) : true;
-                                
+
                                 const showTime = isLast || isDifferentSenderThanNext || isDifferentTimeThanNext;
 
                                 return (

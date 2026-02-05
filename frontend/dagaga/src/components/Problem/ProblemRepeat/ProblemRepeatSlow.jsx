@@ -1,10 +1,13 @@
-import turtleIcon from "../../../assets/icons/turtle.png";
-import "./ProblemRepeatSlow.css";
+import React from 'react';
+import turtleIcon from '../../../assets/icons/turtle.png';
+import './ProblemRepeatSlow.css';
+import { useTranslation } from 'react-i18next';
 
 const ProblemRepeatSlow = ({ onClick }) => {
+  const { t } = useTranslation();
   return (
-    <button className="repeat-slow-button" onClick={onClick} title="천천히 듣기">
-      <img src={turtleIcon} alt="느리게" className="repeat-slow-icon" />
+    <button className="repeat-slow-button" onClick={onClick} title={t('listen_slowly')}>
+      <img src={turtleIcon} alt={t('slow')} className="repeat-slow-icon" />
     </button>
   );
 };

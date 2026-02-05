@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { area0, allAreas } from '../../data/regionData';
 import './RegionSelect.css'; // Optional styling
+import { useTranslation } from 'react-i18next';
 
 const RegionSelect = ({ sido, gugun, onSidoChange, onGugunChange }) => {
     const [gugunList, setGugunList] = useState([]);
