@@ -63,13 +63,20 @@ const Problem = () => {
         console.log("[Problem Debug] User Language:", userLanguage);
 
         let nativeQ = navState.nativeQuestion;
+        // Handle case where nativeQuestion might be an object
+        if (nativeQ && typeof nativeQ === 'object') {
+          nativeQ = nativeQ.nativeQuestion || nativeQ.koreanQuestion || null;
+        }
 
         // If nativeQuestion is missing, try to fetch it separately
         if (!nativeQ && categoryId && questionId) {
           try {
             const nativeRes = await fetchProblemNative(categoryId, questionId);
             if (nativeRes.data && nativeRes.data.success) {
-              nativeQ = nativeRes.data.data;
+              const nativeData = nativeRes.data.data;
+              nativeQ = typeof nativeData === 'string'
+                ? nativeData
+                : (nativeData?.nativeQuestion || nativeData?.koreanQuestion || null);
             }
           } catch (e) {
             console.warn("Failed to fetch native question", e);
@@ -122,7 +129,15 @@ const Problem = () => {
               
               // Fallback for question if translation is missing -> Use Original
               if (!nativeQ) {
-                    nativeQ = (nativeRes.data && nativeRes.data.success) ? nativeRes.data.data : apiData.questionText;
+                if (nativeRes.data && nativeRes.data.success) {
+                  // Extract native question string from response (might be object)
+                  const nativeData = nativeRes.data.data;
+                  nativeQ = typeof nativeData === 'string' 
+                    ? nativeData 
+                    : (nativeData?.nativeQuestion || nativeData?.koreanQuestion || apiData.questionText);
+                } else {
+                  nativeQ = apiData.questionText;
+                }
               }
               
               // DEBUG: Language info
@@ -355,10 +370,10 @@ const Problem = () => {
         <>
       <div className="problem-question">
         <div className="problem-header">
-          <h2 onClick={() => setShowNative(!showNative)} style={{ cursor: 'pointer' }}>
+          <h2>
             {showNative ? data?.nativeQuestion : problemText}
           </h2>
-          <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />
+          {userLanguage !== 'ko' && <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />}
           <ProblemRepeat onClick={handleQuestionReplay} />
         </div>
       </div>
