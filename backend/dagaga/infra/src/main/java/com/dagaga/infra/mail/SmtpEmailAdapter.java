@@ -18,7 +18,19 @@ public class SmtpEmailAdapter implements EmailPort {
         message.setTo(email);
         message.setSubject("[DAGAGA] 이메일 인증 코드입니다.");
         message.setText("인증 코드: " + code + "\n\n3분 이내에 입력해주세요.");
-        
+
+        javaMailSender.send(message);
+    }
+
+    @Override
+    public void sendTempPasswordEmail(String email, String tempPassword) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("[DAGAGA] 임시 비밀번호 발급 안내");
+        message.setText("회원님의 임시 비밀번호는 다음과 같습니다.\n\n" +
+                tempPassword +
+                "\n\n로그인 후 반드시 비밀번호를 변경해주세요.");
+
         javaMailSender.send(message);
     }
 }

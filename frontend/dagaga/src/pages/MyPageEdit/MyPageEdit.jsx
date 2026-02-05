@@ -102,8 +102,8 @@ const MyPageEdit = () => {
 
         // Password Validation (Only if user entered something)
         if (password) {
-            // Regex: At least one letter, one number, one special character (non-word), min 8 chars
-            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+            // Regex: At least one letter, one number, one special character (*, +, -), min 8 chars
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[*+-])[A-Za-z\d*+-]{8,}$/;
             if (!passwordRegex.test(password)) {
                 newErrors.password = t('password_error_requirements');
             }
