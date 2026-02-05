@@ -95,3 +95,33 @@
   width: 100%;
   text-align: left; /* Default left alignment */
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .problem-question,
+  .problem-header h2,
+  .problem-question-centered {
+    font-size: 1.1rem !important;
+  }
+
+  .problem-translation-text {
+    font-size: 0.9rem;
+  }
+
+  /* Lift controls up from bottom */
+  .problem-bottom-controls {
+    padding-bottom: 3rem; /* Add significant bottom space */
+  }
+
+  .problem-answer-section {
+    width: 95%;
+    padding: 0 10px;
+    gap: 10px;
+  }
+
+  /* Answer Words resizing */
+  .problem-answer-words,
+  .problem-answer-words span {
+    font-size: 0.9rem;
+  }
+}
