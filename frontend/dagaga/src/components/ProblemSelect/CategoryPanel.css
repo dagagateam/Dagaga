@@ -109,6 +109,16 @@
     z-index: 10;
   }
 
+  .category-content {
+    margin-left: 8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+    align-self: center;
+  }
+
   .category-title {
     font-size: 1.4rem;
   }
