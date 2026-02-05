@@ -12,16 +12,18 @@ const CategoryPanel = ({ scenario }) => {
       className="category-panel"
       layoutId={`scenario-card-${scenario.id}`}
     >
-      <div className="category-icon">
-        <img src={scenario.icon} alt={scenario.title} />
+      <div className="category-content">
+        <div className="category-icon">
+          <img src={scenario.icon} alt={scenario.title} />
+        </div>
+        <h2 className="category-title">{t(scenario.id)}</h2>
+        <span className="category-tag">{t('scenario_tag')}</span>
+        <ul className="category-items">
+          {(t(`scenario_items.${scenario.id}`, { returnObjects: true }) || scenario.items).map((item, index) => (
+            <li key={index}>-{item}</li>
+          ))}
+        </ul>
       </div>
-      <h2 className="category-title">{t(scenario.id)}</h2>
-      <span className="category-tag">{t('scenario_tag')}</span>
-      <ul className="category-items">
-        {(t(`scenario_items.${scenario.id}`, { returnObjects: true }) || scenario.items).map((item, index) => (
-          <li key={index}>-{item}</li>
-        ))}
-      </ul>
     </motion.div>
   );
 };
