@@ -23,12 +23,12 @@
 }
 
 .btn-save {
-    background-color: #E67E22;
+    background-color: var(--main-orange);
     border: none;
 }
 
 .btn-save:hover {
-    background-color: #D35400;
+    background-color: var(--main-orange);
 }
 
 /* Customizing Form Controls */

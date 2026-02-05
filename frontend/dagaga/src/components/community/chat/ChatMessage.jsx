@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import './ChatMessage.css';
 import stockProfile from '../../../assets/icons/stock_profile.jpg';
 
-const ChatMessage = ({ msg, showAvatar }) => {
+const ChatMessage = ({ msg, showAvatar, showTime = true }) => {
     const { t } = useTranslation();
     // Basic fallback logic if msg.profileImage is missing or is 'default_avatar'
     const profileImg = (!msg.profileImage || msg.profileImage.includes('default_avatar'))
@@ -27,7 +27,7 @@ const ChatMessage = ({ msg, showAvatar }) => {
                         msg.text
                     )}
                 </div>
-                <div className="message-time">{msg.time}</div>
+                {showTime && <div className="message-time">{msg.time}</div>}
             </div>
         </div>
     );

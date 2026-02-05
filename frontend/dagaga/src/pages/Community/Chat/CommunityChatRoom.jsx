@@ -23,13 +23,12 @@ const CommunityChatRoom = () => {
     const [message, setMessage] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-    const [showMoreMenu, setShowMoreMenu] = useState(false);
     const [messages, setMessages] = useState([]);
     const stompClient = React.useRef(null);
 
-    // Get user data from store (or use test data for now)
+
     const { user, accessToken } = useUserStore();
-    // Test user data: userId: 27, locationId: 86, nickname: "오호라비비빅"
+
     const currentUserId = user?.userId || 27;
     const userLocationId = user?.locationId || 86;
 
@@ -45,8 +44,9 @@ const CommunityChatRoom = () => {
                     const mappedMessages = apiMessages.map(msg => ({
                         id: msg.messageId,
                         sender: msg.senderNickname || `User ${msg.senderId}`,
+                        senderId: msg.senderId,
                         text: msg.content,
-                        time: new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        time: new Date(msg.sentAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
                         isMe: msg.senderId === currentUserId,
                         profileImage: msg.senderProfileImage,
                         type: 'text'
@@ -125,8 +125,9 @@ const CommunityChatRoom = () => {
                             const newMsg = {
                                 id: receivedMsg.messageId,
                                 sender: receivedMsg.senderNickname || `User ${receivedMsg.senderId}`,
+                                senderId: receivedMsg.senderId,
                                 text: receivedMsg.content, // 백엔드에서 이미 적절한 언어로 필터링되어 옴
-                                time: new Date(receivedMsg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                time: new Date(receivedMsg.sentAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
                                 isMe: receivedMsg.senderId === user.userId,
                                 profileImage: receivedMsg.senderProfileImage,
                                 type: 'text'
@@ -234,9 +235,10 @@ const CommunityChatRoom = () => {
             const newMsg = {
                 id: Date.now(),
                 sender: '나',
+                senderId: currentUserId,
                 text: '사진을 보냈습니다.',
                 image: imageUrl,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
                 isMe: true,
                 type: 'image'
             };
@@ -346,23 +348,29 @@ const CommunityChatRoom = () => {
                                 </div>
                             </div>
                             <div style={{ position: 'relative' }}>
-                                <button className="more-btn" onClick={() => setShowMoreMenu(!showMoreMenu)}>⋮</button>
-                                {showMoreMenu && (
-                                    <div className="more-menu-dropdown">
-                                        <button className="more-menu-item delete" onClick={handleLeaveChat}>
-                                            {t('chat_room_leave')}
-                                        </button>
-                                    </div>
-                                )}
+                                <button className="leave-chat-btn" onClick={handleLeaveChat}>
+                                    {t('chat_room_leave')}
+                                </button>
                             </div>
                         </div>
 
                         <div className="chat-messages-area">
                             {messages.map((msg, index) => {
                                 // Simple logic to show avatar only for first message in sequence or non-me messages
-                                const showAvatar = !msg.isMe && (index === 0 || messages[index - 1].sender !== msg.sender);
+                                const prevMsg = index > 0 ? messages[index - 1] : null;
+                                const isDifferentSenderThanPrev = prevMsg ? (prevMsg.senderId !== msg.senderId) : true;
+                                const showAvatar = !msg.isMe && isDifferentSenderThanPrev;
+                                
+                                // Show time logic: Show if it's the last message, or next message is different time/sender
+                                const isLast = index === messages.length - 1;
+                                const nextMsg = !isLast ? messages[index + 1] : null;
+                                const isDifferentSenderThanNext = nextMsg ? (nextMsg.senderId !== msg.senderId) : true;
+                                const isDifferentTimeThanNext = nextMsg ? (nextMsg.time !== msg.time) : true;
+                                
+                                const showTime = isLast || isDifferentSenderThanNext || isDifferentTimeThanNext;
+
                                 return (
-                                    <ChatMessage key={msg.id} msg={msg} showAvatar={showAvatar} />
+                                    <ChatMessage key={msg.id} msg={msg} showAvatar={showAvatar} showTime={showTime} />
                                 );
                             })}
 
