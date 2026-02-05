@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import lamejs from "@breezystack/lamejs";
 import "./ProblemRecordButton.css";
 
 const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
+  const { t } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
@@ -183,9 +185,9 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
 
   return (
     <button
-      className={`record-button ${isRecording ? 'recording' : ''}`}
+      className={`record - button ${isRecording ? 'recording' : ''} `}
       onClick={handleClick}
-      title={isRecording ? "녹음 중지" : "녹음하기"}
+      title={isRecording ? t('stop_recording') : t('start_recording')}
     >
       {isRecording ? (
         <div className="record-stop-icon"></div>

@@ -1,12 +1,16 @@
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import './Select.css';
+import { useTranslation } from 'react-i18next';
 
-const Select = ({ value, options, onChange, placeholder = '선택해주세요', className = '' }) => {
+const Select = ({ value, options, onChange, placeholder, className = '' }) => {
+    const { t } = useTranslation();
+    const effectivePlaceholder = placeholder || t('select_placeholder');
+
     return (
         <Dropdown className={`common-select ${className}`} onSelect={onChange}>
             <Dropdown.Toggle variant="light" className="common-select-toggle">
-                {value || placeholder}
+                {value || effectivePlaceholder}
             </Dropdown.Toggle>
             <Dropdown.Menu className="common-select-menu">
                 {options.map((option) => (

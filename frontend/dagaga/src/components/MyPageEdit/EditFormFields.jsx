@@ -11,11 +11,11 @@ const EditFormFields = ({ formData, onChange }) => {
             <Col md={6}>
                 <Form.Group>
                     <Form.Label className="fw-semibold text-muted">{t('nickname')}</Form.Label>
-                    <Form.Control 
-                        type="text" 
-                        name="nickname" 
-                        value={formData.nickname} 
-                        onChange={onChange} 
+                    <Form.Control
+                        type="text"
+                        name="nickname"
+                        value={formData.nickname}
+                        onChange={onChange}
                         className="rounded-3 bg-light border-0 py-2"
                         placeholder={t('nickname_placeholder')}
                     />
@@ -26,10 +26,10 @@ const EditFormFields = ({ formData, onChange }) => {
             <Col md={6}>
                 <Form.Group>
                     <Form.Label className="fw-semibold text-muted">{t('password')}</Form.Label>
-                    <Form.Control 
-                        type="password" 
-                        name="password" 
-                        value={formData.password} 
+                    <Form.Control
+                        type="password"
+                        name="password"
+                        value={formData.password}
                         onChange={onChange}
                         className="rounded-3 bg-light border-0 py-2"
                         placeholder={t('password_requirements')}
@@ -41,13 +41,13 @@ const EditFormFields = ({ formData, onChange }) => {
             <Col md={6}>
                 <Form.Group>
                     <Form.Label className="fw-semibold text-muted">{t('region')}</Form.Label>
-                    <Form.Control 
-                        type="text" 
-                        name="region" 
-                        value={formData.region} 
+                    <Form.Control
+                        type="text"
+                        name="region"
+                        value={formData.region}
                         onChange={onChange}
                         className="rounded-3 bg-light border-0 py-2"
-                        placeholder="e.g. Seoul, Korea"
+                        placeholder={t('region_placeholder')}
                     />
                 </Form.Group>
             </Col>
@@ -56,9 +56,9 @@ const EditFormFields = ({ formData, onChange }) => {
             <Col md={6}>
                 <Form.Group>
                     <Form.Label className="fw-semibold text-muted">{t('native_language')}</Form.Label>
-                    <Form.Select 
-                        name="nativeLang" 
-                        value={formData.nativeLang} 
+                    <Form.Select
+                        name="nativeLang"
+                        value={formData.nativeLang}
                         onChange={onChange}
                         className="rounded-3 bg-light border-0 py-2"
                     >
@@ -73,9 +73,9 @@ const EditFormFields = ({ formData, onChange }) => {
             <Col md={6}>
                 <Form.Group>
                     <Form.Label className="fw-semibold text-muted">{t('preferred_language')}</Form.Label>
-                    <Form.Select 
-                        name="preferredLang" 
-                        value={formData.preferredLang} 
+                    <Form.Select
+                        name="preferredLang"
+                        value={formData.preferredLang}
                         onChange={onChange}
                         className="rounded-3 bg-light border-0 py-2"
                     >

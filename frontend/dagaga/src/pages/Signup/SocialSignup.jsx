@@ -183,7 +183,7 @@ const SocialSignup = () => {
                                         <label>{t('native_language')} <span>*</span></label>
                                         <Select
                                             value={formData.nativeLanguage}
-                                            options={['한국어', '중국어', '베트남어']}
+                                            options={[t('korean'), t('chinese'), t('vietnamese')]}
                                             onChange={(val) => setFormData({ ...formData, nativeLanguage: val })}
                                         />
                                     </div>
