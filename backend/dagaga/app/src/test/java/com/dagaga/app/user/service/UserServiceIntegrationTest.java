@@ -12,11 +12,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.dagaga.chat.service.ChatRoomService;
 import com.dagaga.domain.user.dto.UserUpdateDto;
+import org.mockito.BDDMockito;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.willThrow;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.dagaga.domain.user.service.EmailVerificationService;
+import org.springframework.mail.javamail.JavaMailSender;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -36,6 +38,12 @@ class UserServiceIntegrationTest {
         @MockitoBean
         private ChatRoomService chatRoomService;
 
+        @MockitoBean
+        private EmailVerificationService emailVerificationService;
+
+        @MockitoBean
+        private JavaMailSender javaMailSender;
+
         @Test
         @DisplayName("회원가입 성공 - 닉네임이 있을 때")
         void register_success_with_nickname() {
@@ -49,6 +57,7 @@ class UserServiceIntegrationTest {
                                 .build();
 
                 // when
+                BDDMockito.given(emailVerificationService.isVerified(dto.getEmail())).willReturn(true);
                 User user = userService.register(dto);
 
                 // then
@@ -70,6 +79,7 @@ class UserServiceIntegrationTest {
                                 .build();
 
                 // when
+                BDDMockito.given(emailVerificationService.isVerified(dto.getEmail())).willReturn(true);
                 User user = userService.register(dto);
 
                 // then
