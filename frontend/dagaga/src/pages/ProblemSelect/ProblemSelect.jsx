@@ -95,53 +95,56 @@ const ProblemSelect = () => {
     }
   }, [handleWheel]);
 
-  // Handle card click
-  const handleCardClick = (problemId) => {
-    setSelectedCardId(problemId === selectedCardId ? null : problemId);
-  };
+
 
   if (!scenario) {
     return <div>{t('category_not_found')}</div>;
   }
 
   return (
-    <Container fluid className="problem-select-container">
-      <div className="problem-select-layout">
-        <CategoryPanel scenario={scenario} />
+    <div>
+      <Container fluid className="problem-select-container">
+        <div className="problem-select-layout">
+          <CategoryPanel scenario={scenario} />
 
-        <div className="problem-wheel" ref={wheelRef}>
-          {isLoading ? (
-            <div className="loading-message">{t('loading')}</div>
-          ) : (
-            problems.map((problem, index) => {
-              // Cards spaced 15 degrees apart
-              const rotation = index * 15 + scrollOffset;
-              const isActive = selectedCardId === problem.id;
-              
-              // Determine display text based on API's viewQuestions field
-              // viewQuestions contains the question in the user's native language
-              let displayText = problem.viewQuestions || problem.questionText || problem.text;
+          <div className="problem-wheel" ref={wheelRef}>
+            {isLoading ? (
+              <div className="loading-message">{t('loading')}</div>
+            ) : (
+              problems.map((problem, index) => {
+                // Cards spaced 15 degrees apart
+                // Cards spaced 15 degrees apart
+                const rotation = index * 15 + scrollOffset;
+                const isActive = selectedCardId === problem.id;
+                const isSemiActive = Math.abs(rotation) <= 5;
+                
+                // Determine display text based on API's viewQuestions field
+                // viewQuestions contains the question in the user's native language
+                let displayText = problem.viewQuestions || problem.questionText || problem.text;
 
-              return (
-                <ProblemCard
-                  key={problem.id}
-                  problemNumber={index + 1}
-                  problemText={displayText}
-                  categoryId={categoryId} // Pass categoryId for navigation
-                  words={problem.words}
-                  pronunciations={problem.pronunciations}
-                  rotation={rotation}
-                  isActive={isActive}
-                  onClick={() => handleCardClick(problem.id)}
-                  translations={problem.wordTranslations} // from API response map
-                  stages={problems} // Pass full list for progress bar
-                />
-              );
-            })
-          )}
+                return (
+                  <ProblemCard
+                    key={problem.id}
+                    problemNumber={index + 1}
+                    problemText={displayText}
+                    categoryId={categoryId} // Pass categoryId for navigation
+                    words={problem.words}
+                    pronunciations={problem.pronunciations}
+                    rotation={rotation}
+                    isActive={isActive}
+                    isSemiActive={isSemiActive}
+                    onMouseEnter={() => setSelectedCardId(problem.id)}
+                    onMouseLeave={() => setSelectedCardId(null)}
+                    translations={problem.wordTranslations} // from API response map
+                    stages={problems} // Pass full list for progress bar
+                  />
+                );
+              })
+            )}
+          </div>
         </div>
-      </div>
-    </Container>
+      </Container>
+    </div>
   );
 };
 

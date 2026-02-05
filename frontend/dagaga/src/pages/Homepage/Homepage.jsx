@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import IntroRotateText from '../../components/Homepage/IntroRotateText/IntroRotateText';
@@ -9,6 +9,7 @@ import RouteCard from '../../components/Homepage/RouteCard/RouteCard';
 import learningImg from '../../assets/screenshots/scenario_select_screenshot_1.png';
 import chatImg from '../../assets/screenshots/chat_screenshot_1.png';
 import infoImg from '../../assets/screenshots/Info_screen_screenshot_1.png';
+import logo from '../../assets/icons/logo3.png';
 
 import './Homepage.css';
 
@@ -44,7 +45,11 @@ const Homepage = () => {
       <div className="homepage-hero-section">
         <div className="hero-content">
           <div className="hero-left">
-            <h1 className="hero-static-text">다가가{t('with_dgg')}</h1>
+            <h1 className="hero-static-text">
+              <Trans i18nKey="with_dgg">
+                <img src={logo} className="hero-logo-img" alt="Dagaga" />
+              </Trans>
+            </h1>
             <IntroRotateText
               texts={textItems}
               activeIndex={activeIndex}
@@ -91,22 +96,22 @@ const Homepage = () => {
 
       {/* Bottom Section: Navigation Cards */}
       <div className="homepage-navigation">
-        <RouteCard 
-          title={t('learning_navcard')} 
+        <RouteCard
+          title={t('learning_navcard')}
           body={t('learning_comment_navcard')}
-          onClick={() => handleNavClick('/ScenarioSelect')} 
+          onClick={() => handleNavClick('/ScenarioSelect')}
           image={learningImg}
         />
-        <RouteCard 
+        <RouteCard
           title={t('nav_community')}
           body={t('community_comment_navcard')}
-          onClick={() => handleNavClick('/Community/Chat')} 
+          onClick={() => handleNavClick('/Community/Chat')}
           image={chatImg}
         />
-        <RouteCard 
+        <RouteCard
           title={t('info_navcard')}
           body={t('info_comment_navcard')}
-          onClick={() => handleNavClick('/Community/Info')} 
+          onClick={() => handleNavClick('/Community/Info')}
           image={infoImg}
         />
       </div>

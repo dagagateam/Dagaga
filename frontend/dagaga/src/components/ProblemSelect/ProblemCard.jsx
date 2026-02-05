@@ -9,8 +9,11 @@ const ProblemCard = ({
   words = [], 
   pronunciations = [],
   rotation, 
-  isActive, 
+  isActive,
+  isSemiActive, 
   onClick,
+  onMouseEnter,
+  onMouseLeave,
   ...props // Capture other props like translations, stages
 }) => {
   const navigate = useNavigate();
@@ -44,11 +47,13 @@ const ProblemCard = ({
 
   return (
     <div
-      className={`problem-card ${isActive ? "active" : ""}`}
+      className={`problem-card ${isActive ? "active" : isSemiActive ? "semi-active" : ""}`}
       style={{
         transform: `translateY(-50%) rotate(${rotation}deg)`,
       }}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       <div className="problem-card-content">
         <span className="problem-number">{t('problem')} {problemNumber}</span>

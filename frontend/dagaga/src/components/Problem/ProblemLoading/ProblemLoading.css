@@ -1,0 +1,42 @@
+.problem-loading-container {
+    height: 100vh;
+    display: flex;
+    position: relative;
+    background-color: #f8f9fa;
+}
+
+.problem-loading-content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.loading-gif {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 50vh;
+    width: auto;
+    max-width: 90vw;
+    object-fit: contain;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.problem-loading-text {
+    position: absolute;
+    top: 50vh;
+    left: 0;
+    right: 0;
+    height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #555;
+    font-family: var(--main-font);
+    text-align: center;
+}
