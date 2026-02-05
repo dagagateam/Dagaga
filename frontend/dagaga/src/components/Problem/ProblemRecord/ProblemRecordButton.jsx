@@ -185,7 +185,7 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
 
   return (
     <button
-      className={`record - button ${isRecording ? 'recording' : ''} `}
+      className={`record-button ${isRecording ? 'recording' : ''}`}
       onClick={handleClick}
       title={isRecording ? t('stop_recording') : t('start_recording')}
     >
