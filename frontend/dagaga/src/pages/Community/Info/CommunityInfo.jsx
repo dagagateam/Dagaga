@@ -144,7 +144,9 @@ const CommunityInfo = () => {
                                                 </div>
                                             </div>
 
-                                            <h3 className="info-title">{info.title}</h3>
+                                            <div>
+                                                <h3 className="info-title">{info.title}</h3>
+                                            </div>
 
                                             <div className="info-periods">
                                                 <div className="period-row">

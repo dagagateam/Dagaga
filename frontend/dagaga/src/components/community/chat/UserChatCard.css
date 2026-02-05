@@ -94,3 +94,30 @@
     font-weight: 500;
 }
 
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .chat-card-header {
+        display: none;
+    }
+
+    .chat-participants {
+        display: none;
+    }
+
+    .user-chat-card {
+        height: auto;
+        min-height: 80px; /* More compact */
+        padding: 10px;
+    }
+
+    .chat-title {
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 1rem;
+    }
+
+    .user-join-btn {
+        padding: 6px 14px;
+        font-size: 0.85rem;
+    }
+}

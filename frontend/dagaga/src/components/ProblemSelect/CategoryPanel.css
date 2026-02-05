@@ -63,3 +63,58 @@
   font-weight: 400;
   line-height: 1.5;
 }
+
+/* Responsive Breakpoints */
+
+/* Laptop (1200px) */
+@media (max-width: 1200px) {
+  .category-panel {
+    width: 100vh;
+    height: 100vh;
+    margin-left: -30vh; /* Adjust offset for smaller circle */
+    padding: 0 3rem;
+  }
+  
+  .category-title {
+    font-size: 1.8rem;
+  }
+}
+
+/* Tablet Landscape (1024px) */
+@media (max-width: 1024px) {
+  .category-panel {
+    width: 100vh;
+    height: 100vh;
+    margin-left: -30vh;
+    padding: 0 2.5rem;
+  }
+
+  .category-title {
+    font-size: 1.6rem;
+  }
+
+  .category-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+/* Tablet Portrait (768px) */
+@media (max-width: 768px) {
+  .category-panel {
+    width: 100vh;
+    height: 100vh;
+    margin-left: -30vh;
+    padding: 0 2rem;
+    z-index: 10;
+  }
+
+  .category-title {
+    font-size: 1.4rem;
+  }
+
+  .category-tag {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+  }
+}
