@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown, InputGroup } from 'react-bootstrap';
 import { signupAPI, checkEmailAPI, checkNicknameAPI, requestVerificationAPI, confirmVerificationAPI } from '../../api/userApi';
 import './Signup.css';
 import { area0, allAreas, getLocationId } from '../../data/regionData';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import PasswordToggleButton from '../../components/common/PasswordToggleButton';
 import RegionSelect from '../../components/common/RegionSelect';
 import Select from '../../components/common/Select';
 import ArrivalDateInput from '../../components/common/ArrivalDateInput';
@@ -17,6 +18,8 @@ const Signup = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [language, setLanguage] = useState('한국어');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     // Form States
     const [formData, setFormData] = useState({
@@ -378,15 +381,24 @@ const Signup = () => {
                                 <div className="form-row">
                                     <div className="custom-input-group half">
                                         <label>{t('password')} <span>*</span></label>
-                                        <Input
-                                            type="password"
-                                            name="password"
-                                            placeholder={t('password_placeholder')}
-                                            value={formData.password}
-                                            onChange={handleChange}
-                                            required
-                                            className={errors.password ? 'error-input' : ''}
-                                        />
+                                        <InputGroup>
+                                            <Input
+                                                type={showPassword ? "text" : "password"}
+                                                name="password"
+                                                placeholder={t('password_placeholder')}
+                                                value={formData.password}
+                                                onChange={handleChange}
+                                                required
+                                                className={`form-control rounded-end-0 border-end-0 ${errors.password ? 'error-input' : ''}`}
+                                            />
+                                             <PasswordToggleButton
+                                                showPassword={showPassword}
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                isError={!!errors.password}
+                                                className="bg-white border rounded-end-3 border-start-0"
+                                                style={{ borderColor: '#ddd' }}
+                                            />
+                                        </InputGroup>
                                         {errors.password && <span className="error-msg">{errors.password}</span>}
                                     </div>
                                     <div className="custom-input-group half">
@@ -405,15 +417,24 @@ const Signup = () => {
                                 <div className="form-row">
                                     <div className="custom-input-group half">
                                         <label>{t('password_confirm')} <span>*</span></label>
-                                        <Input
-                                            type="password"
-                                            name="confirmPassword"
-                                            placeholder={t('password_placeholder')}
-                                            value={formData.confirmPassword}
-                                            onChange={handleChange}
-                                            required
-                                            className={errors.confirmPassword ? 'error-input' : ''}
-                                        />
+                                        <InputGroup>
+                                            <Input
+                                                type={showConfirmPassword ? "text" : "password"}
+                                                name="confirmPassword"
+                                                placeholder={t('password_placeholder')}
+                                                value={formData.confirmPassword}
+                                                onChange={handleChange}
+                                                required
+                                                className={`form-control rounded-end-0 border-end-0 ${errors.confirmPassword ? 'error-input' : ''}`}
+                                            />
+                                            <PasswordToggleButton
+                                                showPassword={showConfirmPassword}
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                isError={!!errors.confirmPassword}
+                                                className="bg-white border rounded-end-3 border-start-0"
+                                                style={{ borderColor: '#ddd' }}
+                                            />
+                                        </InputGroup>
                                         {/* 우선순위: 에러 메시지 > 일치 여부 메시지 */}
                                         {errors.confirmPassword ? (
                                             <span className="error-msg">{errors.confirmPassword}</span>
