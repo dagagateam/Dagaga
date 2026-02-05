@@ -407,9 +407,9 @@ const ProblemNative = () => {
                 onAnalyserChange={handlePreTranslateAnalyserChange}
               />
             )}
-            <ProblemSoundwave analyser={audioAnalyser} isRecording={isRecording} />
           </>
         )}
+        <ProblemSoundwave analyser={audioAnalyser} isRecording={isRecording} />
       </div>
     </Container>
   );

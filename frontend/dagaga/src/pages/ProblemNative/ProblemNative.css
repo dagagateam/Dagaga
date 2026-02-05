@@ -114,6 +114,8 @@ h2.problem-question.problem-question-left {
   align-items: center; /* 중앙 정렬 */
   flex: 1; /* 남은 공간 모두 차지 */
   gap: 5px;
+  padding-top: 40px;
+  margin-left: -120px; /* 왼쪽으로 이동 */
 }
 
 .problem-native-container.pre-translate .problem-spacer {
