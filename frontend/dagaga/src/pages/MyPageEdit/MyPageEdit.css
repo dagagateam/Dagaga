@@ -65,8 +65,9 @@ label.text-muted {
 
 /* Confirmation Modal Styles */
 .modal-dialog.confirm-modal-dialog {
-    max-width: fit-content;
-    min-width: 400px;
+    max-width: 500px;
+    min-width: 300px;
+    width: 90%;
 }
 
 .confirm-modal-dialog .confirm-modal-header {
@@ -86,9 +87,10 @@ label.text-muted {
 .confirm-modal-dialog .confirm-modal-text {
     margin: 0;
     text-align: center;
-    white-space: nowrap;
+    word-break: keep-all; /* Prefer breaking at spaces */
     font-weight: 500; /* fw-medium */
     font-size: 1.05rem;
+    line-height: 1.5;
 }
 
 .confirm-modal-dialog .confirm-modal-footer {
