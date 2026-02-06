@@ -11,6 +11,7 @@ import "./Navbar.css";
 import { useUserStore } from "../../store/userStore";
 import { logoutAPI } from "../../api/userApi";
 import LanguageSelector from "../../components/auth/LanguageSelector";
+import stockProfile from "../../assets/icons/stock_profile.jpg";
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -85,9 +86,16 @@ const Navbar = () => {
 
             {/* 사용자 닉네임 */}
             <div className="user-info">
-              <button className="user-nickname"
-                onClick={handleMyPage}>
-                {user?.nickname || t('guest')}{t('user_suffix')}
+              <button className="user-nickname" onClick={handleMyPage}>
+                <div className="user-profile-img-wrapper">
+                  <img 
+                    src={user?.profileImage || stockProfile} 
+                    alt="Profile" 
+                    className="user-profile-img"
+                    onError={(e) => { e.target.onerror = null; e.target.src = stockProfile; }}
+                  />
+                </div>
+                <span>{user?.nickname || t('guest')}{t('user_suffix')}</span>
               </button>
             </div>
           </>

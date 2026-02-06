@@ -52,31 +52,61 @@
   font-family: var(--main-font);
   font-size: 1rem;
   font-weight: 600;
-  color: var(--main-orange);
-  padding: 8px 16px;
-  background-color: #FFF5E6;
-  border-radius: 20px;
-  border: 2px solid var(--main-orange);
+  color: #333; /* Orange -> Dark text */
+  padding: 5px 15px; /* Re-add padding for border */
+  background-color: transparent;
+  border-radius: 10px; /* Slight curvature as requested */
+  border: 1px solid #333; /* Requested border color */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.user-nickname:hover {
+  background-color: transparent;
+  opacity: 0.7;
+}
+
+.user-profile-img-wrapper {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #ddd;
+  flex-shrink: 0;
+}
+
+.user-profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .logout-btn {
   font-family: var(--main-font);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: white;
-  background-color: var(--main-orange);
+  font-size: 1rem;
+  font-weight: 500; /* fw-medium matches 500 */
+  color: #333; /* text-dark */
+  background-color: transparent;
   border: none;
-  padding: 8px 20px;
-  border-radius: 20px;
+  padding: 0; /* p-0 */
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  letter-spacing: 0.15em; /* Match nav-link */
   transition: all 0.2s ease-in-out;
-  margin-right: 12px;
+  margin-right: 20px; /* 12px -> 30px to move left */
   outline: none;
 }
 
 .logout-btn:hover {
-  background-color: #e09b4d;
-  transform: translateY(-1px);
+  color: #000;
+  background-color: transparent;
+  font-weight: 700; /* Match nav-link hover bold */
+  transform: none; /* Remove translation to match text-only link behavior, or keep if preferred. Link usually doesn't move */
 }
 
 .logout-btn:active {
@@ -85,5 +115,5 @@
 
 .logout-btn:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(248, 177, 94, 0.3);
 }
+

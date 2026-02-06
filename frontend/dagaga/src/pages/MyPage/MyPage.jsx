@@ -40,14 +40,14 @@ const MyPage = () => {
       {/* Greeting Header */}
       <Card className="greeting-card mb-3">
         <Card.Body className="greeting-body">
-          <div key="profile" className="profile-circle">
-            <img 
-              src={user?.profileImage || stockProfile} 
-              alt="Profile" 
-              className="profile-img" 
-              onError={(e) => {e.target.style.display='none'}} 
-            />
-          </div>
+            <div key="profile" className="profile-circle">
+              <img 
+                src={user?.profileImage || stockProfile} 
+                alt="Profile" 
+                className="profile-img" 
+                onError={(e) => { e.target.onerror = null; e.target.src = stockProfile; }}
+              />
+            </div>
           <h2 key="greeting" className="greeting-text">
             <strong>{t('hello_user', { name: userNickname })}</strong>
           </h2>
