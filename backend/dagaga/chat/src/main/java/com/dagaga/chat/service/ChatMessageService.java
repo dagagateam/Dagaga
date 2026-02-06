@@ -25,11 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.concurrent.Executor;
-
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 @Slf4j
 @Service
@@ -42,16 +39,13 @@ public class ChatMessageService {
     private final TransactionTemplate transactionTemplate;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final Executor translationExecutor;
-
     public ChatMessageService(ChatMessageRepository chatMessageRepository,
             LanguageRepository languageRepository,
             TranslationPort translationPort,
             ChatRoomService chatRoomService,
             TransactionTemplate transactionTemplate,
             UserRepository userRepository,
-            ApplicationEventPublisher eventPublisher,
-            @Qualifier("translationExecutor") Executor translationExecutor) {
+            ApplicationEventPublisher eventPublisher) {
         this.chatMessageRepository = chatMessageRepository;
         this.languageRepository = languageRepository;
         this.translationPort = translationPort;
@@ -59,7 +53,6 @@ public class ChatMessageService {
         this.transactionTemplate = transactionTemplate;
         this.userRepository = userRepository;
         this.eventPublisher = eventPublisher;
-        this.translationExecutor = translationExecutor;
     }
 
     public SaveMessageResult save(SaveMessageCommand cmd) {
@@ -163,12 +156,18 @@ public class ChatMessageService {
 
         TargetedMessageResult originalResult = new TargetedMessageResult(savedMsg.getOriginalLang(), originalPayload);
         eventPublisher.publishEvent(new com.dagaga.chat.event.ChatEvents.MessageSavedEvent(originalResult, savedMsg.getOriginalText(), savedMsg.getRoomId()));
-
-        // 비동기 번역 및 후속 처리
-        translationExecutor.execute(() -> processTranslationAndPublish(savedMsg, sender));
     }
 
-    private void processTranslationAndPublish(ChatMessage msg, User sender) {
+    // 비동기 번역 처리
+    public void processTranslationAndPublish(Long messageId, Integer senderId) {
+        ChatMessage msg = chatMessageRepository.findById(messageId).orElse(null);
+        User sender = userRepository.findById(senderId).orElse(null);
+
+        if (msg == null || sender == null) {
+            log.warn("메시지 또는 발신자를 찾을 수 없어 번역을 건너뜁니다. msgId={}, senderId={}", messageId, senderId);
+            return;
+        }
+
         List<String> targetLangs = languageRepository.findAllActiveLangCodes();
         if (targetLangs.isEmpty()) return;
 

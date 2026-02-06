@@ -1,6 +1,5 @@
 package com.dagaga.chat.event;
 
-import com.dagaga.chat.service.ChatRoomService;
 import com.dagaga.domain.user.event.UserLocationUpdatedEvent;
 import com.dagaga.domain.user.event.UserRegisteredEvent;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ChatEventListener {
 
-    private final ChatRoomService chatRoomService;
+    private final com.dagaga.chat.service.ChatRoomService chatRoomService;
+    private final com.dagaga.chat.service.ChatMessageService chatMessageService;
     private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
+    
+    @org.springframework.beans.factory.annotation.Qualifier("translationExecutor")
+    private final java.util.concurrent.Executor translationExecutor;
 
     @EventListener
     @Transactional
@@ -31,7 +34,7 @@ public class ChatEventListener {
             );
         } catch (Exception e) {
             log.error("채팅방 지역 변경 처리 실패", e);
-            throw e; // Rethrow to rollback transaction if needed (sync event)
+            throw e;
         }
     }
 
@@ -57,6 +60,16 @@ public class ChatEventListener {
     public void handleMessageSaved(ChatEvents.MessageSavedEvent event) {
         log.info("메시지 저장 완료 이벤트 수신: roomId={}", event.roomId());
         broadcast(event.originalResult(), event.roomId());
+    }
+
+    @org.springframework.transaction.event.TransactionalEventListener(phase = org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT)
+    public void handleMessageTranslation(ChatEvents.MessageSavedEvent event) {
+        log.info("트랜잭션 커밋 완료 후 번역 작업 시작: roomId={}", event.roomId());
+        
+        Long messageId = event.originalResult().result().messageId();
+        Integer senderId = event.originalResult().result().senderId();
+        
+        translationExecutor.execute(() -> chatMessageService.processTranslationAndPublish(messageId, senderId));
     }
 
     @EventListener
