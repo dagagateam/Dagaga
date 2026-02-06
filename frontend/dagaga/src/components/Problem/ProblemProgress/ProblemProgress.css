@@ -41,3 +41,17 @@
 .progress-close-btn:hover {
   color: #A88B5A;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .problem-progress-container {
+    width: 100%;
+    margin: 0;
+    padding: 10px 15px; /* Compact padding for mobile */
+    gap: 10px;
+  }
+
+  .progress-close-btn {
+    font-size: 20px;
+  }
+}

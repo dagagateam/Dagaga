@@ -369,7 +369,7 @@ const Problem = () => {
           />
       <div className="problem-question">
         <div className="problem-header">
-          <h2 onClick={() => setShowNative(!showNative)} style={{ cursor: 'pointer' }}>
+          <h2>
             {problemText}
           </h2>
           {userLanguage !== 'ko' && <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />}
