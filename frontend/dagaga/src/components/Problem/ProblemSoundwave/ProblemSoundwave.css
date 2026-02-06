@@ -14,3 +14,9 @@
   height: 100px;
   border-radius: 10px;
 }
+
+@media (max-width: 768px) {
+  .soundwave-container {
+    display: none;
+  }
+}

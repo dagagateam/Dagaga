@@ -56,3 +56,30 @@
   background: white;
   border-radius: 4px;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .record-button {
+    width: 60px; /* Reduced from 80px */
+    height: 60px;
+    box-shadow: 0 4px 0 #C9954A; /* Reduce shadow depth */
+  }
+
+  .record-button:hover {
+     box-shadow: 0 6px 0 #C9954A;
+  }
+  
+  .record-button.recording {
+     box-shadow: 0 4px 0 #C0392B;
+  }
+
+  .record-icon {
+    width: 30px; /* Reduced from 40px */
+    height: 30px;
+  }
+  
+  .record-stop-icon {
+    width: 18px;
+    height: 18px;
+  }
+}

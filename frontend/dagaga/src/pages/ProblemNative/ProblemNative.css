@@ -100,22 +100,26 @@ h2.problem-question.problem-question-left {
 
 .problem-native-container.pre-translate .problem-answer-section {
   display: flex;
-  align-items: flex-start; /* 중앙 정렬 -> 위쪽 정렬 */
-  justify-content: flex-start; /* center -> flex-start (Problem.css와 통일) */
-  gap: 20px;
-  width: 90%; /* 100% -> 90% (Problem.css와 통일) */
-  margin: 0 auto; /* 중앙 배치 */
-  padding: 0 40px;
+  flex-direction: column; /* Matched to header */
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0; /* Gap handled by internal spacing or reset */
+  width: 90%;
+  padding-left: 40px;
+  padding-right: 40px;
+  margin: 0.5rem auto 1rem; /* Matched to header */
 }
 
 .problem-native-container.pre-translate .problem-answer-content {
   display: flex;
   flex-direction: column;
-  align-items: center; /* 중앙 정렬 */
-  flex: 1; /* 남은 공간 모두 차지 */
+  align-items: center; /* Centered as requested */
+  flex: 1;
   gap: 5px;
-  padding-top: 40px;
-  margin-left: -120px; /* 왼쪽으로 이동 */
+  padding-top: 20px;
+  margin-left: 0;
+  width: 100%;
+  text-align: center; /* Ensure text centers */
 }
 
 .problem-native-container.pre-translate .problem-spacer {
@@ -129,9 +133,9 @@ h2.problem-question.problem-question-left {
   align-items: center;
   gap: 0.5rem; /* 20px -> 0.5rem (Problem.css와 통일) */
   width: 100%;
-  padding: 0.5rem 1rem; /* 20px 40px -> 0.5rem 1rem (Problem.css와 통일) */
+  padding: 0.5rem 1rem 3rem 1rem; /* Added bottom padding to lift button */
   margin-bottom: 0.5rem; /* 30px -> 0.5rem (Problem.css와 통일) */
-  border-bottom: 0.125rem solid #ddd; /* 테두리 추가 */
+  border-bottom: none; /* Removed border to avoid floating line */
 }
 
 .problem-native-container.translating {
@@ -141,22 +145,26 @@ h2.problem-question.problem-question-left {
 
 .problem-native-container.translating .problem-answer-section {
   display: flex;
-  align-items: flex-start; /* 중앙 정렬 -> 위쪽 정렬 */
-  justify-content: flex-start; /* center -> flex-start (Problem.css와 통일) */
-  gap: 20px;
-  width: 90%; /* 100% -> 90% */
-  margin: 0 auto;
-  padding: 0 40px;
+  flex-direction: column; /* Matched to header */
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0;
+  width: 90%;
+  padding-left: 40px;
+  padding-right: 40px;
+  margin: 0.5rem auto 1rem;
 }
 
 .problem-native-container.translating .problem-answer-content {
   display: flex;
   flex-direction: column;
-  align-items: center; /* 중앙 정렬 */
-  flex: 1; /* 남은 공간 모두 차지 */
+  align-items: center; /* Centered */
+  flex: 1;
   gap: 5px;
-  padding-top: 40px; /* Pre-translate와 통일 */
-  margin-left: -120px; /* Pre-translate와 통일 */
+  padding-top: 20px;
+  margin-left: 0;
+  width: 100%;
+  text-align: center;
 }
 
 .problem-native-container.translating .problem-spacer {
@@ -170,9 +178,9 @@ h2.problem-question.problem-question-left {
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1rem 3rem 1rem; /* Lift button */
   margin-bottom: 0.5rem;
-  border-bottom: 0.125rem solid #ddd;
+  border-bottom: none;
 }
 
 
@@ -183,21 +191,25 @@ h2.problem-question.problem-question-left {
 
 .problem-native-container.post-translate .problem-answer-section {
   display: flex;
-  align-items: flex-start; /* 중앙 정렬 -> 위쪽 정렬 */
-  justify-content: flex-start; /* center -> flex-start (Problem.css와 통일) */
-  gap: 0.5rem; /* 20px -> 0.5rem (Problem.css와 통일) */
-  width: 90%; /* 100% -> 90% */
-  margin: 0 auto;
-  padding: 0 40px;
+  flex-direction: column; /* Matched to header */
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0;
+  width: 90%;
+  padding-left: 40px;
+  padding-right: 40px;
+  margin: 0.5rem auto 1rem;
 }
 
 .problem-native-container.post-translate .problem-answer-content {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem; /* 5px -> 0.25rem (Problem.css와 통일) */
-  padding-top: 20px; /* 40px -> 20px (스크롤 방지) */
-  margin-left: 100px; /* -70px에서 조정 (겹침 문제 해결) */
+  align-items: center; /* Centered */
+  gap: 0.25rem;
+  padding-top: 20px;
+  margin-left: 0;
+  width: 100%;
+  text-align: center;
 }
 
 .problem-native-container.post-translate .problem-spacer {
@@ -211,7 +223,59 @@ h2.problem-question.problem-question-left {
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1rem 3rem 1rem; /* Lift button */
   margin-bottom: 0.5rem;
-  border-bottom: 0.125rem solid #ddd;
+  border-bottom: none;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .problem-native-instruction {
+    font-size: 0.8rem; /* REDUCED from 1.6rem */
+  }
+
+  /* Increase specificity for question text resize */
+  .problem-native-header-text,
+  h2.problem-question.problem-question-left,
+  .problem-question {
+    font-size: 1.1rem !important; /* Reduced further to ensure fit */
+  }
+
+  .problem-translation-text {
+    font-size: 0.9rem;
+  }
+  
+  /* Lift controls up from bottom */
+  .problem-bottom-controls {
+    padding-bottom: 3rem; /* Add significant bottom space */
+    border-bottom: none; /* Optional: Remove border if it looks weird floating */
+  }
+
+  /* Compact Answer Section */
+  .problem-answer-section,
+  .problem-native-container.post-translate .problem-answer-section,
+  .problem-native-container.translating .problem-answer-section,
+  .problem-native-container.pre-translate .problem-answer-section {
+      width: 95%; /* Use more width */
+      padding: 0 10px; /* Reduce padding */
+      gap: 10px; /* Reduce gap */
+      flex-direction: column; /* Stack on very small screens? Or keep row but tighter? */
+      /* If "change text here" implies layout or size: */
+  }
+  
+  /* If the user meant "text" inside answer section */
+  .problem-answer-section * {
+      /* potentially inherit smaller font */
+  }
+
+  /* Shrink Answer Words */
+  .problem-answer-words {
+    font-size: 0.9rem; /* Reduced size */
+  }
+
+  /* Target clickable spans (cursor: pointer) specifically if they lack a class, 
+     but generally problem-answer-words span covers it */
+  .problem-answer-words span {
+     font-size: 0.9rem; 
+  }
 }

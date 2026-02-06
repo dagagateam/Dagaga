@@ -11,3 +11,10 @@
   object-fit: contain;
   transform: scaleX(-1); /* Flip horizontally */
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .problem-mascot {
+    display: none;
+  }
+}
