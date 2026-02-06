@@ -200,8 +200,9 @@ public class ChatMessageService {
                     boolean isTranslated = false;
                     String content = msg.getOriginalText();
 
-                    // 원문 언어가 사용자의 모국어와 다르면 번역본 찾기
-                    if (!msg.getOriginalLang().equalsIgnoreCase(userNativeLangCode)) {
+                    // 원문 언어가 사용자의 모국어와 다르고, 원문 언어가 unknown이 아니면 번역본 찾기
+                    if (!msg.getOriginalLang().equalsIgnoreCase(userNativeLangCode) 
+                            && !"unknown".equalsIgnoreCase(msg.getOriginalLang())) {
                         String translatedText = msg.getTranslations().stream()
                                 .filter(t -> t.getTargetLang().equalsIgnoreCase(userNativeLangCode))
                                 .map(MessageTranslation::getTranslatedText)

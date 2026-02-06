@@ -46,8 +46,9 @@ public class MessageControllerDto {
             ChatMessage message = result.message();
             String content = message.getOriginalText();
 
-            // 타겟 언어와 원문 언어가 다르면 번역본 찾기
-            if (!message.getOriginalLang().equalsIgnoreCase(targetLang)) {
+            // 타겟 언어와 원문 언어가 다르고, 원문 언어가 unknown이 아니면 번역본 찾기
+            if (!message.getOriginalLang().equalsIgnoreCase(targetLang) 
+                    && !"unknown".equalsIgnoreCase(message.getOriginalLang())) {
                 List<MessageTranslation> translationList = result.translations();
                 if (translationList != null) {
                     content = translationList.stream()
