@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.ArgumentCaptor;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionCallback;
@@ -28,6 +29,7 @@ import org.springframework.transaction.support.SimpleTransactionStatus;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -166,5 +168,62 @@ public class ChatMessageServiceTest {
             verify(translationPort).detectAndTranslate(eq(originalText), anyList());
             verify(transactionTemplate).executeWithoutResult(any()); // Save translations called
             verify(eventPublisher).publishEvent(any(com.dagaga.chat.event.ChatEvents.TranslationCompletedEvent.class));
+        }
+
+        @Test
+        @DisplayName("Success: 번역 실패 시 원문으로 Fallback 이벤트 발행")
+        void processTranslationAndPublish_shouldFallbackToOriginalText_WhenTranslationFails() {
+            // given
+            Long messageId = 124L;
+            Integer senderId = 101;
+            String originalText = "Review Needed";
+            String originalLang = "en";
+
+            // Mock User
+            User mockUser = mock(User.class);
+            given(mockUser.getNickname()).willReturn("UserFail");
+            given(mockUser.getProfileImage()).willReturn("img.png");
+            given(userRepository.findById(senderId)).willReturn(java.util.Optional.of(mockUser));
+
+            // Real Message
+            ChatMessage realMsg = ChatMessage.create(1, senderId, originalText, originalLang);
+            setMsgId(realMsg, messageId);
+            
+            given(chatMessageRepository.findById(messageId)).willReturn(java.util.Optional.of(realMsg));
+
+            // Mock dependencies
+            List<String> allActiveLangs = List.of("en", "ko", "ja"); // Targets
+            given(languageRepository.findAllActiveLangCodes()).willReturn(allActiveLangs);
+
+            // Mock Translation Failure
+            given(translationPort.detectAndTranslate(eq(originalText), anyList()))
+                    .willThrow(new RuntimeException("API Failure"));
+
+            // when
+            chatMessageService.processTranslationAndPublish(messageId, senderId);
+
+            // then
+            verify(translationPort).detectAndTranslate(eq(originalText), anyList());
+
+            // Fallback Event
+            ArgumentCaptor<com.dagaga.chat.event.ChatEvents.TranslationCompletedEvent> captor = 
+                ArgumentCaptor.forClass(com.dagaga.chat.event.ChatEvents.TranslationCompletedEvent.class);
+            
+            verify(eventPublisher).publishEvent(captor.capture());
+            
+            com.dagaga.chat.event.ChatEvents.TranslationCompletedEvent event = captor.getValue();
+            assertThat(event.roomId()).isEqualTo(1);
+            
+            assertThat(event.translatedResults()).hasSize(2);
+            
+            // Verify 'ko' result
+            var koResult = event.translatedResults().stream().filter(r -> r.targetLang().equals("ko")).findFirst();
+            assertThat(koResult).isPresent();
+            assertThat(koResult.get().result().content()).isEqualTo(originalText); // Fallback!
+
+             // Verify 'ja' result
+            var jaResult = event.translatedResults().stream().filter(r -> r.targetLang().equals("ja")).findFirst();
+            assertThat(jaResult).isPresent();
+            assertThat(jaResult.get().result().content()).isEqualTo(originalText); // Fallback!
         }
 }

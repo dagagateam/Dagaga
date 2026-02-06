@@ -205,7 +205,31 @@ public class ChatMessageService {
             }
 
         } catch (Exception e) {
-            log.error("비동기 번역 처리 중 오류 발생", e);
+            log.error("비동기 번역 처리 중 오류 발생. 원문으로 Fallback 처리합니다.", e);
+            
+            // Fallback: 번역 실패 시 원문으로 브로드캐스팅
+            List<TargetedMessageResult> fallbackResults = new ArrayList<>();
+            targetLangs.forEach(lang -> {
+                // 원본 언어와 같으면 제외
+                if (!lang.equalsIgnoreCase(msg.getOriginalLang())) {
+                    ChatMessageResult fallbackPayload = new ChatMessageResult(
+                            msg.getMessageId(),
+                            msg.getRoomId(),
+                            msg.getSenderId(),
+                            sender.getNickname(),
+                            sender.getProfileImage(),
+                            msg.getOriginalText(),
+                            msg.getOriginalText(),
+                            msg.getOriginalLang(),
+                            msg.getSentAt().toString(),
+                            "TALK");
+                    fallbackResults.add(new TargetedMessageResult(lang, fallbackPayload));
+                }
+            });
+
+            if (!fallbackResults.isEmpty()) {
+                eventPublisher.publishEvent(new com.dagaga.chat.event.ChatEvents.TranslationCompletedEvent(fallbackResults, msg.getRoomId()));
+            }
         }
     }
 
