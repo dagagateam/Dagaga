@@ -22,7 +22,7 @@ const CommunityChatList = () => {
     const [locationChats, setLocationChats] = useState([]);
     const [regionalChats, setRegionalChats] = useState([]);
     const [customChats, setCustomChats] = useState([]);
-    const [joinedChats, setJoinedChats] = useState([]);
+    const { joinedChats, setJoinedChats } = useUserStore();
     const [userRegion, setUserRegion] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newChatTitle, setNewChatTitle] = useState('');
@@ -192,7 +192,7 @@ const CommunityChatList = () => {
                         <div className="regional-chat-section">
                             <div className="regional-chat-card">
                                 <div className="regional-card-content">
-                                    <h3 className="regional-card-title">지역 단체 채팅방</h3>
+                                    <h3 className="regional-card-title">{t('local_chat_room')}</h3>
                                     <div>
                                         <Button className="join-btn" onClick={() => navigate(`/Community/Chat/room/${regionalChats[0].id}`)}>
                                             {t('participate')}

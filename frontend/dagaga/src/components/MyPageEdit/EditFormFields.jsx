@@ -62,9 +62,9 @@ const EditFormFields = ({ formData, onChange }) => {
                         onChange={onChange}
                         className="rounded-3 bg-light border-0 py-2"
                     >
-                        <option value="한국어">{t('lang_ko')}</option>
-                        <option value="중국어">{t('lang_zh')}</option>
-                        <option value="베트남어">{t('lang_vi')}</option>
+                        <option value="한국어">한국어</option>
+                        <option value="중국어">中文</option>
+                        <option value="베트남어">Tiếng Việt</option>
                     </Form.Select>
                 </Form.Group>
             </Col>
@@ -79,9 +79,9 @@ const EditFormFields = ({ formData, onChange }) => {
                         onChange={onChange}
                         className="rounded-3 bg-light border-0 py-2"
                     >
-                        <option value="한국어">{t('lang_ko')}</option>
-                        <option value="중국어">{t('lang_zh')}</option>
-                        <option value="베트남어">{t('lang_vi')}</option>
+                        <option value="한국어">한국어</option>
+                        <option value="중국어">中文</option>
+                        <option value="베트남어">Tiếng Việt</option>
                     </Form.Select>
                 </Form.Group>
             </Col>

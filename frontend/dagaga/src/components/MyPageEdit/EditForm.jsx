@@ -112,9 +112,9 @@ const EditForm = ({
             onChange={handleChange}
             className="rounded-3 bg-light border-0 py-2"
           >
-            <option value="한국어">{t('lang_ko')}</option>
-            <option value="中文">{t('lang_zh')}</option>
-            <option value="Việt Nam">{t('lang_vi')}</option>
+            <option value="한국어">한국어</option>
+            <option value="中文">中文</option>
+            <option value="Việt Nam">Tiếng Việt</option>
           </Form.Select>
         </Form.Group>
       </Col>
@@ -131,9 +131,9 @@ const EditForm = ({
             onChange={handleChange}
             className="rounded-3 bg-light border-0 py-2"
           >
-            <option value="한국어">{t('lang_ko')}</option>
-            <option value="中文">{t('lang_zh')}</option>
-            <option value="Việt Nam">{t('lang_vi')}</option>
+            <option value="한국어">한국어</option>
+            <option value="中文">中文</option>
+            <option value="Việt Nam">Tiếng Việt</option>
           </Form.Select>
         </Form.Group>
       </Col>

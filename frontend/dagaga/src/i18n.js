@@ -103,6 +103,7 @@ const resources = {
       "create": "생성하기",
       "creating": "생성 중",
       "person_count": "명",
+      "local_chat_room": "지역 단체 채팅방",
 
 
       // 채팅방
@@ -335,6 +336,7 @@ const resources = {
       "create": "创建",
       "creating": "创建中",
       "person_count": "人",
+      "local_chat_room": "社区群聊",
       "chat_room_leave": "退出",
       "send_msg": "发送信件",
       "search_chat_name": "请搜索一下聊天室的名字",
@@ -558,6 +560,7 @@ const resources = {
       "create": "Tạo ra",
       "creating": "Đang tạo ra",
       "person_count": "người",
+      "local_chat_room": "Phòng chat nhóm địa phương",
       "chat_room_leave": "ra ngoài",
       "send_msg": "Gửi tin nhắn",
       "search_chat_name": "Các bạn search tên phòng chat thử đi",
