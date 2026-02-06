@@ -22,7 +22,7 @@
   gap: 2rem;
   width: 100%;
   max-width: 1200px;
-  margin: auto; /* Center vertically in the remaining space */
+  margin: 3rem auto 0; /* Center horizontally, top spacing fixed to move it up */
   padding: 0 0.5rem;
 }
 
@@ -51,6 +51,14 @@
   color: #333;
   margin: 0;
   line-height: 1;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.hero-logo-img {
+  height: 45px; /* Default size for large screens, reduced from auto */
+  width: auto;
+  transform: translateY(-4px); /* Vertical adjustment */
+  margin-right: 15px; /* Space between logo and text */
 }
 
 .hero-rotating-box {

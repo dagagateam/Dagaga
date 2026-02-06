@@ -76,7 +76,7 @@
     font-weight: bold;
 }
 
-/* Main Content */
+/* 메인 콘텐츠 */
 .login-content {
     flex: 1;
     display: flex;
@@ -90,13 +90,13 @@
     position: relative;
     width: 100%;
     max-width: 500px;
-    /* Fixed width for centered card */
+    /* 중앙 카드를 위한 고정 너비 */
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* Login Card */
+/* 로그인 카드 */
 .login-card {
     background: white;
     padding: 40px;
@@ -104,7 +104,7 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     width: 100%;
     display: flex;
-    /* Stack content vertically */
+    /* 콘텐츠를 수직으로 정렬 */
     z-index: 1;
     transform: translateY(-50px);
 }
@@ -125,6 +125,27 @@
     margin-bottom: 20px;
 }
 
+/* 비밀번호 입력 그룹의 포커스 효과 통합 */
+.custom-input-group .input-group {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.custom-input-group .input-group .btn {
+    border-color: #ddd;
+    border-left: none;
+}
+
+.custom-input-group .input-group .common-input {
+    border-right: none;
+}
+
+.custom-input-group .input-group:focus-within .common-input,
+.custom-input-group .input-group:focus-within .btn {
+    border-color: var(--main-orange, #F8B15E) !important;
+    box-shadow: none;
+}
+
 .custom-input-group label {
     display: block;
     margin-bottom: 8px;
@@ -140,7 +161,7 @@
 
 .login-error-message {
     color: #ff4d4f;
-    /* Red color */
+    /* 빨간색 */
     font-size: 0.9rem;
     margin-bottom: 15px;
     text-align: left;
@@ -213,49 +234,49 @@
     z-index: 1;
 }
 
-/* Tablet/Mobile Responsiveness */
+/* 태블릿/모바일 반응형 */
 @media (max-width: 768px) {
     .login-wrapper {
-        max-width: 320px; /* Reduced specific width */
+        max-width: 320px; /* 축소된 특정 너비 */
     }
 
     .login-card {
-        padding: 15px 20px; /* Very compact vertical padding */
-        transform: translateY(20px); /* Move down slightly instead of up */
+        padding: 15px 20px; /* 매우 콤팩트한 수직 패딩 */
+        transform: translateY(20px); /* 위로 올리는 대신 약간 아래로 이동 */
     }
 
     .login-header {
-        padding: 10px 20px; /* Minimal header padding */
+        padding: 10px 20px; /* 최소한의 헤더 패딩 */
     }
 
     .login-card h2 {
         font-size: 1.3rem;
-        margin-bottom: 15px; /* Reduced margin */
+        margin-bottom: 15px; /* 축소된 여백 */
     }
 
-    /* Vertical Compaction */
+    /* 수직 압축 */
     .custom-input-group {
-        margin-bottom: 10px; /* Reduced from 20px */
+        margin-bottom: 10px; /* 20px에서 축소됨 */
     }
 
     .custom-input-group label {
-        margin-bottom: 4px; /* Reduced from 8px */
+        margin-bottom: 4px; /* 8px에서 축소됨 */
         font-size: 0.85rem;
     }
 
     .login-btn {
-        padding: 10px; /* Slimmer button */
+        padding: 10px; /* 더 슬림한 버튼 */
         font-size: 1rem;
         margin-bottom: 10px;
     }
 
     .form-control, .form-select {
-        font-size: 0.9rem; /* Smaller text inside inputs */
+        font-size: 0.9rem; /* 입력창 내부의 더 작은 텍스트 */
         padding: 8px 12px;
     }
 
     .forgot-password, .signup-link, .divider {
-        margin-bottom: 10px; /* Tighten up bottom links */
+        margin-bottom: 10px; /* 하단 링크 간격 축소 */
         margin-top: 10px;
         font-size: 0.8rem;
     }

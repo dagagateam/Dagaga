@@ -12,6 +12,7 @@ public record ChatMessageResponse(
     String senderNickname,
     String senderProfileImage,
     String content,
+    String originalContent,
     OffsetDateTime sentAt,
     boolean isTranslated
 ) {
@@ -23,6 +24,7 @@ public record ChatMessageResponse(
             .senderNickname(senderNickname)
             .senderProfileImage(senderProfileImage)
             .content(localizedContent)
+            .originalContent(message.getOriginalText())
             .sentAt(message.getSentAt())
             .isTranslated(isTranslated)
             .build();

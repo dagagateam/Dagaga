@@ -38,28 +38,9 @@ public class ChatStompController {
         Authentication auth = (Authentication) principal;
         UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
 
-        // 서비스 호출 및 응답 획득
-        List<TargetedMessageResult> results = chatMessageService.processAndReturnResponses(
+        // 서비스 호출 (비동기 처리로 변경되어 반환값 없음)
+        chatMessageService.saveAndPublish(
                 req.toServiceDto(userPrincipal.getUserId().getValue(), userPrincipal.getNativeLangCode()),
                 userPrincipal.getLocationId());
-
-        // 각 대상 언어별로 메시지 전송
-        results.forEach(result -> {
-            SendMessageResponse response = new SendMessageResponse(
-                    result.result().messageId(),
-                    result.result().roomId(),
-                    result.result().senderId(),
-                    result.result().senderNickname(),
-                    result.result().senderProfileImage(),
-                    result.result().content(),
-                    result.result().originalLang(),
-                    result.result().sentAt(),
-                    result.result().type()
-            );
-
-            messagingTemplate.convertAndSend(
-                    "/sub/chat/rooms/" + req.roomId() + "/" + result.targetLang(),
-                    response);
-        });
     }
 }

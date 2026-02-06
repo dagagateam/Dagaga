@@ -73,6 +73,7 @@ public class TranslationAdapter implements TranslationPort {
         String targets = String.join(", ", targetLangs);
         return String.format("""
                 You are a professional translator and language detector.
+                The text is a chat message from a social app.
                 1. Detect the language of the text provided at the end.
                 2. Translate the text into the following target languages: [%s].
                 
@@ -82,7 +83,9 @@ public class TranslationAdapter implements TranslationPort {
                 3. "detectedLanguage" should be the ISO 639-1 language code of the source text (e.g., 'ko', 'en', 'zh').
                 4. "translations" should be a map where keys are target language codes and values are translated text.
                 5. Do NOT include the detected source language in the translations map.
-                6. Ensure ALL other requested target languages are included in the translations map.
+                6. Translate conversationally and naturally. If the text is slang or casual, translate the meaning.
+                7. Do NOT simply copy the original text unless it is a proper noun.
+                8. Ensure ALL other requested target languages are included in the translations map.
                 
                 Example Output:
                 {

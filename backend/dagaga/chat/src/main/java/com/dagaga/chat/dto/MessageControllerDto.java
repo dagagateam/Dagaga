@@ -36,6 +36,7 @@ public class MessageControllerDto {
             String senderNickname,
             String senderProfileImage,
             String content, // 원문 또는 번역문
+            String originalContent,
             String originalLang,
             String sentAt,
             String type) { // TALK, LEAVE
@@ -45,8 +46,9 @@ public class MessageControllerDto {
             ChatMessage message = result.message();
             String content = message.getOriginalText();
 
-            // 타겟 언어와 원문 언어가 다르면 번역본 찾기
-            if (!message.getOriginalLang().equalsIgnoreCase(targetLang)) {
+            // 타겟 언어와 원문 언어가 다르고, 원문 언어가 unknown이 아니면 번역본 찾기
+            if (!message.getOriginalLang().equalsIgnoreCase(targetLang) 
+                    && !"unknown".equalsIgnoreCase(message.getOriginalLang())) {
                 List<MessageTranslation> translationList = result.translations();
                 if (translationList != null) {
                     content = translationList.stream()
@@ -64,6 +66,7 @@ public class MessageControllerDto {
                     senderNickname,
                     senderProfileImage,
                     content,
+                    message.getOriginalText(),
                     message.getOriginalLang(),
                     message.getSentAt().toString(),
                     "TALK");

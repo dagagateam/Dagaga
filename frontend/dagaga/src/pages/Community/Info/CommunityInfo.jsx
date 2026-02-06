@@ -88,7 +88,7 @@ const CommunityInfo = () => {
         (info.content && info.content.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-    if (loading) return <div className="text-center py-5">Loading...</div>;
+
 
     return (
         <div className="community-info-container">
@@ -148,7 +148,7 @@ const CommunityInfo = () => {
                                                 <h3 className="info-title">{info.title}</h3>
                                             </div>
 
-                                            <div className="info-periods">
+                                                <div className="info-periods">
                                                 <div className="period-row">
                                                     <span className="period-label">{t('period_acceptance')}</span>
                                                     <span className="period-date">| {info.applicationPeriod}</span>
