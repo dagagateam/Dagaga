@@ -11,22 +11,14 @@ const ProblemSoundwave = ({ analyser, isRecording }) => {
     const container = containerRef.current;
     if (!canvas || !container) return;
     
-    // Set canvas width to container width
-    const updateCanvasSize = () => {
-      canvas.width = container.clientWidth;
-      canvas.height = 100;
-    };
-    updateCanvasSize();
-    
-    // Update on resize
-    window.addEventListener('resize', updateCanvasSize);
-    
     const ctx = canvas.getContext('2d');
-    
+
     // Draw idle state (static bars)
     const drawIdle = () => {
       const width = canvas.width;
       const height = canvas.height;
+      if (width === 0) return; // Wait for width
+
       ctx.clearRect(0, 0, width, height);
       
       const barWidth = 8;
@@ -35,28 +27,25 @@ const ProblemSoundwave = ({ analyser, isRecording }) => {
       const centerY = height / 2;
       
       for (let i = 0; i < barCount; i++) {
-        // Static small bars
         const barHeight = 10;
-        
         const x = i * (barWidth + gap);
         
-        // Draw bar
         const mainOrange = getComputedStyle(document.documentElement).getPropertyValue('--main-orange').trim();
         ctx.fillStyle = mainOrange || '#F3AE5C';
         ctx.beginPath();
         ctx.roundRect(x, centerY - barHeight, barWidth, barHeight * 2, 3);
         ctx.fill();
       }
-      // No animation loop - just draw once
     };
-    
+
     // Draw active recording visualization
     const drawRecording = () => {
       if (!analyser) return;
       
       const width = canvas.width;
       const height = canvas.height;
-      
+      if (width === 0) return;
+
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
       analyser.getByteFrequencyData(dataArray);
@@ -69,14 +58,12 @@ const ProblemSoundwave = ({ analyser, isRecording }) => {
       const centerY = height / 2;
       
       for (let i = 0; i < barCount; i++) {
-        // Map frequency data to bar height
         const dataIndex = Math.floor(i * bufferLength / barCount);
         const value = dataArray[dataIndex];
         const barHeight = Math.max((value / 255) * (height / 2 - 5), 8);
         
         const x = i * (barWidth + gap);
         
-        // Draw bar - red when recording
         ctx.fillStyle = '#E74C3C';
         ctx.beginPath();
         ctx.roundRect(x, centerY - barHeight, barWidth, barHeight * 2, 3);
@@ -85,6 +72,25 @@ const ProblemSoundwave = ({ analyser, isRecording }) => {
       
       animationIdRef.current = requestAnimationFrame(drawRecording);
     };
+
+    // Set canvas width to container width and trigger redraw
+    const updateCanvasSize = () => {
+      if (!container || !canvas) return;
+      const newWidth = container.clientWidth;
+      if (newWidth > 0 && canvas.width !== newWidth) {
+        canvas.width = newWidth;
+        canvas.height = 100;
+        if (!isRecording || !analyser) {
+          drawIdle();
+        }
+      }
+    };
+
+    // Initial size update
+    updateCanvasSize();
+    
+    // Update on resize
+    window.addEventListener('resize', updateCanvasSize);
     
     // Start appropriate animation
     if (isRecording && analyser) {

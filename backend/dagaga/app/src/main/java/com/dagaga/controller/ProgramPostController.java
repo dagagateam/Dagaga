@@ -101,7 +101,10 @@ public class ProgramPostController {
         @GetMapping("/{postId}/comments")
         public ResponseEntity<ApiResponse<List<CommentResponse>>> getComments(
                         @PathVariable Integer postId) {
-                var response = commentService.getComments(postId);
+                Integer userId = currentUser.getUserId().map(UserId::getValue).orElse(null);
+                String viewLangCode = currentUser.getViewLangCode();
+
+                var response = commentService.getComments(postId, userId, viewLangCode);
                 return ResponseEntity.ok(ApiResponse.success("댓글 조회가 완료되었습니다.", response));
         }
 }

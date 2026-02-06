@@ -19,6 +19,8 @@ import static org.mockito.BDDMockito.willThrow;
 import org.springframework.transaction.annotation.Transactional;
 import com.dagaga.domain.user.service.EmailVerificationService;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -44,6 +46,9 @@ class UserServiceIntegrationTest {
         @MockitoBean
         private JavaMailSender javaMailSender;
 
+        @MockitoBean
+        private SimpMessagingTemplate simpMessagingTemplate;
+
         @Test
         @DisplayName("회원가입 성공 - 닉네임이 있을 때")
         void register_success_with_nickname() {
@@ -54,6 +59,7 @@ class UserServiceIntegrationTest {
                                 .nickname("my-nickname")
                                 .viewLangCode("ko")
                                 .nativeLangCode("en")
+                                .locationId(10)
                                 .build();
 
                 // when
@@ -76,6 +82,7 @@ class UserServiceIntegrationTest {
                                 .nickname("")
                                 .viewLangCode("ko")
                                 .nativeLangCode("en")
+                                .locationId(10)
                                 .build();
 
                 // when

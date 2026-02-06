@@ -45,7 +45,7 @@ const CommunityChatRoom = () => {
                         id: msg.messageId,
                         sender: msg.senderNickname || `User ${msg.senderId}`,
                         senderId: msg.senderId,
-                        text: msg.content,
+                        text: (msg.senderId === currentUserId && msg.originalContent) ? msg.originalContent : msg.content,
                         time: new Date(msg.sentAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
                         isMe: msg.senderId === currentUserId,
                         profileImage: msg.senderProfileImage,
@@ -126,7 +126,7 @@ const CommunityChatRoom = () => {
                                 id: receivedMsg.messageId,
                                 sender: receivedMsg.senderNickname || `User ${receivedMsg.senderId}`,
                                 senderId: receivedMsg.senderId,
-                                text: receivedMsg.content, // 백엔드에서 이미 적절한 언어로 필터링되어 옴
+                                text: (receivedMsg.senderId === user.userId && receivedMsg.originalContent) ? receivedMsg.originalContent : receivedMsg.content,
                                 time: new Date(receivedMsg.sentAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
                                 isMe: receivedMsg.senderId === user.userId,
                                 profileImage: receivedMsg.senderProfileImage,
