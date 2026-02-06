@@ -10,6 +10,7 @@
   flex-shrink: 0;
   overflow: hidden;
   height: 100%; /* Auto height container */
+  cursor: pointer;
 }
 
 .saved-news-card:hover {

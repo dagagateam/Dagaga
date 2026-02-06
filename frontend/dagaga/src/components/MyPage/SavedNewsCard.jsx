@@ -4,8 +4,10 @@ import bookmarkedIcon from '../../assets/icons/bookmark.png';
 import unbookmarkIcon from '../../assets/icons/unbookmark.png';
 import './SavedNewsCard.css';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 const SavedNewsCard = ({
+  id,
   title,
   orgName,
   applicationPeriod,
@@ -15,8 +17,14 @@ const SavedNewsCard = ({
   onToggleBookmark
 }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/Community/Info/${id}`);
+  };
+
   return (
-    <Card className="saved-news-card">
+    <Card className="saved-news-card" onClick={handleCardClick}>
       <div className="saved-news-inner">
         {/* Content Only - Mini Version */}
         <div className="saved-news-content">
