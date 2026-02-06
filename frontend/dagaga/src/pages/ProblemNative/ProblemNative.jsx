@@ -290,9 +290,9 @@ const ProblemNative = () => {
   const renderPreTranslate = () => (
     <Container fluid className="problem-native-container pre-translate">
       <ProblemProgress
-        current={currentStageIndex + 1}
+        current={currentStageIndex}
         total={scenarionStages.length}
-        onExit={() => navigate('/ScenarioSelect')}
+        onExit={() => navigate(`/ProblemSelect/${categoryId}`)}
       />
       <div className="problem-question-header-centered">
         <div className="problem-native-header-row">
@@ -365,7 +365,7 @@ const ProblemNative = () => {
       <ProblemProgress
         current={currentStageIndex + 1}
         total={scenarionStages.length}
-        onExit={() => navigate('/ScenarioSelect')}
+        onExit={() => navigate(`/ProblemSelect/${categoryId}`)}
       />
       <div className="problem-question-header-centered">
         <div className="problem-native-header-row">

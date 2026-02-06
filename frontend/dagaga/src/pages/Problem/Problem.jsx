@@ -362,11 +362,11 @@ const Problem = () => {
         <ProblemLoading text="문제를 불러오는 중..." />
       ) : (
         <>
-          <ProblemProgress
-            current={currentStageIndex + 1}
-            total={scenarionStages.length}
-            onExit={() => navigate('/ScenarioSelect')}
-          />
+      <ProblemProgress
+        currentWord={currentStep}
+        totalWords={totalSteps}
+        onExit={() => navigate(`/ProblemSelect/${categoryId}`)}
+      />
       <div className="problem-question">
         <div className="problem-header">
           <h2>
