@@ -130,32 +130,30 @@ public class ChatMessageService {
         chatRoomService.getRoomAndValidateLocation(cmd.roomId(), locationId);
 
         // 원본 메시지 저장
-        ChatMessage savedMsg = transactionTemplate.execute(status -> {
+        transactionTemplate.executeWithoutResult(status -> {
             ChatMessage newMsg = ChatMessage.create(
                     cmd.roomId(),
                     cmd.senderId(),
                     cmd.originalText(),
                     cmd.originalLang());
-            return chatMessageRepository.save(newMsg);
+            ChatMessage savedMsg = chatMessageRepository.save(newMsg);
+
+            // 원본 메시지 이벤트 발행
+            ChatMessageResult originalPayload = new ChatMessageResult(
+                    savedMsg.getMessageId(),
+                    savedMsg.getRoomId(),
+                    savedMsg.getSenderId(),
+                    sender.getNickname(),
+                    sender.getProfileImage(),
+                    savedMsg.getOriginalText(),
+                    savedMsg.getOriginalText(),
+                    savedMsg.getOriginalLang(),
+                    savedMsg.getSentAt().toString(),
+                    "TALK");
+
+            TargetedMessageResult originalResult = new TargetedMessageResult(savedMsg.getOriginalLang(), originalPayload);
+            eventPublisher.publishEvent(new com.dagaga.chat.event.ChatEvents.MessageSavedEvent(originalResult, savedMsg.getOriginalText(), savedMsg.getRoomId()));
         });
-
-        if (savedMsg == null) throw new RuntimeException("메시지 저장 실패");
-
-        // 원본 메시지 이벤트 발행
-        ChatMessageResult originalPayload = new ChatMessageResult(
-                savedMsg.getMessageId(),
-                savedMsg.getRoomId(),
-                savedMsg.getSenderId(),
-                sender.getNickname(),
-                sender.getProfileImage(),
-                savedMsg.getOriginalText(),
-                savedMsg.getOriginalText(),
-                savedMsg.getOriginalLang(),
-                savedMsg.getSentAt().toString(),
-                "TALK");
-
-        TargetedMessageResult originalResult = new TargetedMessageResult(savedMsg.getOriginalLang(), originalPayload);
-        eventPublisher.publishEvent(new com.dagaga.chat.event.ChatEvents.MessageSavedEvent(originalResult, savedMsg.getOriginalText(), savedMsg.getRoomId()));
     }
 
     // 비동기 번역 처리
