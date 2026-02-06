@@ -52,6 +52,18 @@ CREATE TABLE IF NOT EXISTS comments (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS comment_translations (
+  translation_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  comment_id INT NOT NULL,
+  target_lang VARCHAR(10) NOT NULL,
+  translated_content TEXT NOT NULL,
+  translated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT uq_comment_lang UNIQUE (comment_id, target_lang),
+  CONSTRAINT fk_comment_trans_comment
+    FOREIGN KEY (comment_id) REFERENCES comments(comment_id) ON DELETE CASCADE
+);
+
 -- 5. 주제별/지역별 채팅방 (최신 정의 병합)
 CREATE TABLE IF NOT EXISTS chat_rooms (
     room_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
