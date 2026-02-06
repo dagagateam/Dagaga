@@ -5,7 +5,11 @@
   background-color: white;
   height: 100%;
   min-height: 200px; 
-  padding: 10px;
+}
+
+/* Fix collision with Bootstrap card-body padding */
+.my-info-card .card-body {
+  padding: 15px; /* Unified padding */
 }
 
 .my-info-header {
@@ -21,7 +25,8 @@
   font-size: 0.9rem;
   font-weight: 600;
   padding: 8px 10px;
-  min-width: 150px; 
+  min-width: 150px;
+  margin-bottom: 10px; /* Add small margin below button */
 }
 
 .edit-info-btn:hover {
@@ -30,7 +35,7 @@
 }
 
 .info-grid {
-  padding: 0 20px 10px 20px; 
+  padding: 0 5px 10px 5px; /* Reduced side padding within grid since card has padding */
 }
 
 .info-item {
@@ -115,4 +120,59 @@
 
 .btn-verify-confirm:hover {
   background-color: #e09b4d;
+}
+
+/* Tablet Landscape (1024px) */
+@media (max-width: 1024px) {
+  .my-info-card {
+    height: 240px; 
+    overflow-y: auto;
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .my-info-card {
+    height: 160px; /* Reduced specific for mobile (from 200px/240px) */
+    overflow-y: auto;
+  }
+
+  .my-info-card .card-body {
+    padding: 10px; /* Compact padding for mobile */
+  }
+
+  .edit-info-btn {
+    min-width: 120px;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+  }
+
+  .info-grid {
+    padding: 0 15px 10px 15px;
+  }
+
+  /* Hide nickname, email, and entry date - show only view lang, native lang, and region */
+  .info-grid > :nth-child(1) {
+    display: none; /* nickname */
+  }
+
+  .info-grid > :nth-child(4) {
+    display: none; /* email */
+  }
+
+  .info-grid > :nth-child(6) {
+    display: none; /* entry date */
+  }
+
+  .info-label {
+    font-size: 0.8rem;
+  }
+
+  .info-value {
+    font-size: 1rem;
+  }
+
+  .email-value {
+    font-size: 0.9rem;
+  }
 }

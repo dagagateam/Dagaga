@@ -10,6 +10,7 @@
   flex-shrink: 0;
   overflow: hidden;
   height: 100%; /* Auto height container */
+  cursor: pointer;
 }
 
 .saved-news-card:hover {
@@ -125,4 +126,30 @@
 .saved-news-period-date {
   color: #444;
   font-weight: 500;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .saved-news-card {
+    width: 250px;
+    min-width: 250px;
+    height: 6rem;
+  }
+
+  .saved-news-periods {
+    display: none; /* Hide periods on mobile */
+  }
+
+  .saved-news-content {
+    padding: 10px; /* Reduced padding as requested */
+  }
+
+  .saved-news-title {
+    margin-bottom: 0; /* Remove bottom margin when periods are hidden */
+    -webkit-line-clamp: 1; /* Limit to 1 line */
+    line-clamp: 1;
+    height: auto; /* Allow auto height for single line */
+  }
+
+  /* Hide heart button (first child) on mobile - REMOVED since button is gone */
 }

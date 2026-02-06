@@ -106,15 +106,15 @@ const MyInfo = () => {
             <div className="info-value">{userInfo.region}</div>
           </Col>
 
-          <Col key="email" md={4} className="info-item mt-3">
+          <Col key="email" md={4} className="info-item">
             <label className="info-label">{t('email')}</label>
             <div className="info-value email-value">{userInfo.email}</div>
           </Col>
-          <Col key="nativeLang" md={4} className="info-item mt-3">
+          <Col key="nativeLang" md={4} className="info-item">
             <label className="info-label">{t('native_language')}</label>
             <div className="info-value">{userInfo.nativeLang}</div>
           </Col>
-          <Col key="entryDate" md={4} className="info-item mt-3">
+          <Col key="entryDate" md={4} className="info-item">
             <label className="info-label">{t('entry_date_short')}</label>
             <div className="info-value">{userInfo.entryDate}</div>
           </Col>

@@ -1,26 +1,30 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
-import heartIcon from '../../assets/icons/heart.png';
-import unheartIcon from '../../assets/icons/unheart.png';
 import bookmarkedIcon from '../../assets/icons/bookmark.png';
 import unbookmarkIcon from '../../assets/icons/unbookmark.png';
 import './SavedNewsCard.css';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 const SavedNewsCard = ({
+  id,
   title,
   orgName,
   applicationPeriod,
   progressPeriod,
   isExpired,
-  isLiked,
   isBookmarked,
-  onToggleLike,
   onToggleBookmark
 }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/Community/Info/${id}`);
+  };
+
   return (
-    <Card className="saved-news-card">
+    <Card className="saved-news-card" onClick={handleCardClick}>
       <div className="saved-news-inner">
         {/* Content Only - Mini Version */}
         <div className="saved-news-content">
@@ -30,13 +34,6 @@ const SavedNewsCard = ({
               <span className="saved-news-org-name">{orgName}</span>
             </div>
             <div className="saved-news-actions">
-              <button className="saved-news-icon-btn" onClick={(e) => { e.stopPropagation(); onToggleLike && onToggleLike(); }}>
-                <img
-                  src={isLiked ? heartIcon : unheartIcon}
-                  alt="Like"
-                  className="saved-news-icon-img"
-                />
-              </button>
               <button className="saved-news-icon-btn" onClick={(e) => { e.stopPropagation(); onToggleBookmark && onToggleBookmark(); }}>
                 <img
                   src={isBookmarked ? bookmarkedIcon : unbookmarkIcon}

@@ -65,6 +65,7 @@ const MyPage = () => {
               savedItems.map(news => (
                 <SavedNewsCard
                   key={news.id}
+                  id={news.id}
                   title={news.title}
                   orgName={news.orgName}
                   applicationPeriod={news.applicationPeriod}
