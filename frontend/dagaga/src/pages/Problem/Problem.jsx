@@ -41,6 +41,7 @@ const Problem = () => {
   const [showNative, setShowNative] = useState(false); // Default to NOT showing native (translated) text
   const [sentenceHighlightIndex, setSentenceHighlightIndex] = useState(-1);
   const [currentTries, setCurrentTries] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false); // Track pronunciation evaluation
 
   // Audio analyser for visualization
   const [audioAnalyser, setAudioAnalyser] = useState(null);
@@ -277,6 +278,7 @@ const Problem = () => {
   const handleRecordingComplete = async ({ audioBlob }) => {
     if (isProcessingRef.current) return;
     isProcessingRef.current = true;
+    setIsProcessing(true); // Show disabled state
 
     const currentWord = currentStep < words.length ? words[currentStep] : words.join(" ");
     // DEBUG: Recorded word info
@@ -319,6 +321,7 @@ const Problem = () => {
       // Small delay to allow state updates to settle before unlocking
       setTimeout(() => {
         isProcessingRef.current = false;
+        setIsProcessing(false); // Re-enable button
       }, 500);
     }
   };
@@ -410,6 +413,7 @@ const Problem = () => {
             <ProblemRecordButton
               onRecordingComplete={handleRecordingComplete}
               onAnalyserChange={handleAnalyserChange}
+              disabled={isProcessing}
             />
             <ProblemSoundwave analyser={audioAnalyser} isRecording={isRecording} />
           </>
