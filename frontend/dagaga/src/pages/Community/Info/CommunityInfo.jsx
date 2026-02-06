@@ -148,7 +148,7 @@ const CommunityInfo = () => {
                                                 <h3 className="info-title">{info.title}</h3>
                                             </div>
 
-                                            <div className="info-periods">
+                                                <div className="info-periods">
                                                 <div className="period-row">
                                                     <span className="period-label">{t('period_acceptance')}</span>
                                                     <span className="period-date">| {info.applicationPeriod}</span>
