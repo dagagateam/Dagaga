@@ -82,7 +82,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 0 20px 20px; /* Reduced top padding from 20px to 0 */
     position: relative;
 }
 
@@ -221,6 +221,7 @@
 
     .login-card {
         padding: 15px 20px; /* Very compact vertical padding */
+        transform: translateY(20px); /* Move down slightly instead of up */
     }
 
     .login-header {
