@@ -21,6 +21,8 @@ import com.dagaga.domain.chat.translate.port.TranslationResult;
 import com.dagaga.domain.post.entity.CommentTranslation;
 import com.dagaga.domain.post.repository.CommentTranslationRepository;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionSynchronization;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -53,12 +55,12 @@ public class CommentService {
             throw new RuntimeException("댓글 저장 실패");
         }
 
-        // 번역 (비동기 처리)
-        CompletableFuture.runAsync(() -> {
+        // 번역 (비동기 처리 - 트랜잭션 커밋 후 실행 보장)
+        Runnable translationTask = () -> {
             try {
                 List<String> targetLangs = languageRepository.findAllActiveLangCodes();
                 log.info("댓글 번역 대상 언어 목록: {}", targetLangs);
-                
+
                 if (!targetLangs.isEmpty()) {
                     TranslationResult result = translationPort.detectAndTranslate(request.getContent(), targetLangs);
                     log.info("번역 결과: 감지된 언어={}, 번역된 내용={}", result.getDetectedLanguage(), result.getTranslations());
@@ -73,7 +75,20 @@ public class CommentService {
             } catch (Exception e) {
                 log.error("댓글 번역 실패: ", e);
             }
-        });
+        };
+
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    // 트랜잭션이 성공적으로 커밋된 후에만 실행되도록
+                    CompletableFuture.runAsync(translationTask);
+                }
+            });
+        } else {
+            // 트랜잭션이 없으면 바로 실행
+            CompletableFuture.runAsync(translationTask);
+        }
     }
 
     private void saveTranslationsAndOriginalLang(Integer commentId, TranslationResult result) {
