@@ -10,6 +10,7 @@ import com.dagaga.domain.post.repository.CommentRepository;
 import com.dagaga.domain.post.repository.CommentTranslationRepository;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,8 +26,10 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.mock;
+import java.util.concurrent.Executor;
 
 @ExtendWith(MockitoExtension.class)
 class CommentServiceTest {
@@ -49,8 +52,20 @@ class CommentServiceTest {
     @Mock(lenient = true)
     private TransactionTemplate transactionTemplate;
 
+    @Mock(lenient = true)
+    private Executor translationExecutor;
+
     @InjectMocks
     private CommentService commentService;
+
+    @BeforeEach
+    void setUp() {
+        doAnswer(invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(translationExecutor).execute(any(Runnable.class));
+    }
 
     @Test
     @DisplayName("댓글을 생성한다")
