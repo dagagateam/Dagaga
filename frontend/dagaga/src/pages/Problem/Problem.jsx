@@ -362,14 +362,14 @@ const Problem = () => {
         <ProblemLoading text="문제를 불러오는 중..." />
       ) : (
         <>
-          <ProblemProgress
-            current={currentStageIndex + 1}
-            total={scenarionStages.length}
-            onExit={() => navigate('/ScenarioSelect')}
-          />
+      <ProblemProgress
+        currentWord={currentStep}
+        totalWords={totalSteps}
+        onExit={() => navigate(`/ProblemSelect/${categoryId}`)}
+      />
       <div className="problem-question">
         <div className="problem-header">
-          <h2 onClick={() => setShowNative(!showNative)} style={{ cursor: 'pointer' }}>
+          <h2>
             {problemText}
           </h2>
           {userLanguage !== 'ko' && <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />}
