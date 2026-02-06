@@ -15,7 +15,7 @@ public class ChatEventListener {
 
     private final com.dagaga.chat.service.ChatRoomService chatRoomService;
     private final com.dagaga.chat.service.ChatMessageService chatMessageService;
-    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
+    private final com.dagaga.chat.service.RedisPublisher redisPublisher;
     
     @org.springframework.beans.factory.annotation.Qualifier("translationExecutor")
     private final java.util.concurrent.Executor translationExecutor;
@@ -62,7 +62,7 @@ public class ChatEventListener {
         broadcast(event.originalResult(), event.roomId());
     }
 
-    @org.springframework.transaction.event.TransactionalEventListener(phase = org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT)
+    @EventListener
     public void handleMessageTranslation(ChatEvents.MessageSavedEvent event) {
         log.info("트랜잭션 커밋 완료 후 번역 작업 시작: roomId={}", event.roomId());
         
@@ -92,7 +92,7 @@ public class ChatEventListener {
                 result.result().type()
         );
 
-        messagingTemplate.convertAndSend(
+        redisPublisher.publish(
                 "/sub/chat/rooms/" + roomId + "/" + result.targetLang(),
                 response);
     }
