@@ -309,7 +309,9 @@ const ProblemNative = () => {
         )}
       </div>
       <div className="problem-answer-section">
-        <ProblemMascot />
+        <div className="problem-answer-mascot">
+          <ProblemMascot />
+        </div>
         <div className="problem-answer-content">
           <p className="problem-native-instruction">
             {t('native_answer_instruction')}
@@ -321,6 +323,7 @@ const ProblemNative = () => {
         <ProblemRecordButton
           onRecordingComplete={handlePreTranslateRecordingComplete}
           onAnalyserChange={handlePreTranslateAnalyserChange}
+          disabled={isUploading}
         />
         <ProblemSoundwave analyser={audioAnalyser} isRecording={isRecording} />
       </div>
@@ -344,7 +347,9 @@ const ProblemNative = () => {
         )}
       </div>
       <div className="problem-answer-section">
-        <ProblemMascot />
+        <div className="problem-answer-mascot">
+          <ProblemMascot />
+        </div>
         <div className="problem-answer-content">
           <p className="problem-native-instruction">
             {t('translating')}
@@ -382,7 +387,9 @@ const ProblemNative = () => {
         )}
       </div>
       <div className="problem-answer-section">
-        <ProblemMascot />
+        <div className="problem-answer-mascot">
+          <ProblemMascot />
+        </div>
         <div className="problem-answer-content">
           <ProblemAnswer
             words={words}
@@ -404,14 +411,11 @@ const ProblemNative = () => {
           <ProblemDone onRetry={handleRetry} onReturn={handleReturn} />
         ) : (
           <>
-            {isUploading ? (
-              <BufferingButton />
-            ) : (
-              <ProblemRecordButton
-                onRecordingComplete={handlePostTranslateRecordingComplete}
-                onAnalyserChange={handlePreTranslateAnalyserChange}
-              />
-            )}
+            <ProblemRecordButton
+              onRecordingComplete={handlePostTranslateRecordingComplete}
+              onAnalyserChange={handlePreTranslateAnalyserChange}
+              disabled={isUploading}
+            />
           </>
         )}
         <ProblemSoundwave analyser={audioAnalyser} isRecording={isRecording} />

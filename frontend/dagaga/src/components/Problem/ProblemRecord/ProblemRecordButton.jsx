@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import lamejs from "@breezystack/lamejs";
 import "./ProblemRecordButton.css";
 
-const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
+const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange, disabled = false }) => {
   const { t } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const audioContextRef = useRef(null);
@@ -161,6 +161,7 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
   };
 
   const handleClick = () => {
+    if (disabled) return; // Prevent action if disabled
     if (isRecording) {
       stopRecording();
     } else {
@@ -185,9 +186,10 @@ const ProblemRecordButton = ({ onRecordingComplete, onAnalyserChange }) => {
 
   return (
     <button
-      className={`record-button ${isRecording ? 'recording' : ''}`}
+      className={`record-button ${isRecording ? 'recording' : ''} ${disabled ? 'disabled' : ''}`}
       onClick={handleClick}
-      title={isRecording ? t('stop_recording') : t('start_recording')}
+      disabled={disabled}
+      title={disabled ? t('processing') : (isRecording ? t('stop_recording') : t('start_recording'))}
     >
       {isRecording ? (
         <div className="record-stop-icon"></div>
