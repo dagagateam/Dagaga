@@ -86,7 +86,7 @@
   border: none;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   background-color: white;
-  height: 100%; 
+  flex: 1; /* Stretch to fill parent column */
   min-height: 200px; 
   display: flex;
   flex-direction: column;
@@ -113,7 +113,7 @@
 @media (max-width: 1024px) {
   /* Restrict height on tablet as well */
   .joined-chat-card {
-    height: 240px; 
+    height: 12.5rem; 
     min-height: auto;
     max-height: none;
   }

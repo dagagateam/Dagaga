@@ -172,7 +172,7 @@ const CommunityInfoDetail = () => {
         <div className="community-detail-container">
             <Container>
                 <div className="detail-header-nav">
-                    <button className="detail-back-btn" onClick={() => navigate(-1)}>
+                    <button className="detail-back-btn" onClick={() => navigate('/Community/Info')}>
                         <span>←</span> {t('back_info_list')}
                     </button>
                 </div>
