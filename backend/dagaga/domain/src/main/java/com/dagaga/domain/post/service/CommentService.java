@@ -13,68 +13,147 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
+
+import com.dagaga.domain.chat.translate.port.TranslationPort;
+import com.dagaga.domain.chat.language.repository.LanguageRepository;
+import com.dagaga.domain.chat.translate.port.TranslationResult;
+import com.dagaga.domain.post.entity.CommentTranslation;
+import com.dagaga.domain.post.repository.CommentTranslationRepository;
+import org.springframework.transaction.support.TransactionTemplate;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CommentService {
 
-        private final CommentRepository commentRepository;
-        private final com.dagaga.domain.user.repository.UserRepository userRepository;
+    private final CommentRepository commentRepository;
+    private final CommentTranslationRepository commentTranslationRepository;
+    private final com.dagaga.domain.user.repository.UserRepository userRepository;
+    private final LanguageRepository languageRepository;
+    private final TranslationPort translationPort;
+    private final TransactionTemplate transactionTemplate;
 
-        @Transactional
-        public void createComment(Integer postId, Integer userId, CommentCreateRequest request) {
-                Comment comment = Comment.builder()
-                                .postId(postId)
-                                .userId(userId)
-                                .parentCommentId(request.getParentCommentId())
-                                .content(request.getContent())
-                                .build();
-                commentRepository.save(comment);
+    public void createComment(Integer postId, Integer userId, CommentCreateRequest request) {
+        // Comment 저장
+        // 저장 -> 번역 -> 업데이트
+        
+        Comment comment = transactionTemplate.execute(status -> {
+            Comment newComment = Comment.builder()
+                    .postId(postId)
+                    .userId(userId)
+                    .parentCommentId(request.getParentCommentId())
+                    .content(request.getContent())
+                    .build();
+            return commentRepository.save(newComment);
+        });
+
+        if (comment == null) {
+            throw new RuntimeException("댓글 저장 실패");
         }
 
-        @Transactional(readOnly = true)
-        public List<CommentResponse> getComments(Integer postId) {
-                List<Comment> allComments = commentRepository.findAllByPostIdOrderByCreatedAtAsc(postId);
+        // 번역 (비동기 처리)
+        CompletableFuture.runAsync(() -> {
+            try {
+                List<String> targetLangs = languageRepository.findAllActiveLangCodes();
+                log.info("댓글 번역 대상 언어 목록: {}", targetLangs);
+                
+                if (!targetLangs.isEmpty()) {
+                    TranslationResult result = translationPort.detectAndTranslate(request.getContent(), targetLangs);
+                    log.info("번역 결과: 감지된 언어={}, 번역된 내용={}", result.getDetectedLanguage(), result.getTranslations());
 
-                if (allComments.isEmpty()) {
-                        return Collections.emptyList();
+                    // 번역 저장 & 원본 언어 업데이트
+                    transactionTemplate.executeWithoutResult(status -> {
+                        saveTranslationsAndOriginalLang(comment.getCommentId(), result);
+                    });
+                } else {
+                    log.warn("번역할 활성 언어를 찾을 수 없습니다.");
                 }
+            } catch (Exception e) {
+                log.error("댓글 번역 실패: ", e);
+            }
+        });
+    }
 
-                // 사용자 닉네임 일괄 조회
-                Set<Integer> userIds = allComments.stream()
-                                .map(Comment::getUserId)
-                                .collect(Collectors.toSet());
-
-                Map<Integer, String> nicknameMap = userRepository.findAllById(userIds).stream()
-                                .collect(Collectors.toMap(
-                                                com.dagaga.domain.user.entity.User::getUserId,
-                                                com.dagaga.domain.user.entity.User::getNickname,
-                                                (existing, replacement) -> existing));
-
-                // Group by parentId to build hierarchy
-                Map<Integer, List<Comment>> repliesMap = allComments.stream()
-                                .filter(c -> c.getParentCommentId() != null)
-                                .collect(Collectors.groupingBy(Comment::getParentCommentId));
-
-                return allComments.stream()
-                                .filter(c -> c.getParentCommentId() == null)
-                                .map(c -> convertToResponse(c, repliesMap, nicknameMap))
-                                .collect(Collectors.toList());
+    private void saveTranslationsAndOriginalLang(Integer commentId, TranslationResult result) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow();
+        
+        // 원본 언어 업데이트
+        String detectedLang = result.getDetectedLanguage();
+        if (detectedLang != null && !detectedLang.equals("unknown")) {
+             comment.updateOriginalLang(detectedLang); 
         }
 
-        private CommentResponse convertToResponse(Comment comment, Map<Integer, List<Comment>> repliesMap,
-                        Map<Integer, String> nicknameMap) {
-                List<CommentResponse> replies = repliesMap.getOrDefault(comment.getCommentId(), List.of()).stream()
-                                .map(r -> convertToResponse(r, repliesMap, nicknameMap))
-                                .collect(Collectors.toList());
+        result.getTranslations().forEach((lang, translatedText) -> {
+            CommentTranslation translation = CommentTranslation.builder()
+                    .comment(comment)
+                    .targetLang(lang)
+                    .translatedContent(translatedText)
+                    .build();
+            commentTranslationRepository.save(translation);
+        });
+    }
 
-                return CommentResponse.builder()
-                                .commentId(comment.getCommentId())
-                                .userId(comment.getUserId())
-                                .nickname(nicknameMap.getOrDefault(comment.getUserId(), "Unknown"))
-                                .content(comment.getContent())
-                                .createdAt(comment.getCreatedAt())
-                                .replies(replies)
-                                .build();
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getComments(Integer postId, Integer currentUserId, String viewLangCode) {
+        List<Comment> allComments = commentRepository.findAllByPostIdOrderByCreatedAtAsc(postId);
+
+        if (allComments.isEmpty()) {
+            return Collections.emptyList();
         }
+
+        // 사용자 닉네임 일괄 조회
+        Set<Integer> userIds = allComments.stream()
+                .map(Comment::getUserId)
+                .collect(Collectors.toSet());
+
+        Map<Integer, String> nicknameMap = userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(
+                        com.dagaga.domain.user.entity.User::getUserId,
+                        com.dagaga.domain.user.entity.User::getNickname,
+                        (existing, replacement) -> existing));
+
+        Map<Integer, List<Comment>> repliesMap = allComments.stream()
+                .filter(c -> c.getParentCommentId() != null)
+                .collect(Collectors.groupingBy(Comment::getParentCommentId));
+
+        return allComments.stream()
+                .filter(c -> c.getParentCommentId() == null)
+                .map(c -> convertToResponse(c, repliesMap, nicknameMap, currentUserId, viewLangCode))
+                .collect(Collectors.toList());
+    }
+
+    private CommentResponse convertToResponse(Comment comment, Map<Integer, List<Comment>> repliesMap,
+                                              Map<Integer, String> nicknameMap, Integer currentUserId, String viewLangCode) {
+        List<CommentResponse> replies = repliesMap.getOrDefault(comment.getCommentId(), List.of()).stream()
+                .map(r -> convertToResponse(r, repliesMap, nicknameMap, currentUserId, viewLangCode))
+                .collect(Collectors.toList());
+
+        String content = comment.getContent();
+        
+        // 내가 쓴 댓글이 아니어야 함
+        // viewLangCode가 있고
+        // 해당 언어로 된 번역이 존재해야 함
+        if (currentUserId != null && !currentUserId.equals(comment.getUserId())) {
+             String translatedText = comment.getTranslations().stream()
+                     .filter(t -> t.getTargetLang().equalsIgnoreCase(viewLangCode))
+                     .map(CommentTranslation::getTranslatedContent)
+                     .findFirst()
+                     .orElse(null);
+             
+             if (translatedText != null) {
+                 content = translatedText;
+             }
+        }
+
+        return CommentResponse.builder()
+                .commentId(comment.getCommentId())
+                .userId(comment.getUserId())
+                .nickname(nicknameMap.getOrDefault(comment.getUserId(), "Unknown"))
+                .content(content)
+                .createdAt(comment.getCreatedAt())
+                .replies(replies)
+                .build();
+    }
 }
