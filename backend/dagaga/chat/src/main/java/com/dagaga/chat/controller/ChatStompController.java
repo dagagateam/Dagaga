@@ -52,6 +52,7 @@ public class ChatStompController {
                     result.result().senderNickname(),
                     result.result().senderProfileImage(),
                     result.result().content(),
+                    result.result().originalContent(),
                     result.result().originalLang(),
                     result.result().sentAt(),
                     result.result().type()

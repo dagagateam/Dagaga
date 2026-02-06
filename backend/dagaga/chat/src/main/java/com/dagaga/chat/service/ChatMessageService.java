@@ -135,12 +135,13 @@ public class ChatMessageService {
         List<TargetedMessageResult> responses = new ArrayList<>();
 
         // 원문 언어 사용자용
-        ChatMessageResult originalPayload = new ChatMessageResult(
+                ChatMessageResult originalPayload = new ChatMessageResult(
                 savedResult.message().getMessageId(),
                 savedResult.message().getRoomId(),
                 savedResult.message().getSenderId(),
                 sender.getNickname(),
                 sender.getProfileImage(),
+                savedResult.message().getOriginalText(),
                 savedResult.message().getOriginalText(),
                 savedResult.message().getOriginalLang(),
                 savedResult.message().getSentAt().toString(),
@@ -158,6 +159,7 @@ public class ChatMessageService {
                         sender.getNickname(),
                         sender.getProfileImage(),
                         translation.getTranslatedText(),
+                        savedResult.message().getOriginalText(),
                         savedResult.message().getOriginalLang(),
                         savedResult.message().getSentAt().toString(),
                         "TALK");

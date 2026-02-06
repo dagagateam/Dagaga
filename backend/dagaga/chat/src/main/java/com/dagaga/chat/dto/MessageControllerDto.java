@@ -36,6 +36,7 @@ public class MessageControllerDto {
             String senderNickname,
             String senderProfileImage,
             String content, // 원문 또는 번역문
+            String originalContent,
             String originalLang,
             String sentAt,
             String type) { // TALK, LEAVE
@@ -64,6 +65,7 @@ public class MessageControllerDto {
                     senderNickname,
                     senderProfileImage,
                     content,
+                    message.getOriginalText(),
                     message.getOriginalLang(),
                     message.getSentAt().toString(),
                     "TALK");

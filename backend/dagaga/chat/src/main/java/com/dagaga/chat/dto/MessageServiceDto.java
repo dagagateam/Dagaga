@@ -26,6 +26,7 @@ public class MessageServiceDto {
                         String senderNickname,
                         String senderProfileImage,
                         String content,
+                        String originalContent,
                         String originalLang,
                         String sentAt,
                         String type) {
