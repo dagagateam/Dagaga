@@ -85,34 +85,36 @@ const MyPage = () => {
       </div>
 
       {/* Bottom Grid */}
-      <Row className="bottom-sections g-4">
-        <Col lg={4} md={12}>
-          <div className="section-title-wrapper mb-3">
-            <span className="section-badge">{t('my_chat_rooms')}</span>
-          </div>
-          <Card className="joined-chat-card">
-            <Card.Body className="joined-chat-body">
-              {joinedChats.length > 0 ? (
-                <>
-                  {joinedChats.map(chat => (
-                    <JoinedChatItem key={chat.id} chat={chat} />
-                  ))}
-                </>
-              ) : (
-                <div className="p-3 text-muted text-center">
-                  {t('no_joined_chats')}
-                </div>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={8} md={12}>
-          <div className="section-title-wrapper mb-3">
-            <span className="section-badge">{t('my_info_title')}</span>
-          </div>
-          <MyInfo />
-        </Col>
-      </Row>
+      <div>
+        <Row className="bottom-sections g-4">
+          <Col lg={4} md={12} className="d-flex flex-column">
+            <div className="section-title-wrapper mb-3">
+              <span className="section-badge">{t('my_chat_rooms')}</span>
+            </div>
+            <Card className="joined-chat-card">
+              <Card.Body className="joined-chat-body">
+                {joinedChats.length > 0 ? (
+                  <>
+                    {joinedChats.map(chat => (
+                      <JoinedChatItem key={chat.id} chat={chat} />
+                    ))}
+                  </>
+                ) : (
+                  <div className="p-3 text-muted text-center">
+                    {t('no_joined_chats')}
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col lg={8} md={12} className="d-flex flex-column">
+            <div className="section-title-wrapper mb-3">
+              <span className="section-badge">{t('my_info_title')}</span>
+            </div>
+            <MyInfo />
+          </Col>
+        </Row>
+      </div>
     </Container>
   );
 };

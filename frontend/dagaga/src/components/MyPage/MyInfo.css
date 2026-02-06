@@ -3,13 +3,15 @@
   border: none;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   background-color: white;
-  height: 100%;
-  min-height: 200px; 
+  flex: 1; /* Stretch to fill parent column */
+  overflow-x: hidden; /* Prevent horizontal scrollbar */
 }
 
 /* Fix collision with Bootstrap card-body padding */
 .my-info-card .card-body {
   padding: 15px; /* Unified padding */
+  display: flex;
+  flex-direction: column;
 }
 
 .my-info-header {
@@ -36,6 +38,9 @@
 
 .info-grid {
   padding: 0 5px 10px 5px; /* Reduced side padding within grid since card has padding */
+  margin-left: 0;
+  margin-right: 0;
+  flex: 1; /* Stretch grid to fill available space */
 }
 
 .info-item {
@@ -54,6 +59,8 @@
   font-size: 1.1rem;
   color: #222;
   font-weight: 600;
+  overflow-wrap: break-word;
+  word-break: break-all;
 }
 
 .email-value {
@@ -125,16 +132,16 @@
 /* Tablet Landscape (1024px) */
 @media (max-width: 1024px) {
   .my-info-card {
-    height: 240px; 
-    overflow-y: auto;
+    height: 100%; /* Match sibling stretched height */
+    overflow-y: visible;
   }
 }
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .my-info-card {
-    height: 160px; /* Reduced specific for mobile (from 200px/240px) */
-    overflow-y: auto;
+    height: 10rem;
+    overflow-y: visible;
   }
 
   .my-info-card .card-body {
