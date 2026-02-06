@@ -228,9 +228,9 @@ const Signup = () => {
         // 4. Duplicate Checks (API Call)
         // 실제로는 입력 시점(onBlur 등)에 체크하는 것이 좋지만 여기서는 가입 시점에 체크
         if (!newErrors.email) {
-           if (!isEmailVerified) {
-               newErrors.email = "이메일 인증을 완료해주세요.";
-           }
+            if (!isEmailVerified) {
+                newErrors.email = "이메일 인증을 완료해주세요.";
+            }
         }
 
         setErrors(newErrors);
@@ -304,16 +304,16 @@ const Signup = () => {
                                                 className={errors.email ? 'error-input' : ''}
                                                 disabled={isEmailVerified}
                                             />
-                                            <button 
-                                                type="button" 
-                                                className="check-btn" 
+                                            <button
+                                                type="button"
+                                                className="check-btn"
                                                 onClick={handleRequestVerification}
                                                 disabled={isEmailVerified}
                                             >
                                                 {isEmailVerified ? "인증 완료" : "인증하기"}
                                             </button>
                                         </div>
-                                        
+
                                         {showVerificationInput && (
                                             <div className="nickname-group" style={{ marginTop: '10px' }}>
                                                 <Input
@@ -339,7 +339,7 @@ const Signup = () => {
                                         <label>{t('display_language')} <span>*</span></label>
                                         <Select
                                             value={language}
-                                            options={['한국어', '중국어', '베트남어']}
+                                            options={['한국어', '中文', 'Tiếng Việt']}
                                             onChange={(val) => setLanguage(val)}
                                         />
                                     </div>
@@ -372,7 +372,7 @@ const Signup = () => {
                                         <label>{t('native_language')} <span>*</span></label>
                                         <Select
                                             value={formData.nativeLanguage}
-                                            options={['한국어', '중국어', '베트남어']}
+                                            options={['한국어', '中文', 'Tiếng Việt']}
                                             onChange={(val) => setFormData({ ...formData, nativeLanguage: val })}
                                         />
                                     </div>
@@ -391,7 +391,7 @@ const Signup = () => {
                                                 required
                                                 className={`form-control rounded-end-0 border-end-0 ${errors.password ? 'error-input' : ''}`}
                                             />
-                                             <PasswordToggleButton
+                                            <PasswordToggleButton
                                                 showPassword={showPassword}
                                                 onClick={() => setShowPassword(!showPassword)}
                                                 isError={!!errors.password}

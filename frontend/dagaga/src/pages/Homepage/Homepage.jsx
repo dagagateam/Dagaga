@@ -102,16 +102,16 @@ const Homepage = () => {
           image={learningImg}
         />
         <RouteCard
-          title={t('nav_community')}
-          body={t('community_comment_navcard')}
-          onClick={() => handleNavClick('/Community/Chat')}
-          image={chatImg}
-        />
-        <RouteCard
           title={t('info_navcard')}
           body={t('info_comment_navcard')}
           onClick={() => handleNavClick('/Community/Info')}
           image={infoImg}
+        />
+        <RouteCard
+          title={t('nav_community')}
+          body={t('community_comment_navcard')}
+          onClick={() => handleNavClick('/Community/Chat')}
+          image={chatImg}
         />
       </div>
     </div>

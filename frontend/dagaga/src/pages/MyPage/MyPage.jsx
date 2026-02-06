@@ -15,15 +15,20 @@ const MyPage = () => {
 
   useEffect(() => {
     fetchUser(); // Fetch latest user data when MyPage mounts
-    
+
     if (joinedChats.length === 0) {
       const loadChats = async () => {
         try {
           const response = await fetchJoinedChats();
           const joinedData = Array.isArray(response) ? response : response.data;
-          
+
           if (joinedData && Array.isArray(joinedData)) {
-            setJoinedChats(joinedData);
+            const mappedJoinedChats = joinedData.map(chat => ({
+              id: chat.roomId,
+              title: chat.title,
+              participantCount: chat.participantCount
+            }));
+            setJoinedChats(mappedJoinedChats);
           }
         } catch (error) {
           console.error("Failed to fetch chat rooms:", error);
@@ -40,14 +45,14 @@ const MyPage = () => {
       {/* Greeting Header */}
       <Card className="greeting-card mb-3">
         <Card.Body className="greeting-body">
-            <div key="profile" className="profile-circle">
-              <img 
-                src={user?.profileImage || stockProfile} 
-                alt="Profile" 
-                className="profile-img" 
-                onError={(e) => { e.target.onerror = null; e.target.src = stockProfile; }}
-              />
-            </div>
+          <div key="profile" className="profile-circle">
+            <img
+              src={user?.profileImage || stockProfile}
+              alt="Profile"
+              className="profile-img"
+              onError={(e) => { e.target.style.display = 'none' }}
+            />
+          </div>
           <h2 key="greeting" className="greeting-text">
             <strong>{t('hello_user', { name: userNickname })}</strong>
           </h2>
@@ -78,7 +83,7 @@ const MyPage = () => {
                 />
               ))
             ) : (
-               <div className="p-3 text-muted">{t('no_saved_info')}</div>
+              <div className="p-3 text-muted">{t('no_saved_info')}</div>
             )}
           </div>
         </div>
