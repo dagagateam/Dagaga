@@ -7,6 +7,7 @@ import com.dagaga.domain.post.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +25,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionSynchronization;
 import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.Executor;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +37,8 @@ public class CommentService {
     private final com.dagaga.domain.user.repository.UserRepository userRepository;
     private final LanguageRepository languageRepository;
     private final TranslationPort translationPort;
+    @Qualifier("translationExecutor")
+    private final Executor translationExecutor;
     private final TransactionTemplate transactionTemplate;
 
     public void createComment(Integer postId, Integer userId, CommentCreateRequest request) {
@@ -82,12 +86,12 @@ public class CommentService {
                 @Override
                 public void afterCommit() {
                     // 트랜잭션이 성공적으로 커밋된 후에만 실행되도록
-                    CompletableFuture.runAsync(translationTask);
+                    CompletableFuture.runAsync(translationTask, translationExecutor);
                 }
             });
         } else {
             // 트랜잭션이 없으면 바로 실행
-            CompletableFuture.runAsync(translationTask);
+            CompletableFuture.runAsync(translationTask, translationExecutor);
         }
     }
 
