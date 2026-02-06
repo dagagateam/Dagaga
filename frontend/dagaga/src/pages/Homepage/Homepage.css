@@ -45,6 +45,12 @@
   width: 100%;
 }
 
+.hero-tiger-mascot {
+  height: 200px;
+  width: auto;
+  margin-bottom: 5px; /* Slight spacing above the text */
+}
+
 .hero-static-text {
   font-size: 2rem;
   font-weight: 800;

@@ -17,7 +17,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 0 20px 20px; /* Increased top padding to clear Navbar */
+    padding-top: 80px;
     position: relative;
     overflow-y: auto; /* Allow scrolling if content is too tall */
 }
