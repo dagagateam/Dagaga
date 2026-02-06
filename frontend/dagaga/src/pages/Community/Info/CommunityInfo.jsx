@@ -88,7 +88,7 @@ const CommunityInfo = () => {
         (info.content && info.content.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-    if (loading) return <div className="text-center py-5">Loading...</div>;
+
 
     return (
         <div className="community-info-container">
