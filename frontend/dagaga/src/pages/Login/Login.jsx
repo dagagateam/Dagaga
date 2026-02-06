@@ -41,7 +41,7 @@ const Login = () => {
             const authResponse = await loginAPI(email, password);
 
             // DEBUG: 콘솔 로그
-            // console.log('✅ Login successful:', authResponse);
+            // console.log('✅ 로그인 성공:', authResponse);
 
             // 2. Store에 AuthResponse 저장 (토큰 + 사용자 정보)
             login(authResponse);
@@ -107,7 +107,6 @@ const Login = () => {
                                             showPassword={showPassword}
                                             onClick={() => setShowPassword(!showPassword)}
                                             className="bg-white border rounded-end-3 border-start-0"
-                                            style={{ borderColor: '#ddd' }}
                                         />
                                     </InputGroup>
                                 </div>
