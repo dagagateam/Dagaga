@@ -309,7 +309,9 @@ const ProblemNative = () => {
         )}
       </div>
       <div className="problem-answer-section">
-        <ProblemMascot />
+        <div className="problem-answer-mascot">
+          <ProblemMascot />
+        </div>
         <div className="problem-answer-content">
           <p className="problem-native-instruction">
             {t('native_answer_instruction')}
@@ -344,7 +346,9 @@ const ProblemNative = () => {
         )}
       </div>
       <div className="problem-answer-section">
-        <ProblemMascot />
+        <div className="problem-answer-mascot">
+          <ProblemMascot />
+        </div>
         <div className="problem-answer-content">
           <p className="problem-native-instruction">
             {t('translating')}
@@ -382,7 +386,9 @@ const ProblemNative = () => {
         )}
       </div>
       <div className="problem-answer-section">
-        <ProblemMascot />
+        <div className="problem-answer-mascot">
+          <ProblemMascot />
+        </div>
         <div className="problem-answer-content">
           <ProblemAnswer
             words={words}
