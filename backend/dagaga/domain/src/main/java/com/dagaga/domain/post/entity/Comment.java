@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.time.LocalDateTime;
 
 @Entity
@@ -37,6 +39,12 @@ public class Comment {
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentTranslation> translations = new ArrayList<>();
+
+    @Column(name = "original_lang")
+    private String originalLang;
+
     @PrePersist
     public void prePersist() {
         if (this.isDeleted == null) {
@@ -51,5 +59,13 @@ public class Comment {
         this.parentCommentId = parentCommentId;
         this.content = content;
         this.isDeleted = false;
+    }
+
+    public void addTranslation(CommentTranslation translation) {
+        this.translations.add(translation);
+    }
+
+    public void updateOriginalLang(String originalLang) {
+        this.originalLang = originalLang;
     }
 }

@@ -48,8 +48,21 @@ CREATE TABLE IF NOT EXISTS comments (
     user_id INT NOT NULL,
     parent_comment_id INT,
     content TEXT NOT NULL,
+    original_lang VARCHAR(10),
     is_deleted BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS comment_translations (
+  translation_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  comment_id INT NOT NULL,
+  target_lang VARCHAR(10) NOT NULL,
+  translated_content TEXT NOT NULL,
+  translated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT uq_comment_lang UNIQUE (comment_id, target_lang),
+  CONSTRAINT fk_comment_trans_comment
+    FOREIGN KEY (comment_id) REFERENCES comments(comment_id) ON DELETE CASCADE
 );
 
 -- 5. 주제별/지역별 채팅방 (최신 정의 병합)
@@ -86,8 +99,6 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     sender_id INT NOT NULL,
     original_text TEXT NOT NULL,         -- 원본 텍스트
     original_lang VARCHAR(10) NOT NULL,   -- 원본 언어
---    translated_text TEXT NOT NULL,       -- 번역된 텍스트
---    translated_lang VARCHAR(10) NOT NULL, -- 번역된 언어
     sent_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_msg_room FOREIGN KEY (room_id) REFERENCES chat_rooms(room_id) ON DELETE CASCADE,
     CONSTRAINT fk_msg_sender FOREIGN KEY (sender_id) REFERENCES users(user_id) ON DELETE SET NULL
