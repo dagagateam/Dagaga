@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatEventListener {
 
     private final ChatRoomService chatRoomService;
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     @EventListener
     @Transactional
@@ -39,13 +40,47 @@ public class ChatEventListener {
     public void handleUserRegistered(UserRegisteredEvent event) {
         log.info("유저 회원가입 이벤트 수신: userId={}, locationId={}", event.getUserId(), event.getLocationId());
 
+        if (event.getLocationId() == null) {
+            log.info("지역 정보가 없어 기본 채팅방 참여를 건너뜁니다.");
+            return;
+        }
+
         try {
             chatRoomService.joinDefaultRoom(event.getUserId(), event.getLocationId());
         } catch (Exception e) {
             log.error("신규 유저 기본 채팅방 참여 실패", e);
-            // Don't rethrow here to avoid failing registration if chat room join fails (as per original logic)
-            // Or maybe rethrow if strict consistency is needed. Original code logged error.
-            // "채팅방 참여 실패가 회원가입 전체 실패로 이어지지 않도록 로그만 남김"
+            throw e; 
         }
+    }
+
+    @EventListener
+    public void handleMessageSaved(ChatEvents.MessageSavedEvent event) {
+        log.info("메시지 저장 완료 이벤트 수신: roomId={}", event.roomId());
+        broadcast(event.originalResult(), event.roomId());
+    }
+
+    @EventListener
+    public void handleTranslationCompleted(ChatEvents.TranslationCompletedEvent event) {
+        log.info("번역 완료 이벤트 수신: roomId={}, count={}", event.roomId(), event.translatedResults().size());
+        event.translatedResults().forEach(result -> broadcast(result, event.roomId()));
+    }
+
+    private void broadcast(com.dagaga.chat.dto.MessageServiceDto.TargetedMessageResult result, Integer roomId) {
+        com.dagaga.chat.dto.MessageControllerDto.SendMessageResponse response = new com.dagaga.chat.dto.MessageControllerDto.SendMessageResponse(
+                result.result().messageId(),
+                result.result().roomId(),
+                result.result().senderId(),
+                result.result().senderNickname(),
+                result.result().senderProfileImage(),
+                result.result().content(),
+                result.result().originalContent(),
+                result.result().originalLang(),
+                result.result().sentAt(),
+                result.result().type()
+        );
+
+        messagingTemplate.convertAndSend(
+                "/sub/chat/rooms/" + roomId + "/" + result.targetLang(),
+                response);
     }
 }
