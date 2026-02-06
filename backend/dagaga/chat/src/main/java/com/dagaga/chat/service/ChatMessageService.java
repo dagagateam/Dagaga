@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.function.Function;
-
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 
 @Slf4j
 @Service
@@ -37,21 +37,22 @@ public class ChatMessageService {
     private final TranslationPort translationPort;
     private final ChatRoomService chatRoomService;
     private final TransactionTemplate transactionTemplate;
-
     private final UserRepository userRepository;
-
+    private final ApplicationEventPublisher eventPublisher;
     public ChatMessageService(ChatMessageRepository chatMessageRepository,
             LanguageRepository languageRepository,
             TranslationPort translationPort,
             ChatRoomService chatRoomService,
             TransactionTemplate transactionTemplate,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.chatMessageRepository = chatMessageRepository;
         this.languageRepository = languageRepository;
         this.translationPort = translationPort;
         this.chatRoomService = chatRoomService;
         this.transactionTemplate = transactionTemplate;
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public SaveMessageResult save(SaveMessageCommand cmd) {
@@ -120,7 +121,7 @@ public class ChatMessageService {
 
     }
 
-    public List<TargetedMessageResult> processAndReturnResponses(SaveMessageCommand cmd, Integer locationId) {
+    public void saveAndPublish(SaveMessageCommand cmd, Integer locationId) {
         // 사용자 조회
         User sender = userRepository.findById(cmd.senderId())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -128,44 +129,108 @@ public class ChatMessageService {
         // 지역 검증
         chatRoomService.getRoomAndValidateLocation(cmd.roomId(), locationId);
 
-        // 메시지 저장 (번역 포함)
-        SaveMessageResult savedResult = save(cmd);
+        // 원본 메시지 저장
+        ChatMessage savedMsg = transactionTemplate.execute(status -> {
+            ChatMessage newMsg = ChatMessage.create(
+                    cmd.roomId(),
+                    cmd.senderId(),
+                    cmd.originalText(),
+                    cmd.originalLang());
+            return chatMessageRepository.save(newMsg);
+        });
 
-        // 응답 생성
-        List<TargetedMessageResult> responses = new ArrayList<>();
+        if (savedMsg == null) throw new RuntimeException("메시지 저장 실패");
 
-        // 원문 언어 사용자용
+        // 원본 메시지 이벤트 발행
         ChatMessageResult originalPayload = new ChatMessageResult(
-                savedResult.message().getMessageId(),
-                savedResult.message().getRoomId(),
-                savedResult.message().getSenderId(),
+                savedMsg.getMessageId(),
+                savedMsg.getRoomId(),
+                savedMsg.getSenderId(),
                 sender.getNickname(),
                 sender.getProfileImage(),
-                savedResult.message().getOriginalText(),
-                savedResult.message().getOriginalLang(),
-                savedResult.message().getSentAt().toString(),
+                savedMsg.getOriginalText(),
+                savedMsg.getOriginalText(),
+                savedMsg.getOriginalLang(),
+                savedMsg.getSentAt().toString(),
                 "TALK");
 
-        responses.add(new TargetedMessageResult(savedResult.message().getOriginalLang(), originalPayload));
+        TargetedMessageResult originalResult = new TargetedMessageResult(savedMsg.getOriginalLang(), originalPayload);
+        eventPublisher.publishEvent(new com.dagaga.chat.event.ChatEvents.MessageSavedEvent(originalResult, savedMsg.getOriginalText(), savedMsg.getRoomId()));
+    }
 
-        // 번역 언어 사용자용
-        if (savedResult.translations() != null) {
-            savedResult.translations().forEach(translation -> {
-                ChatMessageResult translatedPayload = new ChatMessageResult(
-                        savedResult.message().getMessageId(),
-                        savedResult.message().getRoomId(),
-                        savedResult.message().getSenderId(),
-                        sender.getNickname(),
-                        sender.getProfileImage(),
-                        translation.getTranslatedText(),
-                        savedResult.message().getOriginalLang(),
-                        savedResult.message().getSentAt().toString(),
-                        "TALK");
-                responses.add(new TargetedMessageResult(translation.getTargetLang(), translatedPayload));
-            });
+    // 비동기 번역 처리
+    public void processTranslationAndPublish(Long messageId, Integer senderId) {
+        ChatMessage msg = chatMessageRepository.findById(messageId).orElse(null);
+        User sender = userRepository.findById(senderId).orElse(null);
+
+        if (msg == null || sender == null) {
+            log.warn("메시지 또는 발신자를 찾을 수 없어 번역을 건너뜁니다. msgId={}, senderId={}", messageId, senderId);
+            return;
         }
 
-        return responses;
+        List<String> targetLangs = languageRepository.findAllActiveLangCodes();
+        if (targetLangs.isEmpty()) return;
+
+        try {
+            // 번역 수행
+            TranslationResult translationResult = translationPort.detectAndTranslate(msg.getOriginalText(), targetLangs);
+
+            // 번역 저장 (트랜잭션)
+            transactionTemplate.executeWithoutResult(status -> saveTranslations(msg.getMessageId(), translationResult));
+            
+            ChatMessage updatedMsg = chatMessageRepository.findById(msg.getMessageId()).orElse(msg);
+
+            // 번역 결과 이벤트 발행
+            List<TargetedMessageResult> translatedResults = new ArrayList<>();
+            translationResult.getTranslations().forEach((lang, translatedText) -> {
+                // 원본 언어(감지된 언어)와 같으면 제외
+                if (!lang.equalsIgnoreCase(updatedMsg.getOriginalLang())) {
+                    ChatMessageResult translatedPayload = new ChatMessageResult(
+                            updatedMsg.getMessageId(),
+                            updatedMsg.getRoomId(),
+                            updatedMsg.getSenderId(),
+                            sender.getNickname(),
+                            sender.getProfileImage(),
+                            translatedText,
+                            updatedMsg.getOriginalText(),
+                            updatedMsg.getOriginalLang(),
+                            updatedMsg.getSentAt().toString(),
+                            "TALK");
+                    translatedResults.add(new TargetedMessageResult(lang, translatedPayload));
+                }
+            });
+
+            if (!translatedResults.isEmpty()) {
+                eventPublisher.publishEvent(new com.dagaga.chat.event.ChatEvents.TranslationCompletedEvent(translatedResults, updatedMsg.getRoomId()));
+            }
+
+        } catch (Exception e) {
+            log.error("비동기 번역 처리 중 오류 발생. 원문으로 Fallback 처리합니다.", e);
+            
+            // Fallback: 번역 실패 시 원문으로 브로드캐스팅
+            List<TargetedMessageResult> fallbackResults = new ArrayList<>();
+            targetLangs.forEach(lang -> {
+                // 원본 언어와 같으면 제외
+                if (!lang.equalsIgnoreCase(msg.getOriginalLang())) {
+                    ChatMessageResult fallbackPayload = new ChatMessageResult(
+                            msg.getMessageId(),
+                            msg.getRoomId(),
+                            msg.getSenderId(),
+                            sender.getNickname(),
+                            sender.getProfileImage(),
+                            msg.getOriginalText(),
+                            msg.getOriginalText(),
+                            msg.getOriginalLang(),
+                            msg.getSentAt().toString(),
+                            "TALK");
+                    fallbackResults.add(new TargetedMessageResult(lang, fallbackPayload));
+                }
+            });
+
+            if (!fallbackResults.isEmpty()) {
+                eventPublisher.publishEvent(new com.dagaga.chat.event.ChatEvents.TranslationCompletedEvent(fallbackResults, msg.getRoomId()));
+            }
+        }
     }
 
     @Transactional(readOnly = true)
@@ -198,8 +263,9 @@ public class ChatMessageService {
                     boolean isTranslated = false;
                     String content = msg.getOriginalText();
 
-                    // 원문 언어가 사용자의 모국어와 다르면 번역본 찾기
-                    if (!msg.getOriginalLang().equalsIgnoreCase(userNativeLangCode)) {
+                    // 원문 언어가 사용자의 모국어와 다르고, 원문 언어가 unknown이 아니면 번역본 찾기
+                    if (!msg.getOriginalLang().equalsIgnoreCase(userNativeLangCode) 
+                            && !"unknown".equalsIgnoreCase(msg.getOriginalLang())) {
                         String translatedText = msg.getTranslations().stream()
                                 .filter(t -> t.getTargetLang().equalsIgnoreCase(userNativeLangCode))
                                 .map(MessageTranslation::getTranslatedText)
