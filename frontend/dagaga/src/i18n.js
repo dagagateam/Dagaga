@@ -363,23 +363,21 @@ const resources = {
       "scenario_tag": "学习内容",
       "scenario_items": {
         "학업": [
-          "心理导入 (分类调整及整体评估)",
-          "情绪及生活习惯 (特质确认)",
-          "朋友关系 (父母了解的社会性)",
-          "学习态度及环境",
-          "媒体使用及指导方向"
+          "学校适应情况与人际关系",
+          "家庭学习态度与生活习惯",
+          "情绪状态与青春期征兆",
+          "升学意愿与教师注意事项",
         ],
         "자기소개": [
-          "姓名和年龄",
-          "喜欢的事物",
-          "兴趣",
-          "特长"
+          "基本个人信息介绍",
+          "表达韩语能力",
+          "表达学习意愿与自信 ",
         ],
         "의료": [
-          "说明症状 (描述疼痛部位)",
-          "与医生沟通 (接受诊疗)",
-          "领取处方药 (使用药店)",
-          "健康管理 (生活守则)"
+          "症状发生时间与疼痛描述",
+          "既往病史与过敏信息",
+          "正在服用的药物与副作用",
+          "用药方法与注意事项"
         ]
       },
       "scenario_problems": {
@@ -586,23 +584,21 @@ const resources = {
       "scenario_tag": "Nội dung học tập",
       "scenario_items": {
         "학업": [
-          "Giới thiệu tâm lý",
-          "Cảm xúc & Thói quen",
-          "Quan hệ bạn bè",
-          "Thái độ học tập",
-          "Sử dụng thiết bị & Hướng dẫn"
+          "Thích nghi với trường lớp & Quan hệ bạn bè",
+          "Thái độ học tập & Thói quen sinh hoạt",
+          "Trạng thái cảm xúc & Dấu hiệu dậy thì",
+          "Nguyện vọng nghề nghiệp & Lưu ý cho giáo viên"
         ],
         "자기소개": [
-          "Tên và tuổi",
-          "Những điều yêu thích",
-          "Sở thích",
-          "Năng khiếu"
+          "Thông tin cá nhân cơ bản",
+          "Trình độ tiếng Hàn hiện tại",
+          "Thể hiện quyết tâm & Sự tự tin"
         ],
         "의료": [
-          "Mô tả triệu chứng",
-          "Trò chuyện với bác sĩ",
-          "Nhận đơn thuốc",
-          "Quản lý sức khỏe"
+          "Thời điểm phát bệnh & Mô tả cơn đau",
+          "Tiền sử bệnh & Dị ứng",
+          "Thuốc đang dùng & Tác dụng phụ",
+          "Cách dùng thuốc & Lưu ý",
         ]
       },
       "scenario_problems": {
