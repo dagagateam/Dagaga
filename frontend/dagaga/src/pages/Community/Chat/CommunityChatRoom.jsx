@@ -491,11 +491,26 @@ const CommunityChatRoom = () => {
                                             <EmojiPicker onEmojiClick={onEmojiClick} width={300} height={400} />
                                         </div>
                                     )}
-                                    <input
-                                        type="text"
+                                    <textarea
+                                        rows={1}
                                         placeholder={t('send_msg')}
                                         value={message}
-                                        onChange={(e) => setMessage(e.target.value)}
+                                        onChange={(e) => {
+                                            setMessage(e.target.value);
+                                            e.target.style.height = 'auto'; // Reset height
+                                            e.target.style.height = `${e.target.scrollHeight}px`; // Set new height
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                handleSendMessage(e);
+                                                e.target.style.height = 'auto'; // Reset height after send
+                                            }
+                                        }}
+                                        style={{
+                                            resize: 'none',
+                                            overflowY: message.split('\n').length > 3 || (document.querySelector('.chat-input-area textarea') && document.querySelector('.chat-input-area textarea').scrollHeight > 80) ? 'auto' : 'hidden'
+                                        }}
                                     />
                                     <div className="input-actions">
                                         <button type="button" className="emoji-btn" style={{ fontSize: '1.5rem', marginRight: '10px' }} onClick={() => setShowEmojiPicker(!showEmojiPicker)}>☺</button>
