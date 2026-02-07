@@ -60,10 +60,12 @@ class ProgramPostControllerTest {
     void getProgramPosts_Success() throws Exception {
         // given
         Integer locationId = 1;
+        String viewLangCode = "ko";
         given(currentUser.getLocationId()).willReturn(locationId);
+        given(currentUser.getViewLangCode()).willReturn(viewLangCode);
 
         Page<ProgramPostResponse> responsePage = Page.empty();
-        given(programPostService.getProgramPosts(eq(locationId), any(Pageable.class))).willReturn(responsePage);
+        given(programPostService.getProgramPosts(eq(locationId), eq(viewLangCode), any(Pageable.class))).willReturn(responsePage);
 
         // when & then
         mockMvc.perform(get("/api/v1/community/programs")
@@ -80,6 +82,9 @@ class ProgramPostControllerTest {
     void getProgramPostDetail_Success() throws Exception {
         // given
         Integer postId = 1;
+        String viewLangCode = "ko";
+        given(currentUser.getViewLangCode()).willReturn(viewLangCode);
+        
         ProgramPostDetailResponse response = ProgramPostDetailResponse.builder()
                 .postId(postId)
                 .category("PROGRAM")
@@ -90,7 +95,7 @@ class ProgramPostControllerTest {
                 .imageUrls(List.of("http://image1.jpg", "http://image2.jpg"))
                 .build();
 
-        given(programPostService.getProgramPostDetail(postId)).willReturn(response);
+        given(programPostService.getProgramPostDetail(postId, viewLangCode)).willReturn(response);
 
         // when & then
         mockMvc.perform(get("/api/v1/community/programs/{postId}", postId)
