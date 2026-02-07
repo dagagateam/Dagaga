@@ -1,7 +1,7 @@
 .navbar {
   display: flex;
   align-items: center;
-  padding: 1.2rem 2rem;
+  padding: 1.5rem 2rem;
   background-color: transparent !important;
   font-family: var(--main-font);
   position: relative;
@@ -51,22 +51,25 @@
 .user-nickname {
   font-family: var(--main-font);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   color: #333; /* Orange -> Dark text */
-  padding: 5px 15px; /* Re-add padding for border */
+  padding: 0; /* p-0 */
   background-color: transparent;
-  border-radius: 10px; /* Slight curvature as requested */
-  border: 1px solid #333; /* Requested border color */
+  border-radius: 0; 
+  border: none; /* Removed border as requested */
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  letter-spacing: 0.15em; /* Match nav-link */
 }
 
 .user-nickname:hover {
+  color: #000;
+  font-weight: 700;
   background-color: transparent;
-  opacity: 0.7;
+  opacity: 1;
 }
 
 .user-profile-img-wrapper {

@@ -108,6 +108,7 @@ const resources = {
 
       // 채팅방
       "chat_room_leave": "나가기",
+      "chat_room_delete": "삭제하기",
       "send_msg": "메세지 보내기",
       "search_chat_name": "채팅방 이름을 검색하세요",
       "chat_room": "채팅방",
@@ -338,6 +339,7 @@ const resources = {
       "person_count": "人",
       "local_chat_room": "社区群聊",
       "chat_room_leave": "退出",
+      "chat_room_delete": "删除",
       "send_msg": "发送信件",
       "search_chat_name": "请搜索一下聊天室的名字",
       "chat_room": "聊天室",
@@ -560,6 +562,7 @@ const resources = {
       "person_count": "người",
       "local_chat_room": "Phòng chat nhóm địa phương",
       "chat_room_leave": "ra ngoài",
+      "chat_room_delete": "Xóa",
       "send_msg": "Gửi tin nhắn",
       "search_chat_name": "Các bạn search tên phòng chat thử đi",
       "chat_room": "Phòng chat",

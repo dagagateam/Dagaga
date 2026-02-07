@@ -155,6 +155,21 @@ export const leaveChatRoom = async (roomId) => {
     }
 };
 
+/**
+ * Delete a chat room (Creator only).
+ * @param {number} roomId - The chat room ID.
+ * @returns {Promise<Object>} - Delete result.
+ */
+export const deleteChatRoom = async (roomId) => {
+    try {
+        const response = await instance.delete(`/community/chats/${roomId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to delete chat room:', error);
+        throw error;
+    }
+};
+
 
 
 

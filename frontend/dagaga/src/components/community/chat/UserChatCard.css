@@ -1,17 +1,23 @@
 .user-chat-card {
     background: white;
     border-radius: 20px;
-    padding: 12px; /* Further reduced padding */
+    padding: 12px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
-    width: 220px;
-    height: 190px; /* Reduced to 190px */
+    width: 220px; /* Base width for Korean etc. */
+    height: 190px;
     min-width: 220px;
     position: relative;
     justify-content: space-between;
     transition: transform 0.2s;
     overflow: hidden;
+}
+
+/* Vietnamese-specific width adjustment */
+.user-chat-card.lang-vi {
+    width: 260px;
+    min-width: 260px;
 }
 
 .user-chat-card:hover {
@@ -23,7 +29,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 3px; /* Reduced margin */
+    margin-bottom: 3px;
 }
 
 .creator-avatar {
@@ -45,7 +51,7 @@
     font-size: 1.15rem;
     font-weight: 800;
     color: #111;
-    margin: 3px 0 5px; /* Tighter margins */
+    margin: 3px 0 5px;
     line-height: 1.2;
     word-break: keep-all;
     text-align: left;
@@ -61,14 +67,14 @@
     align-items: center;
     justify-content: space-between;
     gap: 5px;
-    margin-bottom: 3px; /* Tighter footer */
+    margin-bottom: 3px;
 }
 
 .user-join-btn {
     background-color: var(--main-orange);
     color: white;
     border: none;
-    padding: 8px 16px; /* Smaller button */
+    padding: 8px 16px;
     border-radius: 10px;
     font-size: 0.9rem;
     font-weight: 800;
@@ -76,6 +82,7 @@
     box-shadow: 0 3px 8px rgba(255, 165, 0, 0.3);
     transition: background-color 0.2s;
     letter-spacing: -0.5px;
+    white-space: nowrap; /* Prevent wrapping */
 }
 
 .user-join-btn:hover {
@@ -92,6 +99,7 @@
     font-size: 0.85rem;
     color: #888;
     font-weight: 500;
+    white-space: nowrap; /* Prevent wrapping */
 }
 
 /* Mobile Responsiveness */
@@ -106,8 +114,9 @@
 
     .user-chat-card {
         height: auto;
-        min-height: 80px; /* More compact */
+        min-height: 80px;
         padding: 10px;
+        /* Allow width flexibility on mobile if needed, or keep fixed */
     }
 
     .chat-title {

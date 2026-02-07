@@ -11,6 +11,8 @@ import { useUserStore } from '../../../store/userStore';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import stockProfile from '../../../assets/icons/stock_profile.jpg';
+// import exitIcon from '../../../assets/icons/exit_icon.png'; // Removed as unused
+import { deleteChatRoom } from '../../../api/communityApi';
 
 const CommunityChatRoom = () => {
     const { t } = useTranslation();
@@ -24,6 +26,8 @@ const CommunityChatRoom = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [messages, setMessages] = useState([]);
+    const [showMenu, setShowMenu] = useState(false); // Menu dropdown state
+    const menuRef = React.useRef(null);
     const stompClient = React.useRef(null);
 
 
@@ -79,13 +83,18 @@ const CommunityChatRoom = () => {
             ) {
                 setShowEmojiPicker(false);
             }
+            
+            // Close menu if clicked outside
+            if (showMenu && menuRef.current && !menuRef.current.contains(event.target)) {
+                setShowMenu(false);
+            }
         };
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [showEmojiPicker]);
+    }, [showEmojiPicker, showMenu]);
 
     // WebSocket Connection
     useEffect(() => {
@@ -187,10 +196,20 @@ const CommunityChatRoom = () => {
                         // Set current room info
                         const currentRoom = joinedData.find(chat => parseInt(id) === chat.roomId);
                         if (currentRoom) {
+                            console.log('Current Room Info:', currentRoom);
+                            console.log('Current User Info:', user);
+                            
+                            // Try to find creator ID from various possible fields
+                            const creatorId = currentRoom.creatorId || currentRoom.hostId || currentRoom.userId;
+
                             setCurrentRoomInfo({
                                 title: currentRoom.title,
                                 creatorNickname: currentRoom.creatorNickname,
-                                participantCount: currentRoom.participantCount
+                                participantCount: currentRoom.participantCount,
+                                creatorId: creatorId,
+                                // Fallback: If ID is missing, try matching nickname (less secure but works for UI)
+                                isCreator: (creatorId && creatorId === user?.userId) || 
+                                          (currentRoom.creatorNickname && currentRoom.creatorNickname === user?.nickname)
                             });
                         }
                     }
@@ -200,7 +219,7 @@ const CommunityChatRoom = () => {
             }
         };
         loadJoinedChats();
-    }, [user?.userId, id]);
+    }, [user?.userId, user?.nickname, id]); // Added user.nickname dependency
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
@@ -259,10 +278,21 @@ const CommunityChatRoom = () => {
         if (window.confirm(t('confirm_leave_chat'))) {
             try {
                 await leaveChatRoom(id);
-                // 성공 시 이동 (WebSocket 해제는 useEffect cleanup에서 처리됨)
                 navigate('/community/chat');
             } catch (error) {
                 alert('채팅방 나가기에 실패했습니다.');
+                console.error(error);
+            }
+        }
+    };
+
+    const handleDeleteChat = async () => {
+        if (window.confirm('정말 이 채팅방을 삭제하시겠습니까? 모든 대화 내용이 사라집니다.')) {
+            try {
+                await deleteChatRoom(id);
+                navigate('/community/chat');
+            } catch (error) {
+                alert('채팅방 삭제에 실패했습니다.');
                 console.error(error);
             }
         }
@@ -347,10 +377,27 @@ const CommunityChatRoom = () => {
                                     <div className="header-user-status">{t('room_manager')}👑</div>
                                 </div>
                             </div>
-                            <div style={{ position: 'relative' }}>
-                                <button className="leave-chat-btn" onClick={handleLeaveChat}>
-                                    {t('chat_room_leave')}
+                            <div style={{ position: 'relative' }} ref={menuRef}>
+                                <button 
+                                    className="menu-btn" 
+                                    onClick={() => setShowMenu(!showMenu)} 
+                                    title="메뉴"
+                                >
+                                    &#8942; {/* Vertical Ellipsis */}
                                 </button>
+                                {showMenu && (
+                                    <div className="chat-menu-dropdown">
+                                        <button onClick={handleLeaveChat} className="menu-item">
+                                            {t('chat_room_leave')}
+                                        </button>
+                                        {/* Show delete button if isCreator is true */}
+                                        {currentRoomInfo?.isCreator && (
+                                            <button onClick={handleDeleteChat} className="menu-item delete-item">
+                                                {t('chat_room_delete')}
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -389,16 +436,11 @@ const CommunityChatRoom = () => {
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                             />
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                style={{ display: 'none' }}
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                            />
                             <div className="input-actions">
-                                <button type="button" className="attach-btn" onClick={handleClipClick}>📎</button>
-                                <button ref={emojiBtnRef} type="button" className="emoji-btn" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>☺</button>
+                                <button type="button" className="emoji-btn" style={{ fontSize: '1.5rem', marginRight: '10px' }} onClick={() => setShowEmojiPicker(!showEmojiPicker)}>☺</button>
+                                <button type="submit" className="send-btn">
+                                    ➤
+                                </button>
                             </div>
                         </form>
                     </div>
