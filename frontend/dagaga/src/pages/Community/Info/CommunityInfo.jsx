@@ -12,6 +12,8 @@ import { formatPeriod } from '../../../utils/dateUtils';
 
 import { useUserStore } from '../../../store/userStore';
 import LocationBadge from '../../../components/common/LocationBadge';
+import ImageWithPlaceholder from '../../../components/common/ImageWithPlaceholder';
+import LoadingSpinner from '../../../components/common/LoadingSpinner';
 
 const CommunityInfo = () => {
     const { t } = useTranslation();
@@ -37,7 +39,7 @@ const CommunityInfo = () => {
     };
 
     useEffect(() => {
-        const regionName = user?.locationId ? getLocationName(user.locationId) : '지역 설정 필요';
+        const regionName = user?.locationId ? getLocationName(user.locationId) : t('region_setup_needed');
         setUserRegion(regionName);
 
         const loadData = async () => {
@@ -58,8 +60,8 @@ const CommunityInfo = () => {
 
                     return {
                         id: post.postId,
-                        title: post.title || "제목 없음",
-                        orgName: "다가가정보지원", // 고정값
+                        title: post.title || t('no_title'),
+                        orgName: t('dagaga_support'), // 고정값
                         content: content,
                         applicationPeriod: formatPeriod(post.regStartDate, post.regEndDate),
                         progressPeriod: progressPeriod,
@@ -109,7 +111,10 @@ const CommunityInfo = () => {
                     </div>
                 </div>
 
-                <div className="info-list">
+                {loading ? (
+                    <LoadingSpinner />
+                ) : (
+                    <div className="info-list">
                     {filteredInfos.length > 0 ? (
                         filteredInfos.map((info) => {
                             const isLiked = likedPostIds.includes(info.id);
@@ -119,7 +124,7 @@ const CommunityInfo = () => {
                                 <Card key={info.id} className="info-card" onClick={() => navigate(`/Community/Info/${info.id}`)} style={{ cursor: 'pointer' }}>
                                     <div className="info-card-inner">
                                         <div className="info-img-wrapper">
-                                            <img src={info.image} alt={info.title} />
+                                            <ImageWithPlaceholder src={info.image} alt={info.title} />
                                             {info.isExpired && (
                                                 <div className="expired-overlay">
                                                     <span>{t('deadline')}</span>
@@ -169,6 +174,7 @@ const CommunityInfo = () => {
                         </div>
                     )}
                 </div>
+                )}
             </Container>
         </div>
     );

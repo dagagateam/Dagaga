@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import { fetchCommunityInfo, fetchCommunityInfoDetail, createComment, fetchComments } from '../../../api/communityApi';
@@ -10,6 +10,8 @@ import bookmarkedIcon from '../../../assets/icons/bookmark.png';
 import unbookmarkIcon from '../../../assets/icons/unbookmark.png';
 import stockProfile from '../../../assets/icons/stock_profile.jpg';
 import { formatPeriod } from '../../../utils/dateUtils';
+import ImageWithPlaceholder from '../../../components/common/ImageWithPlaceholder';
+import LoadingSpinner from '../../../components/common/LoadingSpinner';
 
 
 const CommunityInfoDetail = () => {
@@ -71,8 +73,8 @@ const CommunityInfoDetail = () => {
 
                     setInfo({
                         id: data.postId,
-                        title: data.title || "제목 없음",
-                        orgName: "다가가정보지원", // 고정값
+                        title: data.title || t('no_title'),
+                        orgName: t('dagaga_support'), // 고정값
                         content: data.content,
                         image: data.imageUrls?.[0] || 'https://via.placeholder.com/600x800/F8B15E/FFFFFF?text=No+Image',
                         contact: data.contact || "",
@@ -101,6 +103,8 @@ const CommunityInfoDetail = () => {
         e.preventDefault();
         if (!comment.trim()) return;
 
+
+
         if (!isLoggedIn || !user) {
             alert(t('login_required_service'));
             navigate('/login');
@@ -119,7 +123,8 @@ const CommunityInfoDetail = () => {
             setReplyingTo(null); // 답글 모드 종료
         } catch (error) {
             console.error("댓글 작성 실패:", error);
-            alert("댓글 작성에 실패했습니다.");
+            const errorMsg = error.response?.data?.message || 'comment_write_failed';
+            alert(t(errorMsg));
         }
     };
 
@@ -165,7 +170,7 @@ const CommunityInfoDetail = () => {
         ));
     };
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <LoadingSpinner />;
     if (!info) return <div>Data not found</div>;
 
     return (
@@ -179,7 +184,7 @@ const CommunityInfoDetail = () => {
                 <div className="detail-card">
                     {/* Left Side: Image */}
                     <div className="detail-left">
-                        <img src={info.image} alt={info.title} className="detail-poster" />
+                        <ImageWithPlaceholder src={info.image} alt={info.title} className="detail-poster" />
                     </div>
 
                     {/* Right Side: Content */}
@@ -224,7 +229,7 @@ const CommunityInfoDetail = () => {
                             {replyingTo && (
                                 <div className="replying-indicator">
                                     <span>
-                                        <span className="replying-to-text">@{replyingTo.user}</span> 님에게 답글 작성 중
+                                        <Trans i18nKey="replying_to_user" values={{ user: replyingTo.user }} components={{ span: <span className="replying-to-text" /> }} />
                                     </span>
                                     <button className="cancel-reply-btn" onClick={handleCancelReply}>&times;</button>
                                 </div>
