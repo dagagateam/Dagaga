@@ -166,7 +166,7 @@ const CommunityChatRoom = () => {
                     if (message.body) {
                         try {
                             const receivedMsg = JSON.parse(message.body);
-                            console.log('Received message:', receivedMsg);
+                            // console.log('Received message:', receivedMsg);
 
                             const newMsg = {
                                 id: receivedMsg.messageId,
