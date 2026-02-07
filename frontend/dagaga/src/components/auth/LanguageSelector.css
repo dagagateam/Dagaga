@@ -9,6 +9,10 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
+    white-space: nowrap; /* Prevent text wrapping */
+    width: auto !important; /* Allow width to grow with content */
+    min-width: 110px; /* Ensure minimum width */
+    justify-content: space-between; /* Space out text and caret */
 }
 
 .lang-btn span {

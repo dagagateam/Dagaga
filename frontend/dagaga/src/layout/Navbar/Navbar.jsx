@@ -3,7 +3,7 @@ import {
   Nav,
   Container,
 } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import logo from "../../assets/icons/logo.png";
 import "./Navbar.css";
@@ -16,6 +16,7 @@ import stockProfile from "../../assets/icons/stock_profile.jpg";
 const Navbar = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoggedIn, user, logout } = useUserStore();
 
   const handleLogout = async () => {
@@ -102,12 +103,37 @@ const Navbar = () => {
         )}
         {!isLoggedIn && (
           <div className="ms-auto d-flex align-items-center" style={{ gap: '15px' }}>
-            <button
-              className="logout-btn"
-              onClick={() => navigate('/Login')}
-            >
-              {t('login')}
-            </button>
+            {location.pathname === '/Login' ? (
+              <button
+                className="logout-btn"
+                onClick={() => navigate('/Signup')}
+              >
+                {t('signup')}
+              </button>
+            ) : location.pathname === '/Signup' ? (
+              <button
+                className="logout-btn"
+                onClick={() => navigate('/Login')}
+              >
+                {t('login')}
+              </button>
+            ) : (
+              <div className="d-flex align-items-center gap-2">
+                <button
+                  className="logout-btn m-0"
+                  onClick={() => navigate('/Login')}
+                >
+                  {t('login')}
+                </button>
+                <span className="text-secondary">/</span>
+                <button
+                  className="logout-btn m-0"
+                  onClick={() => navigate('/Signup')}
+                >
+                  {t('signup')}
+                </button>
+              </div>
+            )}
             <LanguageSelector />
           </div>
         )}

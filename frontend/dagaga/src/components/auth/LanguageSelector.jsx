@@ -29,20 +29,20 @@ const LanguageSelector = () => {
     };
 
     return (
-        <Dropdown className="lang-dropdown">
+        <Dropdown className="lang-dropdown" align="end">
             <Dropdown.Toggle variant="light" id="dropdown-basic" className="lang-btn">
                 <span>{getFlag(language)} {getLabel(language)}</span>
             </Dropdown.Toggle>
 
             <Dropdown.Menu className="custom-dropdown-menu">
                 <Dropdown.Item onClick={() => setLanguage('ko')}>
-                    <img src="https://flagcdn.com/w20/kr.png" alt="kr" className="flag-icon-sm" /> 한국어 (KR)
+                    <img src="https://flagcdn.com/w20/kr.png" alt="kr" className="flag-icon-sm" /> 한국어
                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => setLanguage('zh')}>
-                    <img src="https://flagcdn.com/w20/cn.png" alt="cn" className="flag-icon-sm" /> 中文 (CN)
+                    <img src="https://flagcdn.com/w20/cn.png" alt="cn" className="flag-icon-sm" /> 中文
                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => setLanguage('vi')}>
-                    <img src="https://flagcdn.com/w20/vn.png" alt="vn" className="flag-icon-sm" /> Tiếng Việt (VN)
+                    <img src="https://flagcdn.com/w20/vn.png" alt="vn" className="flag-icon-sm" /> Tiếng Việt
                 </Dropdown.Item>
             </Dropdown.Menu>
         </Dropdown>
