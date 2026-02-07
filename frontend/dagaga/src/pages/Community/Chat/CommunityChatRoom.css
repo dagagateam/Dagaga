@@ -331,7 +331,6 @@
     display: flex;
     gap: 10px;
     align-self: flex-end; /* Keep buttons at the bottom */
-    padding-bottom: 5px; /* Add some padding if needed for alignment */
 }
 
 .input-actions button {

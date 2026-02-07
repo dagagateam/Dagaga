@@ -260,6 +260,12 @@ const CommunityChatRoom = () => {
                     })
                 });
                 setMessage('');
+                
+                // Reset textarea height
+                if (document.querySelector('.chat-input-area textarea')) {
+                    document.querySelector('.chat-input-area textarea').style.height = 'auto';
+                }
+                
                 // 메시지는 구독 콜백을 통해 UI에 추가됨
             } catch (error) {
                 console.error('Failed to send message via STOMP:', error);
