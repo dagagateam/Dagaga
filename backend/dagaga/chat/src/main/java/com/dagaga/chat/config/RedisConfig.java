@@ -1,6 +1,7 @@
 package com.dagaga.chat.config;
 
 import com.dagaga.chat.service.RedisSubscriber;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,16 +11,21 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.beans.factory.annotation.Value;
 
 @Configuration("chatRedisConfig")
 @RequiredArgsConstructor
 public class RedisConfig {
 
     private final RedisSubscriber redisSubscriber;
+    private final ObjectMapper objectMapper;
+
+    @Value("${chat.redis.topic:chat-topic}")
+    private String topicName;
 
     @Bean
     public ChannelTopic channelTopic() {
-        return new ChannelTopic("chat-topic");
+        return new ChannelTopic(topicName);
     }
 
     @Bean
@@ -35,8 +41,11 @@ public class RedisConfig {
     public RedisTemplate<String, Object> chatRedisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(connectionFactory);
+        
+        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
+        
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
+        redisTemplate.setValueSerializer(serializer);
         return redisTemplate;
     }
 }
