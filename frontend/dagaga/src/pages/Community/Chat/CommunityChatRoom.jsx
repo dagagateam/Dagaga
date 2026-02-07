@@ -107,7 +107,7 @@ const CommunityChatRoom = () => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [messages, loading]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
