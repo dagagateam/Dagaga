@@ -168,7 +168,22 @@ CREATE TABLE IF NOT EXISTS program_images (
     CONSTRAINT fk_program_images_article_seq FOREIGN KEY (article_seq) REFERENCES programs(article_seq) ON DELETE CASCADE
 );
 
--- 10. 언어 테이블
+-- 10. 프로그램 게시글 번역 (다국어 지원)
+CREATE TABLE IF NOT EXISTS program_post_translations (
+    translation_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    post_id INT NOT NULL,                -- posts 테이블의 post_id 참조
+    language_code VARCHAR(10) NOT NULL,  -- 번역된 언어 코드 ('vi', 'zh' 등)
+    title VARCHAR(255) NOT NULL,         -- 번역된 제목
+    content TEXT NOT NULL,               -- 번역된 본문
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    
+    -- 한 게시글에 대해 동일한 언어로의 번역은 하나만 존재하도록 유니크 제약
+    CONSTRAINT uq_post_translation_lang UNIQUE (post_id, language_code),
+    -- 원본 게시글 삭제 시 번역본도 함께 삭제
+    CONSTRAINT fk_post_translation_post FOREIGN KEY (post_id) REFERENCES posts(post_id) ON DELETE CASCADE
+);
+
+-- 11. 언어 테이블
 CREATE TABLE IF NOT EXISTS languages (
     lang_code VARCHAR(10) PRIMARY KEY, -- 'ko', 'vi', 'zh' 등
     lang_name VARCHAR(50) NOT NULL,    -- '한국어', '베트남어' 등
@@ -192,7 +207,7 @@ ADD CONSTRAINT fk_native_lang
 FOREIGN KEY (native_lang_code) REFERENCES languages(lang_code);
 
 ---
--- 11. 예시 질문 및 답변 (자기소개, 학업, 의료)
+-- 12. 예시 질문 및 답변 (자기소개, 학업, 의료)
 CREATE TABLE IF NOT EXISTS question_bank (
     question_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     category VARCHAR(50) NOT NULL,        -- 대분류: '자기소개', '학업', '의료'

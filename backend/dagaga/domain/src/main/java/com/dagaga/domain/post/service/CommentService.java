@@ -16,9 +16,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.concurrent.CompletableFuture;
 
-import com.dagaga.domain.chat.translate.port.TranslationPort;
 import com.dagaga.domain.chat.language.repository.LanguageRepository;
-import com.dagaga.domain.chat.translate.port.TranslationResult;
+import com.dagaga.domain.common.translate.port.TranslationPort;
+import com.dagaga.domain.common.translate.port.TranslationResult;
 import com.dagaga.domain.post.entity.CommentTranslation;
 import com.dagaga.domain.post.repository.CommentTranslationRepository;
 import org.springframework.transaction.support.TransactionTemplate;

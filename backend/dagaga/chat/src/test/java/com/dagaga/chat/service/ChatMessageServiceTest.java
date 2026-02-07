@@ -8,10 +8,11 @@ import java.util.function.Consumer;
 
 import com.dagaga.chat.dto.MessageServiceDto.SaveMessageCommand;
 import com.dagaga.domain.chat.language.repository.LanguageRepository;
+import com.dagaga.domain.chat.user.entity.ChatRoomUser;
 import com.dagaga.domain.chat.message.entity.ChatMessage;
 import com.dagaga.domain.chat.message.repository.ChatMessageRepository;
-import com.dagaga.domain.chat.translate.port.TranslationPort;
-import com.dagaga.domain.chat.translate.port.TranslationResult;
+import com.dagaga.domain.common.translate.port.TranslationPort;
+import com.dagaga.domain.common.translate.port.TranslationResult;
 
 import org.springframework.transaction.TransactionStatus;
 import org.junit.jupiter.api.DisplayName;
