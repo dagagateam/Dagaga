@@ -8,14 +8,14 @@ const ProfileImageSection = ({ previewImage, onImageChange }) => {
     return (
         <div className="text-center mb-5">
             <div className="profile-edit-wrapper mx-auto mb-3">
-                <img 
-                    src={previewImage || stockProfile} 
-                    alt="Profile" 
-                    className="profile-edit-img" 
-                    onError={(e) => {e.target.src = stockProfile}}
+                <img
+                    src={previewImage || stockProfile}
+                    alt="Profile"
+                    className="profile-edit-img"
+                    onError={(e) => { e.target.src = stockProfile }}
                 />
             </div>
-            <div className="image-upload-btn-wrapper">
+            {/* <div className="image-upload-btn-wrapper">
                 <Form.Label htmlFor="profile-upload" className="btn btn-outline-primary btn-sm rounded-pill px-3">
                     {t('change_profile')}
                 </Form.Label>
@@ -26,7 +26,8 @@ const ProfileImageSection = ({ previewImage, onImageChange }) => {
                     onChange={onImageChange} 
                     style={{ display: 'none' }} 
                 />
-            </div>
+            </div> */}
+
         </div>
     );
 };
