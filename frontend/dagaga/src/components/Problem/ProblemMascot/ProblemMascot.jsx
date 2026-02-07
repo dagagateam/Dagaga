@@ -1,4 +1,4 @@
-import talking_tiger from "../../../assets/characters/talking_tiger2.png";
+import talking_tiger from "../../../assets/characters/talking_tiger2.webp";
 import "./ProblemMascot.css";
 
 const ProblemMascot = () => {

@@ -211,7 +211,7 @@ const resources = {
       "joining": "참여 중...",
 
       // New additions (2026-02-05) - Pages
-      "error_nickname_empty": "닉네임을 입력해주세요.",
+      "nickname_required": "닉네임을 입력해주세요.",
       "error_nickname_format": "닉네임은 특수문자 제외 2~10자여야 합니다.",
       "nickname_available": "사용 가능한 닉네임입니다.",
       "error_nickname_duplicate": "이미 사용 중인 닉네임입니다.",
@@ -262,7 +262,15 @@ const resources = {
       "password_match": "비밀번호가 일치합니다.",
       "password_requirements_msg": "비밀번호는 영문, 숫자, 특수문자(*, +, -)를 포함하여 8자 이상이어야 합니다.",
       "email_verification_required": "이메일 인증을 완료해주세요.",
-      "signup_success": "회원가입에 성공했습니다!"
+      "signup_success": "회원가입에 성공했습니다!",
+      "login_required_alert": "로그인이 필요합니다.",
+      "msg_send_failed": "메세지 전송에 실패했습니다. (Socket Error)",
+      "chat_server_disconnected": "채팅 서버에 연결되어 있지 않습니다. 잠시 후 다시 시도해주세요.",
+      "leave_chat_failed": "채팅방 나가기에 실패했습니다.",
+      "confirm_delete_chat": "정말 이 채팅방을 삭제하시겠습니까? 모든 대화 내용이 사라집니다.",
+      "delete_chat_failed": "채팅방 삭제에 실패했습니다.",
+      "comment_write_failed": "댓글 작성에 실패했습니다.",
+      "replying_to_user": "<span class=\"replying-to-text\">@{{user}}</span> 님에게 답글 작성 중"
     }
   },
   zh: {
@@ -452,7 +460,7 @@ const resources = {
       "joining": "正在加入...",
 
       // New additions (2026-02-05) - Pages
-      "error_nickname_empty": "请输入昵称。",
+      "nickname_required": "请输入昵称。",
       "error_nickname_format": "昵称需为2~10个字符（不包含特殊符号）。",
       "nickname_available": "该昵称可用。",
       "error_nickname_duplicate": "该昵称已被使用。",
@@ -503,7 +511,15 @@ const resources = {
       "password_match": "密码匹配。",
       "password_requirements_msg": "密码必须包含英文、数字、特殊字符(*, +, -)，且不少于8位。",
       "email_verification_required": "请完成电子邮件验证。",
-      "signup_success": "注册成功！"
+      "signup_success": "注册成功！",
+      "login_required_alert": "需要登录。",
+      "msg_send_failed": "发送消息失败。(Socket Error)",
+      "chat_server_disconnected": "未连接聊天服务器。请稍后再试。",
+      "leave_chat_failed": "退出聊天室失败。",
+      "confirm_delete_chat": "确定要删除此聊天室吗？所有对话内容将消失。",
+      "delete_chat_failed": "删除聊天室失败。",
+      "comment_write_failed": "发表评论失败。",
+      "replying_to_user": "正在回复 <span class=\"replying-to-text\">@{{user}}</span>"
     }
   },
   vi: {
@@ -693,7 +709,7 @@ const resources = {
       "joining": "Đang tham gia...",
 
       // New additions (2026-02-05) - Pages
-      "error_nickname_empty": "Vui lòng nhập biệt danh.",
+      "nickname_required": "Vui lòng nhập biệt danh.",
       "error_nickname_format": "Biệt danh phải từ 2~10 ký tự, không bao gồm ký tự đặc biệt.",
       "nickname_available": "Biệt danh khả dụng.",
       "error_nickname_duplicate": "Biệt danh đã được sử dụng.",
@@ -744,7 +760,15 @@ const resources = {
       "password_match": "Mật khẩu khớp.",
       "password_requirements_msg": "Mật khẩu phải bao gồm chữ cái, số, ký tự đặc biệt (*, +, -) và ít nhất 8 ký tự.",
       "email_verification_required": "Vui lòng hoàn tất xác thực email.",
-      "signup_success": "Đăng ký thành công!"
+      "signup_success": "Đăng ký thành công!",
+      "login_required_alert": "Cần đăng nhập.",
+      "msg_send_failed": "Gửi tin nhắn thất bại. (Socket Error)",
+      "chat_server_disconnected": "Chưa kết nối máy chủ chat. Vui lòng thử lại sau.",
+      "leave_chat_failed": "Rời phòng chat thất bại.",
+      "confirm_delete_chat": "Bạn có chắc chắn muốn xóa phòng chat này không? Tất cả nội dung cuộc trò chuyện sẽ biến mất.",
+      "delete_chat_failed": "Xóa phòng chat thất bại.",
+      "comment_write_failed": "Viết bình luận thất bại.",
+      "replying_to_user": "Đang trả lời <span class=\"replying-to-text\">@{{user}}</span>"
     }
   }
 };

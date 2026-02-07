@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Modal, Button } from 'react-bootstrap';
 import './CommunityChatRoom.css';
-import chattingTiger from '../../../assets/characters/chat_tiger2.png';
+import chattingTiger from '../../../assets/characters/chat_tiger2.webp';
+import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import EmojiPicker from 'emoji-picker-react';
 import ChatMessage from '../../../components/community/chat/ChatMessage';
 import { fetchChatMessages, fetchJoinedChats, leaveChatRoom } from '../../../api/communityApi';
@@ -31,6 +32,7 @@ const CommunityChatRoom = () => {
     const stompClient = React.useRef(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const [loading, setLoading] = useState(true);
 
 
     const { user, accessToken } = useUserStore();
@@ -39,32 +41,65 @@ const CommunityChatRoom = () => {
     const userLocationId = user?.locationId || 86;
 
     useEffect(() => {
-        const loadMessages = async () => {
-            // Basic implementation: fetch messages when room ID changes
-            if (id) {
-                try {
-                    const apiMessages = await fetchChatMessages(id);
-                    // Map API response to UI model if necessary
-                    // API returns: { messageId, senderId, senderNickname, senderProfileImage, originalText, sentAt, ... }
-                    // UI expects: { id, sender, text, time, isMe, profileImage }
-                    const mappedMessages = apiMessages.map(msg => ({
-                        id: msg.messageId,
-                        sender: msg.senderNickname || `User ${msg.senderId}`,
-                        senderId: msg.senderId,
-                        text: (msg.senderId === currentUserId && msg.originalContent) ? msg.originalContent : msg.content,
-                        time: new Date(msg.sentAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-                        isMe: msg.senderId === currentUserId,
-                        profileImage: msg.senderProfileImage,
-                        type: 'text'
-                    })).reverse(); // 최신 메시지가 아래에 오도록 정렬 순서 반전
-                    setMessages(mappedMessages);
-                } catch (error) {
-                    console.error("Failed to fetch chat messages:", error);
+        const loadData = async () => {
+            if (!id || !user?.userId) return;
+
+            setLoading(true);
+            try {
+                // 1. Load Messages
+                const apiMessages = await fetchChatMessages(id);
+                const mappedMessages = apiMessages.map(msg => ({
+                    id: msg.messageId,
+                    sender: msg.senderNickname || `User ${msg.senderId}`,
+                    senderId: msg.senderId,
+                    text: (msg.senderId === currentUserId && msg.originalContent) ? msg.originalContent : msg.content,
+                    time: new Date(msg.sentAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                    isMe: msg.senderId === currentUserId,
+                    profileImage: msg.senderProfileImage,
+                    type: 'text'
+                })).reverse();
+                setMessages(mappedMessages);
+
+                // 2. Load Joined Chats & Room Info
+                const response = await fetchJoinedChats();
+                const joinedData = Array.isArray(response) ? response : response.data;
+
+                if (joinedData && Array.isArray(joinedData)) {
+                    const mappedChats = joinedData.map(chat => ({
+                        id: chat.roomId,
+                        title: chat.title,
+                        creatorNickname: chat.creatorNickname,
+                        lastMessage: t('check_msg'),
+                        time: '',
+                        active: parseInt(id) === chat.roomId
+                    }));
+                    setJoinedChats(mappedChats);
+
+                    const currentRoom = joinedData.find(chat => parseInt(id) === chat.roomId);
+                    if (currentRoom) {
+                        const creatorId = currentRoom.creatorId || currentRoom.hostId || currentRoom.userId;
+                        setCurrentRoomInfo({
+                            title: currentRoom.title,
+                            creatorNickname: currentRoom.creatorNickname,
+                            creatorProfileImage: currentRoom.creatorProfileImage, // Ensure profile image is passed
+                            participantCount: currentRoom.participantCount,
+                            creatorId: creatorId,
+                            isCreator: (creatorId && creatorId === user?.userId) || 
+                                      (currentRoom.creatorNickname && currentRoom.creatorNickname === user?.nickname)
+                        });
+                    }
                 }
+            } catch (error) {
+                console.error("Failed to load chat data:", error);
+            } finally {
+                setLoading(false);
             }
         };
-        loadMessages();
-    }, [id]);
+
+        if (id && user?.userId) {
+            loadData();
+        }
+    }, [id, user?.userId, user?.nickname]); // Combined dependencies
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -185,55 +220,16 @@ const CommunityChatRoom = () => {
     const [currentRoomInfo, setCurrentRoomInfo] = useState(null);
 
     // Fetch joined chats for sidebar
-    useEffect(() => {
-        const loadJoinedChats = async () => {
-            if (user?.userId) {
-                try {
-                    const response = await fetchJoinedChats();
-                    const joinedData = Array.isArray(response) ? response : response.data;
-
-                    if (joinedData && Array.isArray(joinedData)) {
-                        const mappedChats = joinedData.map(chat => ({
-                            id: chat.roomId,
-                            title: chat.title,
-                            creatorNickname: chat.creatorNickname,
-                            lastMessage: t('check_msg'), // TODO: 마지막 메시지 API 추가 필요
-                            time: '', // TODO: 시간 정보 API 추가 필요
-                            active: parseInt(id) === chat.roomId
-                        }));
-                        setJoinedChats(mappedChats);
-
-                        // Set current room info
-                        const currentRoom = joinedData.find(chat => parseInt(id) === chat.roomId);
-                        if (currentRoom) {
-                            console.log('Current Room Info:', currentRoom);
-                            console.log('Current User Info:', user);
-                            
-                            // Try to find creator ID from various possible fields
-                            const creatorId = currentRoom.creatorId || currentRoom.hostId || currentRoom.userId;
-
-                            setCurrentRoomInfo({
-                                title: currentRoom.title,
-                                creatorNickname: currentRoom.creatorNickname,
-                                participantCount: currentRoom.participantCount,
-                                creatorId: creatorId,
-                                // Fallback: If ID is missing, try matching nickname (less secure but works for UI)
-                                isCreator: (creatorId && creatorId === user?.userId) || 
-                                          (currentRoom.creatorNickname && currentRoom.creatorNickname === user?.nickname)
-                            });
-                        }
-                    }
-                } catch (error) {
-                    console.error('Failed to load joined chats:', error);
-                }
-            }
-        };
-        loadJoinedChats();
-    }, [user?.userId, user?.nickname, id]); // Added user.nickname dependency
+    // Old useEffect for loading joined chats removed as it is now merged into loadData above
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
         if (!message.trim()) return;
+
+        if (/<[^>]*>/.test(message)) {
+            alert(t('error_html_tag_not_allowed'));
+            return;
+        }
 
         if (stompClient.current && stompClient.current.connected) {
             try {
@@ -249,11 +245,11 @@ const CommunityChatRoom = () => {
                 // 메시지는 구독 콜백을 통해 UI에 추가됨
             } catch (error) {
                 console.error('Failed to send message via STOMP:', error);
-                alert('메시지 전송에 실패했습니다. (Socket Error)');
+                alert(t('msg_send_failed'));
             }
         } else {
             console.warn('STOMP client is not connected.');
-            alert('채팅 서버에 연결되어 있지 않습니다. 잠시 후 다시 시도해주세요.');
+            alert(t('chat_server_disconnected'));
         }
     };
 
@@ -265,7 +261,7 @@ const CommunityChatRoom = () => {
                 id: Date.now(),
                 sender: '나',
                 senderId: currentUserId,
-                text: '사진을 보냈습니다.',
+                text: t('sent_photo'),
                 image: imageUrl,
                 time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
                 isMe: true,
@@ -290,23 +286,27 @@ const CommunityChatRoom = () => {
                 await leaveChatRoom(id);
                 navigate('/community/chat');
             } catch (error) {
-                alert('채팅방 나가기에 실패했습니다.');
+                alert(t('leave_chat_failed'));
                 console.error(error);
             }
         }
     };
 
     const handleDeleteChat = async () => {
-        if (window.confirm('정말 이 채팅방을 삭제하시겠습니까? 모든 대화 내용이 사라집니다.')) {
+        if (window.confirm(t('confirm_delete_chat'))) {
             try {
                 await deleteChatRoom(id);
                 navigate('/community/chat');
             } catch (error) {
-                alert('채팅방 삭제에 실패했습니다.');
+                alert(t('delete_chat_failed'));
                 console.error(error);
             }
         }
     };
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
 
     return (
         <div className="chat-room-container">
@@ -459,14 +459,14 @@ const CommunityChatRoom = () => {
 
             <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>{t('notification') || '알림'}</Modal.Title>
+                    <Modal.Title>{t('notice')}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {t(errorMessage)}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowErrorModal(false)}>
-                        {t('confirm') || '확인'}
+                        {t('confirm')}
                     </Button>
                 </Modal.Footer>
             </Modal>

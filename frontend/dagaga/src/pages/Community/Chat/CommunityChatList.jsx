@@ -11,6 +11,7 @@ import JoinedChatItem from '../../../components/community/chat/JoinedChatItem';
 import Button from '../../../components/common/Button';
 import LocationBadge from '../../../components/common/LocationBadge';
 import regionChatImage from '../../../assets/images/region_chat.png'; // Added import
+import LoadingSpinner from '../../../components/common/LoadingSpinner';
 
 const CommunityChatList = () => {
     const { t } = useTranslation();
@@ -102,7 +103,7 @@ const CommunityChatList = () => {
         }
 
         if (!user || !user.userId) {
-            alert('로그인이 필요합니다.');
+            alert(t('login_required_alert'));
             return;
         }
 
@@ -169,6 +170,10 @@ const CommunityChatList = () => {
     };
 
 
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
 
     return (
         <div className="community-chat-container">

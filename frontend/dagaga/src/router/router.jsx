@@ -1,22 +1,26 @@
+import React, { Suspense } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import App from "../App";
-import ScenarioSelect from "../pages/ScenarioSelect/ScenarioSelect";
-import ProblemSelect from "../pages/ProblemSelect/ProblemSelect";
-import Problem from "../pages/Problem/Problem";
-import Login from "../pages/Login/Login";
-import Signup from "../pages/Signup/Signup";
-import CommunityInfo from "../pages/Community/Info/CommunityInfo";
-import CommunityInfoDetail from "../pages/Community/Info/CommunityInfoDetail";
-import CommunityChatList from "../pages/Community/Chat/CommunityChatList";
-import CommunityChatRoom from "../pages/Community/Chat/CommunityChatRoom";
-import ProblemNative from "../pages/ProblemNative/ProblemNative";
-import MyPage from "../pages/MyPage/MyPage";
-import MyPageEdit from "../pages/MyPageEdit/MyPageEdit";
-import AuthSuccess from "../pages/Login/AuthSuccess";
-import SocialSignup from "../pages/Signup/SocialSignup";
-import Homepage from "../pages/Homepage/Homepage";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 import ProtectedRoute from "../components/common/ProtectedRoute";
-import NotFound from "../pages/Error/NotFound";
+
+// Lazy Load Pages
+const ScenarioSelect = React.lazy(() => import("../pages/ScenarioSelect/ScenarioSelect"));
+const ProblemSelect = React.lazy(() => import("../pages/ProblemSelect/ProblemSelect"));
+const Problem = React.lazy(() => import("../pages/Problem/Problem"));
+const Login = React.lazy(() => import("../pages/Login/Login"));
+const Signup = React.lazy(() => import("../pages/Signup/Signup"));
+const CommunityInfo = React.lazy(() => import("../pages/Community/Info/CommunityInfo"));
+const CommunityInfoDetail = React.lazy(() => import("../pages/Community/Info/CommunityInfoDetail"));
+const CommunityChatList = React.lazy(() => import("../pages/Community/Chat/CommunityChatList"));
+const CommunityChatRoom = React.lazy(() => import("../pages/Community/Chat/CommunityChatRoom"));
+const ProblemNative = React.lazy(() => import("../pages/ProblemNative/ProblemNative"));
+const MyPage = React.lazy(() => import("../pages/MyPage/MyPage"));
+const MyPageEdit = React.lazy(() => import("../pages/MyPageEdit/MyPageEdit"));
+const AuthSuccess = React.lazy(() => import("../pages/Login/AuthSuccess"));
+const SocialSignup = React.lazy(() => import("../pages/Signup/SocialSignup"));
+const Homepage = React.lazy(() => import("../pages/Homepage/Homepage"));
+const NotFound = React.lazy(() => import("../pages/Error/NotFound"));
 
 const router = createBrowserRouter([
   {
@@ -26,11 +30,19 @@ const router = createBrowserRouter([
 
   {
     path: "/Auth/Success",
-    element: <AuthSuccess />,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <AuthSuccess />
+      </Suspense>
+    ),
   },
 
   {
-    element: <App />,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <App />
+      </Suspense>
+    ),
     children: [
       {
         path: "Login",
@@ -102,7 +114,11 @@ const router = createBrowserRouter([
   },
   {
     path: "*",
-    element: <NotFound />,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <NotFound />
+      </Suspense>
+    ),
   },
 ]);
 
