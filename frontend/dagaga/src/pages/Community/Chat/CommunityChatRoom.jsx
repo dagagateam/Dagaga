@@ -137,28 +137,28 @@ const CommunityChatRoom = () => {
     useEffect(() => {
         if (!id || !user?.userId || !accessToken) return;
 
-        console.log('Initiating WebSocket connection...');
+        // console.log('Initiating WebSocket connection...');
 
         // 백엔드 URL 결정 (환경 변수 또는 기본값)
         // 로컬 테스트 시 .env에 VITE_BACKEND_URL=http://localhost:8080 추가 권장
         const baseURL = import.meta.env.VITE_BACKEND_URL || 'https://i14b110.p.ssafy.io';
         const wsURL = baseURL.replace(/^http/, 'ws') + '/ws-chat';
 
-        console.log('Connecting to WebSocket URL:', wsURL);
+        // console.log('Connecting to WebSocket URL:', wsURL);
 
         const client = new Client({
             webSocketFactory: () => new SockJS(baseURL + '/ws-chat'),
             connectHeaders: {
                 Authorization: `Bearer ${accessToken}`,
             },
-            debug: function (str) {
-                console.log('STOMP: ' + str);
-            },
+            // debug: function (str) {
+            //     console.log('STOMP: ' + str);
+            // },
             reconnectDelay: 5000,
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,
             onConnect: (frame) => {
-                console.log('STOMP Connected: ' + frame);
+                // console.log('STOMP Connected: ' + frame);
 
                 // Subscribe to room messages (언어별 채널 구독)
                 const userNativeLang = user?.nativeLangCode || 'ko';
@@ -210,7 +210,7 @@ const CommunityChatRoom = () => {
 
         return () => {
             if (client) {
-                console.log('Deactivating STOMP client...');
+                // console.log('Deactivating STOMP client...');
                 client.deactivate();
             }
         };
