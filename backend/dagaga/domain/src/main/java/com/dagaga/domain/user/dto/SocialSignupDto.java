@@ -1,7 +1,9 @@
 package com.dagaga.domain.user.dto;
 
+import com.dagaga.domain.common.validation.NoHtml;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +21,8 @@ public class SocialSignupDto {
     private String email;
 
     @NotBlank(message = "닉네임은 필수입니다")
+    @Size(max = 20, message = "닉네임은 20자를 초과할 수 없습니다")
+    @NoHtml(message = "HTML 태그는 사용할 수 없습니다")
     private String nickname;
 
     @NotBlank(message = "표시 언어 설정은 필수입니다")

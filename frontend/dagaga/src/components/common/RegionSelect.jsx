@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 const RegionSelect = ({ sido, gugun, onSidoChange, onGugunChange }) => {
     const [gugunList, setGugunList] = useState([]);
 
+    const { t } = useTranslation();
+
     useEffect(() => {
         if (sido && sido !== '시/도 선택') {
             const index = area0.indexOf(sido);
@@ -34,26 +36,30 @@ const RegionSelect = ({ sido, gugun, onSidoChange, onGugunChange }) => {
         <div className="region-selects">
             <Dropdown className="region-dropdown" onSelect={handleSidoSelect}>
                 <Dropdown.Toggle variant="light" className="region-toggle">
-                    {sido || '시/도 선택'}
+                    {(sido && sido !== '시/도 선택') ? sido : t('select_sido')}
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="region-menu">
                     {area0.map((area) => (
-                        <Dropdown.Item eventKey={area} key={area}>{area}</Dropdown.Item>
+                        <Dropdown.Item eventKey={area} key={area}>
+                            {area === '시/도 선택' ? t('select_sido') : area}
+                        </Dropdown.Item>
                     ))}
                 </Dropdown.Menu>
             </Dropdown>
 
             <Dropdown className="region-dropdown" onSelect={handleGugunSelect}>
                 <Dropdown.Toggle variant="light" className="region-toggle">
-                    {gugun || '구/군 선택'}
+                    {(gugun && gugun !== '구/군 선택') ? gugun : t('select_gugun')}
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="region-menu">
                     {gugunList.length > 0 ? (
                         gugunList.map((area) => (
-                            area !== '구/군 선택' && <Dropdown.Item eventKey={area} key={area}>{area}</Dropdown.Item>
+                            <Dropdown.Item eventKey={area} key={area}>
+                                {area === '구/군 선택' ? t('select_gugun') : area}
+                            </Dropdown.Item>
                         ))
                     ) : (
-                        <Dropdown.Item disabled>구/군 선택</Dropdown.Item>
+                        <Dropdown.Item disabled>{t('select_gugun')}</Dropdown.Item>
                     )}
                 </Dropdown.Menu>
             </Dropdown>

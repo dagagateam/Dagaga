@@ -47,6 +47,9 @@ subprojects {
     }
 
     dependencies {
+        // XSS 방어 - HTML 새니타이제이션
+        implementation 'org.jsoup:jsoup:1.17.2'
+        
         testImplementation 'org.junit.jupiter:junit-jupiter'
         testImplementation 'org.assertj:assertj-core'
         testImplementation 'org.mockito:mockito-core'

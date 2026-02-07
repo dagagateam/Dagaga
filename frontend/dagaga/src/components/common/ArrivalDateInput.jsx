@@ -1,11 +1,13 @@
 import React from 'react';
 import Input from './Input';
+import { useTranslation } from 'react-i18next';
 
 const ArrivalDateInput = ({ value, onChange, name = 'arrivalDate', className = '', ...props }) => {
+    const { t } = useTranslation();
     return (
         <div className={`arrival-date-input ${className}`}>
             <label style={{ fontWeight: '600', fontSize: '0.9rem', color: '#333', marginBottom: '5px', display: 'block' }}>
-                한국에 온 날짜
+                {t('entry_date')}
             </label>
             <Input
                 type="date"

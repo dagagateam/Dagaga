@@ -12,6 +12,9 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
+import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
 
 @Controller
 public class ChatStompController {
@@ -42,5 +45,11 @@ public class ChatStompController {
         chatMessageService.saveAndPublish(
                 req.toServiceDto(userPrincipal.getUserId().getValue(), userPrincipal.getNativeLangCode()),
                 userPrincipal.getLocationId());
+    }
+
+    @MessageExceptionHandler
+    @SendToUser("/queue/errors")
+    public String handleValidationException(MethodArgumentNotValidException e) {
+        return e.getBindingResult().getFieldError().getDefaultMessage();
     }
 }

@@ -28,8 +28,8 @@ const Signup = () => {
         password: '',
         confirmPassword: '',
         nativeLanguage: '중국어',
-        sido: '시/도 선택',
-        gugun: '구/군 선택',
+        sido: '',
+        gugun: '',
         arrivalDate: ''
     });
 
@@ -56,7 +56,7 @@ const Signup = () => {
         setFormData({
             ...formData,
             sido: selectedSido,
-            gugun: '구/군 선택' // Reset gugun
+            gugun: '' // Reset gugun
         });
     };
 
@@ -73,12 +73,12 @@ const Signup = () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!email) {
-            setErrors({ ...errors, email: "이메일을 입력해주세요." });
+            setErrors({ ...errors, email: t('email_required') });
             return;
         }
 
         if (!emailRegex.test(email)) {
-            setErrors({ ...errors, email: "올바른 이메일 형식이 아닙니다." });
+            setErrors({ ...errors, email: t('email_invalid_format') });
             return;
         }
 
@@ -88,25 +88,25 @@ const Signup = () => {
             setIsEmailAvailable(isAvailable);
 
             if (!isAvailable) {
-                setEmailMessage("이미 사용 중인 이메일입니다.");
+                setEmailMessage(t('email_duplicate'));
                 return;
             }
 
             // 2. Request Verification Code
             await requestVerificationAPI(email);
-            setEmailMessage("인증 코드가 전송되었습니다. 이메일을 확인해주세요.");
+            setEmailMessage(t('verification_code_sent'));
             setShowVerificationInput(true);
             setErrors({ ...errors, email: '' });
 
         } catch (error) {
-            setEmailMessage("인증 메일 전송 중 오류가 발생했습니다.");
+            setEmailMessage(t('verification_send_error'));
             setIsEmailAvailable(false);
         }
     };
 
     const handleConfirmVerification = async () => {
         if (!verificationCode) {
-            alert("인증 코드를 입력해주세요.");
+            alert(t('verification_code_required'));
             return;
         }
 
@@ -114,9 +114,9 @@ const Signup = () => {
             await confirmVerificationAPI(formData.email, verificationCode);
             setIsEmailVerified(true);
             setShowVerificationInput(false);
-            setEmailMessage("이메일 인증이 완료되었습니다.");
+            setEmailMessage(t('email_verified_success'));
         } catch (error) {
-            alert("인증 코드가 올바르지 않습니다.");
+            alert(t('verification_code_invalid'));
         }
     };
 
@@ -126,12 +126,12 @@ const Signup = () => {
         const nicknameRegex = /^[가-힣a-zA-Z0-9]{2,10}$/;
 
         if (!nickname) {
-            setErrors({ ...errors, nickname: "닉네임을 입력해주세요." });
+            setErrors({ ...errors, nickname: t('nickname_required') });
             return;
         }
 
         if (!nicknameRegex.test(nickname)) {
-            setErrors({ ...errors, nickname: "닉네임은 특수문자 제외 2~10자여야 합니다." });
+            setErrors({ ...errors, nickname: t('error_nickname_format') });
             return;
         }
 
@@ -139,10 +139,10 @@ const Signup = () => {
         setIsNicknameAvailable(isAvailable);
 
         if (isAvailable) {
-            setNicknameMessage("사용 가능한 닉네임입니다.");
+            setNicknameMessage(t('nickname_available'));
             setErrors({ ...errors, nickname: '' });
         } else {
-            setNicknameMessage("이미 사용 중인 닉네임입니다.");
+            setNicknameMessage(t('error_nickname_duplicate'));
             // setErrors({...errors, nickname: "이미 사용 중인 닉네임입니다."}); // Optional: Mirror as error
         }
     };
@@ -175,10 +175,10 @@ const Signup = () => {
 
             if (newConfirmPassword) {
                 if (newPassword === newConfirmPassword) {
-                    setPasswordMatchMessage('비밀번호가 일치합니다.');
+                    setPasswordMatchMessage(t('password_match'));
                     setIsPasswordMatch(true);
                 } else {
-                    setPasswordMatchMessage('비밀번호가 일치하지 않습니다.');
+                    setPasswordMatchMessage(t('password_error_match'));
                     setIsPasswordMatch(false);
                 }
             } else {
@@ -205,31 +205,31 @@ const Signup = () => {
         // 영문, 숫자, 특수문자(*, +, -) 포함 8자 이상
         const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[*+-])[A-Za-z\d*+-]{8,}$/;
         if (!passwordRegex.test(password)) {
-            newErrors.password = "비밀번호는 영문, 숫자, 특수문자(*, +, -)를 포함하여 8자 이상이어야 합니다.";
+            newErrors.password = t('password_requirements_msg');
         }
 
         if (password !== confirmPassword) {
-            newErrors.confirmPassword = "비밀번호가 일치하지 않습니다.";
+            newErrors.confirmPassword = t('password_error_match');
         }
 
         // 2. Nickname Validation (Client-side format check only here, duplicates checked via button)
         if (isNicknameAvailable === false) {
-            newErrors.nickname = "이미 사용 중인 닉네임입니다.";
+            newErrors.nickname = t('error_nickname_duplicate');
         } else if (isNicknameAvailable === null && formData.nickname) {
-            newErrors.nickname = "닉네임 중복 확인을 해주세요.";
+            newErrors.nickname = t('nickname_check_req');
         }
 
         // 3. Email Validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            newErrors.email = "유효한 이메일 형식이 아닙니다.";
+            newErrors.email = t('email_invalid_format');
         }
 
         // 4. Duplicate Checks (API Call)
         // 실제로는 입력 시점(onBlur 등)에 체크하는 것이 좋지만 여기서는 가입 시점에 체크
         if (!newErrors.email) {
             if (!isEmailVerified) {
-                newErrors.email = "이메일 인증을 완료해주세요.";
+                newErrors.email = t('email_verification_required');
             }
         }
 
@@ -266,12 +266,12 @@ const Signup = () => {
 
             // DEBUG: 회원가입 성공 응답
             // console.log("✅ 회원가입 성공! 응답:", response);
-            alert("회원가입에 성공했습니다!");
+            alert(t('signup_success'));
             navigate('/Login');
 
         } catch (error) {
             console.error("Signup failed:", error);
-            alert("회원가입 중 오류가 발생했습니다.");
+            alert(t('signup_error'));
         }
     };
 
@@ -310,7 +310,7 @@ const Signup = () => {
                                                 onClick={handleRequestVerification}
                                                 disabled={isEmailVerified}
                                             >
-                                                {isEmailVerified ? "인증 완료" : "인증하기"}
+                                                {isEmailVerified ? t('verification_complete') : t('verify_action')}
                                             </button>
                                         </div>
 
@@ -318,12 +318,12 @@ const Signup = () => {
                                             <div className="nickname-group" style={{ marginTop: '10px' }}>
                                                 <Input
                                                     type="text"
-                                                    placeholder="인증 코드 6자리"
+                                                    placeholder={t('verification_code_placeholder')}
                                                     value={verificationCode}
                                                     onChange={(e) => setVerificationCode(e.target.value)}
                                                 />
                                                 <button type="button" className="check-btn" onClick={handleConfirmVerification}>
-                                                    확인
+                                                    {t('confirm_action')}
                                                 </button>
                                             </div>
                                         )}
