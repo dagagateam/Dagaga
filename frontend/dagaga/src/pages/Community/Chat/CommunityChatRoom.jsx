@@ -16,7 +16,7 @@ import stockProfile from '../../../assets/icons/stock_profile.jpg';
 import { deleteChatRoom } from '../../../api/communityApi';
 
 const CommunityChatRoom = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
     const fileInputRef = React.useRef(null);
@@ -56,7 +56,10 @@ const CommunityChatRoom = () => {
                     time: new Date(msg.sentAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
                     isMe: msg.senderId === currentUserId,
                     profileImage: msg.senderProfileImage,
-                    type: 'text'
+                    isMe: msg.senderId === currentUserId,
+                    profileImage: msg.senderProfileImage,
+                    type: 'text',
+                    sentAt: msg.sentAt // Store original date for separator logic
                 })).reverse();
                 setMessages(mappedMessages);
 
@@ -176,7 +179,9 @@ const CommunityChatRoom = () => {
                                 time: new Date(receivedMsg.sentAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
                                 isMe: receivedMsg.senderId === user.userId,
                                 profileImage: receivedMsg.senderProfileImage,
-                                type: 'text'
+                                profileImage: receivedMsg.senderProfileImage,
+                                type: 'text',
+                                sentAt: receivedMsg.sentAt // Store original date
                             };
 
                             setMessages((prev) => {
@@ -262,7 +267,9 @@ const CommunityChatRoom = () => {
                 image: imageUrl,
                 time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
                 isMe: true,
-                type: 'image'
+                isMe: true,
+                type: 'image',
+                sentAt: new Date().toISOString() // Current time for separator logic
             };
             setMessages([...messages, newMsg]);
         }
@@ -423,8 +430,29 @@ const CommunityChatRoom = () => {
 
                                 const showTime = isLast || isDifferentSenderThanNext || isDifferentTimeThanNext;
 
+                                // Date Separator Logic
+                                const currentDate = new Date(msg.sentAt);
+                                const dateString = currentDate.toLocaleDateString(i18n.language, { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+                                
+                                let showDateSeparator = false;
+                                if (index === 0) {
+                                    showDateSeparator = true;
+                                } else {
+                                    const prevDate = new Date(messages[index - 1].sentAt);
+                                    if (currentDate.toDateString() !== prevDate.toDateString()) {
+                                        showDateSeparator = true;
+                                    }
+                                }
+
                                 return (
-                                    <ChatMessage key={msg.id} msg={msg} showAvatar={showAvatar} showTime={showTime} />
+                                    <React.Fragment key={msg.id}>
+                                        {showDateSeparator && (
+                                            <div className="chat-date-separator">
+                                                {dateString}
+                                            </div>
+                                        )}
+                                        <ChatMessage msg={msg} showAvatar={showAvatar} showTime={showTime} />
+                                    </React.Fragment>
                                 );
                             })}
 
