@@ -60,7 +60,9 @@ class UserServiceTest {
                                 .nickname("") // Blank nickname
                                 .build();
 
-                User savedUser = User.builder().build();
+                User savedUser = User.builder()
+                                .profileImage("https://api.dicebear.com/9.x/big-smile/svg?seed=tester%231234")
+                                .build();
                 // 리플렉션을 사용하여 private 필드인 userId 설정
                 try {
                         java.lang.reflect.Field field = User.class.getDeclaredField("userId");
@@ -78,6 +80,7 @@ class UserServiceTest {
                 User result = userService.register(dto);
 
                 assertThat(result.getUserId()).isEqualTo(1);
+                assertThat(result.getProfileImage()).startsWith("https://api.dicebear.com");
                 verify(userRepository).existsByNickname("tester");
                 verify(userRepository).save(any(User.class));
                 verify(eventPublisher).publishEvent(any(UserRegisteredEvent.class));

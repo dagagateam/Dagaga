@@ -1,5 +1,10 @@
 package com.dagaga.chat.event;
 
+import com.dagaga.chat.dto.MessageControllerDto;
+import com.dagaga.chat.dto.MessageServiceDto;
+import com.dagaga.chat.service.ChatMessageService;
+import com.dagaga.chat.service.ChatRoomService;
+import com.dagaga.chat.service.RedisPublisher;
 import com.dagaga.domain.user.event.UserLocationUpdatedEvent;
 import com.dagaga.domain.user.event.UserRegisteredEvent;
 import lombok.RequiredArgsConstructor;
@@ -7,15 +12,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class ChatEventListener {
 
-    private final com.dagaga.chat.service.ChatRoomService chatRoomService;
-    private final com.dagaga.chat.service.ChatMessageService chatMessageService;
-    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
+    private final ChatRoomService chatRoomService;
+    private final ChatMessageService chatMessageService;
+    private final RedisPublisher redisPublisher;
     
     @org.springframework.beans.factory.annotation.Qualifier("translationExecutor")
     private final java.util.concurrent.Executor translationExecutor;
@@ -56,13 +63,13 @@ public class ChatEventListener {
         }
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMessageSaved(ChatEvents.MessageSavedEvent event) {
         log.info("메시지 저장 완료 이벤트 수신: roomId={}", event.roomId());
         broadcast(event.originalResult(), event.roomId());
     }
 
-    @org.springframework.transaction.event.TransactionalEventListener(phase = org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMessageTranslation(ChatEvents.MessageSavedEvent event) {
         log.info("트랜잭션 커밋 완료 후 번역 작업 시작: roomId={}", event.roomId());
         
@@ -78,8 +85,8 @@ public class ChatEventListener {
         event.translatedResults().forEach(result -> broadcast(result, event.roomId()));
     }
 
-    private void broadcast(com.dagaga.chat.dto.MessageServiceDto.TargetedMessageResult result, Integer roomId) {
-        com.dagaga.chat.dto.MessageControllerDto.SendMessageResponse response = new com.dagaga.chat.dto.MessageControllerDto.SendMessageResponse(
+    private void broadcast(MessageServiceDto.TargetedMessageResult result, Integer roomId) {
+        MessageControllerDto.SendMessageResponse response = new MessageControllerDto.SendMessageResponse(
                 result.result().messageId(),
                 result.result().roomId(),
                 result.result().senderId(),
@@ -92,7 +99,7 @@ public class ChatEventListener {
                 result.result().type()
         );
 
-        messagingTemplate.convertAndSend(
+        redisPublisher.publish(
                 "/sub/chat/rooms/" + roomId + "/" + result.targetLang(),
                 response);
     }
