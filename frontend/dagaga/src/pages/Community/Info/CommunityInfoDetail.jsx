@@ -76,7 +76,7 @@ const CommunityInfoDetail = () => {
                         title: data.title || t('no_title'),
                         orgName: t('dagaga_support'), // 고정값
                         content: data.content,
-                        image: data.imageUrls?.[0] || 'https://via.placeholder.com/600x800/F8B15E/FFFFFF?text=No+Image',
+                        image: data.imageUrls?.[0] || 'https://placehold.co/600x800?text=No+Image',
                         contact: data.contact || "",
                         capacity: data.capacity || "",
                         applicationPeriod: formatPeriod(data.regStartDate, data.regEndDate),
