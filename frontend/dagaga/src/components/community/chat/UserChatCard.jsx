@@ -7,7 +7,7 @@ import { useUserStore } from '../../../store/userStore';
 import stockProfile from '../../../assets/icons/stock_profile.jpg'
 
 const UserChatCard = ({ chat }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const { user } = useUserStore();
     const [joining, setJoining] = useState(false);
@@ -37,7 +37,7 @@ const UserChatCard = ({ chat }) => {
     };
 
     return (
-        <div className="user-chat-card">
+        <div className={`user-chat-card ${i18n.language === 'vi' ? 'lang-vi' : ''}`}>
             <div className="chat-card-header">
                 <img
                     src={avatarSrc}

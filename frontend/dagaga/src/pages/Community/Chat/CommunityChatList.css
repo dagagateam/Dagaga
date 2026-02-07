@@ -10,9 +10,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 20px 20px;
+    padding: 20px 20px 20px 13px;
+    margin-top: 20px;
     /* Increased padding */
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     /* Increased margin */
 }
 
@@ -44,7 +45,7 @@
     background-color: #F8B15E;
     color: white;
     padding: 8px 20px;
-    border-radius: 20px;
+    border-radius: 10px;
     font-weight: 700;
     font-size: 0.95rem;
 }
@@ -76,7 +77,6 @@
 .top-section-layout {
     display: flex;
     gap: 20px;
-    margin-bottom: 5px;
     /* Further reduced */
 }
 
@@ -179,7 +179,7 @@
 }
 
 .participant-info {
-    margin-left: 15px;
+    margin-left: 8px;
     color: #888;
     font-size: 0.9rem;
 }
@@ -212,7 +212,7 @@
 .chat-search-input {
     padding: 10px 20px;
     border: 1px solid #ddd;
-    border-radius: 25px;
+    border-radius: 10px;
     width: 300px;
     outline: none;
     transition: border-color 0.2s;

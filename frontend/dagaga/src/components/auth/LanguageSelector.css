@@ -1,23 +1,35 @@
 /* Language Selector Styles */
 .lang-btn {
-    background-color: white !important;
-    border: 1px solid #eee !important;
-    border-radius: 20px !important;
-    padding: 8px 20px !important;
-    font-size: 0.9rem;
-    color: #666 !important;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    font-family: var(--main-font); /* Ensure font consistency */
+    font-size: 1rem; /* Match nav-link size */
+    font-weight: 500; /* fw-medium */
+    color: #333 !important;
+    box-shadow: none !important;
     display: flex;
     align-items: center;
-    white-space: nowrap; /* Prevent text wrapping */
-    width: auto !important; /* Allow width to grow with content */
-    min-width: 110px; /* Ensure minimum width */
-    justify-content: space-between; /* Space out text and caret */
+    white-space: nowrap;
+    width: auto !important;
+    min-width: auto; /* Remove min-width constraint */
+    gap: 5px;
+    letter-spacing: 0.15em; /* Match nav-link */
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.lang-btn:hover, .lang-btn:focus, .lang-btn:active, .show > .lang-btn.dropdown-toggle {
+    color: #000 !important;
+    font-weight: 700;
+    background-color: transparent !important;
+    border-color: transparent !important;
 }
 
 .lang-btn span {
-    color: #000;
-    font-weight: bold;
+    color: inherit;
+    font-weight: inherit;
     margin-left: 8px;
     display: flex;
     align-items: center;
