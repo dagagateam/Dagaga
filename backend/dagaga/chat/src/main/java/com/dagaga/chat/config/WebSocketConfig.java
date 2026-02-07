@@ -21,7 +21,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-chat") // 연결될 엔드포인트
-                .setAllowedOriginPatterns("*")
+                // 보안 감사 조치: 와일드카드(*) 제거 및 명시적 도메인 허용
+                .setAllowedOriginPatterns(
+                        "https://i14b110.p.ssafy.io",
+                        "http://localhost:5173",
+                        "http://localhost:3000"
+                )
                 .withSockJS();
     }
 

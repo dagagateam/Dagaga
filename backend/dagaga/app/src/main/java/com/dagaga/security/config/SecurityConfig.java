@@ -71,6 +71,27 @@ public class SecurityConfig {
                                                 // 그 외 모든 요청은 인증 필요
                                                 .anyRequest().authenticated())
 
+                                // HTTP 보안 헤더 설정 (XSS 방어)
+                                .headers(headers -> headers
+                                                // XSS Protection - 브라우저의 XSS 필터 활성화
+                                                .xssProtection(xss -> xss
+                                                                .headerValue(org.springframework.security.web.header.writers.XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
+                                                // Content-Type Options - MIME 타입 스니핑 방지
+                                                .contentTypeOptions(contentType -> {})
+                                                // Frame Options - Clickjacking 공격 방지
+                                                .frameOptions(frame -> frame.deny())
+                                                // Content Security Policy - 허용된 리소스만 로드
+                                                .contentSecurityPolicy(csp -> csp
+                                                                .policyDirectives(
+                                                                                "default-src 'self'; " +
+                                                                                "script-src 'self' 'unsafe-inline' https://accounts.google.com; " +
+                                                                                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+                                                                                "font-src 'self' https://fonts.gstatic.com; " +
+                                                                                "img-src 'self' data: https:; " +
+                                                                                "connect-src 'self' https://gms.ssafy.io;"
+                                                                ))
+                                )
+
                                 // OAuth2 로그인 설정 추가
                                 .oauth2Login(oauth2 -> oauth2
                                                 .successHandler(customOAuth2SuccessHandler))
@@ -88,7 +109,12 @@ public class SecurityConfig {
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+                // 보안 감사 조치: 와일드카드(*) 제거 및 명시적 도메인 허용
+                configuration.setAllowedOriginPatterns(Arrays.asList(
+                        "https://i14b110.p.ssafy.io", // 배포 환경
+                        "http://localhost:5173",      // 로컬 개발 (Vite)
+                        "http://localhost:3000"       // 로컬 개발 (React/Next)
+                ));
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("*"));
                 configuration.setAllowCredentials(true);
