@@ -38,6 +38,9 @@ public class SecurityConfig {
                                 // CORS 설정 적용
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
+                                // X-Frame-Options 설정 (SockJS 지원을 위해 sameOrigin 허용)
+                                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
+
                                 // 세션 관리 - Stateless
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
