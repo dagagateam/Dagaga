@@ -87,6 +87,13 @@ public class TranslationAdapter implements TranslationPort {
                 6. Translate conversationally and naturally. If the text is slang or casual, translate the meaning.
                 7. Do NOT simply copy the original text unless it is a proper noun.
                 8. Ensure ALL other requested target languages are included in the translations map.
+                9. If the input is gibberish, repetitive characters (e.g., 'ㅁㅁㅁㅁ'), or has no semantic meaning, return the original text as the translation for ALL target languages.
+                10. Translate Korean slang/expressions into culturally appropriate equivalents:
+                    - Laughter (ㅋㅋㅋㅋ, ㅎㅎㅎㅎ) -> vi: "kaka", "hihi" / zh: "哈哈", "呵呵" / en: "lol", "haha", "hehe"
+                    - Crying (ㅠㅠㅠㅠ, ㅜㅜㅜㅜ) -> vi: "huhu", "(khóc)" / zh: "呜呜", "555" / en: "sobs", "T.T"
+                    - Amazement (대박, 굿) -> vi: "đỉnh", "tuyệt" / zh: "牛", "棒" / en: "awesome", "cool"
+                    - Surprise (헐) -> vi: "trời ơi", "á đù" / zh: "天啊", "我去" / en: "omg", "no way"
+                    - Adjust based on context if necessary.
                 
                 Example Output:
                 {
