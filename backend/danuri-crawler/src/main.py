@@ -24,7 +24,7 @@ def run():
         existing_seqs = {item['article_seq'] for item in all_data}
 
     print("크롤링 시작...")
-    for page in range(1, 11):
+    for page in range(1, 51):  # 50 페이지 = 500개 항목
         print(f"Page {page} 처리 중...")
         try:
             res = requests.get(LIST_URL, params={
