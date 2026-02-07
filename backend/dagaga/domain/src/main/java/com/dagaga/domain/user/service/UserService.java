@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Random;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Service
 @RequiredArgsConstructor
@@ -67,6 +69,7 @@ public class UserService {
                 .nativeLangCode(dto.getNativeLangCode())
                 .locationId(dto.getLocationId())
                 .arrivalDate(dto.getArrivalDate())
+                .profileImage(generateProfileImage(nickname))
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -89,6 +92,7 @@ public class UserService {
                 .arrivalDate(dto.getArrivalDate())
                 .socialProvider("google")
                 .isActive(true)
+                .profileImage(generateProfileImage(dto.getNickname()))
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -243,5 +247,10 @@ public class UserService {
             characters[randomIndex] = temp;
         }
         return new String(characters);
+    }
+
+    private String generateProfileImage(String nickname) {
+        String encodedNickname = URLEncoder.encode(nickname, StandardCharsets.UTF_8);
+        return "https://api.dicebear.com/9.x/big-smile/svg?seed=" + encodedNickname;
     }
 }
