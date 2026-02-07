@@ -68,6 +68,21 @@ public class LearningController {
                         @Parameter(description = "업로드할 음성 파일 mp3로 요구됩니다.", required = true) @RequestParam("file") MultipartFile file) {
                 log.info("Received audio translate request: {}", file.getOriginalFilename());
 
+                // 보안 감사 조치: 파일 검증
+                if (file.isEmpty()) {
+                        throw new IllegalArgumentException("파일이 비어있습니다.");
+                }
+
+                String contentType = file.getContentType();
+                if (contentType == null || !contentType.startsWith("audio/")) {
+                        throw new IllegalArgumentException("오디오 파일만 업로드 가능합니다.");
+                }
+
+                String originalFilename = file.getOriginalFilename();
+                if (originalFilename != null && !originalFilename.toLowerCase().matches(".*\\.(mp3|wav|m4a|flac)$")) {
+                        throw new IllegalArgumentException("지원하지 않는 파일 형식입니다. (mp3, wav, m4a, flac)");
+                }
+
                 try {
                         // MultipartFile을 TranslateFileData로 변환
                         var fileData = new TranslateFileData(
@@ -305,6 +320,16 @@ public class LearningController {
                         @Parameter(description = "현재 시도 횟수 (5번 이상 시 자동 합격)", required = false) @RequestParam(value = "retryCount", defaultValue = "0") Integer retryCount) {
                 log.info("Pronunciation evaluation request - expectedText: {}, retryCount: {}", expectedText,
                                 retryCount);
+
+                // 보안 감사 조치: 파일 검증
+                if (file.isEmpty()) {
+                        throw new IllegalArgumentException("파일이 비어있습니다.");
+                }
+
+                String contentType = file.getContentType();
+                if (contentType == null || !contentType.startsWith("audio/")) {
+                        throw new IllegalArgumentException("오디오 파일만 업로드 가능합니다.");
+                }
 
                 try {
                         // FastAPI로 전달할 URL
