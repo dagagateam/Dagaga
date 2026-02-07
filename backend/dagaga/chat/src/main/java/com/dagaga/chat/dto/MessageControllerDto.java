@@ -2,8 +2,10 @@ package com.dagaga.chat.dto;
 
 import com.dagaga.domain.chat.message.entity.ChatMessage;
 import com.dagaga.domain.chat.message.entity.MessageTranslation;
+import com.dagaga.domain.common.validation.NoHtml;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 
 import static com.dagaga.chat.dto.MessageServiceDto.SaveMessageCommand;
@@ -12,9 +14,18 @@ import static com.dagaga.chat.dto.MessageServiceDto.SaveMessageResult;
 public class MessageControllerDto {
 
     public record SendMessageRequest(
-            @NotNull Integer roomId,
-            @NotBlank String originalText,
+            @NotNull(message = "채팅방 ID는 필수입니다")
+            Integer roomId,
+            
+            @NotBlank(message = "메시지는 필수입니다")
+            @Size(max = 2000, message = "메시지는 2000자를 초과할 수 없습니다")
+            @NoHtml(message = "HTML 태그는 사용할 수 없습니다")
+            String originalText,
+            
             String translatedLang,
+            
+            @Size(max = 2000, message = "번역 메시지는 2000자를 초과할 수 없습니다")
+            @NoHtml(message = "HTML 태그는 사용할 수 없습니다")
             String translatedText
     ) {
         // Controller DTO -> Service DTO 변환
