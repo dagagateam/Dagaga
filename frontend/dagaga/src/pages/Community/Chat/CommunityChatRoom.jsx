@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Modal, Button } from 'react-bootstrap';
 import './CommunityChatRoom.css';
 import chattingTiger from '../../../assets/characters/chat_tiger2.webp';
+import restrictedTiger from '../../../assets/characters/tiger_oops.png';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import EmojiPicker from 'emoji-picker-react';
 import ChatMessage from '../../../components/community/chat/ChatMessage';
@@ -33,6 +34,7 @@ const CommunityChatRoom = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [accessDenied, setAccessDenied] = useState(false);
 
 
     const { user, accessToken } = useUserStore();
@@ -40,60 +42,80 @@ const CommunityChatRoom = () => {
     const currentUserId = user?.userId || 27;
     const userLocationId = user?.locationId || 86;
 
+    const [joinedChats, setJoinedChats] = useState([]);
+    const [currentRoomInfo, setCurrentRoomInfo] = useState(null);
+
     useEffect(() => {
         const loadData = async () => {
             if (!id || !user?.userId) return;
 
             setLoading(true);
+            setAccessDenied(false);
+
             try {
-                // 1. Load Messages
-                const apiMessages = await fetchChatMessages(id);
-                const mappedMessages = apiMessages.map(msg => ({
-                    id: msg.messageId,
-                    sender: msg.senderNickname || `User ${msg.senderId}`,
-                    senderId: msg.senderId,
-                    text: (msg.senderId === currentUserId && msg.originalContent) ? msg.originalContent : msg.content,
-                    time: new Date(msg.sentAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-                    isMe: msg.senderId === currentUserId,
-                    profileImage: msg.senderProfileImage,
-                    isMe: msg.senderId === currentUserId,
-                    profileImage: msg.senderProfileImage,
-                    type: 'text',
-                    sentAt: msg.sentAt // Store original date for separator logic
-                })).reverse();
-                setMessages(mappedMessages);
+                const [joinedResult, messagesResult] = await Promise.allSettled([
+                    fetchJoinedChats(),
+                    fetchChatMessages(id)
+                ]);
 
-                // 2. Load Joined Chats & Room Info
-                const response = await fetchJoinedChats();
-                const joinedData = Array.isArray(response) ? response : response.data;
+                if (joinedResult.status === 'fulfilled') {
+                    const response = joinedResult.value;
+                    const joinedData = Array.isArray(response) ? response : response.data;
 
-                if (joinedData && Array.isArray(joinedData)) {
-                    const mappedChats = joinedData.map(chat => ({
-                        id: chat.roomId,
-                        title: chat.title,
-                        creatorNickname: chat.creatorNickname,
-                        lastMessage: t('check_msg'),
-                        time: '',
-                        active: parseInt(id) === chat.roomId
-                    }));
-                    setJoinedChats(mappedChats);
+                    if (joinedData && Array.isArray(joinedData)) {
+                        const mappedChats = joinedData.map(chat => ({
+                            id: chat.roomId,
+                            title: chat.title,
+                            creatorNickname: chat.creatorNickname,
+                            lastMessage: t('check_msg'),
+                            time: '',
+                            active: parseInt(id) === chat.roomId
+                        }));
+                        setJoinedChats(mappedChats);
 
-                    const currentRoom = joinedData.find(chat => parseInt(id) === chat.roomId);
-                    if (currentRoom) {
-                        const creatorId = currentRoom.creatorId || currentRoom.hostId || currentRoom.userId;
-                        setCurrentRoomInfo({
-                            title: currentRoom.title,
-                            creatorNickname: currentRoom.creatorNickname,
-                            creatorProfileImage: currentRoom.creatorProfileImage, // Ensure profile image is passed
-                            participantCount: currentRoom.participantCount,
-                            creatorId: creatorId,
-                            isCreator: (creatorId && creatorId === user?.userId) || 
-                                      (currentRoom.creatorNickname && currentRoom.creatorNickname === user?.nickname)
-                        });
+                        const currentRoom = joinedData.find(chat => parseInt(id) === chat.roomId);
+                        if (currentRoom) {
+                            const creatorId = currentRoom.creatorId || currentRoom.hostId || currentRoom.userId;
+                            setCurrentRoomInfo({
+                                title: currentRoom.title,
+                                creatorNickname: currentRoom.creatorNickname,
+                                creatorProfileImage: currentRoom.creatorProfileImage,
+                                participantCount: currentRoom.participantCount,
+                                creatorId: creatorId,
+                                isCreator: (creatorId && creatorId === user?.userId) || 
+                                          (currentRoom.creatorNickname && currentRoom.creatorNickname === user?.nickname)
+                            });
+                        }
+                    }
+                } else {
+                    console.error("Failed to load joined chats:", joinedResult.reason);
+                }
+
+                if (messagesResult.status === 'fulfilled') {
+                    const apiMessages = messagesResult.value;
+                    const mappedMessages = apiMessages.map(msg => ({
+                        id: msg.messageId,
+                        sender: msg.senderNickname || `User ${msg.senderId}`,
+                        senderId: msg.senderId,
+                        text: (msg.senderId === currentUserId && msg.originalContent) ? msg.originalContent : msg.content,
+                        time: new Date(msg.sentAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                        isMe: msg.senderId === currentUserId,
+                        profileImage: msg.senderProfileImage,
+                        type: 'text',
+                        sentAt: msg.sentAt
+                    })).reverse();
+                    setMessages(mappedMessages);
+                } else {
+                    const error = messagesResult.reason;
+                    console.error("Failed to load chat messages:", error);
+                    if (error.response && (error.response.status === 403 || error.response.status === 401 || error.response.status === 500)) {
+                         setAccessDenied(true);
+                    } else {
+                         setAccessDenied(true);
                     }
                 }
-            } catch (error) {
-                console.error("Failed to load chat data:", error);
+            } catch (uncaughtError) {
+                console.error("Unexpected error in loadData:", uncaughtError);
             } finally {
                 setLoading(false);
             }
@@ -102,7 +124,7 @@ const CommunityChatRoom = () => {
         if (id && user?.userId) {
             loadData();
         }
-    }, [id, user?.userId, user?.nickname]); // Combined dependencies
+    }, [id, user?.userId, user?.nickname]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -220,12 +242,6 @@ const CommunityChatRoom = () => {
             }
         };
     }, [id, user?.userId, accessToken]);
-
-    const [joinedChats, setJoinedChats] = useState([]);
-    const [currentRoomInfo, setCurrentRoomInfo] = useState(null);
-
-    // Fetch joined chats for sidebar
-    // Old useEffect for loading joined chats removed as it is now merged into loadData above
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
@@ -376,108 +392,120 @@ const CommunityChatRoom = () => {
 
                     {/* Right Main Chat Area */}
                     <div className="chat-main">
-                        <div className="chat-main-header">
-                            <div className="header-user-info">
-                                <img
-                                    src={(!currentRoomInfo?.creatorProfileImage || currentRoomInfo.creatorProfileImage.includes('default_avatar'))
-                                        ? stockProfile
-                                        : currentRoomInfo.creatorProfileImage}
-                                    alt="User"
-                                    className="header-avatar"
-                                    onError={(e) => { e.target.src = stockProfile }}
-                                />
-                                <div>
-                                    <div className="header-username">{currentRoomInfo?.creatorNickname}</div>
-                                    <div className="header-user-status">{t('room_manager')}👑</div>
-                                </div>
-                            </div>
-                            <div style={{ position: 'relative' }} ref={menuRef}>
-                                <button 
-                                    className="menu-btn" 
-                                    onClick={() => setShowMenu(!showMenu)} 
-                                    title="메뉴"
-                                >
-                                    &#8942; {/* Vertical Ellipsis */}
+                        {accessDenied ? (
+                            <div className="restricted-access-view">
+                                <img src={restrictedTiger} alt="Access Denied" className="restricted-tiger-img" />
+                                <h3>{t('restricted_access_title') || '거주 지역 내의 채팅방에만 참여 가능해요'}</h3>
+                                <button className="btn-primary" onClick={() => navigate('/community/chat')}>
+                                    {t('go_back_to_list') || '목록으로 돌아가기'}
                                 </button>
-                                {showMenu && (
-                                    <div className="chat-menu-dropdown">
-                                        <button onClick={handleLeaveChat} className="menu-item">
-                                            {t('chat_room_leave')}
-                                        </button>
-                                        {/* Show delete button if isCreator is true */}
-                                        {currentRoomInfo?.isCreator && (
-                                            <button onClick={handleDeleteChat} className="menu-item delete-item">
-                                                {t('chat_room_delete')}
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
                             </div>
-                        </div>
-
-                        <div className="chat-messages-area">
-                            {messages.map((msg, index) => {
-                                // Simple logic to show avatar only for first message in sequence or non-me messages
-                                const prevMsg = index > 0 ? messages[index - 1] : null;
-                                const isDifferentSenderThanPrev = prevMsg ? (prevMsg.senderId !== msg.senderId) : true;
-                                const showAvatar = !msg.isMe && isDifferentSenderThanPrev;
-
-                                // Show time logic: Show if it's the last message, or next message is different time/sender
-                                const isLast = index === messages.length - 1;
-                                const nextMsg = !isLast ? messages[index + 1] : null;
-                                const isDifferentSenderThanNext = nextMsg ? (nextMsg.senderId !== msg.senderId) : true;
-                                const isDifferentTimeThanNext = nextMsg ? (nextMsg.time !== msg.time) : true;
-
-                                const showTime = isLast || isDifferentSenderThanNext || isDifferentTimeThanNext;
-
-                                // Date Separator Logic
-                                const currentDate = new Date(msg.sentAt);
-                                const dateString = currentDate.toLocaleDateString(i18n.language, { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
-                                
-                                let showDateSeparator = false;
-                                if (index === 0) {
-                                    showDateSeparator = true;
-                                } else {
-                                    const prevDate = new Date(messages[index - 1].sentAt);
-                                    if (currentDate.toDateString() !== prevDate.toDateString()) {
-                                        showDateSeparator = true;
-                                    }
-                                }
-
-                                return (
-                                    <React.Fragment key={msg.id}>
-                                        {showDateSeparator && (
-                                            <div className="chat-date-separator">
-                                                {dateString}
+                        ) : (
+                            <>
+                                <div className="chat-main-header">
+                                    <div className="header-user-info">
+                                        <img
+                                            src={(!currentRoomInfo?.creatorProfileImage || currentRoomInfo.creatorProfileImage.includes('default_avatar'))
+                                                ? stockProfile
+                                                : currentRoomInfo.creatorProfileImage}
+                                            alt="User"
+                                            className="header-avatar"
+                                            onError={(e) => { e.target.src = stockProfile }}
+                                        />
+                                        <div>
+                                            <div className="header-username">{currentRoomInfo?.creatorNickname}</div>
+                                            <div className="header-user-status">{t('room_manager')}👑</div>
+                                        </div>
+                                    </div>
+                                    <div style={{ position: 'relative' }} ref={menuRef}>
+                                        <button 
+                                            className="menu-btn" 
+                                            onClick={() => setShowMenu(!showMenu)} 
+                                            title="메뉴"
+                                        >
+                                            &#8942; {/* Vertical Ellipsis */}
+                                        </button>
+                                        {showMenu && (
+                                            <div className="chat-menu-dropdown">
+                                                <button onClick={handleLeaveChat} className="menu-item">
+                                                    {t('chat_room_leave')}
+                                                </button>
+                                                {/* Show delete button if isCreator is true */}
+                                                {currentRoomInfo?.isCreator && (
+                                                    <button onClick={handleDeleteChat} className="menu-item delete-item">
+                                                        {t('chat_room_delete')}
+                                                    </button>
+                                                )}
                                             </div>
                                         )}
-                                        <ChatMessage msg={msg} showAvatar={showAvatar} showTime={showTime} />
-                                    </React.Fragment>
-                                );
-                            })}
-
-                            <div ref={messagesEndRef} />
-                        </div>
-
-                        <form className="chat-input-area" onSubmit={handleSendMessage}>
-                            {showEmojiPicker && (
-                                <div className="emoji-picker-container" ref={emojiPickerRef}>
-                                    <EmojiPicker onEmojiClick={onEmojiClick} width={300} height={400} />
+                                    </div>
                                 </div>
-                            )}
-                            <input
-                                type="text"
-                                placeholder={t('send_msg')}
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                            />
-                            <div className="input-actions">
-                                <button type="button" className="emoji-btn" style={{ fontSize: '1.5rem', marginRight: '10px' }} onClick={() => setShowEmojiPicker(!showEmojiPicker)}>☺</button>
-                                <button type="submit" className="send-btn">
-                                    ➤
-                                </button>
-                            </div>
-                        </form>
+
+                                <div className="chat-messages-area">
+                                    {messages.map((msg, index) => {
+                                        // Simple logic to show avatar only for first message in sequence or non-me messages
+                                        const prevMsg = index > 0 ? messages[index - 1] : null;
+                                        const isDifferentSenderThanPrev = prevMsg ? (prevMsg.senderId !== msg.senderId) : true;
+                                        const showAvatar = !msg.isMe && isDifferentSenderThanPrev;
+
+                                        // Show time logic: Show if it's the last message, or next message is different time/sender
+                                        const isLast = index === messages.length - 1;
+                                        const nextMsg = !isLast ? messages[index + 1] : null;
+                                        const isDifferentSenderThanNext = nextMsg ? (nextMsg.senderId !== msg.senderId) : true;
+                                        const isDifferentTimeThanNext = nextMsg ? (nextMsg.time !== msg.time) : true;
+
+                                        const showTime = isLast || isDifferentSenderThanNext || isDifferentTimeThanNext;
+
+                                        // Date Separator Logic
+                                        const currentDate = new Date(msg.sentAt);
+                                        const dateString = currentDate.toLocaleDateString(i18n.language, { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+                                        
+                                        let showDateSeparator = false;
+                                        if (index === 0) {
+                                            showDateSeparator = true;
+                                        } else {
+                                            const prevDate = new Date(messages[index - 1].sentAt);
+                                            if (currentDate.toDateString() !== prevDate.toDateString()) {
+                                                showDateSeparator = true;
+                                            }
+                                        }
+
+                                        return (
+                                            <React.Fragment key={msg.id}>
+                                                {showDateSeparator && (
+                                                    <div className="chat-date-separator">
+                                                        {dateString}
+                                                    </div>
+                                                )}
+                                                <ChatMessage msg={msg} showAvatar={showAvatar} showTime={showTime} />
+                                            </React.Fragment>
+                                        );
+                                    })}
+
+                                    <div ref={messagesEndRef} />
+                                </div>
+
+                                <form className="chat-input-area" onSubmit={handleSendMessage}>
+                                    {showEmojiPicker && (
+                                        <div className="emoji-picker-container" ref={emojiPickerRef}>
+                                            <EmojiPicker onEmojiClick={onEmojiClick} width={300} height={400} />
+                                        </div>
+                                    )}
+                                    <input
+                                        type="text"
+                                        placeholder={t('send_msg')}
+                                        value={message}
+                                        onChange={(e) => setMessage(e.target.value)}
+                                    />
+                                    <div className="input-actions">
+                                        <button type="button" className="emoji-btn" style={{ fontSize: '1.5rem', marginRight: '10px' }} onClick={() => setShowEmojiPicker(!showEmojiPicker)}>☺</button>
+                                        <button type="submit" className="send-btn">
+                                            ➤
+                                        </button>
+                                    </div>
+                                </form>
+                            </>
+                        )}
                     </div>
                 </div>
             </Container>
