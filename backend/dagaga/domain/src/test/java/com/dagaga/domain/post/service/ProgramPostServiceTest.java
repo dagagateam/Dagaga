@@ -42,6 +42,15 @@ class ProgramPostServiceTest {
     @Mock
     private com.dagaga.domain.post.repository.ProgramImageRepository programImageRepository;
 
+    @Mock
+    private com.dagaga.domain.post.repository.ProgramPostTranslationRepository translationRepository;
+
+    @Mock
+    private com.dagaga.domain.chat.language.repository.LanguageRepository languageRepository;
+
+    @Mock
+    private com.dagaga.domain.common.translate.port.TranslationPort translationPort;
+
     @InjectMocks
     private ProgramPostService programPostService;
 
@@ -52,6 +61,7 @@ class ProgramPostServiceTest {
         Program program = mock(Program.class);
         given(program.getArticleSeq()).willReturn(12345);
         given(program.getTitle()).willReturn("Test Title");
+        given(program.getContentText()).willReturn("Test Content");
         given(program.getProgramRegion()).willReturn("경기 수원시");
 
         given(programRepository.findAll()).willReturn(List.of(program));
@@ -60,12 +70,27 @@ class ProgramPostServiceTest {
         Location location = mock(Location.class);
         given(location.getLocationId()).willReturn(10);
         given(locationRepository.findByDistrictNameAndDepthAndParentName("수원시", 2, "경기")).willReturn(List.of(location));
+        
+        // Mock image repository
+        given(programImageRepository.findAllByArticleSeqOrderByImageOrderAsc(12345)).willReturn(List.of());
+        
+        // Mock saveAndFlush to return a post with ID
+        Post savedPost = mock(Post.class);
+        given(savedPost.getPostId()).willReturn(1);
+        given(savedPost.getTitle()).willReturn("Test Title");
+        given(savedPost.getContent()).willReturn("Test Content");
+        given(postRepository.saveAndFlush(any(Post.class))).willReturn(savedPost);
+        
+        // Mock translation (번역은 실패해도 무방)
+        given(translationPort.translateProgram(anyString(), anyString(), anyList()))
+                .willThrow(new RuntimeException("Translation disabled in test"));
 
         // when
         programPostService.syncProgramsToPosts();
 
         // then
-        verify(postRepository, times(1)).save(any(Post.class));
+        // 독립 트랜잭션 메서드가 호출되는지 확인할 수는 없으므로 saveAndFlush가 호출되었는지 확인
+        verify(postRepository, times(1)).saveAndFlush(any(Post.class));
     }
 
     @Test
@@ -92,7 +117,8 @@ class ProgramPostServiceTest {
         given(programImageRepository.findAllByArticleSeqIn(any())).willReturn(List.of());
 
         // when
-        Page<ProgramPostResponse> result = programPostService.getProgramPosts(10, PageRequest.of(0, 10));
+        String viewLangCode = "ko";
+        Page<ProgramPostResponse> result = programPostService.getProgramPosts(10, viewLangCode, PageRequest.of(0, 10));
 
         // then
         assertThat(result.getContent()).hasSize(1);
@@ -129,7 +155,8 @@ class ProgramPostServiceTest {
         given(programImageRepository.findAllByArticleSeqOrderByImageOrderAsc(anyInt())).willReturn(List.of(image));
 
         // when
-        ProgramPostDetailResponse response = programPostService.getProgramPostDetail(postId);
+        String viewLangCode = "ko";
+        ProgramPostDetailResponse response = programPostService.getProgramPostDetail(postId, viewLangCode);
 
         // then
         assertThat(response.getPostId()).isEqualTo(postId);

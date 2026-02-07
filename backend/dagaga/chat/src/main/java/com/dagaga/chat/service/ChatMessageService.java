@@ -9,8 +9,8 @@ import com.dagaga.domain.chat.language.repository.LanguageRepository;
 import com.dagaga.domain.chat.message.entity.ChatMessage;
 import com.dagaga.domain.chat.message.entity.MessageTranslation;
 import com.dagaga.domain.chat.message.repository.ChatMessageRepository;
-import com.dagaga.domain.chat.translate.port.TranslationPort;
-import com.dagaga.domain.chat.translate.port.TranslationResult;
+import com.dagaga.domain.common.translate.port.TranslationPort;
+import com.dagaga.domain.common.translate.port.TranslationResult;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.repository.UserRepository;
 

@@ -48,8 +48,9 @@ public class ProgramPostController {
                         @Parameter(description = "페이지 번호 (기본 0)") @RequestParam(defaultValue = "0") int page,
                         @Parameter(description = "페이지 크기 (기본 10)") @RequestParam(defaultValue = "10") int size) {
                 Integer locationId = currentUser.getLocationId();
+                String viewLangCode = currentUser.getViewLangCode();
                 Pageable pageable = PageRequest.of(page, size);
-                Page<ProgramPostResponse> response = programPostService.getProgramPosts(locationId, pageable);
+                Page<ProgramPostResponse> response = programPostService.getProgramPosts(locationId, viewLangCode, pageable);
                 return ResponseEntity.ok(ApiResponse.success("프로그램 게시글 조회가 완료되었습니다.", response));
         }
 
@@ -62,7 +63,8 @@ public class ProgramPostController {
         @GetMapping("/{postId}")
         public ResponseEntity<ApiResponse<ProgramPostDetailResponse>> getProgramPostDetail(
                         @PathVariable Integer postId) {
-                ProgramPostDetailResponse response = programPostService.getProgramPostDetail(postId);
+                String viewLangCode = currentUser.getViewLangCode();
+                ProgramPostDetailResponse response = programPostService.getProgramPostDetail(postId, viewLangCode);
                 return ResponseEntity.ok(ApiResponse.success("프로그램 게시글 상세 조회가 완료되었습니다.", response));
         }
 

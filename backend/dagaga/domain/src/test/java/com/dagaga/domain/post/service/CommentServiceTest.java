@@ -1,7 +1,7 @@
 package com.dagaga.domain.post.service;
 
 import com.dagaga.domain.chat.language.repository.LanguageRepository;
-import com.dagaga.domain.chat.translate.port.TranslationPort;
+import com.dagaga.domain.common.translate.port.TranslationPort;
 import com.dagaga.domain.post.dto.CommentCreateRequest;
 import com.dagaga.domain.post.dto.CommentResponse;
 import com.dagaga.domain.post.entity.Comment;

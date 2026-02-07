@@ -20,11 +20,43 @@ if STORAGE_MODE == 'cloud' and AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
     )
 
 
-def upload_to_s3(file_content, s3_key):
-    """S3에 파일 업로드"""
+def check_s3_object_exists(s3_key):
+    """S3에 객체가 존재하는지 확인"""
+    if not s3_client:
+        return False
+    
+    try:
+        s3_client.head_object(Bucket=S3_BUCKET_NAME, Key=s3_key)
+        return True
+    except ClientError as e:
+        # 404 에러면 객체가 없는 것
+        if e.response['Error']['Code'] == '404':
+            return False
+        # 다른 에러는 로그 출력
+        print(f"S3 객체 확인 중 오류: {e}")
+        return False
+
+
+def upload_to_s3(file_content, s3_key, skip_if_exists=True):
+    """S3에 파일 업로드
+    
+    Args:
+        file_content: 업로드할 파일 내용
+        s3_key: S3 객체 키
+        skip_if_exists: True일 경우 이미 존재하면 건너뛰기
+    
+    Returns:
+        S3 URL 또는 None
+    """
     if not s3_client:
         print("S3 클라이언트가 초기화되지 않았습니다.")
         return None
+
+    # 중복 체크
+    if skip_if_exists and check_s3_object_exists(s3_key):
+        print(f"S3에 이미 존재함 (건너뜀): {s3_key}")
+        # 이미 존재하는 경우에도 URL 반환
+        return f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{s3_key}"
 
     try:
         s3_client.put_object(
@@ -33,6 +65,7 @@ def upload_to_s3(file_content, s3_key):
             Body=file_content,
             ContentType='image/jpeg'
         )
+        print(f"S3 업로드 성공: {s3_key}")
         # S3 URL 반환
         return f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{s3_key}"
     except ClientError as e:
