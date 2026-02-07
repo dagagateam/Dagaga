@@ -14,10 +14,12 @@ import { fetchProblemDetail, fetchProblemNative, evaluatePronunciation } from ".
 import { useTts } from "../../hooks/useTts";
 import { useUserStore } from "../../store/userStore"; // Import User Store
 import "./Problem.css";
+import { useTranslation } from "react-i18next";
 
 const MAX_TRIES = 3;
 
 const Problem = () => {
+  const { t } = useTranslation();
   const { categoryId, questionId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -108,54 +110,54 @@ const Problem = () => {
           ]);
 
           if (detailRes.data && detailRes.data.success) {
-              const apiData = detailRes.data.data;
-              // DEBUG: Full API Data Object
-              console.log("[Problem Debug] Full API Data Object:", apiData); // LOG FULL OBJECT
-              
-              // Determine native question/answer based on user language or fallback to available translation
-              let nativeQ = null;
-              let nativeA = null;
+            const apiData = detailRes.data.data;
+            // DEBUG: Full API Data Object
+            console.log("[Problem Debug] Full API Data Object:", apiData); // LOG FULL OBJECT
 
-              // Priority: User's View Language -> Vietnamese (Mock Support) -> Chinese (Future)
-              if (userLanguage === 'vi' || apiData.viQuestions) {
-                  nativeQ = apiData.viQuestions;
-                  nativeA = apiData.viAnswers;
-              } else if (userLanguage === 'zh' || apiData.zhQuestions) {
-                  nativeQ = apiData.zhQuestions;
-                  nativeA = apiData.zhAnswers;
-              }
+            // Determine native question/answer based on user language or fallback to available translation
+            let nativeQ = null;
+            let nativeA = null;
 
-              // If translation exists, set showNative to true by default (if not already handled)
-              // Note: We initialized state to false, but we can update it here if meaningful
-              
-              // Fallback for question if translation is missing -> Use Original
-              if (!nativeQ) {
-                if (nativeRes.data && nativeRes.data.success) {
-                  // Extract native question string from response (might be object)
-                  const nativeData = nativeRes.data.data;
-                  nativeQ = typeof nativeData === 'string' 
-                    ? nativeData 
-                    : (nativeData?.nativeQuestion || nativeData?.koreanQuestion || apiData.questionText);
-                } else {
-                  nativeQ = apiData.questionText;
-                }
-              }
-              
-              // DEBUG: Language info
-              console.log("[Problem] User Language:", userLanguage);
-              console.log("[Problem] Native Question (Translated):", nativeQ);
-              console.log("[Problem] Native Answer (Translated):", nativeA);
-
-              setData({
-                  problemText: apiData.questionText,
-                  words: apiData.words,
-                  pronunciations: apiData.pronunciation_guide || apiData.pronunciationGuide || [],
-                  translations: apiData.wordTranslations || [],
-                  nativeQuestion: nativeQ,
-                  nativeAnswer: nativeA,
-                  exampleAnswer: apiData.exampleAnswer,
-              });
+            // Priority: User's View Language -> Vietnamese (Mock Support) -> Chinese (Future)
+            if (userLanguage === 'vi' || apiData.viQuestions) {
+              nativeQ = apiData.viQuestions;
+              nativeA = apiData.viAnswers;
+            } else if (userLanguage === 'zh' || apiData.zhQuestions) {
+              nativeQ = apiData.zhQuestions;
+              nativeA = apiData.zhAnswers;
             }
+
+            // If translation exists, set showNative to true by default (if not already handled)
+            // Note: We initialized state to false, but we can update it here if meaningful
+
+            // Fallback for question if translation is missing -> Use Original
+            if (!nativeQ) {
+              if (nativeRes.data && nativeRes.data.success) {
+                // Extract native question string from response (might be object)
+                const nativeData = nativeRes.data.data;
+                nativeQ = typeof nativeData === 'string'
+                  ? nativeData
+                  : (nativeData?.nativeQuestion || nativeData?.koreanQuestion || apiData.questionText);
+              } else {
+                nativeQ = apiData.questionText;
+              }
+            }
+
+            // DEBUG: Language info
+            console.log("[Problem] User Language:", userLanguage);
+            console.log("[Problem] Native Question (Translated):", nativeQ);
+            console.log("[Problem] Native Answer (Translated):", nativeA);
+
+            setData({
+              problemText: apiData.questionText,
+              words: apiData.words,
+              pronunciations: apiData.pronunciation_guide || apiData.pronunciationGuide || [],
+              translations: apiData.wordTranslations || [],
+              nativeQuestion: nativeQ,
+              nativeAnswer: nativeA,
+              exampleAnswer: apiData.exampleAnswer,
+            });
+          }
         } catch (err) {
           console.error("Failed to fetch problem details", err);
         } finally {
@@ -170,7 +172,7 @@ const Problem = () => {
   }, [categoryId, questionId, navState, userLanguage]);
 
 
-  const problemText = data?.problemText || "문제를 불러오는 중...";
+  const problemText = data?.problemText || t('loading_problem');
   const exampleAnswer = data?.exampleAnswer;
   const nativeAnswer = data?.nativeAnswer; // Get native answer
 
@@ -257,7 +259,7 @@ const Problem = () => {
     setSentenceHighlightIndex(-1); // Ensure it's reset to -1 (default)
     initialAudioPlayedRef.current = true; // Mark as played since we manual play below
     lastPlayedStepRef.current = -1; // Reset last played tracking
-    
+
     // Manually replay the header question
     if (data && data.problemText) {
       setTimeout(() => {
@@ -362,64 +364,64 @@ const Problem = () => {
     <Container fluid className="problem-container">
       {/* ... (progress bar, etc) ... */}
       {loading ? (
-        <ProblemLoading text="문제를 불러오는 중..." />
+        <ProblemLoading text={t('loading_problem')} />
       ) : (
         <>
-      <ProblemProgress
-        currentWord={currentStep}
-        totalWords={totalSteps}
-        onExit={() => navigate(`/ProblemSelect/${categoryId}`)}
-      />
-      <div className="problem-question">
-        <div className="problem-header">
-          <h2>
-            {problemText}
-          </h2>
-          {userLanguage !== 'ko' && <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />}
-          <ProblemRepeat onClick={handleQuestionReplay} />
-        </div>
-        {showNative && (
-          <div className="problem-translation-text">
-            {data?.nativeQuestion}
-          </div>
-        )}
-      </div>
-
-      <div className="problem-answer-section">
-        <ProblemMascot />
-        <div className="problem-answer-content">
-          <ProblemAnswer
-            words={words}
-            pronunciations={pronunciations}
-            translations={translations}
-            currentStep={currentStep}
-            sentenceHighlightIndex={isFullSentenceStep ? sentenceHighlightIndex : null}
-            wordResults={wordResults}
-            onReplay={handleReplay}
-            onSlowReplay={handleSlowReplay}
-            onPlayWord={handlePlayWord}
-            showTranslations={showNative}
-            nativeAnswer={nativeAnswer}
+          <ProblemProgress
+            currentWord={currentStep}
+            totalWords={totalSteps}
+            onExit={() => navigate(`/ProblemSelect/${categoryId}`)}
           />
-        </div>
-      </div>
-      {/* ... (rest of the component) ... */}
-      <div className="problem-spacer"></div>
-      <div className="problem-bottom-controls">
-        {isProblemDone ? (
-          <ProblemDone onRetry={handleRetry} onReturn={handleReturn} />
-        ) : (
-          <>
-            <ProblemRecordButton
-              onRecordingComplete={handleRecordingComplete}
-              onAnalyserChange={handleAnalyserChange}
-              disabled={isProcessing}
-            />
-            <ProblemSoundwave analyser={audioAnalyser} isRecording={isRecording} />
-          </>
-        )}
-      </div>
-      </>
+          <div className="problem-question">
+            <div className="problem-header">
+              <h2>
+                {problemText}
+              </h2>
+              {userLanguage !== 'ko' && <ProblemTranslate onClick={() => setShowNative(!showNative)} active={showNative} />}
+              <ProblemRepeat onClick={handleQuestionReplay} />
+            </div>
+            {showNative && (
+              <div className="problem-translation-text">
+                {data?.nativeQuestion}
+              </div>
+            )}
+          </div>
+
+          <div className="problem-answer-section">
+            <ProblemMascot />
+            <div className="problem-answer-content">
+              <ProblemAnswer
+                words={words}
+                pronunciations={pronunciations}
+                translations={translations}
+                currentStep={currentStep}
+                sentenceHighlightIndex={isFullSentenceStep ? sentenceHighlightIndex : null}
+                wordResults={wordResults}
+                onReplay={handleReplay}
+                onSlowReplay={handleSlowReplay}
+                onPlayWord={handlePlayWord}
+                showTranslations={showNative}
+                nativeAnswer={nativeAnswer}
+              />
+            </div>
+          </div>
+          {/* ... (rest of the component) ... */}
+          <div className="problem-spacer"></div>
+          <div className="problem-bottom-controls">
+            {isProblemDone ? (
+              <ProblemDone onRetry={handleRetry} onReturn={handleReturn} />
+            ) : (
+              <>
+                <ProblemRecordButton
+                  onRecordingComplete={handleRecordingComplete}
+                  onAnalyserChange={handleAnalyserChange}
+                  disabled={isProcessing}
+                />
+                <ProblemSoundwave analyser={audioAnalyser} isRecording={isRecording} />
+              </>
+            )}
+          </div>
+        </>
       )}
     </Container>
   );

@@ -14,7 +14,7 @@ import logo from '../../assets/icons/logo.png';
 import './Homepage.css';
 
 const Homepage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -46,7 +46,7 @@ const Homepage = () => {
         <div className="hero-content">
           <div className="hero-left">
             <h1 className="hero-static-text">
-              <Trans i18nKey="with_dgg">
+              <Trans i18nKey="with_dgg" key={i18n.language}>
                 <img src={logo} className="hero-logo-img" alt="Dagaga" />
               </Trans>
             </h1>
