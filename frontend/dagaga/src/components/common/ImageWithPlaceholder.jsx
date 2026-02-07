@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './ImageWithPlaceholder.css';
+import logo from '../../assets/icons/logo.png';
 
 const ImageWithPlaceholder = ({ src, alt, className, style, ...props }) => {
     const [loaded, setLoaded] = useState(false);
@@ -11,9 +12,9 @@ const ImageWithPlaceholder = ({ src, alt, className, style, ...props }) => {
                 <div className="skeleton-loader" />
             )}
             <img
-                src={src}
+                src={error ? logo : src}
                 alt={alt}
-                className={`real-image ${loaded ? 'loaded' : ''}`}
+                className={`real-image ${loaded ? 'loaded' : ''} ${error ? 'error-fallback' : ''}`}
                 onLoad={() => setLoaded(true)}
                 onError={() => {
                     setLoaded(true);

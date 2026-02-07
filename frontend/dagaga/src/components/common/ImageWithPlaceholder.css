@@ -43,3 +43,10 @@
 .real-image.loaded {
     opacity: 1;
 }
+
+.error-fallback {
+    object-fit: contain !important;
+    /* Force contain for logo fallback */
+    padding: 20px;
+    background-color: #f8f9fa;
+}

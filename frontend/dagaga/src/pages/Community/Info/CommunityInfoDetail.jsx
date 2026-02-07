@@ -103,10 +103,7 @@ const CommunityInfoDetail = () => {
         e.preventDefault();
         if (!comment.trim()) return;
 
-        if (/<[^>]*>/.test(comment)) {
-            alert(t('error_html_tag_not_allowed'));
-            return;
-        }
+
 
         if (!isLoggedIn || !user) {
             alert(t('login_required_service'));
@@ -126,7 +123,8 @@ const CommunityInfoDetail = () => {
             setReplyingTo(null); // 답글 모드 종료
         } catch (error) {
             console.error("댓글 작성 실패:", error);
-            alert(t('comment_write_failed'));
+            const errorMsg = error.response?.data?.message || 'comment_write_failed';
+            alert(t(errorMsg));
         }
     };
 

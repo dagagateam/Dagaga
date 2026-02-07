@@ -22,7 +22,7 @@ public class SocialSignupDto {
 
     @NotBlank(message = "닉네임은 필수입니다")
     @Size(max = 20, message = "닉네임은 20자를 초과할 수 없습니다")
-    @NoHtml(message = "HTML 태그는 사용할 수 없습니다")
+    @NoHtml(message = "error_html_tag_not_allowed")
     private String nickname;
 
     @NotBlank(message = "표시 언어 설정은 필수입니다")

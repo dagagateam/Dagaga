@@ -226,10 +226,7 @@ const CommunityChatRoom = () => {
         e.preventDefault();
         if (!message.trim()) return;
 
-        if (/<[^>]*>/.test(message)) {
-            alert(t('error_html_tag_not_allowed'));
-            return;
-        }
+
 
         if (stompClient.current && stompClient.current.connected) {
             try {

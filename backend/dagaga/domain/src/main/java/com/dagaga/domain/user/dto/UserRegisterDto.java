@@ -26,7 +26,7 @@ public class UserRegisterDto {
     private String password;
 
     @Size(max = 20, message = "닉네임은 20자를 초과할 수 없습니다")
-    @NoHtml(message = "HTML 태그는 사용할 수 없습니다")
+    @NoHtml(message = "error_html_tag_not_allowed")
     private String nickname;
     private String viewLangCode;
     private String nativeLangCode;
