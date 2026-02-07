@@ -27,8 +27,8 @@ const SocialSignup = () => {
         email: '',
         nickname: '',
         nativeLanguage: '중국어',
-        sido: '시/도 선택',
-        gugun: '구/군 선택',
+        sido: '',
+        gugun: '',
         arrivalDate: ''
     });
 
@@ -46,7 +46,7 @@ const SocialSignup = () => {
     }, [searchParams, navigate]);
 
     const handleSidoChange = (selectedSido) => {
-        setFormData(prev => ({ ...prev, sido: selectedSido, gugun: '구/군 선택' }));
+        setFormData(prev => ({ ...prev, sido: selectedSido, gugun: '' }));
     };
 
     const handleGugunChange = (selectedGugun) => {
@@ -58,12 +58,12 @@ const SocialSignup = () => {
         const nicknameRegex = /^[가-힣a-zA-Z0-9]{2,10}$/;
 
         if (!nickname) {
-            setErrors(prev => ({ ...prev, nickname: "닉네임을 입력해주세요." }));
+            setErrors(prev => ({ ...prev, nickname: t('nickname_required') }));
             return;
         }
 
         if (!nicknameRegex.test(nickname)) {
-            setErrors(prev => ({ ...prev, nickname: "닉네임은 특수문자 제외 2~10자여야 합니다." }));
+            setErrors(prev => ({ ...prev, nickname: t('error_nickname_format') }));
             return;
         }
 
@@ -71,13 +71,13 @@ const SocialSignup = () => {
             const isAvailable = await checkNicknameAPI(nickname);
             setIsNicknameAvailable(isAvailable);
             if (isAvailable) {
-                setNicknameMessage("사용 가능한 닉네임입니다.");
+                setNicknameMessage(t('nickname_available'));
                 setErrors(prev => ({ ...prev, nickname: '' }));
             } else {
-                setNicknameMessage("이미 사용 중인 닉네임입니다.");
+                setNicknameMessage(t('error_nickname_duplicate'));
             }
         } catch (error) {
-            setNicknameMessage("닉네임 확인 중 오류가 발생했습니다.");
+            setNicknameMessage(t('nickname_check_error'));
         }
     };
 
@@ -99,7 +99,7 @@ const SocialSignup = () => {
         e.preventDefault();
 
         if (isNicknameAvailable !== true) {
-            setErrors(prev => ({ ...prev, nickname: "닉네임 중복 확인을 해주세요." }));
+            setErrors(prev => ({ ...prev, nickname: t('nickname_check_req') }));
             return;
         }
 
@@ -119,7 +119,7 @@ const SocialSignup = () => {
             navigate('/ScenarioSelect');
         } catch (error) {
             console.error("Social Signup failed:", error);
-            alert("회원가입 중 오류가 발생했습니다.");
+            alert(t('signup_error'));
         }
     };
 

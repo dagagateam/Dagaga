@@ -19,13 +19,13 @@ public class MessageControllerDto {
             
             @NotBlank(message = "메시지는 필수입니다")
             @Size(max = 2000, message = "메시지는 2000자를 초과할 수 없습니다")
-            @NoHtml(message = "HTML 태그는 사용할 수 없습니다")
+            @NoHtml(message = "error_html_tag_not_allowed")
             String originalText,
             
             String translatedLang,
             
             @Size(max = 2000, message = "번역 메시지는 2000자를 초과할 수 없습니다")
-            @NoHtml(message = "HTML 태그는 사용할 수 없습니다")
+            @NoHtml(message = "error_html_tag_not_allowed")
             String translatedText
     ) {
         // Controller DTO -> Service DTO 변환

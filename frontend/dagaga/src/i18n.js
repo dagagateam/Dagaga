@@ -244,7 +244,25 @@ const resources = {
       "password_placeholder": "비밀번호를 입력하세요",
       "update_failed": "업데이트에 실패했습니다.",
       "error_fetching_problem_info": "문제 정보를 불러올 수 없습니다.",
-      "error_occurred": "오류가 발생했습니다."
+      "error_occurred": "오류가 발생했습니다.",
+      "error_html_tag_not_allowed": "HTML 태그는 사용할 수 없습니다.",
+      "verify_action": "인증하기",
+      "verification_complete": "인증 완료",
+      "confirm_action": "확인",
+      "email_required": "이메일을 입력해주세요.",
+      "email_invalid_format": "올바른 이메일 형식이 아닙니다.",
+      "email_duplicate": "이미 사용 중인 이메일입니다.",
+      "verification_code_sent": "인증 코드가 전송되었습니다. 이메일을 확인해주세요.",
+      "verification_send_error": "인증 메일 전송 중 오류가 발생했습니다.",
+      "verification_code_required": "인증 코드를 입력해주세요.",
+      "verification_code_placeholder": "인증 코드 6자리",
+      "email_verified_success": "이메일 인증이 완료되었습니다.",
+      "verification_code_invalid": "인증 코드가 올바르지 않습니다.",
+      "nickname_check_error": "닉네임 확인 중 오류가 발생했습니다.",
+      "password_match": "비밀번호가 일치합니다.",
+      "password_requirements_msg": "비밀번호는 영문, 숫자, 특수문자(*, +, -)를 포함하여 8자 이상이어야 합니다.",
+      "email_verification_required": "이메일 인증을 완료해주세요.",
+      "signup_success": "회원가입에 성공했습니다!"
     }
   },
   zh: {
@@ -467,7 +485,25 @@ const resources = {
       "password_placeholder": "请输入密码",
       "update_failed": "更新失败。",
       "error_fetching_problem_info": "无法加载题目信息。",
-      "error_occurred": "发生了错误。"
+      "error_occurred": "发生了错误。",
+      "error_html_tag_not_allowed": "不允许使用HTML标签。",
+      "verify_action": "验证",
+      "verification_complete": "验证完成",
+      "confirm_action": "确认",
+      "email_required": "请输入电子邮件。",
+      "email_invalid_format": "电子邮件格式无效。",
+      "email_duplicate": "该电子邮件已被使用。",
+      "verification_code_sent": "验证码已发送。请检查您的电子邮件。",
+      "verification_send_error": "发送验证邮件时发生错误。",
+      "verification_code_required": "请输入验证码。",
+      "verification_code_placeholder": "6位验证码",
+      "email_verified_success": "电子邮件验证已完成。",
+      "verification_code_invalid": "验证码无效。",
+      "nickname_check_error": "检查昵称时发生错误。",
+      "password_match": "密码匹配。",
+      "password_requirements_msg": "密码必须包含英文、数字、特殊字符(*, +, -)，且不少于8位。",
+      "email_verification_required": "请完成电子邮件验证。",
+      "signup_success": "注册成功！"
     }
   },
   vi: {
@@ -690,7 +726,25 @@ const resources = {
       "password_placeholder": "Nhập mật khẩu",
       "update_failed": "Cập nhật thất bại.",
       "error_fetching_problem_info": "Không thể tải thông tin câu hỏi.",
-      "error_occurred": "Đã xảy ra lỗi."
+      "error_occurred": "Đã xảy ra lỗi.",
+      "error_html_tag_not_allowed": "Thẻ HTML không được phép.",
+      "verify_action": "Xác thực",
+      "verification_complete": "Đã xác thực",
+      "confirm_action": "Xác nhận",
+      "email_required": "Vui lòng nhập email.",
+      "email_invalid_format": "Định dạng email không hợp lệ.",
+      "email_duplicate": "Email đã được sử dụng.",
+      "verification_code_sent": "Mã xác thực đã được gửi. Vui lòng kiểm tra email.",
+      "verification_send_error": "Có lỗi khi gửi email xác thực.",
+      "verification_code_required": "Vui lòng nhập mã xác thực.",
+      "verification_code_placeholder": "Mã xác thực 6 chữ số",
+      "email_verified_success": "Xác thực email hoàn tất.",
+      "verification_code_invalid": "Mã xác thực không hợp lệ.",
+      "nickname_check_error": "Có lỗi khi kiểm tra biệt danh.",
+      "password_match": "Mật khẩu khớp.",
+      "password_requirements_msg": "Mật khẩu phải bao gồm chữ cái, số, ký tự đặc biệt (*, +, -) và ít nhất 8 ký tự.",
+      "email_verification_required": "Vui lòng hoàn tất xác thực email.",
+      "signup_success": "Đăng ký thành công!"
     }
   }
 };

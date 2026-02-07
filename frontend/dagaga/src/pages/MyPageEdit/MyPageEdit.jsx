@@ -17,8 +17,8 @@ const MyPageEdit = () => {
     const [formData, setFormData] = useState({
         nickname: '',
         email: '',
-        sido: '시/도 선택',
-        gugun: '구/군 선택',
+        sido: '',
+        gugun: '',
         preferredLang: '한국어',
         nativeLang: '한국어',
         entryDate: '',
@@ -50,8 +50,8 @@ const MyPageEdit = () => {
                 setFormData({
                     nickname: user.nickname || '',
                     email: user.email || '',
-                    sido: sido || '시/도 선택',
-                    gugun: gugun || '구/군 선택',
+                    sido: sido || '',
+                    gugun: gugun || '',
                     preferredLang: langCodeToDisplay[user.viewLangCode] || '한국어',
                     nativeLang: langCodeToDisplay[user.nativeLangCode] || '한국어',
                     entryDate: user.arrivalDate || '', // Use arrivalDate, keeps YYYY-MM-DD from API
@@ -78,7 +78,7 @@ const MyPageEdit = () => {
     };
 
     const handleSidoChange = (val) => {
-        setFormData(prev => ({ ...prev, sido: val, gugun: '구/군 선택' }));
+        setFormData(prev => ({ ...prev, sido: val, gugun: '' }));
     };
 
     const handleGugunChange = (val) => {

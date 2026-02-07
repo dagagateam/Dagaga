@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
+import { Container, Modal, Button } from 'react-bootstrap';
 import './CommunityChatRoom.css';
 import chattingTiger from '../../../assets/characters/chat_tiger2.png';
 import EmojiPicker from 'emoji-picker-react';
@@ -29,6 +29,8 @@ const CommunityChatRoom = () => {
     const [showMenu, setShowMenu] = useState(false); // Menu dropdown state
     const menuRef = React.useRef(null);
     const stompClient = React.useRef(null);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [showErrorModal, setShowErrorModal] = useState(false);
 
 
     const { user, accessToken } = useUserStore();
@@ -151,6 +153,14 @@ const CommunityChatRoom = () => {
                         } catch (e) {
                             console.error('Failed to parse message body:', e);
                         }
+                    }
+                });
+
+                // Subscribe to user specific errors
+                client.subscribe('/user/queue/errors', (message) => {
+                    if (message.body) {
+                        setErrorMessage(message.body);
+                        setShowErrorModal(true);
                     }
                 });
             },
@@ -446,6 +456,20 @@ const CommunityChatRoom = () => {
                     </div>
                 </div>
             </Container>
+
+            <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>{t('notification') || '알림'}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {t(errorMessage)}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowErrorModal(false)}>
+                        {t('confirm') || '확인'}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };
