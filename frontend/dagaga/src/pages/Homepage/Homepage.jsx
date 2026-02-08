@@ -20,7 +20,7 @@ const Homepage = () => {
 
   // Text rotation items for top left
   const textItems = [
-    t('lang_ko'),
+    t('swap_learning_title'),
     t('communication_rotation'),
     t('info_rotation'),
   ];
@@ -95,43 +95,40 @@ const Homepage = () => {
               width={480}
               height={270}
             >
-              <Card style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #EE5D5D 100%)' }}>
-                <h3>📚 {t('nav_learning')}</h3>
-                <p>{t('learning_swapcard')}</p>
+              <Card>
+                <div className="swap-card-bg" style={{ backgroundImage: `url(${learningImg})` }}></div>
               </Card>
-              <Card style={{ background: 'linear-gradient(135deg, #4ECDC4 0%, #45B7AF 100%)' }}>
-                <h3>💬 {t('communication_rotation')}</h3>
-                <p>{t('community_swapcard')}</p>
+              <Card>
+                <div className="swap-card-bg" style={{ backgroundImage: `url(${chatImg})` }}></div>
               </Card>
-              <Card style={{ background: 'linear-gradient(135deg, #45B7D1 0%, #3CA5BD 100%)' }}>
-                <h3>📰 {t('info_rotation')}</h3>
-                <p>{t('info_swapcard')}</p>
+              <Card>
+                <div className="swap-card-bg" style={{ backgroundImage: `url(${infoImg})` }}></div>
               </Card>
             </CardSwap>
+            
+            {/* Text content below cards */}
+            <div className="swap-card-info">
+              {activeIndex === 0 && (
+                <div className="card-text-content">
+                  <h3>📚 {t('swap_learning_title')}</h3>
+                  <p>{t('learning_swapcard')}</p>
+                </div>
+              )}
+              {activeIndex === 1 && (
+                <div className="card-text-content">
+                  <h3>💬 {t('communication_rotation')}</h3>
+                  <p>{t('community_swapcard')}</p>
+                </div>
+              )}
+              {activeIndex === 2 && (
+                <div className="card-text-content">
+                  <h3>📰 {t('info_rotation')}</h3>
+                  <p>{t('info_swapcard')}</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Bottom Section: Navigation Cards */}
-      <div className="homepage-navigation">
-        <RouteCard
-          title={t('learning_navcard')}
-          body={t('learning_comment_navcard')}
-          onClick={() => handleNavClick('/ScenarioSelect')}
-          image={learningImg}
-        />
-        <RouteCard
-          title={t('info_navcard')}
-          body={t('info_comment_navcard')}
-          onClick={() => handleNavClick('/Community/Info')}
-          image={infoImg}
-        />
-        <RouteCard
-          title={t('nav_community')}
-          body={t('community_comment_navcard')}
-          onClick={() => handleNavClick('/Community/Chat')}
-          image={chatImg}
-        />
       </div>
     </div>
   );
