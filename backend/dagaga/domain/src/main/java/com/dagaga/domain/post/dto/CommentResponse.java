@@ -12,6 +12,7 @@ public class CommentResponse {
     private Integer commentId;
     private Integer userId;
     private String nickname;
+    private String profileImage;
     private String content;
     private LocalDateTime createdAt;
     private List<CommentResponse> replies;
