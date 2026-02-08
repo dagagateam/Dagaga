@@ -16,5 +16,6 @@ public class ChatRoomResponse {
     private String title;
     private RoomType roomType;
     private String creatorNickname;
+    private String creatorProfileImage;
     private long participantCount;
 }
