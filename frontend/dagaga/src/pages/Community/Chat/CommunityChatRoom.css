@@ -114,7 +114,7 @@
     align-items: center;
     font-weight: bold;
     color: #555;
-    background-image: url('https://via.placeholder.com/150');
+    background-image: url('https://placehold.co/150');
     /* Use actual images later */
     background-size: cover;
 }
@@ -292,25 +292,45 @@
     background-color: #fff1f0;
 }
 
-.chat-input-area input {
+.chat-input-area {
+    border: 1px solid #eee;
+    border-radius: 20px;
+    margin: 20px;
+    margin-top: 0;
+    min-height: 50px;
+    background-color: white;
+}
+
+.chat-input-area textarea {
     flex: 1;
     border: none;
     background: none;
     font-size: 1rem;
     outline: none;
     color: #333;
+    resize: none;
+    max-height: 80px; /* Approx 3 lines */
+    overflow-y: auto;
+    font-family: inherit;
+    line-height: 1.5;
+    padding: 0;
+    margin: 0;
 }
 
-.chat-input-area {
-    border: 1px solid #eee;
-    border-radius: 20px;
-    margin: 20px;
-    margin-top: 0;
+/* Hide scrollbar for cleaner look */
+.chat-input-area textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-input-area textarea::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 3px;
 }
 
 .input-actions {
     display: flex;
     gap: 10px;
+    align-self: flex-end; /* Keep buttons at the bottom */
 }
 
 .input-actions button {
@@ -453,4 +473,69 @@
     .sidebar-chat-item {
         padding: 10px;
     }
+}
+
+.chat-date-separator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    position: relative;
+    color: #888;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.chat-date-separator::before,
+.chat-date-separator::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 0 15px;
+}
+
+.restricted-access-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 20px;
+}
+
+.restricted-tiger-img {
+    width: 200px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.restricted-access-view h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.restricted-access-view p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.restricted-access-view .btn-primary {
+    background-color: #F8B15E;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.restricted-access-view .btn-primary:hover {
+    background-color: #e09b4d;
 }

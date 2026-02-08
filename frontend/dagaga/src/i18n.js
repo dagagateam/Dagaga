@@ -270,7 +270,9 @@ const resources = {
       "confirm_delete_chat": "정말 이 채팅방을 삭제하시겠습니까? 모든 대화 내용이 사라집니다.",
       "delete_chat_failed": "채팅방 삭제에 실패했습니다.",
       "comment_write_failed": "댓글 작성에 실패했습니다.",
-      "replying_to_user": "<span class=\"replying-to-text\">@{{user}}</span> 님에게 답글 작성 중"
+      "replying_to_user": "<span class=\"replying-to-text\">@{{user}}</span> 님에게 답글 작성 중",
+      "restricted_access_title": "거주 지역 내의 채팅방에만 참여 가능해요",
+      "go_back_to_list": "목록으로 돌아가기"
     }
   },
   zh: {
@@ -519,7 +521,9 @@ const resources = {
       "confirm_delete_chat": "确定要删除此聊天室吗？所有对话内容将消失。",
       "delete_chat_failed": "删除聊天室失败。",
       "comment_write_failed": "发表评论失败。",
-      "replying_to_user": "正在回复 <span class=\"replying-to-text\">@{{user}}</span>"
+      "replying_to_user": "正在回复 <span class=\"replying-to-text\">@{{user}}</span>",
+      "restricted_access_title": "只能参与居住地区的聊天室",
+      "go_back_to_list": "返回列表"
     }
   },
   vi: {
@@ -768,7 +772,9 @@ const resources = {
       "confirm_delete_chat": "Bạn có chắc chắn muốn xóa phòng chat này không? Tất cả nội dung cuộc trò chuyện sẽ biến mất.",
       "delete_chat_failed": "Xóa phòng chat thất bại.",
       "comment_write_failed": "Viết bình luận thất bại.",
-      "replying_to_user": "Đang trả lời <span class=\"replying-to-text\">@{{user}}</span>"
+      "replying_to_user": "Đang trả lời <span class=\"replying-to-text\">@{{user}}</span>",
+      "restricted_access_title": "Chỉ có thể tham gia phòng chat trong khu vực cư trú",
+      "go_back_to_list": "Quay lại danh sách"
     }
   }
 };

@@ -67,7 +67,7 @@ const CommunityInfo = () => {
                         progressPeriod: progressPeriod,
                         // 마감 여부는 접수 마감일(regEndDate) 기준으로 판단 (없으면 진행 마감일 기준)
                         isExpired: checkIsExpired(formatPeriod(post.regStartDate, post.regEndDate)) || checkIsExpired(formatPeriod(post.progStartDate, post.progEndDate)),
-                        image: post.imageUrls?.[0] || `https://via.placeholder.com/600x300/F8B15E/FFFFFF?text=${encodeURIComponent(post.title || 'No Image')}`
+                        image: post.imageUrls?.[0] || `https://placehold.co/600x300?text=${encodeURIComponent(post.title || 'No Image')}`
                     };
                 });
 

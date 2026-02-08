@@ -18,11 +18,12 @@ public class AuthResponse {
     private String tokenType;
     private Integer expiresIn;
 
-    // JWT에 포함되어 있지만, 즉각적인 UI 처리를 위해 남겨둠 (추후 제거 가능)
+    // JWT에 포함되어 있지만, 즉각적인 UI 처리를 위해 남겨둠
     private Integer userId;
     private String email;
     private Integer locationId;
     private String viewLangCode;
     private String nativeLangCode;
     private String nickname;
+    private String profileImage;
 }

@@ -54,7 +54,7 @@ export const useUserStore = create(
             viewLangCode: decoded.viewLangCode,
             nativeLangCode: decoded.nativeLangCode,
             nickname: decoded.nickname,
-            profileImage: state.user?.profileImage || stockProfile,
+            profileImage: authResponse.profileImage || state.user?.profileImage || stockProfile,
           },
           language: decoded.viewLangCode || state.language,
           accessToken: token,
