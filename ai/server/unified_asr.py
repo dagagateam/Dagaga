@@ -4,13 +4,18 @@ import logging
 from pathlib import Path
 from typing import Optional
 import torch
+from dotenv import load_dotenv
+
+# .env 파일 로드
+load_dotenv()
 
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from deep_translator import GoogleTranslator
-from gtts import gTTS
 import io
+import edge_tts
+from langdetect import detect, LangDetectException
 
 # PEFT 및 Transformers
 from transformers import (
@@ -33,7 +38,7 @@ BASE_MODEL_NAME = os.getenv("WHISPER_MODEL_SIZE", "openai/whisper-small")
 if not "/" in BASE_MODEL_NAME:
     BASE_MODEL_NAME = f"openai/whisper-{BASE_MODEL_NAME}"
 
-LORA_WEIGHTS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "finetuned")
+LORA_WEIGHTS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "finetuned")
 
 # 기기 설정
 _default_device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -145,33 +150,185 @@ def get_asr_pipeline():
 
     return asr_pipeline
 
-"구글 번역"
+
+
+"Gemini 번역"
 async def translate_text(text: str, source_lang: str, target_lang: str = "ko") -> str:
     try:
-        # deep-translator 언어 코드 매핑
-        lang_map = {
-            "zh-cn": "zh-CN",
-            "zh": "zh-CN",
-            "cn": "zh-CN",
-            "vi": "vi",
-            "ko": "ko",
-            "en": "en",
-            "ja": "ja"
+        # 언어 코드를 한국어 이름으로 매핑
+        lang_name_map = {
+            "zh-cn": "중국어",
+            "zh": "중국어",
+            "cn": "중국어",
+            "vi": "베트남어",
+            "ko": "한국어",
+            "en": "영어",
+            "ja": "일본어"
         }
         
-        source = lang_map.get(source_lang.lower(), source_lang)
-        target = lang_map.get(target_lang.lower(), target_lang)
+        source_name = lang_name_map.get(source_lang.lower(), source_lang)
+        target_name = lang_name_map.get(target_lang.lower(), "한국어")
         
-        # deep-translator 사용 (동기 방식)
-        translator = GoogleTranslator(source=source, target=target)
-        result = translator.translate(text)
-        return result
-    except Exception as e:
-        logger.error(f"Translation error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Translation failed: {str(e)}"
+        # llm 사용해서 어구 자연스럽게 만들기
+        import requests
+        
+        translation_api_key = os.getenv("TRANSLATION_API_KEY")
+        translation_model = os.getenv("TRANSLATION_MODEL")
+        translation_api_url = os.getenv("TRANSLATION_API_URL")
+        
+        if not translation_api_key:
+            logger.warning("GMS API 키 값이 잘 못 설정되었습니다. 구글 번역 API 사용")
+            # Fallback to Google Translator
+            from deep_translator import GoogleTranslator
+            lang_map = {
+                "zh-cn": "zh-CN", "zh": "zh-CN", "cn": "zh-CN",
+                "vi": "vi", "ko": "ko", "en": "en", "ja": "ja"
+            }
+            source = lang_map.get(source_lang.lower(), source_lang)
+            target = lang_map.get(target_lang.lower(), target_lang)
+            translator = GoogleTranslator(source=source, target=target)
+            return translator.translate(text)
+        
+        # 번역 프롬프트 (자연스러운 구어체로 변환하기)
+        prompt = f"""다음 {source_name} 문장을 {target_name}로 번역하세요.
+
+중요한 규칙:
+1. 자연스러운 구어체로 번역 (예: "합니다" → "해요", "갑니다" → "가요")
+2. 외국인 학습자가 일상 대화에서 사용할 수 있는 표현 사용
+3. 의미는 정확하게 유지
+4. 설명 없이 번역된 문장만 출력
+
+예시:
+입력 (중국어): 我去学校
+출력: 저는 학교에 가요
+
+입력 (베트남어): Tôi đi học
+출력: 저는 학교에 가요
+
+입력 ({source_name}): {text}
+출력:"""
+
+        # OpenAI API 형식 (GPT-4.1-nano)
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {translation_api_key}"
+        }
+        
+        payload = {
+            "model": translation_model,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "너는 자연스러운 구어체로 번역하는 전문가다. 설명 없이 번역된 문장만 출력한다."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "max_completion_tokens": 256,
+            "temperature": 0
+        }
+        
+        logger.info(f"Translating with {translation_model}: '{text}' ({source_name} → {target_name})")
+        
+        # # Gemini API 형식 (flash-2.5)
+        # headers = {
+        #     "Content-Type": "application/json",
+        #     "x-goog-api-key": translation_api_key
+        # }
+        # 
+        # payload = {
+        #     "contents": [
+        #         {
+        #             "parts": [
+        #                 {
+        #                     "text": prompt
+        #                 }
+        #             ]
+        #         }
+        #     ]
+        # }
+        # 
+        # logger.info(f"Translating with Gemini 2.5 Flash: '{text}' ({source_name} → {target_name})")
+        
+        response = requests.post(
+            translation_api_url,
+            headers=headers,
+            json=payload,
+            timeout=15
         )
+        
+        if response.status_code >= 400:
+            logger.warning(f"Translation API error: {response.status_code}, falling back to Google Translator")
+            # Fallback
+            from deep_translator import GoogleTranslator
+            lang_map = {
+                "zh-cn": "zh-CN", "zh": "zh-CN", "cn": "zh-CN",
+                "vi": "vi", "ko": "ko", "en": "en", "ja": "ja"
+            }
+            source = lang_map.get(source_lang.lower(), source_lang)
+            target = lang_map.get(target_lang.lower(), target_lang)
+            translator = GoogleTranslator(source=source, target=target)
+            return translator.translate(text)
+        
+        result = response.json()
+        
+        # OpenAI 응답 파싱
+        if "choices" in result and len(result["choices"]) > 0:
+            translated = result["choices"][0]["message"]["content"].strip()
+            logger.info(f"✓ {translation_model} translation: '{text}' → '{translated}'")
+            return translated
+        else:
+            logger.warning(f"{translation_model} returned no choices, falling back to Google Translator")
+            # Fallback
+            from deep_translator import GoogleTranslator
+            lang_map = {
+                "zh-cn": "zh-CN", "zh": "zh-CN", "cn": "zh-CN",
+                "vi": "vi", "ko": "ko", "en": "en", "ja": "ja"
+            }
+            source = lang_map.get(source_lang.lower(), source_lang)
+            target = lang_map.get(target_lang.lower(), target_lang)
+            translator = GoogleTranslator(source=source, target=target)
+            return translator.translate(text)
+        
+        # # Gemini 응답 파싱
+        # if "candidates" in result and len(result["candidates"]) > 0:
+        #     translated = result["candidates"][0]["content"]["parts"][0]["text"].strip()
+        #     logger.info(f"✓ Gemini translation: '{text}' → '{translated}'")
+        #     return translated
+        # else:
+        #     logger.warning("Gemini returned no candidates, falling back to Google Translator")
+        #     # Fallback
+        #     from deep_translator import GoogleTranslator
+        #     lang_map = {
+        #         "zh-cn": "zh-CN", "zh": "zh-CN", "cn": "zh-CN",
+        #         "vi": "vi", "ko": "ko", "en": "en", "ja": "ja"
+        #     }
+        #     source = lang_map.get(source_lang.lower(), source_lang)
+        #     target = lang_map.get(target_lang.lower(), target_lang)
+        #     translator = GoogleTranslator(source=source, target=target)
+        #     return translator.translate(text)
+        
+    except Exception as e:
+        logger.error(f"Translation error: {e}, falling back to Google Translator")
+        # 구글 번역 FallBack
+        try:
+            from deep_translator import GoogleTranslator
+            lang_map = {
+                "zh-cn": "zh-CN", "zh": "zh-CN", "cn": "zh-CN",
+                "vi": "vi", "ko": "ko", "en": "en", "ja": "ja"
+            }
+            source = lang_map.get(source_lang.lower(), source_lang)
+            target = lang_map.get(target_lang.lower(), target_lang)
+            translator = GoogleTranslator(source=source, target=target)
+            return translator.translate(text)
+        except Exception as fallback_error:
+            logger.error(f"Fallback translation also failed: {fallback_error}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Translation failed: {str(e)}"
+            )
 
 
 # Startup
@@ -399,36 +556,50 @@ async def evaluate_pronunciation(
         from difflib import SequenceMatcher
         accuracy = SequenceMatcher(None, expected_normalized, transcribed_normalized).ratio() * 100
 
-        # 발음 점수: 정확도와 동일하게 설정 (간소화)
-        pronunciation = accuracy
+        # PER (Phoneme Error Rate) 계산
+        # Levenshtein distance를 사용하여 문자 단위 오류율 계산
+        def levenshtein_distance(s1, s2):
+            if len(s1) < len(s2):
+                return levenshtein_distance(s2, s1)
+            if len(s2) == 0:
+                return len(s1)
+            
+            previous_row = range(len(s2) + 1)
+            for i, c1 in enumerate(s1):
+                current_row = [i + 1]
+                for j, c2 in enumerate(s2):
+                    insertions = previous_row[j + 1] + 1
+                    deletions = current_row[j] + 1
+                    substitutions = previous_row[j] + (c1 != c2)
+                    current_row.append(min(insertions, deletions, substitutions))
+                previous_row = current_row
+            
+            return previous_row[-1]
+        
+        # PER = (편집 거리 / 기대 텍스트 길이) * 100
+        edit_distance = levenshtein_distance(expected_normalized, transcribed_normalized)
+        per = (edit_distance / max(len(expected_normalized), 1)) * 100
+        
+        # 발음 점수 = 100 - PER (높을수록 좋음)
+        pronunciation = max(0, 100 - per)
+        
+        # Fluency와 Overall은 accuracy 기반
         fluency = accuracy
-        overall = accuracy
+        overall = (accuracy + pronunciation) / 2
 
+        
         # 5. Pass/Fail 판정
         if retry_count >= 5:
             is_pass = True
-            pass_reason = "retry_limit"
-        elif accuracy >= 80.0:
+        elif accuracy >= 20.0:
             is_pass = True
-            pass_reason = "accuracy"
         else:
             is_pass = False
-            pass_reason = None
-
-        # 6. 피드백 생성
-        if retry_count >= 5:
-            feedback = "5번 이상 시도하셨습니다. 다음 단계로 넘어갑니다. 계속 연습하세요!"
-        elif accuracy >= 90:
-            feedback = "훌륭합니다! 발음이 매우 정확합니다."
-        elif accuracy >= 80:
-            feedback = "좋습니다! 발음이 정확하여 합격입니다."
-        else:
-            feedback = f"발음을 조금 더 명확하게 해보세요. (정확도: {accuracy:.1f}%)"
-
-        if expected_normalized != transcribed_normalized and accuracy < 80:
-            feedback += f" 인식: '{full_text}' / 예상: '{expected_text}'"
-
-        logger.info(f"Evaluation complete - Accuracy: {accuracy:.1f}%, Retry: {retry_count}, Pass: {is_pass}")
+        
+        # 6. 간단한 피드백
+        feedback = ""
+        
+        logger.info(f"Evaluation complete - Accuracy: {accuracy:.1f}%, PER: {per:.1f}%, Pronunciation: {pronunciation:.1f}%, Retry: {retry_count}, Pass: {is_pass}")
 
         scores = PronunciationScores(
             accuracy=round(accuracy, 2),
@@ -460,37 +631,91 @@ async def evaluate_pronunciation(
             except Exception as e:
                 logger.warning(f"Failed to delete temporary file: {e}")
 
-
+# tts
 @app.post("/api/v1/tts/synthesize")
 async def synthesize_speech(
-    text: str = Form(...),
-    language: str = Form("ko")
+    text: str = Form(...)
 ):
-    """
-    텍스트를 음성으로 변환 (TTS)
-    """
     if not text:
         raise HTTPException(status_code=400, detail="text is required")
 
     try:
-        logger.info(f"TTS request - text: '{text}', language: {language}")
+        # 문자 기반 언어 감지
+        def detect_language_by_chars(text):
+            has_chinese = any('\u4e00' <= char <= '\u9fff' for char in text)
+            has_korean = any('\uac00' <= char <= '\ud7af' or '\u1100' <= char <= '\u11ff' for char in text)
+            has_japanese_hiragana = any('\u3040' <= char <= '\u309f' for char in text)
+            has_japanese_katakana = any('\u30a0' <= char <= '\u30ff' for char in text)
+            
+            if has_korean:
+                return "ko"
+            elif has_japanese_hiragana or has_japanese_katakana:
+                return "ja"
+            elif has_chinese:
+                return "zh"
+            return None
+        
+        # 먼저 문자 기반 감지 시도
+        detected_lang = detect_language_by_chars(text)
+        if detected_lang:
+            logger.info(f"Character-based detection: {detected_lang}")
+        else:
+            # langdetect 사용 (일관성을 위해 seed 고정)
+            try:
+                from langdetect import DetectorFactory
+                DetectorFactory.seed = 0
+                detected_lang = detect(text)
+                logger.info(f"Auto-detected language: {detected_lang}")
+            except LangDetectException:
+                detected_lang = "ko"  # 기본값: 한국어
+                logger.warning(f"Language detection failed, using default: {detected_lang}")
+        
+        logger.info(f"TTS request - text: '{text}', detected_language: {detected_lang}")
 
-        # gTTS를 사용하여 텍스트를 음성으로 변환
-        tts = gTTS(text=text, lang=language, slow=False)
-
+        # 언어별 여성 목소리 매핑 (Edge TTS)
+        voice_map = {
+            "ko": "ko-KR-SunHiNeural",      # 한국어 여성 (선희)
+            "vi": "vi-VN-HoaiMyNeural",     # 베트남어 여성 (호아이미)
+            "zh": "zh-CN-XiaoxiaoNeural",  # 중국어 여성 (샤오샤오)
+            "zh-cn": "zh-CN-XiaoxiaoNeural",
+            "zh-tw": "zh-TW-HsiaoChenNeural",  # 대만 중국어 여성
+            "en": "en-US-JennyNeural",     # 영어 여성 (제니)
+            "ja": "ja-JP-NanamiNeural",    # 일본어 여성 (나나미)
+            "es": "es-ES-ElviraNeural",    # 스페인어 여성
+            "fr": "fr-FR-DeniseNeural",    # 프랑스어 여성
+            "de": "de-DE-KatjaNeural",     # 독일어 여성
+            "it": "it-IT-ElsaNeural",      # 이탈리아어 여성
+            "pt": "pt-BR-FranciscaNeural", # 포르투갈어 여성
+            "ru": "ru-RU-SvetlanaNeural",  # 러시아어 여성
+            "ar": "ar-SA-ZariyahNeural",   # 아랍어 여성
+            "hi": "hi-IN-SwaraNeural",     # 힌디어 여성
+            "th": "th-TH-PremwadeeNeural", # 태국어 여성
+            "id": "id-ID-GadisNeural"      # 인도네시아어 여성
+        }
+        
+        voice = voice_map.get(detected_lang.lower(), "ko-KR-SunHiNeural")
+        
+        logger.info(f"Using Edge TTS voice: {voice}")
+        
+        # Edge TTS로 음성 생성
+        communicate = edge_tts.Communicate(text, voice)
+        
         # 메모리 버퍼에 저장
         audio_buffer = io.BytesIO()
-        tts.write_to_fp(audio_buffer)
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                audio_buffer.write(chunk["data"])
+        
         audio_buffer.seek(0)
 
-        logger.info(f"✓ TTS synthesis completed for: '{text}'")
+        logger.info(f"✓ TTS synthesis completed for: '{text}' (voice: {voice}, detected_lang: {detected_lang})")
 
-        # 음성 파일 스트리밍 응답
+        # 음성 파일 스트리밍 응답 (MP3 형식)
         return StreamingResponse(
             audio_buffer,
             media_type="audio/mpeg",
             headers={
-                "Content-Disposition": f"attachment; filename=tts_{language}.mp3"
+                "Content-Disposition": f"attachment; filename=tts_{detected_lang}.mp3"
             }
         )
 
@@ -615,7 +840,7 @@ async def translate_text_endpoint(
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 3000))
+    port = int(os.getenv("PORT", 8000))
     uvicorn.run(
         "unified_asr:app",
         host="0.0.0.0",
