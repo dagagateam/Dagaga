@@ -122,15 +122,15 @@ public class CommentService {
             return Collections.emptyList();
         }
 
-        // 사용자 닉네임 일괄 조회
+        // 사용자 정보 일괄 조회 (닉네임 + 프로필 이미지)
         Set<Integer> userIds = allComments.stream()
                 .map(Comment::getUserId)
                 .collect(Collectors.toSet());
 
-        Map<Integer, String> nicknameMap = userRepository.findAllById(userIds).stream()
+        Map<Integer, com.dagaga.domain.user.entity.User> userMap = userRepository.findAllById(userIds).stream()
                 .collect(Collectors.toMap(
                         com.dagaga.domain.user.entity.User::getUserId,
-                        com.dagaga.domain.user.entity.User::getNickname,
+                        user -> user,
                         (existing, replacement) -> existing));
 
         Map<Integer, List<Comment>> repliesMap = allComments.stream()
@@ -139,14 +139,14 @@ public class CommentService {
 
         return allComments.stream()
                 .filter(c -> c.getParentCommentId() == null)
-                .map(c -> convertToResponse(c, repliesMap, nicknameMap, currentUserId, viewLangCode))
+                .map(c -> convertToResponse(c, repliesMap, userMap, currentUserId, viewLangCode))
                 .collect(Collectors.toList());
     }
 
     private CommentResponse convertToResponse(Comment comment, Map<Integer, List<Comment>> repliesMap,
-                                              Map<Integer, String> nicknameMap, Integer currentUserId, String viewLangCode) {
+                                              Map<Integer, com.dagaga.domain.user.entity.User> userMap, Integer currentUserId, String viewLangCode) {
         List<CommentResponse> replies = repliesMap.getOrDefault(comment.getCommentId(), List.of()).stream()
-                .map(r -> convertToResponse(r, repliesMap, nicknameMap, currentUserId, viewLangCode))
+                .map(r -> convertToResponse(r, repliesMap, userMap, currentUserId, viewLangCode))
                 .collect(Collectors.toList());
 
         String content = comment.getContent();
@@ -166,10 +166,15 @@ public class CommentService {
              }
         }
 
+        com.dagaga.domain.user.entity.User user = userMap.get(comment.getUserId());
+        String nickname = (user != null) ? user.getNickname() : "Unknown";
+        String profileImage = (user != null) ? user.getProfileImage() : null;
+
         return CommentResponse.builder()
                 .commentId(comment.getCommentId())
                 .userId(comment.getUserId())
-                .nickname(nicknameMap.getOrDefault(comment.getUserId(), "Unknown"))
+                .nickname(nickname)
+                .profileImage(profileImage)
                 .content(content)
                 .createdAt(comment.getCreatedAt())
                 .replies(replies)
