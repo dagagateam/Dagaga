@@ -73,6 +73,7 @@ const CardSwap = forwardRef(({
   const container = useRef(null);
 
   /* Removed useImperativeHandle and internal autoPlay logic */
+  const prevTriggerRef = useRef(triggerIndex);
   
   const swap = useCallback(() => {
     if (order.current.length < 2) return;
@@ -132,10 +133,14 @@ const CardSwap = forwardRef(({
     });
   }, [config.durDrop, config.ease, config.promoteOverlap, config.durMove, config.returnDelay, config.durReturn, cardDistance, verticalDistance, refs]);
 
-  // Handle external trigger
+  // 외부 트리거 처리 - 이전 값을 추적하여 0으로 돌아가는 것을 포함한 모든 변경 감지
   useEffect(() => {
-    if (triggerIndex !== undefined && triggerIndex !== null && triggerIndex !== 0) {
-      swap();
+    if (triggerIndex !== undefined && triggerIndex !== prevTriggerRef.current) {
+      // 초기 렌더링은 건너뛰기
+      if (prevTriggerRef.current !== undefined) {
+        swap();
+      }
+      prevTriggerRef.current = triggerIndex;
     }
   }, [triggerIndex, swap]);
 

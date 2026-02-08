@@ -25,13 +25,32 @@ const Homepage = () => {
     t('info_rotation'),
   ];
 
-  // Synchronization effect - Single source of truth
+  // 동기화 효과 - 단일 진실 공급원 (Single source of truth)
   useEffect(() => {
-    const interval = setInterval(() => {
+    let interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % textItems.length);
     }, 3500);
 
-    return () => clearInterval(interval);
+    // 탭 가시성 변경 감지 - 브라우저 타이머 스로틀링 문제 해결
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // 탭이 숨겨지면 인터벌 정리
+        clearInterval(interval);
+      } else {
+        // 탭이 다시 보이면 인터벌 재시작하여 동기화 유지
+        clearInterval(interval);
+        interval = setInterval(() => {
+          setActiveIndex((prev) => (prev + 1) % textItems.length);
+        }, 3500);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [textItems.length]);
 
   const handleNavClick = (path) => {
