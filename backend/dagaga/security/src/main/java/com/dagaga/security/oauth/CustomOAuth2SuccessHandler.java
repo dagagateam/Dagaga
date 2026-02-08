@@ -42,49 +42,58 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String email = oAuth2User.getAttribute("email");
+        try {
+            OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+            String email = oAuth2User.getAttribute("email");
 
-        Optional<User> userOptional = userService.findByEmail(email);
+            Optional<User> userOptional = userService.findByEmail(email);
 
-        String targetUrl;
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
+            String targetUrl;
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
 
-            // 기존 유저: 토큰 생성
-            String accessToken = jwtTokenProvider.generateAccessToken(
-                    user.getUserId(),
-                    user.getEmail(),
-                    user.getLocationId(),
-                    user.getViewLangCode(),
-                    user.getNativeLangCode(),
-                    user.getNickname());
-            String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
-            String refreshTokenId = jwtTokenProvider.getTokenIdFromToken(refreshToken);
+                // 기존 유저: 토큰 생성
+                String accessToken = jwtTokenProvider.generateAccessToken(
+                        user.getUserId(),
+                        user.getEmail(),
+                        user.getLocationId(),
+                        user.getViewLangCode(),
+                        user.getNativeLangCode(),
+                        user.getNickname());
+                String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
+                String refreshTokenId = jwtTokenProvider.getTokenIdFromToken(refreshToken);
 
-            // Redis에 Refresh Token 저장
-            redisTokenService.saveRefreshToken(user.getUserId(), refreshTokenId, refreshToken, refreshTokenExpiry);
-            redisTokenService.addUserSession(user.getUserId(), refreshTokenId);
+                // Redis에 Refresh Token 저장
+                redisTokenService.saveRefreshToken(user.getUserId(), refreshTokenId, refreshToken, refreshTokenExpiry);
+                redisTokenService.addUserSession(user.getUserId(), refreshTokenId);
 
-            // Refresh Token을 httpOnly 쿠키에 저장
-            Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-            refreshTokenCookie.setHttpOnly(true);
-            refreshTokenCookie.setSecure(true); // HTTPS 환경에서만 전송
-            refreshTokenCookie.setPath("/");
-            refreshTokenCookie.setMaxAge((int) refreshTokenExpiry);
-            response.addCookie(refreshTokenCookie);
+                // Refresh Token을 httpOnly 쿠키에 저장
+                Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+                refreshTokenCookie.setHttpOnly(true);
+                refreshTokenCookie.setSecure(true); // HTTPS 환경에서만 전송
+                refreshTokenCookie.setPath("/");
+                refreshTokenCookie.setMaxAge((int) refreshTokenExpiry);
+                response.addCookie(refreshTokenCookie);
 
-            // Access Token만 쿼리 파라미터로 전달 (프론트엔드에서 저장)
-            targetUrl = UriComponentsBuilder.fromUriString(frontendRedirectUri)
-                    .queryParam("accessToken", accessToken)
+                // Access Token만 쿼리 파라미터로 전달 (프론트엔드에서 저장)
+                targetUrl = UriComponentsBuilder.fromUriString(frontendRedirectUri)
+                        .queryParam("accessToken", accessToken)
+                        .build().toUriString();
+            } else {
+                // 신규 유저: 회원가입 페이지로 리다이렉트 (이메일 포함)
+                targetUrl = UriComponentsBuilder.fromUriString(frontendSignupUri)
+                        .queryParam("email", email)
+                        .build().toUriString();
+            }
+
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+
+        } catch (Exception e) {
+            logger.error("OAuth2 Login Success Handler Error", e);
+            String targetUrl = UriComponentsBuilder.fromUriString(frontendSignupUri)
+                    .queryParam("error", "server_error")
                     .build().toUriString();
-        } else {
-            // 신규 유저: 회원가입 페이지로 리다이렉트 (이메일 포함)
-            targetUrl = UriComponentsBuilder.fromUriString(frontendSignupUri)
-                    .queryParam("email", email)
-                    .build().toUriString();
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
         }
-
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 }
