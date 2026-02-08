@@ -25,36 +25,51 @@ const NotFound = React.lazy(() => import("../pages/Error/NotFound"));
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/Homepage" replace />,
-  },
-
-  {
-    path: "/Auth/Success",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <AuthSuccess />
-      </Suspense>
-    ),
-  },
-
-  {
     element: <App />,
     children: [
       {
+        index: true,
+        element: <Navigate to="/Homepage" replace />,
+      },
+      {
         path: "Login",
-        element: <Login />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Login />
+          </Suspense>
+        ),
       },
       {
         path: "Signup",
-        element: <Signup />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Signup />
+          </Suspense>
+        ),
       },
       {
         path: "Signup/Social",
-        element: <SocialSignup />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <SocialSignup />
+          </Suspense>
+        ),
       },
       {
         path: "Homepage",
-        element: <Homepage />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Homepage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "Auth/Success",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AuthSuccess />
+          </Suspense>
+        ),
       },
       // Protected Routes
       {
@@ -106,15 +121,16 @@ const router = createBrowserRouter([
           },
         ],
       },
+      // Catch-all route inside App for pages that should have Navbar
+      {
+        path: "*",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <NotFound />
+          </Suspense>
+        ),
+      },
     ],
-  },
-  {
-    path: "*",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <NotFound />
-      </Suspense>
-    ),
   },
 ]);
 
