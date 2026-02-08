@@ -19,7 +19,7 @@
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid #f8f9fa;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .btn-save {
@@ -32,7 +32,8 @@
 }
 
 /* Customizing Form Controls */
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
     box-shadow: 0 0 0 0.2rem rgba(230, 126, 34, 0.25);
 }
 
@@ -46,10 +47,13 @@ label.text-muted {
 }
 
 .edit-form-scroll {
-    max-height: 55vh; /* Adjustable constraint */
+    max-height: 55vh;
+    /* Adjustable constraint */
     overflow-y: auto;
-    overflow-x: hidden; /* Prevent horizontal scroll */
-    padding-right: 10px; /* Space for scrollbar */
+    overflow-x: hidden;
+    /* Prevent horizontal scroll */
+    padding: 0 10px;
+    /* Added horizontal padding to prevent focus ring clipping */
     margin-bottom: 20px;
 }
 
@@ -76,7 +80,8 @@ label.text-muted {
 }
 
 .confirm-modal-dialog .confirm-modal-title {
-    font-weight: 700; /* fw-bold */
+    font-weight: 700;
+    /* fw-bold */
 }
 
 .confirm-modal-dialog .confirm-modal-body {
@@ -87,8 +92,10 @@ label.text-muted {
 .confirm-modal-dialog .confirm-modal-text {
     margin: 0;
     text-align: center;
-    word-break: keep-all; /* Prefer breaking at spaces */
-    font-weight: 500; /* fw-medium */
+    word-break: keep-all;
+    /* Prefer breaking at spaces */
+    font-weight: 500;
+    /* fw-medium */
     font-size: 1.05rem;
     line-height: 1.5;
 }
@@ -104,18 +111,23 @@ label.text-muted {
 .confirm-modal-dialog .confirm-modal-btn {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
-    border-radius: 50rem; /* rounded-pill */
-    font-weight: 600; /* fw-semibold */
+    border-radius: 50rem;
+    /* rounded-pill */
+    font-weight: 600;
+    /* fw-semibold */
 }
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .my-page-edit-container {
         padding: 10px;
-        overflow-x: hidden; /* Prevent page-wide horizontal scroll */
-        height: calc(100vh - 60px); /* Fill viewport minus approx navbar */
+        overflow-x: hidden;
+        /* Prevent page-wide horizontal scroll */
+        height: calc(100vh - 60px);
+        /* Fill viewport minus approx navbar */
         display: flex;
-        align-items: center; /* Center card vertically */
+        align-items: center;
+        /* Center card vertically */
         justify-content: center;
     }
 
@@ -129,7 +141,8 @@ label.text-muted {
     }
 
     .edit-card {
-        max-height: 90vh; /* Constrain card height */
+        max-height: 90vh;
+        /* Constrain card height */
         display: flex;
         flex-direction: column;
         width: 100%;
@@ -139,13 +152,16 @@ label.text-muted {
     .edit-card .card-body form {
         display: flex;
         flex-direction: column;
-        overflow: hidden; /* Contain scroll within form */
+        overflow: hidden;
+        /* Contain scroll within form */
         flex: 1;
     }
 
     .edit-form-scroll {
-        flex: 1; /* Take remaining space */
-        max-height: none; /* Remove fixed constraint */
+        flex: 1;
+        /* Take remaining space */
+        max-height: none;
+        /* Remove fixed constraint */
         padding-bottom: 10px;
     }
 }
