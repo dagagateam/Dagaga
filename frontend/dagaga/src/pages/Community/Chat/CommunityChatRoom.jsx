@@ -507,6 +507,7 @@ const CommunityChatRoom = () => {
                                             e.target.style.height = `${e.target.scrollHeight}px`; // Set new height
                                         }}
                                         onKeyDown={(e) => {
+                                            if (e.nativeEvent.isComposing) return; // Prevent double trigger during IME composition
                                             if (e.key === 'Enter' && !e.shiftKey) {
                                                 e.preventDefault();
                                                 handleSendMessage(e);

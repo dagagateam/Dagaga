@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
  * STOMP 프로토콜 연결 시 JWT 인증을 처리하는 인터셉터
@@ -32,6 +33,9 @@ public class JwtStompInterceptor implements ChannelInterceptor {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final ChatRoomUserRepository chatRoomUserRepository;
+    private final StringRedisTemplate redisTemplate;
+
+    private static final long SUBSCRIPTION_CACHE_TTL = 3600; // 1시간
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -90,6 +94,16 @@ public class JwtStompInterceptor implements ChannelInterceptor {
 
                         UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
                         Integer userId = principal.getUserIdValue();
+                        
+                        // Redis 캐시 Key
+                        String cacheKey = "chat:room:" + roomId + ":members:" + userId;
+                        String cachedAuth = redisTemplate.opsForValue().get(cacheKey);
+                        
+                        if ("NORMAL".equals(cachedAuth)) {
+                             // Authorized
+                             log.debug("STOMP 구독 허용 (Cache Hit): userId={}, roomId={}", userId, roomId);
+                             return message;
+                        }
 
                         com.dagaga.domain.chat.user.entity.ChatRoomUserId id = 
                             new com.dagaga.domain.chat.user.entity.ChatRoomUserId(roomId, userId);
@@ -103,7 +117,9 @@ public class JwtStompInterceptor implements ChannelInterceptor {
                             throw new IllegalArgumentException("Access Denied: Not a member of the room");
                         }
                         
-                        log.debug("STOMP 구독 허용: userId={}, roomId={}", userId, roomId);
+                        // Cache 저장 (1시간 TTL)
+                        redisTemplate.opsForValue().set(cacheKey, "NORMAL", SUBSCRIPTION_CACHE_TTL, java.util.concurrent.TimeUnit.SECONDS);
+                        log.debug("STOMP 구독 허용 (DB & Cache): userId={}, roomId={}", userId, roomId);
 
                     } catch (NumberFormatException e) {
                         log.warn("STOMP 구독 실패: 잘못된 방 번호 형식 ({})", roomIdStr);
