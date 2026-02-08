@@ -25,8 +25,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOriginPatterns(
                         "http://localhost:3000",
                         "http://localhost:5173",
-                        "https://i14b110.p.ssafy.io",
-                        "http://i14b110.p.ssafy.io"
+                        "https://i14b110.p.ssafy.io"
                 )
                 .withSockJS();
     }

@@ -115,7 +115,6 @@ public class SecurityConfig {
                 // 보안 감사 조치: 와일드카드(*) 제거 및 명시적 도메인 허용
                 configuration.setAllowedOriginPatterns(Arrays.asList(
                         "https://i14b110.p.ssafy.io", // 배포 환경
-                        "http://i14b110.p.ssafy.io", // 배포 환경
                         "http://localhost:5173",      // 로컬 개발 (Vite)
                         "http://localhost:3000"       // 로컬 개발 (React/Next)
                 ));
