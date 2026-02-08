@@ -41,7 +41,8 @@ const MyPage = () => {
   const userNickname = user?.nickname || "Guest";
 
   return (
-    <Container fluid className="my-page-container">
+    <div className="my-page-container">
+      <Container>
       {/* Greeting Header */}
       <Card className="greeting-card mb-3">
         <Card.Body className="greeting-body">
@@ -120,7 +121,8 @@ const MyPage = () => {
           </Col>
         </Row>
       </div>
-    </Container>
+      </Container>
+    </div>
   );
 };
 
