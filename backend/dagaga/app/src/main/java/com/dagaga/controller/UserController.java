@@ -7,7 +7,6 @@ import com.dagaga.domain.user.dto.UserResponseDto;
 import com.dagaga.domain.user.dto.UserUpdateDto;
 import com.dagaga.domain.user.dto.PasswordVerifyRequest;
 import com.dagaga.domain.user.dto.PasswordFindRequest;
-import com.dagaga.domain.user.dto.PasswordFindResponse;
 import com.dagaga.domain.user.entity.User;
 import com.dagaga.domain.user.service.UserService;
 
@@ -100,6 +99,7 @@ public class UserController {
                 .viewLangCode(user.getViewLangCode())
                 .nativeLangCode(user.getNativeLangCode())
                 .nickname(user.getNickname())
+                .profileImage(user.getProfileImage())
                 .build();
 
         return ResponseEntity.ok(authResponse);
@@ -162,6 +162,7 @@ public class UserController {
                 .locationId(user.getLocationId())
                 .viewLangCode(user.getViewLangCode())
                 .nativeLangCode(user.getNativeLangCode())
+                .profileImage(user.getProfileImage())
                 .build();
 
         return ResponseEntity.ok(authResponse);
@@ -219,6 +220,7 @@ public class UserController {
                 .viewLangCode(user.getViewLangCode())
                 .nativeLangCode(user.getNativeLangCode())
                 .nickname(user.getNickname())
+                .profileImage(user.getProfileImage())
                 .build();
 
         return ResponseEntity.ok(authResponse);
