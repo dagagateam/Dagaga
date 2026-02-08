@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { socialSignupAPI, checkNicknameAPI } from '../../api/userApi';
 import { useUserStore } from '../../store/userStore';
 import './Signup.css'; // Reuse Signup styles
-import loginTiger from '../../assets/characters/login_tiger2.webp';
 import logo from '../../assets/icons/logo.png';
 import { getLocationId } from '../../data/regionData';
 import LanguageSelector from '../../components/auth/LanguageSelector';
@@ -116,7 +115,7 @@ const SocialSignup = () => {
 
             const response = await socialSignupAPI(requestData);
             login(response);
-            navigate('/ScenarioSelect');
+            navigate('/Homepage');
         } catch (error) {
             console.error("Social Signup failed:", error);
             alert(t('signup_error'));
@@ -131,11 +130,6 @@ const SocialSignup = () => {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
         >
-            <header className="signup-header">
-                <div className="logo-area"><img src={logo} alt="Dagaga Logo" style={{ height: '40px' }} /></div>
-                <LanguageSelector language={language} setLanguage={setLanguage} />
-            </header>
-
             <main className="signup-content">
                 <div className="signup-wrapper">
                     <div className="signup-card">
@@ -217,7 +211,6 @@ const SocialSignup = () => {
                             </form>
                         </div>
                     </div>
-                    <img src={loginTiger} alt="Welcome Tiger" className="signup-tiger-image" />
                 </div>
             </main>
         </motion.div>

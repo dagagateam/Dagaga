@@ -3,6 +3,7 @@ package com.dagaga.security.config;
 import com.dagaga.security.jwt.JwtAuthenticationEntryPoint;
 import com.dagaga.security.jwt.JwtAuthenticationFilter;
 import com.dagaga.security.oauth.CustomOAuth2SuccessHandler;
+import com.dagaga.security.oauth.CustomOAuth2FailureHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +29,7 @@ public class SecurityConfig {
         private final JwtAuthenticationFilter jwtAuthenticationFilter;
         private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
         private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+        private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -97,7 +99,8 @@ public class SecurityConfig {
 
                                 // OAuth2 로그인 설정 추가
                                 .oauth2Login(oauth2 -> oauth2
-                                                .successHandler(customOAuth2SuccessHandler))
+                                                .successHandler(customOAuth2SuccessHandler)
+                                                .failureHandler(customOAuth2FailureHandler))
 
                                 // 예외 처리
                                 .exceptionHandling(exception -> exception

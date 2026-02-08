@@ -289,7 +289,6 @@ const CommunityChatRoom = () => {
                 image: imageUrl,
                 time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
                 isMe: true,
-                isMe: true,
                 type: 'image',
                 sentAt: new Date().toISOString() // Current time for separator logic
             };
