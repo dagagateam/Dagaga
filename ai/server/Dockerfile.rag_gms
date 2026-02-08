@@ -1,0 +1,34 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# 시스템 패키지 설치
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Requirements 복사 및 설치
+COPY server/requirements_rag_gms.txt .
+RUN pip install --no-cache-dir -r requirements_rag_gms.txt
+
+# 애플리케이션 파일 복사
+COPY server/rag_gms.py .
+COPY server/rag_pronuniation.py ./rag_pronunciation.py
+COPY server/.env .
+
+# Korean Guide PDF (RAG 데이터소스)
+COPY local_server/RAG/Korean_guide.pdf .
+
+# ChromaDB 데이터 (기존 벡터 스토어가 있다면)
+# local_server/korean_guidedb를 chroma_db로 복사
+COPY local_server/korean_guidedb ./chroma_db
+
+# 헬스체크
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+EXPOSE 3000
+
+# 서버 실행
+CMD ["uvicorn", "rag_gms:app", "--host", "0.0.0.0", "--port", "3000"]

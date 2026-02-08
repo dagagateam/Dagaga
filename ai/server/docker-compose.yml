@@ -1,30 +1,39 @@
 version: '3.8'
 
 services:
-  gms-service:
+  rag-gms-service:
     build:
-      context: .
-      dockerfile: Dockerfile.gms
-    container_name: gadada-gms
-    ports:
-      - "4000:4000"
-    env_file:
-      - .env
-    restart: unless-stopped
-
-  asr-service:
-    build:
-      context: ..  # ai/ 폴더 빌드 컨텍스트
-      dockerfile: server/Dockerfile.asr
-    image: gadada-asr:latest
-    container_name: gadada-asr
+      context: ..  # ai/ 폴더를 빌드 컨텍스트로
+      dockerfile: server/Dockerfile.rag_gms
+    image: gadada-rag-gms:latest
+    container_name: gadada-rag-gms
     ports:
       - "3000:3000"
     env_file:
       - .env
     volumes:
+      # ChromaDB 데이터 유지 (선택사항)
+      - ../local_server/korean_guidedb:/app/chroma_db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  asr-service:
+    build:
+      context: ..  # ai/ 폴더 빌드 컨텍스트
+      dockerfile: server/Dockerfile.unified_asr
+    image: gadada-asr:latest
+    container_name: gadada-asr
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    volumes:
       - ../finetuned:/app/finetuned  # 모델 볼륨 마운트
-      - ./unified_asr.py:/app/unified_asr.py  
     deploy:
       resources:
         reservations:
@@ -34,10 +43,11 @@ services:
               capabilities: [gpu]
     environment:
       - CUDA_VISIBLE_DEVICES=0
-      - CUDA_LAUNCH_BLOCKING=1  # 디버깅용
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
       interval: 30s
       timeout: 10s
       retries: 3

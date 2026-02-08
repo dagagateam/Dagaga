@@ -1,0 +1,49 @@
+FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
+
+WORKDIR /app
+
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PIP_DEFAULT_TIMEOUT=300
+
+# 시스템 패키지 설치
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    libsndfile1 \
+    ffmpeg \
+    git \
+    build-essential \
+    curl \
+    libtiff5 \
+    libjpeg-dev \
+    libpng-dev \
+    libwebp-dev \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# pip 업그레이드
+RUN python3 -m pip install --upgrade pip
+
+# PyTorch 2.5 with CUDA 12.4 (안정 버전)
+RUN python3 -m pip install --default-timeout=300 --no-cache-dir \
+    torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+
+# ASR 관련 패키지
+COPY server/requirements_asr.txt .
+RUN python3 -m pip install --default-timeout=300 --no-cache-dir -r requirements_asr.txt
+
+# 애플리케이션 파일
+COPY server/unified_asr.py .
+COPY server/.env .
+
+# Finetuned LoRA 모델
+COPY finetuned /app/finetuned
+
+# 헬스체크
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:4000/health || exit 1
+
+EXPOSE 4000
+
+CMD ["python3", "-m", "uvicorn", "unified_asr:app", "--host", "0.0.0.0", "--port", "4000"]
