@@ -6,14 +6,13 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import { fetchCommunityInfo } from '../../../api/communityApi';
 import { getLocationName } from '../../../data/regionData';
 
-import bookmarkedIcon from '../../../assets/icons/bookmark.png';
-import unbookmarkIcon from '../../../assets/icons/unbookmark.png';
+
 import { formatPeriod } from '../../../utils/dateUtils';
 
 import { useUserStore } from '../../../store/userStore';
 import LocationBadge from '../../../components/common/LocationBadge';
-import ImageWithPlaceholder from '../../../components/common/ImageWithPlaceholder';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import ImageWithPlaceholder from '../../../components/common/ImageWithPlaceholder';
 
 const CommunityInfo = () => {
     const { t } = useTranslation();
@@ -92,6 +91,10 @@ const CommunityInfo = () => {
 
 
 
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
     return (
         <div className="community-info-container">
             <Container>
@@ -118,7 +121,6 @@ const CommunityInfo = () => {
                     {filteredInfos.length > 0 ? (
                         filteredInfos.map((info) => {
                             const isLiked = likedPostIds.includes(info.id);
-                            const isBookmarked = savedItems.some(item => item.id === info.id);
 
                             return (
                                 <Card key={info.id} className="info-card" onClick={() => navigate(`/Community/Info/${info.id}`)} style={{ cursor: 'pointer' }}>
@@ -138,15 +140,7 @@ const CommunityInfo = () => {
                                                     <span className="org-logo">Dagaga</span>
                                                     <span className="org-name">{info.orgName}</span>
                                                 </div>
-                                                <div className="action-icons">
-                                                    <button className="icon-btn" onClick={(e) => { e.stopPropagation(); toggleSave(info); }}>
-                                                        <img
-                                                            src={isBookmarked ? bookmarkedIcon : unbookmarkIcon}
-                                                            alt="Bookmark"
-                                                            className="icon-img"
-                                                        />
-                                                    </button>
-                                                </div>
+
                                             </div>
 
                                             <div>

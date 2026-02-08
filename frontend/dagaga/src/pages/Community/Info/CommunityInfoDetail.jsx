@@ -6,8 +6,7 @@ import { fetchCommunityInfo, fetchCommunityInfoDetail, createComment, fetchComme
 import { useUserStore } from '../../../store/userStore';
 import './CommunityInfoDetail.css';
 
-import bookmarkedIcon from '../../../assets/icons/bookmark.png';
-import unbookmarkIcon from '../../../assets/icons/unbookmark.png';
+
 import stockProfile from '../../../assets/icons/stock_profile.jpg';
 import { formatPeriod } from '../../../utils/dateUtils';
 import ImageWithPlaceholder from '../../../components/common/ImageWithPlaceholder';
@@ -194,11 +193,7 @@ const CommunityInfoDetail = () => {
                                 <span className="detail-org-logo">Dagaga</span>
                                 <span className="detail-org-name">{info.orgName}</span>
                             </div>
-                            <div className="detail-actions">
-                                <button className="detail-icon-btn">
-                                    <img src={info.isBookmarked ? bookmarkedIcon : unbookmarkIcon} alt="Bookmark" />
-                                </button>
-                            </div>
+
                         </div>
 
                         <h1 className="detail-title">{info.title}</h1>
