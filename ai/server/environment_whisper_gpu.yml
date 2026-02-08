@@ -1,0 +1,26 @@
+name: whisper_gpu
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.1
+  - pip
+  - pip:
+      - fastapi
+      - uvicorn
+      - python-multipart
+      - python-dotenv
+      - deep-translator
+      - edge-tts
+      - langdetect
+      - transformers
+      - peft
+      - accelerate
+      - protobuf
+      - sentencepiece
