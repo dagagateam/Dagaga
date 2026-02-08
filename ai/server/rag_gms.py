@@ -6,17 +6,44 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
+# RAG 시스템 임포트
+from rag_pronunciation import initialize_rag_system, generate_pronunciation_with_rag
+
 # .env 파일 로드
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# FastAPI 앱 생성
+
+# 서버 시작 시 RAG 시스템 초기화
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """서버 시작/종료 시 실행되는 lifespan 이벤트"""
+    # Startup
+    try:
+        logger.info("Initializing RAG system on startup...")
+        initialize_rag_system()
+        logger.info("✓ RAG system ready")
+    except Exception as e:
+        logger.error(f"Failed to initialize RAG system: {e}")
+        import traceback
+        traceback.print_exc()
+        logger.warning("Server will continue without RAG (fallback mode)")
+    
+    yield
+    
+    # Shutdown (필요시 정리 작업)
+    logger.info("Shutting down...")
+
+# FastAPI 앱 생성 (lifespan 적용)
 app = FastAPI(
     title="GMS Word Tokenizer API",
-    description="GMS API를 사용한 단어 분리 서비스",
-    version="1.0.0"
+    description="GMS API를 사용한 단어 분리 및 RAG 기반 발음 가이드 서비스",
+    version="2.0.0",
+    lifespan=lifespan
 )
 
 # GMS API 설정
@@ -44,15 +71,27 @@ class PronunciationGuideRequest(BaseModel):
     words: List[str]
 
 
+class ReferencedRule(BaseModel):
+    """참고한 발음 규칙 문서 정보"""
+    index: int
+    chapter: str
+    article: str
+    page_start: int
+    page_end: int
+    tags: str
+
+
 class PronunciationGuideResponse(BaseModel):
     """발음 가이드 응답 모델"""
     words: List[str]
     pronunciation_guide: List[str]
+    referenced_rules: Optional[List[ReferencedRule]] = None
 
 
 # GMS API 호출
 
 def call_gms_api(prompt: str) -> str:
+    """일반 GMS API 호출 (단어 분리 등)"""
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {GMS_API_KEY}"
@@ -92,6 +131,67 @@ def call_gms_api(prompt: str) -> str:
         raise HTTPException(status_code=500, detail=f"GMS API call failed: {str(e)}")
 
 
+def call_gms_api_for_pronunciation(prompt: str) -> str:
+    """발음 가이드 생성 전용 GMS API 호출 (Gemini API 형식 사용)"""
+    
+    # Gemini 2.5 Flash 모델 사용
+    model = "gemini-2.5-flash"
+    
+    # Gemini API 엔드포인트 구성
+    gemini_url = f"https://gms.ssafy.io/gmsapi/generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": GMS_API_KEY
+    }
+    
+    # Gemini API 형식 페이로드
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": prompt
+                    }
+                ]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.1,
+            "maxOutputTokens": 2048  # 충분한 토큰 수로 증가하여 응답이 잘리지 않도록
+        }
+    }
+
+    try:
+        logger.info(f"Calling GMS API for pronunciation guide, model={model}")
+        response = requests.post(gemini_url, headers=headers, json=payload, timeout=30)
+
+        if response.status_code >= 400:
+            logger.error(f"GMS error status={response.status_code} body={response.text}")
+            raise HTTPException(status_code=500, detail=f"GMS API error: {response.text}")
+
+        result = response.json()
+        
+        # Gemini API 응답 파싱
+        # 형식: {"candidates": [{"content": {"parts": [{"text": "..."}]}}]}
+        if "candidates" in result and len(result["candidates"]) > 0:
+            candidate = result["candidates"][0]
+            if "content" in candidate and "parts" in candidate["content"]:
+                parts = candidate["content"]["parts"]
+                if len(parts) > 0 and "text" in parts[0]:
+                    answer = parts[0]["text"]
+                    logger.info(f"GMS API response: {answer}")
+                    return answer
+        
+        # 파싱 실패 시
+        logger.error(f"Unexpected response format: {result}")
+        raise HTTPException(status_code=500, detail="Failed to parse GMS API response")
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"GMS API call failed: {e}")
+        raise HTTPException(status_code=500, detail=f"GMS API call failed: {str(e)}")
+
+
 
 def tokenize_text_with_gms(text: str) -> List[str]:
     """
@@ -110,15 +210,13 @@ def tokenize_text_with_gms(text: str) -> List[str]:
 3. 마침표(.), 물음표(?), 느낌표(!)는 단어로 따로 분리하지 말고 해당 어절 끝에 그대로 붙여라.
 4. 쉼표(,)는 출력 구분자로만 사용하라.
 5. 입력 순서를 절대 변경하지 마라.
+6. 만약 마침표(.), 물음표(?), 느낌표(!)가 문장 중간에 나오면 그 다음 단어는 분리해라.
 예시:
 입력: 아이가 학교에 갑니다.
 출력: 아이가, 학교에, 갑니다.
-입력: 너 오늘 뭐 해?
-출력: 너, 오늘, 뭐, 해?
-문장:
+입력: 조금 걱정이에요. 괜찮을까요?
+문장: 조금, 걱정이에요., 괜찮을까요?
 {text}
-응답 형식:
-단어1, 단어2, 단어3, ...
 """
 
     # GMS API 호출
@@ -195,7 +293,7 @@ async def tokenize(request: TokenizeRequest):
 @app.post("/api/v1/pronunciation-guide", response_model=PronunciationGuideResponse)
 async def generate_pronunciation_guide(request: PronunciationGuideRequest):
     """
-    한국어 단어들을 실제 발음대로 표기한 가이드 생성
+    한국어 단어들을 실제 발음대로 표기한 가이드 생성 (RAG 기반)
 
     Parameters:
     - request: PronunciationGuideRequest (words 리스트)
@@ -207,46 +305,25 @@ async def generate_pronunciation_guide(request: PronunciationGuideRequest):
         raise HTTPException(status_code=400, detail="words list is required")
 
     try:
-        logger.info(f"Generating pronunciation guide for {len(request.words)} words")
+        logger.info(f"Generating pronunciation guide for {len(request.words)} words (RAG-based)")
 
-        # GMS API를 사용하여 발음 가이드 생성
-        words_str = ", ".join(request.words)
-        prompt = f"""당신은 한국어 선생님입니다.
-한국어가 어눌한 학습자들이 올바른 발음을 할 수 있도록 돕기 위해
-다음 한국어 단어들을 표준 발음 규칙에 따라 실제 발음대로 표기하세요.
-다음 음운 규칙을 적용하세요:
-1. 연음 (받침이 다음 글자로 이어지는 경우)
-2. 된소리되기
-철자 변형이 아닌 실제 발음 기준으로 작성하세요.
-숫자도 그대로 출력하지 말고 발음대로 작성하세요.
-예시:
-어떻게 → 어떠케
-국물 → 궁물
-학교에서 → 학교에서
-46 → 사십육
-입력 단어:
-{words_str}
-응답 형식:
-발음1, 발음2, 발음3, ...
-설명 없이 발음만 쉼표로 구분하여 출력하세요.
-"""
-
-        # GMS API 호출
-        response_text = call_gms_api(prompt)
-
-        # 응답 파싱: 쉼표로 구분된 발음 리스트 추출
-        pronunciation_guide = [p.strip() for p in response_text.split(",") if p.strip()]
-
-        # 단어 수가 일치하지 않으면 원본 그대로 반환
-        if len(pronunciation_guide) != len(request.words):
-            logger.warning(f"Pronunciation count mismatch. Using original words.")
-            pronunciation_guide = request.words
+        # RAG 시스템을 사용하여 발음 가이드 생성 (검색된 문서 정보 포함)
+        pronunciation_guide, referenced_docs = generate_pronunciation_with_rag(
+            words=request.words,
+            gms_api_call_func=call_gms_api_for_pronunciation
+        )
 
         logger.info(f"✓ Pronunciation guide generated: {pronunciation_guide}")
 
+        # 검색된 문서 정보를 ReferencedRule 모델로 변환
+        referenced_rules = [
+            ReferencedRule(**doc) for doc in referenced_docs
+        ] if referenced_docs else None
+
         return PronunciationGuideResponse(
             words=request.words,
-            pronunciation_guide=pronunciation_guide
+            pronunciation_guide=pronunciation_guide,
+            referenced_rules=referenced_rules
         )
 
     except Exception as e:
@@ -257,14 +334,13 @@ async def generate_pronunciation_guide(request: PronunciationGuideRequest):
         )
 
 
-# Main Entry Point
 
 if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 7000))
     uvicorn.run(
-        "gms:app",
+        "rag_gms:app",
         host="0.0.0.0",
         port=port,
         reload=False,
