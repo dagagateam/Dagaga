@@ -1,19 +1,24 @@
 .category-panel {
   position: relative;
-  width: 100vh; /* 110vh -> 85vh (축소) */
-  height: 100vh; /* 110vh -> 85vh (축소) */
+  width: 100vh;
+  /* 110vh -> 85vh (축소) */
+  height: 100vh;
+  /* 110vh -> 85vh (축소) */
   background-color: var(--main-orange);
   border-radius: 50%;
-  padding-left: 30vh; /* Account for the off-screen portion (-30vh) */
+  padding-left: 30vh;
+  /* Account for the off-screen portion (-30vh) */
   display: flex;
   flex-direction: column;
   gap: 1rem;
   color: white;
-  justify-content: center; /* Center vertically */
-  align-items: center; /* Robust horizontal centering in the visible area */
-  text-align: center; 
+  justify-content: center;
+  /* Center vertically */
+  align-items: center;
+  /* Robust horizontal centering in the visible area */
+  text-align: center;
   align-self: center;
-  margin-left: -30vh; 
+  margin-left: -30vh;
   box-shadow: 0.25rem 0 1.25rem rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
@@ -21,19 +26,25 @@
 .category-content {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center horizontally within this container */
+  align-items: flex-start;
+  /* Align content to the left */
   justify-content: center;
-  text-align: center;
+  text-align: left;
+  /* Change text alignment to left */
   width: 100%;
-  max-width: 400px; /* Constrain width for centering feel */
+  max-width: 440px;
+  /* Slightly increased for better layout */
+  padding-left: 2rem;
+  /* Add some padding from the visual edge */
 }
 
 .category-icon {
-  width: 2.5rem; /* Reduced size */
-  height: 2.5rem;
+  width: 3rem;
+  height: 3rem;
   display: flex;
   align-items: center;
-  justify-content: center; /* Reduced gap */
+  justify-content: center;
+  margin-bottom: 0.5rem;
 }
 
 .category-icon img {
@@ -44,35 +55,63 @@
 }
 
 .category-title {
-  font-size: 2rem; /* Reduced font size */
-  font-weight: 700;
-  margin: 0;
+  font-size: 3rem;
+  /* Increased size */
+  font-weight: 800;
+  margin: 0 0 0.8rem 0;
+  letter-spacing: -0.02em;
 }
 
 .category-tag {
   display: inline-block;
-  background-color: rgba(255, 255, 255, 0.3);
-  padding: 0.5rem 1.25rem;
-  border-radius: 1.25rem;
-  font-size: 1rem;
-  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.25);
+  padding: 0.6rem 1.8rem;
+  /* Increased padding */
+  border-radius: 2rem;
+  font-size: 1.2rem;
+  /* Increased size */
+  font-weight: 700;
   width: fit-content;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .category-items {
-  list-style: none;
-  padding: 0;
-  margin: 1.25rem 0 0 0;
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  align-items: center; /* Center list items */
+  gap: 1.5rem;
+  /* Increased gap */
+  align-items: flex-start !important;
+  /* Force left alignment */
+  width: 100%;
 }
 
-.category-items li {
-  font-size: 0.9375rem;
-  font-weight: 400;
+.category-item-li {
+  position: relative;
+  font-size: 1.2rem;
+  /* Significantly increased to 1.5rem */
+  font-weight: 500;
   line-height: 1.5;
+  padding-left: 0;
+  /* Remove padding for bullet */
+  color: rgba(255, 255, 255, 0.95);
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.category-item-li::before {
+  content: none !important;
+  /* Explicitly remove any prefix characters like dashes or dots */
+}
+
+.category-item-li:hover {
+  color: white;
+  transform: translateX(10px);
+  /* Slightly more shift on hover */
 }
 
 /* Responsive Breakpoints */
@@ -82,10 +121,11 @@
   .category-panel {
     width: 100vh;
     height: 100vh;
-    margin-left: -30vh; /* Adjust offset for smaller circle */
+    margin-left: -30vh;
+    /* Adjust offset for smaller circle */
     padding: 0 3rem;
   }
-  
+
   .category-title {
     font-size: 1.8rem;
   }
@@ -121,18 +161,21 @@
   }
 
   .category-content {
-    margin-left: 8rem; /* User manual adjustment */
+    margin-left: 8rem;
+    /* User manual adjustment */
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center; /* Centered internally */
+    align-items: center;
+    /* Centered internally */
     text-align: center;
     align-self: center;
     margin-right: 0;
   }
 
   .category-items {
-    align-items: center; /* Center list items for 768px too */
+    align-items: center;
+    /* Center list items for 768px too */
   }
 
   .category-title {

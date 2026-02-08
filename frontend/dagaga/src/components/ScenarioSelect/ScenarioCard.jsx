@@ -36,7 +36,7 @@ const ScenarioCard = ({ scenario, isSelected, onSelect }) => {
 
           <ul className="scenario-card-list">
             {(t(`scenario_items.${scenario.id}`, { returnObjects: true }) || scenario.items).map((item, index) => (
-              <li key={index}>-{item}</li>
+              <li key={index}>{item}</li>
             ))}
           </ul>
 
