@@ -73,6 +73,7 @@ public class ChatRoomService {
                 .title(room.getTitle())
                 .roomType(room.getRoomType())
                 .creatorNickname(creator.getNickname())
+                .creatorProfileImage(creator.getProfileImage())
                 .participantCount(participantCount)
                 .build();
     }
