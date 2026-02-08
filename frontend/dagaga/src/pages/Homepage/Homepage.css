@@ -33,7 +33,7 @@
   gap: 2rem;
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 3rem auto 0; /* Added top margin to move content down */
 }
 
 .hero-left {
@@ -43,6 +43,8 @@
   align-items: center;
   gap: 1rem;
   width: 100%;
+  margin-top: -5rem; /* Move slightly up */
+  margin-left: 1rem; /* Move slightly to the right */
 }
 
 .hero-tiger-mascot {
@@ -61,7 +63,7 @@
 }
 
 .hero-logo-img {
-  height: 45px; /* Default size for large screens, reduced from auto */
+  height: 60px; /* Increased size for better visibility */
   width: auto;
   transform: translateY(-4px); /* Vertical adjustment */
   margin-right: 15px; /* Space between logo and text */
@@ -72,23 +74,66 @@
   font-weight: 800;
   color: white;
   background: var(--main-orange);
-  padding: 0.5rem 1.5rem;
+  padding: 0.3rem 1.5rem 0.5rem; /* Slightly more bottom padding and balanced vertical space */
   border-radius: 1rem;
-  line-height: 1;
+  line-height: 1.2; /* Increased from 1 to prevent clipping descenders */
   display: inline-flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
   flex-wrap: nowrap; /* Override component's default wrap */
   min-width: 12.5rem;
+  margin-top: 1rem; /* Move slightly down */
+}
+
+/* Swap card text info below cards */
+.swap-card-info {
+  margin-top: 4rem; /* Adjusted space below the card stack */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center horizontally under boxes */
+  text-align: center;
+  width: 100%;
+  min-height: 100px;
+}
+
+.card-text-content {
+  animation: fadeIn 0.3s ease-in;
+  transform: skewY(6deg); /* Match the cards' skew amount */
+}
+
+.card-text-content h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.card-text-content p {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) skewY(6deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) skewY(6deg);
+  }
 }
 
 .hero-right {
-  height: 350px;
+  min-height: 450px;
   width: 100%;
   position: relative;
   display: flex;
-  justify-content: center;
+  flex-direction: column; /* Stack cards and text vertically */
+  align-items: center;
+  justify-content: flex-start;
 }
 
 @keyframes pulse-scale {
