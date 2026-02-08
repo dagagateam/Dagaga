@@ -60,35 +60,7 @@ const MyPage = () => {
         </Card.Body>
       </Card>
 
-      {/* Saved News Section */}
-      <div className="section-container mb-3">
-        <div className="section-title-wrapper mb-2">
-          <span className="section-badge">{t('saved_info_title')}</span>
-        </div>
-        <div className="saved-news-list-container">
-          <div className="saved-news-scroll">
-            {savedItems.length > 0 ? (
-              savedItems.map(news => (
-                <SavedNewsCard
-                  key={news.id}
-                  id={news.id}
-                  title={news.title}
-                  orgName={news.orgName}
-                  applicationPeriod={news.applicationPeriod}
-                  progressPeriod={news.progressPeriod}
-                  isExpired={news.isExpired}
-                  isLiked={likedPostIds.includes(news.id)} // Accessing reactive state
-                  isBookmarked={true} // Since it is in savedItems, it is bookmarked
-                  onToggleLike={() => toggleLike(news.id)}
-                  onToggleBookmark={() => toggleSave(news)}
-                />
-              ))
-            ) : (
-              <div className="p-3 text-muted">{t('no_saved_info')}</div>
-            )}
-          </div>
-        </div>
-      </div>
+
 
       {/* Bottom Grid */}
       <div>
