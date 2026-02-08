@@ -142,21 +142,17 @@ const resources = {
       "scenario_tag": "학습내용",
       "scenario_items": {
         "학업": [
-          "학교 적응도: 수업 태도, 교우 관계, 점심 시간 활동",
-          "가정 생활 습관: 수면, 식습관, 스마트폰 사용 규칙, 자기주도 학습",
-          "정서 및 심리: 사춘기 징후, 감정 표현, 고민 상담 여부",
-          "진로 및 지도: 아이의 꿈, 사교육 현황, 선생님께 바라는 점",
+          "수업 태도부터 교우 관계까지, 아이에 대해 이야기 하는 연습을 해요.",
+          "평소 아이가 가진 고민과 다양한 상황에 대해서 선생님과 깊이 있는 상담을 나눌 수 있도록 해요.",
+          "이제 학교 상담에 가더라도 하고 싶은 말을 조금 더 편하게 할 수 있을 거예요!"
         ],
         "자기소개": [
-          "기본 신상: 이름, 한국 체류 기간 정확히 말하기",
-          "언어 능력: 현재 한국어 실력 솔직하게 표현하기",
-          "마인드셋: 꾸준한 학습 의지와 자신감(\"할 수 있다\") 드러내기",
+          "자신을 처음 소개할 때 필요한 기본적인 정보와 함께 자신의 언어 능력을 정확히 전달해요.",
+          "배우고자 하는 긍정적인 마음가짐을 드러내어 좋은 첫인상을 남기는 데 집중 해봐요.",
         ],
         "의료": [
-          "증상 상세 묘사: 발병 시기, 통증 강도(1~10), 증상 변화 추이",
-          "병력 및 알레르기: 과거 유사 경험, 가족력, 약물/음식 알레르기",
-          "약물 점검: 현재 복용 중인 약, 과거 부작용 경험, 제형(가루/알약) 선호",
-          "복용 지도: 식후 복용 여부, 보관 방법, 항생제 주의사항"
+          "아이가 언제부터 어디가 얼마나 아픈지 구체적으로 설명할 수 있는 능력을 키워요.",
+          "병원, 약국 등에서 사용할 수 있는 실생활 회화를 연습해요."
         ]
       },
       "scenario_problems": {
@@ -644,21 +640,17 @@ const resources = {
       "scenario_tag": "Nội dung học tập",
       "scenario_items": {
         "학업": [
-          "Thích nghi với trường lớp & Quan hệ bạn bè",
-          "Thái độ học tập & Thói quen sinh hoạt",
-          "Trạng thái cảm xúc & Dấu hiệu dậy thì",
-          "Nguyện vọng nghề nghiệp & Lưu ý cho giáo viên"
+          "Luyện tập thảo luận về trẻ, từ thái độ trong lớp học đến các mối quan hệ bạn bè.",
+          "Hỗ trợ trao đổi sâu hơn với giáo viên về những lo lắng và tình huống khác nhau của trẻ.",
+          "Bây giờ, ngay cả khi đến trường tư vấn, bạn sẽ cảm thấy thoải mái hơn khi nói ra những điều mình muốn!"
         ],
         "자기소개": [
-          "Thông tin cá nhân cơ bản",
-          "Trình độ tiếng Hàn hiện tại",
-          "Thể hiện quyết tâm & Sự tự tin"
+          "Truyền đạt thông tin cơ bản cần thiết khi giới thiệu bản thân lần đầu cùng với khả năng ngôn ngữ của chính mình.",
+          "Tập trung tạo ấn tượng tốt ban đầu bằng cách thể hiện thái độ học hỏi tích cực."
         ],
         "의료": [
-          "Thời điểm phát bệnh & Mô tả cơn đau",
-          "Tiền sử bệnh & Dị ứng",
-          "Thuốc đang dùng & Tác dụng phụ",
-          "Cách dùng thuốc & Lưu ý",
+          "Phát triển khả năng giải thích cụ thể về việc trẻ bị đau từ khi nào, đau ở đâu và đau như thế nào.",
+          "Luyện tập các đoạn hội thoại thực tế có thể sử dụng tại bệnh viện, nhà thuốc, v.v."
         ]
       },
       "scenario_problems": {

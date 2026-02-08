@@ -20,7 +20,7 @@ const CategoryPanel = ({ scenario }) => {
         <span className="category-tag">{t('scenario_tag')}</span>
         <ul className="category-items">
           {(t(`scenario_items.${scenario.id}`, { returnObjects: true }) || scenario.items).map((item, index) => (
-            <li key={index}>-{item}</li>
+            <li key={index} className="category-item-li">{item}</li>
           ))}
         </ul>
       </div>

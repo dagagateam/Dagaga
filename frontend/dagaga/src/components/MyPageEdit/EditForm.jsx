@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Row, Col, Form, InputGroup } from "react-bootstrap";
 import RegionSelect from "../common/RegionSelect.jsx";
 import PasswordToggleButton from "../common/PasswordToggleButton";
+import ArrivalDateInput from "../common/ArrivalDateInput";
 import { useTranslation } from "react-i18next";
 import "../../pages/MyPageEdit/MyPageEdit.css";
 
@@ -140,18 +141,11 @@ const EditForm = ({
 
       {/* Entry Date */}
       <Col md={6}>
-        <Form.Group>
-          <Form.Label className="fw-semibold text-muted">
-            {t('entry_date')}
-          </Form.Label>
-          <Form.Control
-            type="date"
-            name="entryDate"
-            value={formData.entryDate}
-            onChange={handleChange}
-            className="rounded-3 bg-light border-0 py-2"
-          />
-        </Form.Group>
+        <ArrivalDateInput
+          name="entryDate"
+          value={formData.entryDate}
+          onChange={handleChange}
+        />
       </Col>
     </Row>
   );
