@@ -19,11 +19,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,8 +47,8 @@ public class LearningController {
         private final QuestionService questionService;
         private final CurrentUser currentUser;
 
-        @Value("${gms.api.url}")
-        private String gmsApiUrl;
+        @Value("${gemini.api.url}")
+        private String geminiApiUrl;
 
         // swagger check
         @ApiResponses(value = {
@@ -93,11 +91,11 @@ public class LearningController {
                         var response = translateService.translateAudioFile(fileData);
                         String translatedText = response.getTranslatedText();
 
-                        // GMS API를 호출하여 번역된 텍스트를 단어 단위로 분리
-                        List<String> words = callGmsTokenizeApi(translatedText);
+                        // Gemini API를 호출하여 번역된 텍스트를 단어 단위로 분리
+                        List<String> words = callGeminiTokenizeApi(translatedText);
 
-                        // GMS API를 호출하여 발음 가이드 생성
-                        List<String> pronunciationGuide = callGmsPronunciationGuideApi(words);
+                        // Gemini API를 호출하여 발음 가이드 생성
+                        List<String> pronunciationGuide = callGeminiPronunciationGuideApi(words);
 
                         // 번역 텍스트, 단어 리스트, 발음 가이드 반환
                         TranslateResultDto result = TranslateResultDto.builder()
@@ -114,11 +112,11 @@ public class LearningController {
         }
 
         /**
-         * GMS API를 호출하여 텍스트를 단어 단위로 분리
+         * Gemini API를 호출하여 텍스트를 단어 단위로 분리
          */
-        private List<String> callGmsTokenizeApi(String text) {
+        private List<String> callGeminiTokenizeApi(String text) {
                 try {
-                        String apiUrl = gmsApiUrl + "/api/v1/tokenize";
+                        String apiUrl = geminiApiUrl + "/api/v1/tokenize";
 
                         // 요청 본문 생성
                         Map<String, String> requestBody = new HashMap<>();
@@ -129,38 +127,36 @@ public class LearningController {
 
                         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-                        // RestTemplate으로 GMS API 호출
+                        // RestTemplate으로 Gemini API 호출
                         RestTemplate restTemplate = new RestTemplate();
-                        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                                        apiUrl,
-                                        HttpMethod.POST,
-                                        requestEntity,
-                                        new ParameterizedTypeReference<Map<String, Object>>() {
-                                        });
+                        ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, requestEntity,
+                                        Map.class);
 
-                        // 응답에서 words 추출
-                        Map<String, Object> responseBody = response.getBody();
-                        if (responseBody != null && responseBody.containsKey("words")) {
-                                @SuppressWarnings("unchecked")
-                                List<String> words = (List<String>) responseBody.get("words");
-                                log.info("GMS tokenization completed: {} words", words.size());
-                                return words;
+                        if (response.getStatusCode() == HttpStatus.OK
+                                        && response.getBody() != null) {
+                                Map<String, Object> responseBody = response.getBody();
+                                if (responseBody.containsKey("words")) {
+                                        @SuppressWarnings("unchecked")
+                                        List<String> words = (List<String>) responseBody.get("words");
+                                        log.info("Gemini tokenization completed: {} words", words.size());
+                                        return words;
+                                }
                         }
 
                         return Collections.emptyList();
                 } catch (Exception e) {
-                        log.error("GMS API call failed: {}", e.getMessage());
-                        // GMS API 실패 시 빈 리스트 반환
+                        log.error("Gemini API call failed: {}", e.getMessage());
+                        // Gemini API 실패 시 빈 리스트 반환
                         return Collections.emptyList();
                 }
         }
 
         /**
-         * GMS API를 호출하여 발음 가이드 생성
+         * Gemini API를 호출하여 발음 가이드 생성
          */
-        private List<String> callGmsPronunciationGuideApi(List<String> words) {
+        private List<String> callGeminiPronunciationGuideApi(List<String> words) {
                 try {
-                        String apiUrl = gmsApiUrl + "/api/v1/pronunciation-guide";
+                        String apiUrl = geminiApiUrl + "/api/v1/pronunciation-guide";
 
                         // 요청 본문 생성
                         Map<String, Object> requestBody = new HashMap<>();
@@ -171,31 +167,29 @@ public class LearningController {
 
                         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-                        // RestTemplate으로 GMS API 호출
+                        // RestTemplate으로 Gemini API 호출
                         RestTemplate restTemplate = new RestTemplate();
-                        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                                        apiUrl,
-                                        HttpMethod.POST,
-                                        requestEntity,
-                                        new ParameterizedTypeReference<Map<String, Object>>() {
-                                        });
+                        ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, requestEntity,
+                                        Map.class);
 
-                        // 응답에서 pronunciation_guide 추출
-                        Map<String, Object> responseBody = response.getBody();
-                        if (responseBody != null && responseBody.containsKey("pronunciation_guide")) {
-                                @SuppressWarnings("unchecked")
-                                List<String> pronunciationGuide = (List<String>) responseBody
-                                                .get("pronunciation_guide");
-                                log.info("GMS pronunciation guide completed: {} pronunciations",
-                                                pronunciationGuide.size());
-                                return pronunciationGuide;
+                        if (response.getStatusCode() == HttpStatus.OK
+                                        && response.getBody() != null) {
+                                Map<String, Object> responseBody = response.getBody();
+                                if (responseBody.containsKey("pronunciation_guide")) {
+                                        @SuppressWarnings("unchecked")
+                                        List<String> pronunciationGuide = (List<String>) responseBody
+                                                        .get("pronunciation_guide");
+                                        log.info("Gemini pronunciation guide completed: {} pronunciations",
+                                                        pronunciationGuide.size());
+                                        return pronunciationGuide;
+                                }
                         }
 
                         // 실패 시 원본 단어 그대로 반환
                         return words;
                 } catch (Exception e) {
-                        log.error("GMS pronunciation guide API call failed: {}", e.getMessage());
-                        // GMS API 실패 시 원본 단어 그대로 반환
+                        log.error("Gemini pronunciation guide API call failed: {}", e.getMessage());
+                        // Gemini API 실패 시 원본 단어 그대로 반환
                         return words;
                 }
         }
@@ -233,9 +227,11 @@ public class LearningController {
                         @Parameter(description = "카테고리명 (예: 자기소개, 학업, 의료)", required = true) @PathVariable String categoryId,
                         @Parameter(description = "질문 순서 (1부터 시작)", required = true) @PathVariable Integer orderIndex) {
                 String nativeLangCode = currentUser.getNativeLangCode();
-                log.info("Fetching native question text for category: {}, order: {}, NativeCode: {}", categoryId, orderIndex, nativeLangCode);
+                log.info("Fetching native question text for category: {}, order: {}, NativeCode: {}", categoryId,
+                                orderIndex, nativeLangCode);
 
-                NativeQuestionResponse response = questionService.getQuestionForNativeMode(categoryId, orderIndex, nativeLangCode);
+                NativeQuestionResponse response = questionService.getQuestionForNativeMode(categoryId, orderIndex,
+                                nativeLangCode);
 
                 return ResponseEntity.ok(ApiResponse.success(
                                 "질문 조회 성공",
@@ -261,10 +257,10 @@ public class LearningController {
                 QuestionWithExampleResponse originalResponse = questionService.getQuestionWithExample(categoryId,
                                 orderIndex, nativeLangCode);
 
-                // GMS API를 통해 단어 분리 및 발음 가이드 생성
+                // Gemini API를 통해 단어 분리 및 발음 가이드 생성
                 String exampleAnswer = originalResponse.getExampleAnswer();
-                List<String> words = callGmsTokenizeApi(exampleAnswer);
-                List<String> pronunciationGuide = callGmsPronunciationGuideApi(words);
+                List<String> words = callGeminiTokenizeApi(exampleAnswer);
+                List<String> pronunciationGuide = callGeminiPronunciationGuideApi(words);
 
                 // 새로운 응답 객체 생성 (빌더 패턴 사용)
                 QuestionWithExampleResponse enhancedResponse = QuestionWithExampleResponse.builder()

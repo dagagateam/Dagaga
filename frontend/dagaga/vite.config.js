@@ -17,7 +17,7 @@ export default defineConfig({
     // 프로덕션: nginx.conf가 같은 Docker 네트워크 내 백엔드 컨테이너로 프록시
     proxy: {
       '/api': {
-        target: 'https://i14b110.p.ssafy.io',
+        target: 'https://i14b110.p.example.io',
         // target: 'http://ec2-13-125-219-161.ap-northeast-2.compute.amazonaws.com/',
         changeOrigin: true,
         secure: false,
@@ -25,12 +25,12 @@ export default defineConfig({
         rewrite: (path) => path,
       },
       '/oauth2': {
-        target: 'https://i14b110.p.ssafy.io',
+        target: 'https://i14b110.p.example.io',
         changeOrigin: true,
         secure: false,
       },
       '/login/oauth2': {
-        target: 'https://i14b110.p.ssafy.io',
+        target: 'https://i14b110.p.example.io',
         changeOrigin: true,
         secure: false,
       },

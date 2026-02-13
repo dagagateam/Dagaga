@@ -166,7 +166,7 @@ const CommunityChatRoom = () => {
 
         // 백엔드 URL 결정 (환경 변수 또는 기본값)
         // 로컬 테스트 시 .env에 VITE_BACKEND_URL=http://localhost:8080 추가 권장
-        const baseURL = import.meta.env.VITE_BACKEND_URL || 'https://i14b110.p.ssafy.io';
+        const baseURL = import.meta.env.VITE_BACKEND_URL || 'https://i14b110.p.example.io';
         const wsURL = baseURL.replace(/^http/, 'ws') + '/ws-chat';
 
         // console.log('Connecting to WebSocket URL:', wsURL);

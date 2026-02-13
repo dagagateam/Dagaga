@@ -6,14 +6,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements_gms.txt .
-RUN pip install --no-cache-dir -r requirements_gms.txt
+COPY requirements_api.txt .
+RUN pip install --no-cache-dir -r requirements_api.txt
 
-COPY gms.py .
+COPY api.py .
 COPY .env .
 
 # Expose port
 EXPOSE 4000
 
 # Run application
-CMD ["uvicorn", "gms:app", "--host", "0.0.0.0", "--port", "4000"]
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "4000"]

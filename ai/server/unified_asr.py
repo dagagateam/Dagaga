@@ -177,7 +177,7 @@ async def translate_text(text: str, source_lang: str, target_lang: str = "ko") -
         translation_api_url = os.getenv("TRANSLATION_API_URL")
         
         if not translation_api_key:
-            logger.warning("GMS API 키 값이 잘 못 설정되었습니다. 구글 번역 API 사용")
+            logger.warning("Gemini API 키 값이 잘 못 설정되었습니다. 구글 번역 API 사용")
             # Fallback to Google Translator
             from deep_translator import GoogleTranslator
             lang_map = {
