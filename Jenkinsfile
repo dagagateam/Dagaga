@@ -87,14 +87,14 @@ pipeline {
     post {
         success {
             sh """
-                curl -X POST https://meeting.ssafy.com/hooks/7w6wbucw8pdoirpdfpras3xyja \
+                curl -X POST https://meeting.example.com/hooks/7w6wbucw8pdoirpdfpras3xyja \
                   -H 'Content-Type: application/json' \
                   -d '{"text": "✅ Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}"}'
             """
         }
         failure {
             sh """
-                curl -X POST https://meeting.ssafy.com/hooks/7w6wbucw8pdoirpdfpras3xyja \
+                curl -X POST https://meeting.example.com/hooks/7w6wbucw8pdoirpdfpras3xyja \
                   -H 'Content-Type: application/json' \
                   -d '{"text": "❌ Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}"}'
             """

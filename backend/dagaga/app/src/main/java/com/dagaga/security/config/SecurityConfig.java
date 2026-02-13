@@ -82,20 +82,23 @@ public class SecurityConfig {
                                                 .xssProtection(xss -> xss
                                                                 .headerValue(org.springframework.security.web.header.writers.XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
                                                 // Content-Type Options - MIME 타입 스니핑 방지
-                                                .contentTypeOptions(contentType -> {})
+                                                .contentTypeOptions(contentType -> {
+                                                })
                                                 // Frame Options - Clickjacking 공격 방지
                                                 .frameOptions(frame -> frame.deny())
                                                 // Content Security Policy - 허용된 리소스만 로드
                                                 .contentSecurityPolicy(csp -> csp
                                                                 .policyDirectives(
                                                                                 "default-src 'self'; " +
-                                                                                "script-src 'self' 'unsafe-inline' https://accounts.google.com; " +
-                                                                                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-                                                                                "font-src 'self' https://fonts.gstatic.com; " +
-                                                                                "img-src 'self' data: https:; " +
-                                                                                "connect-src 'self' https://gms.ssafy.io;"
-                                                                ))
-                                )
+                                                                                                "script-src 'self' 'unsafe-inline' https://accounts.google.com; "
+                                                                                                +
+                                                                                                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+                                                                                                +
+                                                                                                "font-src 'self' https://fonts.gstatic.com; "
+                                                                                                +
+                                                                                                "img-src 'self' data: https:; "
+                                                                                                +
+                                                                                                "connect-src 'self' https://api.example.io;")))
 
                                 // OAuth2 로그인 설정 추가
                                 .oauth2Login(oauth2 -> oauth2
@@ -117,9 +120,9 @@ public class SecurityConfig {
                 CorsConfiguration configuration = new CorsConfiguration();
                 // 보안 감사 조치: 와일드카드(*) 제거 및 명시적 도메인 허용
                 configuration.setAllowedOriginPatterns(Arrays.asList(
-                        "https://i14b110.p.ssafy.io", // 배포 환경
-                        "http://localhost:5173",      // 로컬 개발 (Vite)
-                        "http://localhost:3000"       // 로컬 개발 (React/Next)
+                                "https://i14b110.p.example.io", // 배포 환경
+                                "http://localhost:5173", // 로컬 개발 (Vite)
+                                "http://localhost:3000" // 로컬 개발 (React/Next)
                 ));
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("*"));

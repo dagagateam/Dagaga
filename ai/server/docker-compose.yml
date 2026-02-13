@@ -1,12 +1,12 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  rag-gms-service:
+  rag-api-service:
     build:
-      context: ..  # ai/ 폴더를 빌드 컨텍스트로
-      dockerfile: server/Dockerfile.rag_gms
-    image: gadada-rag-gms:latest
-    container_name: gadada-rag-gms
+      context: .. # ai/ 폴더를 빌드 컨텍스트로
+      dockerfile: server/Dockerfile.rag_api
+    image: gadada-rag-api:latest
+    container_name: gadada-rag-api
     ports:
       - "3000:3000"
     env_file:
@@ -24,7 +24,7 @@ services:
 
   asr-service:
     build:
-      context: ..  # ai/ 폴더 빌드 컨텍스트
+      context: .. # ai/ 폴더 빌드 컨텍스트
       dockerfile: server/Dockerfile.unified_asr
     image: gadada-asr:latest
     container_name: gadada-asr
@@ -33,7 +33,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ../finetuned:/app/finetuned  # 모델 볼륨 마운트
+      - ../finetuned:/app/finetuned # 모델 볼륨 마운트
     deploy:
       resources:
         reservations:

@@ -28,15 +28,15 @@ def print_warning(msg):
 def test_rag_system():
     """RAG 시스템 전체 테스트"""
     print("\n" + "="*60)
-    print("ChromaDB + GMS Embedding 테스트 시작")
+    print("ChromaDB + Gemini Embedding 테스트 시작")
     print("="*60 + "\n")
     
     print_info("1. 환경 변수 확인 중...")
-    gms_api_key = os.getenv("GMS_API_KEY")
-    if not gms_api_key:
-        print_error("GMS_API_KEY가 설정되지 않았습니다")
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
+    if not gemini_api_key:
+        print_error("GEMINI_API_KEY가 설정되지 않았습니다")
         return False
-    print_success(f"GMS_API_KEY 확인됨 (길이: {len(gms_api_key)})")
+    print_success(f"GEMINI_API_KEY 확인됨 (길이: {len(gemini_api_key)})")
     
     # ChromaDB 디렉토리 확인
     print_info("\n2. ChromaDB 디렉토리 확인 중...")
