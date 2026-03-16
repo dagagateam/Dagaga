@@ -3,7 +3,7 @@ plugins {
     id 'java-library'
 //    id 'org.springframework.boot' version '4.0.2' apply false
 //    id 'io.spring.dependency-management' version '1.1.7' apply false
-    // 버전을 3.4.2 (혹은 현재 SSAFY에서 사용 중인 3.x 버전)로 변경
+    // 버전을 3.4.2 (혹은 현재 사용 중인 3.x 버전)로 변경
     id 'org.springframework.boot' version '3.4.2' apply false
     id 'io.spring.dependency-management' version '1.1.7' apply false
 }

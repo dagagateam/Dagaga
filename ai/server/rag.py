@@ -40,16 +40,16 @@ async def lifespan(app: FastAPI):
 
 # FastAPI 앱 생성 (lifespan 적용)
 app = FastAPI(
-    title="GMS Word Tokenizer API",
-    description="GMS API를 사용한 단어 분리 및 RAG 기반 발음 가이드 서비스",
+    title="Word Tokenizer API",
+    description="API를 사용한 단어 분리 및 RAG 기반 발음 가이드 서비스",
     version="2.0.0",
     lifespan=lifespan
 )
 
-# GMS API 설정
-GMS_API_KEY = os.getenv("GMS_API_KEY")
-GMS_API_URL = os.getenv("GMS_API_URL")
-GMS_MODEL = os.getenv("GMS_MODEL")
+# Gemini API 설정
+GEMINI_API_KEY = 
+GEMINI_API_URL = 
+GEMINI_MODEL = 
 
 
 # Pydantic Models
@@ -88,17 +88,18 @@ class PronunciationGuideResponse(BaseModel):
     referenced_rules: Optional[List[ReferencedRule]] = None
 
 
-# GMS API 호출
+# Gemini API 호출
 
-def call_gms_api(prompt: str) -> str:
-    """일반 GMS API 호출 (단어 분리 등)"""
+def call_gemini_api(prompt: str) -> str:
+    """일반 Gemini API 호출 (단어 분리 등)"""
+    
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {GMS_API_KEY}"
+        "Authorization": f"Bearer {GEMINI_API_KEY}"
     }
 
     payload = {
-        "model": GMS_MODEL,
+        "model": GEMINI_MODEL,
         "messages": [
             {
                 "role": "developer",  
@@ -114,35 +115,36 @@ def call_gms_api(prompt: str) -> str:
     }
 
     try:
-        logger.info("Calling GMS API model=%s", GMS_MODEL)
-        response = requests.post(GMS_API_URL, headers=headers, json=payload, timeout=30)
-
-        if response.status_code >= 400:
-            logger.error("GMS error status=%s body=%s", response.status_code, response.text)
-            raise HTTPException(status_code=500, detail=f"GMS API error: {response.text}")
+        logger.info("Calling Gemini API model=%s", GEMINI_MODEL)
+        response = requests.post(GEMINI_API_URL, headers=headers, json=payload, timeout=30)
+        
+        if response.status_code != 200:
+            logger.error("Gemini error status=%s body=%s", response.status_code, response.text)
+            raise HTTPException(status_code=500, detail=f"Gemini API error: {response.text}")
 
         result = response.json()
         answer = result["choices"][0]["message"]["content"]
-        logger.info("GMS API response: %s", answer)
+        logger.info("Gemini API response: %s", answer)
         return answer
 
     except requests.exceptions.RequestException as e:
-        logger.error("GMS API call failed: %s", e)
-        raise HTTPException(status_code=500, detail=f"GMS API call failed: {str(e)}")
+        logger.error("Gemini API call failed: %s", e)
+        raise HTTPException(status_code=500, detail=f"Gemini API call failed: {str(e)}")
 
 
-def call_gms_api_for_pronunciation(prompt: str) -> str:
-    """발음 가이드 생성 전용 GMS API 호출 (Gemini API 형식 사용)"""
+
+def call_gemini_api_for_pronunciation(prompt: str) -> str:
+    """발음 가이드 생성 전용 Gemini API 호출 (Gemini API 형식 사용)"""
     
     # Gemini 2.5 Flash 모델 사용
     model = "gemini-2.5-flash"
     
     # Gemini API 엔드포인트 구성
-    gemini_url = f"https://gms.ssafy.io/gmsapi/generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    gemini_url = f"https://api.example.io/apigateway/generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     
     headers = {
         "Content-Type": "application/json",
-        "x-goog-api-key": GMS_API_KEY
+        "x-goog-api-key": GEMINI_API_KEY
     }
     
     # Gemini API 형식 페이로드
@@ -163,12 +165,12 @@ def call_gms_api_for_pronunciation(prompt: str) -> str:
     }
 
     try:
-        logger.info(f"Calling GMS API for pronunciation guide, model={model}")
+        logger.info(f"Calling Gemini API for pronunciation guide, model={model}")
         response = requests.post(gemini_url, headers=headers, json=payload, timeout=30)
 
         if response.status_code >= 400:
-            logger.error(f"GMS error status={response.status_code} body={response.text}")
-            raise HTTPException(status_code=500, detail=f"GMS API error: {response.text}")
+            logger.error(f"Gemini error status={response.status_code} body={response.text}")
+            raise HTTPException(status_code=500, detail=f"Gemini API error: {response.text}")
 
         result = response.json()
         
@@ -180,22 +182,22 @@ def call_gms_api_for_pronunciation(prompt: str) -> str:
                 parts = candidate["content"]["parts"]
                 if len(parts) > 0 and "text" in parts[0]:
                     answer = parts[0]["text"]
-                    logger.info(f"GMS API response: {answer}")
+                    logger.info(f"Gemini API response: {answer}")
                     return answer
         
         # 파싱 실패 시
         logger.error(f"Unexpected response format: {result}")
-        raise HTTPException(status_code=500, detail="Failed to parse GMS API response")
+        raise HTTPException(status_code=500, detail="Failed to parse Gemini API response")
 
     except requests.exceptions.RequestException as e:
-        logger.error(f"GMS API call failed: {e}")
-        raise HTTPException(status_code=500, detail=f"GMS API call failed: {str(e)}")
+        logger.error(f"Gemini API call failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Gemini API call failed: {str(e)}")
 
 
 
-def tokenize_text_with_gms(text: str) -> List[str]:
+def tokenize_text_with_gemini(text: str) -> List[str]:
     """
-    GMS API를 사용하여 텍스트를 단어 단위로 분리
+    Gemini API를 사용하여 텍스트를 단어 단위로 분리
 
     Parameters:
     - text: 분리할 텍스트 
@@ -219,8 +221,8 @@ def tokenize_text_with_gms(text: str) -> List[str]:
 {text}
 """
 
-    # GMS API 호출
-    response_text = call_gms_api(prompt)
+    # Gemini API 호출
+    response_text = call_gemini_api(prompt)
 
     # 응답 파싱: 쉼표로 구분된 단어 리스트 추출
     words = [word.strip() for word in response_text.split(",") if word.strip()]
@@ -234,7 +236,7 @@ def tokenize_text_with_gms(text: str) -> List[str]:
 async def root():
     """루트 엔드포인트"""
     return {
-        "service": "GMS Word Tokenizer API",
+        "service": "Word Tokenizer API",
         "version": "1.0.0",
         "status": "running",
         "endpoints": {
@@ -249,8 +251,8 @@ async def health_check():
     """헬스 체크"""
     return {
         "status": "healthy",
-        "gms_api_url": GMS_API_URL,
-        "model": GMS_MODEL
+        "gemini_api_url": GEMINI_API_URL,
+        "model": GEMINI_MODEL
     }
 
 
@@ -271,8 +273,8 @@ async def tokenize(request: TokenizeRequest):
     try:
         logger.info(f"Tokenizing text: '{request.text}'")
 
-        # GMS API를 사용하여 단어 분리
-        words = tokenize_text_with_gms(request.text)
+        # Gemini API를 사용하여 단어 분리
+        words = tokenize_text_with_gemini(request.text)
 
         logger.info(f"✓ Tokenization completed: {len(words)} words")
 
@@ -310,7 +312,7 @@ async def generate_pronunciation_guide(request: PronunciationGuideRequest):
         # RAG 시스템을 사용하여 발음 가이드 생성 (검색된 문서 정보 포함)
         pronunciation_guide, referenced_docs = generate_pronunciation_with_rag(
             words=request.words,
-            gms_api_call_func=call_gms_api_for_pronunciation
+            gemini_api_call_func=call_gemini_api
         )
 
         logger.info(f"✓ Pronunciation guide generated: {pronunciation_guide}")
@@ -340,7 +342,7 @@ if __name__ == "__main__":
 
     port = int(os.getenv("PORT", 7000))
     uvicorn.run(
-        "rag_gms:app",
+        "rag_api:app",
         host="0.0.0.0",
         port=port,
         reload=False,

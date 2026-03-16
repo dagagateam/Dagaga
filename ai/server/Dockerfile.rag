@@ -9,11 +9,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Requirements 복사 및 설치
-COPY server/requirements_rag_gms.txt .
-RUN pip install --no-cache-dir -r requirements_rag_gms.txt
+COPY server/requirements_rag_api.txt .
+RUN pip install --no-cache-dir -r requirements_rag_api.txt
 
 # 애플리케이션 파일 복사
-COPY server/rag_gms.py .
+COPY server/rag_api.py .
 COPY server/rag_pronuniation.py ./rag_pronunciation.py
 COPY server/.env .
 
@@ -31,4 +31,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 EXPOSE 3000
 
 # 서버 실행
-CMD ["uvicorn", "rag_gms:app", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["uvicorn", "rag_api:app", "--host", "0.0.0.0", "--port", "3000"]

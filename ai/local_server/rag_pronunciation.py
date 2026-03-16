@@ -80,17 +80,17 @@ PHENOMENON_PATTERNS = {
 }
 
 
-class GMSEmbeddings(Embeddings):
+class GeminiEmbeddings(Embeddings):
     """
-    GMS (SSAFY Proxy) 전용 임베딩 클래스
-    Reference: https://gms.ssafy.io/gmsapi/generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
+    Gemini (Example Proxy) 전용 임베딩 클래스
+    Reference: https://api.example.io/apigateway/generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent
     """
     def __init__(self, api_key: str, model_name: str = "models/gemini-embedding-001"):
         self.api_key = api_key
         self.model_name = model_name
-        base_url = os.getenv("GMS_EMBEDDING_API_URL")
+        base_url = os.getenv("GEMINI_EMBEDDING_API_URL")
         if not base_url:
-            base_url = "https://gms.ssafy.io/gmsapi/generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent"
+            base_url = "https://api.example.io/apigateway/generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent"
         self.api_url = base_url
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
@@ -126,7 +126,7 @@ class GMSEmbeddings(Embeddings):
                 raise ValueError(f"Unexpected response format: {data}")
 
         except Exception as e:
-            logger.error(f"GMS Embedding failed: {e}")
+            logger.error(f"Gemini Embedding failed: {e}")
             raise
 
 # 텍스트 추출 정규화
@@ -261,18 +261,18 @@ def initialize_rag_system():
     if not os.path.exists(KOREAN_GUIDE_PDF):
         raise FileNotFoundError(f"Korean guide PDF not found: {KOREAN_GUIDE_PDF}")
 
-    google_api_key = os.getenv("GMS_API_KEY")
+    google_api_key = os.getenv("GEMINI_API_KEY")
     if not google_api_key:
-        raise ValueError("GMS_API_KEY not found in environment variables")
+        raise ValueError("GEMINI_API_KEY not found in environment variables")
 
-    embeddings = GMSEmbeddings(
+    embeddings = GeminiEmbeddings(
         api_key=google_api_key,
         model_name="models/gemini-embedding-001"
     )
 
     # 임베딩 모델 변경 감지를 위한 마커 파일
     embedding_marker_file = os.path.join(CHROMA_DB_DIR, ".embedding_model")
-    current_model_marker = "GMSEmbeddings:gemini-embedding-001"
+    current_model_marker = "GeminiEmbeddings:gemini-embedding-001"
     
     # 기존 벡터 스토어가 있는지 확인
     needs_recreation = False
@@ -288,7 +288,7 @@ def initialize_rag_system():
         else:
             # 마커 파일이 없으면 구 버전 (GoogleGenerativeAIEmbeddings)
             logger.warning("Old embedding model detected (no marker file)")
-            logger.warning("Recreating vector store with GMS embeddings...")
+            logger.warning("Recreating vector store with Gemini embeddings...")
             needs_recreation = True
         
         if needs_recreation:
@@ -377,7 +377,7 @@ def get_relevant_pronunciation_rules(words: List[str]) -> str:
     return context
 
 # RAG 가이드라인 생성
-def generate_pronunciation_with_rag(words: List[str], gms_api_call_func) -> List[str]:
+def generate_pronunciation_with_rag(words: List[str], gemini_api_call_func) -> List[str]:
     global _vector_store, _initialized
     if not _initialized or _vector_store is None:
         raise RuntimeError("RAG system not initialized. Call initialize_rag_system() first.")
@@ -451,8 +451,8 @@ def generate_pronunciation_with_rag(words: List[str], gms_api_call_func) -> List
 입력: {words_str}
 출력:"""
     
-    response = gms_api_call_func(prompt)
-    logger.info(f"GMS raw response: {response}")
+    response = gemini_api_call_func(prompt)
+    logger.info(f"Gemini raw response: {response}")
     
     # 3. 응답 파싱 (개선된 로직)
     pronunciation_guide = []
